@@ -1,241 +1,33 @@
 "use client";
-
-import { motion, useScroll, useTransform, useSpring, useMotionValue } from "framer-motion";
-import { useRef, useEffect, useState } from "react";
-import Image from "next/image";
+import { motion, useInView, AnimatePresence } from "framer-motion";
+import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import { Play, Pause, Mic2, Radio, Headphones, Activity, ArrowRight, Menu, Search, Zap, Layers, Compass } from "lucide-react";
+import { Mic, Headphones, Play, Menu, X, Star, CheckCircle2, Radio, Volume2, Clock } from "lucide-react";
 import "../premium.css";
+const EPS=[{t:"The AI Safety Paradox",g:"Dr. Sarah Chen",d:"42 min"},{t:"Building in Public",g:"Marcus Rivera",d:"38 min"},{t:"Quantum Computing 2026",g:"Prof. Yuki Tanaka",d:"55 min"},{t:"Open Source Economics",g:"Emma Larsson",d:"44 min"}];
+const FEAT=[{icon:<Mic className="w-6 h-6"/>,t:"Weekly Episodes",d:"New deep-dive conversations every Thursday morning."},{icon:<Headphones className="w-6 h-6"/>,t:"Ad-Free Listening",d:"Premium subscribers get zero interruptions."},{icon:<Radio className="w-6 h-6"/>,t:"Live Q&A Sessions",d:"Monthly live recordings with audience participation."},{icon:<Volume2 className="w-6 h-6"/>,t:"Exclusive Bonus",d:"Extended interviews and behind-the-scenes content."},{icon:<Clock className="w-6 h-6"/>,t:"Full Archive",d:"Access 200+ episodes from our complete back catalog."},{icon:<Play className="w-6 h-6"/>,t:"Multi-Platform",d:"Available on Spotify, Apple, YouTube, and RSS."}];
+const TM=[{n:"Alex Kim",r:"Tech Lead",q:"Essential Podcast is my go-to for staying sharp on emerging tech."},{n:"Maria Santos",r:"Founder",q:"The depth of conversation here is unmatched. Every episode teaches me something."},{n:"David Park",r:"Developer",q:"I've listened to every episode twice. The quantum computing series was incredible."}];
+const PR=[{n:"FREE",p:"$0",pd:"/mo",f:["Weekly episodes","Standard audio","Community Discord"],c:"Listen_Free"},{n:"PRO",p:"$9",pd:"/mo",f:["Ad-free","Bonus content","Live Q&A","Early access","HD audio"],c:"Go_Pro",ft:true},{n:"TEAM",p:"$29",pd:"/mo",f:["5 seats","Team discussions","Guest nominations","API access"],c:"Start_Team"}];
+function Reveal({children,delay=0}:{children:React.ReactNode;delay?:number}){const ref=useRef(null);const iv=useInView(ref,{once:true,margin:"-50px"});return<motion.div ref={ref} initial={{opacity:0,y:20}} animate={iv?{opacity:1,y:0}:{}} transition={{duration:0.8,delay}}>{children}</motion.div>;}
+export default function EssentialPodcastPage(){
+  const[s,setS]=useState(false);const[m,setM]=useState(false);
+  useEffect(()=>{const h=()=>setS(window.scrollY>50);window.addEventListener("scroll",h);return()=>window.removeEventListener("scroll",h);},[]);
+  return(<div className="premium-theme min-h-screen bg-[#0a0a0f] text-white font-mono selection:bg-[#8b5cf6] selection:text-white overflow-x-hidden">
+    <div className="fixed inset-0 pointer-events-none z-0"><div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_0%,#8b5cf615_0%,transparent_50%)]"/></div>
+    <nav className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ${s?"bg-[#0a0a0f]/90 backdrop-blur-xl py-4 border-b border-white/5":"bg-transparent py-10"}`}><div className="max-w-[1500px] mx-auto px-6 md:px-12 flex items-center justify-between"><Link href="/" className="group flex items-center gap-3 text-xl font-black tracking-tighter"><div className="w-8 h-8 bg-[#8b5cf6] rounded-full flex items-center justify-center text-white"><Mic className="w-4 h-4"/></div><span className="group-hover:text-[#8b5cf6] transition-colors">ESSENTIAL // <span className="text-white/30">PODCAST</span></span></Link><div className="hidden lg:flex items-center gap-10 text-[10px] font-bold uppercase tracking-[0.3em] text-white/30">{["Episodes","Features","Pricing","Subscribe"].map(l=><Link key={l} href="#" className="hover:text-[#8b5cf6] transition-colors">{l}</Link>)}</div><button className="px-6 py-2.5 bg-[#8b5cf6] text-white text-[10px] font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all hidden md:block">Subscribe</button><button onClick={()=>setM(true)} className="lg:hidden"><Menu className="w-6 h-6"/></button></div></nav>
+    <AnimatePresence>{m&&(<motion.div initial={{opacity:0,x:"100%"}} animate={{opacity:1,x:0}} exit={{opacity:0,x:"100%"}} className="fixed inset-0 z-[100] bg-[#0a0a0f] p-8 flex flex-col pt-32"><button onClick={()=>setM(false)} className="absolute top-10 right-8"><X className="w-10 h-10"/></button>{["Episodes","Features","Pricing","Subscribe"].map(l=><Link key={l} href="#" onClick={()=>setM(false)} className="text-5xl font-black tracking-tighter uppercase mb-10">{l}</Link>)}</motion.div>)}</AnimatePresence>
+    <section className="relative min-h-screen flex flex-col justify-center pt-20"><div className="max-w-[1500px] mx-auto px-6 md:px-12 relative z-10"><Reveal><div className="px-3 py-1 bg-[#8b5cf6]/10 border border-[#8b5cf6]/30 text-[#8b5cf6] text-[9px] font-bold uppercase tracking-widest inline-block mb-8">NEW_EPISODE_WEEKLY</div><h1 className="text-7xl md:text-9xl lg:text-[10rem] font-black leading-[0.8] tracking-tighter uppercase mb-10">Listen.<br/>Learn.<br/><span className="text-[#8b5cf6]">Lead.</span></h1><p className="max-w-xl text-lg text-white/30 leading-relaxed font-light uppercase tracking-widest italic mb-12">Deep conversations with the builders shaping tomorrow&apos;s technology.</p><div className="flex flex-col sm:flex-row gap-6"><button className="px-12 py-5 bg-[#8b5cf6] text-white text-[10px] font-black uppercase tracking-[0.4em] hover:bg-white hover:text-black transition-all">Latest_Episode</button><button className="px-12 py-5 border border-white/10 text-[10px] font-black uppercase tracking-[0.4em] hover:bg-white hover:text-black transition-all">Browse_All</button></div></Reveal></div></section>
 
-const EPISODES = [
-  { ep: "042", title: "BUILDING_IN_PUBLIC", cat: "Engineering", value: "Verified", img: "https://images.unsplash.com/photo-1590602847861-f357a9332bbc?auto=format&fit=crop&q=80&w=1500" },
-  { ep: "041", title: "REACT_SERVER_COMP", cat: "Development", value: "Active", img: "https://images.unsplash.com/photo-1589903308904-1010c2294adc?auto=format&fit=crop&q=80&w=1500" },
-  { ep: "040", title: "DESIGN_SYSTEMS_SC", cat: "Architecture", value: "Locked", img: "https://images.unsplash.com/photo-1558403194-611308249627?auto=format&fit=crop&q=80&w=1500" },
-];
+    <section className="py-40 bg-[#0c0c14] border-y border-white/5"><div className="max-w-[1500px] mx-auto px-6 md:px-12"><Reveal><h2 className="text-6xl md:text-8xl font-black tracking-tighter uppercase leading-[0.85] mb-24">Latest <span className="text-[#8b5cf6]">Episodes.</span></h2></Reveal><div className="space-y-4">{EPS.map((e,i)=><Reveal key={i} delay={i*0.05}><div className="group flex items-center justify-between p-8 bg-[#0e0e18] border border-white/5 hover:border-[#8b5cf6]/30 rounded-2xl transition-all cursor-pointer"><div className="flex items-center gap-6"><div className="w-12 h-12 bg-[#8b5cf6]/10 rounded-xl flex items-center justify-center text-[#8b5cf6] group-hover:bg-[#8b5cf6] group-hover:text-white transition-all"><Play className="w-5 h-5"/></div><div><h3 className="text-lg font-black uppercase tracking-tighter group-hover:text-[#8b5cf6] transition-colors">{e.t}</h3><div className="text-[10px] text-white/30 uppercase tracking-widest">{e.g}</div></div></div><div className="text-[10px] text-white/20 uppercase tracking-widest hidden md:block">{e.d}</div></div></Reveal>)}</div></div></section>
 
-function TextScramble({ text }: { text: string }) {
-  const [display, setDisplay] = useState(text);
-  const chars = "!<>-_\\/[]{}—=+*^?#________";
-  
-  useEffect(() => {
-    let iteration = 0;
-    const interval = setInterval(() => {
-      setDisplay(prev => 
-        text.split("").map((char, index) => {
-          if (index < iteration) return text[index];
-          return chars[Math.floor(Math.random() * chars.length)];
-        }).join("")
-      );
-      if (iteration >= text.length) clearInterval(interval);
-      iteration += 1/3;
-    }, 30);
-    return () => clearInterval(interval);
-  }, [text]);
+    <section className="py-40 bg-[#0a0a0f]"><div className="max-w-[1500px] mx-auto px-6 md:px-12"><Reveal><h2 className="text-6xl md:text-8xl font-black tracking-tighter uppercase leading-[0.85] mb-24">Why <span className="text-[#8b5cf6]">Listen.</span></h2></Reveal><div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">{FEAT.map((f,i)=><Reveal key={i} delay={i*0.05}><div className="group p-10 bg-[#0c0c14] border border-white/5 hover:border-[#8b5cf6]/30 rounded-3xl transition-all"><div className="w-14 h-14 bg-white/5 rounded-2xl flex items-center justify-center text-[#8b5cf6] mb-8 group-hover:bg-[#8b5cf6] group-hover:text-white transition-all">{f.icon}</div><h3 className="text-xl font-black uppercase tracking-tighter mb-4 group-hover:text-[#8b5cf6] transition-colors">{f.t}</h3><p className="text-sm text-white/30">{f.d}</p></div></Reveal>)}</div></div></section>
 
-  return <span>{display}</span>;
-}
+    <section className="py-40 bg-[#0c0c14] border-y border-white/5"><div className="max-w-[1500px] mx-auto px-6 md:px-12"><Reveal><h2 className="text-6xl md:text-8xl font-black tracking-tighter uppercase leading-[0.85] mb-24">Listener <span className="text-[#8b5cf6]">Love.</span></h2></Reveal><div className="grid grid-cols-1 md:grid-cols-3 gap-8">{TM.map((t,i)=><Reveal key={i} delay={i*0.1}><div className="p-10 bg-[#0e0e18] border border-white/5 rounded-3xl h-full flex flex-col"><div className="flex gap-1 mb-6">{[...Array(5)].map((_,j)=><Star key={j} className="w-4 h-4 text-[#8b5cf6] fill-[#8b5cf6]"/>)}</div><p className="text-base text-white/40 italic leading-relaxed flex-1 mb-8">&ldquo;{t.q}&rdquo;</p><div className="pt-6 border-t border-white/5"><div className="font-black uppercase text-sm">{t.n}</div><div className="text-[10px] text-white/20 uppercase tracking-widest">{t.r}</div></div></div></Reveal>)}</div></div></section>
 
-export default function AudioWavesSPA() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({ target: containerRef });
-  
-  const yHero = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
-  const heroScale = useTransform(scrollYProgress, [0, 0.5], [1, 1.1]);
-  
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
-  const springX = useSpring(mouseX, { stiffness: 40, damping: 20 });
-  const springY = useSpring(mouseY, { stiffness: 40, damping: 20 });
+    <section className="py-40 bg-[#0a0a0f]"><div className="max-w-[1500px] mx-auto px-6 md:px-12"><Reveal><h2 className="text-6xl md:text-8xl font-black tracking-tighter leading-[0.85] mb-24 uppercase text-center">Simple <span className="text-[#8b5cf6]">Plans.</span></h2></Reveal><div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">{PR.map((p,i)=><Reveal key={i} delay={i*0.1}><div className={`group p-10 border rounded-3xl transition-all ${p.ft?"bg-[#8b5cf6]/5 border-[#8b5cf6]/30 scale-105":"bg-[#0c0c14] border-white/5"}`}><div className="text-[9px] font-bold text-[#8b5cf6] uppercase tracking-widest mb-2">{p.n}</div><div className="text-4xl font-black mb-1">{p.p}<span className="text-lg text-white/30">{p.pd}</span></div><div className="space-y-4 mt-8 pt-8 border-t border-white/5">{p.f.map((f,j)=><div key={j} className="flex items-center gap-3 text-[10px] text-white/40"><CheckCircle2 className="w-3.5 h-3.5 text-[#8b5cf6]"/>{f}</div>)}</div><button className={`mt-8 w-full py-3 text-[10px] font-black uppercase tracking-widest transition-all rounded-lg ${p.ft?"bg-[#8b5cf6] text-white":"border border-white/10 hover:bg-[#8b5cf6] hover:text-white"}`}>{p.c}</button></div></Reveal>)}</div></div></section>
 
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      mouseX.set(e.clientX - window.innerWidth / 2);
-      mouseY.set(e.clientY - window.innerHeight / 2);
-    };
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, [mouseX, mouseY]);
+    <section className="py-40 bg-[#0c0c14] text-center border-t border-white/5"><div className="max-w-[1500px] mx-auto px-6 md:px-12"><Reveal><h2 className="text-6xl md:text-9xl font-black tracking-tighter uppercase mb-12">Start <span className="text-[#8b5cf6]">Listening.</span></h2><button className="px-16 py-6 bg-[#8b5cf6] text-white text-[12px] font-black uppercase tracking-[0.4em] hover:bg-white hover:text-black transition-all">Subscribe_Now</button></Reveal></div></section>
 
-  return (
-    <div ref={containerRef} className="premium-theme bg-[#030014] text-[#E2D5F8] min-h-screen font-sans selection:bg-[#7C3AED] selection:text-white overflow-hidden relative uppercase">
-      
-      {/* AUDIO GRID & NOISE */}
-      <div className="fixed inset-0 z-0 pointer-events-none">
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(124,58,237,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(124,58,237,0.05)_1px,transparent_1px)] bg-[size:10rem_10rem] [mask-image:radial-gradient(ellipse_60%_60%_at_50%_50%,#000_70%,transparent_100%)]" />
-        <motion.div 
-           style={{ x: springX, y: springY }}
-           className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[70vw] h-[70vw] bg-[#7C3AED] opacity-[0.05] blur-[150px] rounded-full mix-blend-screen" 
-        />
-        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.1] mix-blend-screen" />
-      </div>
-
-      {/* HEADER */}
-      <header className="fixed top-0 left-0 w-full px-6 md:px-12 py-10 flex justify-between items-center z-50 bg-[#030014]/50 backdrop-blur-3xl border-b border-white/5">
-        <Link href="/" className="font-black text-2xl tracking-[0.3em] text-white flex items-center gap-4 italic uppercase text-center md:text-left">
-           AUDIO<span className="text-[#7C3AED]">_WAVES</span>
-        </Link>
-        
-        <nav className="hidden lg:flex gap-16 font-black text-[10px] uppercase tracking-[0.6em] text-white/30 text-center">
-            <Link href="#" className="hover:text-[#7C3AED] transition-colors group">
-               Episodes<span className="inline-block w-0 group-hover:w-3 transition-all overflow-hidden text-[#7C3AED] italic">.</span>
-            </Link>
-            <Link href="#" className="hover:text-[#7C3AED] transition-colors group">
-               Hosts<span className="inline-block w-0 group-hover:w-3 transition-all overflow-hidden text-[#7C3AED] italic">.</span>
-            </Link>
-            <Link href="#" className="hover:text-[#7C3AED] transition-colors group">
-               Archive<span className="inline-block w-0 group-hover:w-3 transition-all overflow-hidden text-[#7C3AED] italic">.</span>
-            </Link>
-        </nav>
-        
-        <div className="flex items-center gap-10">
-           <button className="bg-[#7C3AED] text-white px-12 py-4 font-black text-[10px] uppercase tracking-[0.4em] hover:bg-white hover:text-[#030014] transition-all shadow-[0_0_40px_rgba(124,58,237,0.3)]">
-              Subscribe_Now
-           </button>
-           <Menu className="w-6 h-6 text-[#7C3AED] cursor-pointer" />
-        </div>
-      </header>
-
-      {/* HERO SECTION */}
-      <section className="relative h-screen flex flex-col justify-center items-center px-6 text-center z-10 pt-20 overflow-hidden text-center text-center">
-         <motion.div style={{ scale: heroScale, y: yHero }} className="absolute inset-0 z-0 text-center">
-            <Image src="https://images.unsplash.com/photo-1590602847861-f357a9332bbc?auto=format&fit=crop&q=80&w=2500" alt="Podcast" fill className="object-cover opacity-20 grayscale contrast-125 text-center" priority />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#030014] via-transparent to-[#030014]/40 text-center" />
-         </motion.div>
-         
-         <div className="relative z-10 max-w-7xl w-full text-center">
-            <motion.div 
-               initial={{ opacity: 0, scale: 0.95 }}
-               animate={{ opacity: 1, scale: 1 }}
-               transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
-            >
-               <div className="inline-flex items-center gap-4 font-black text-[10px] uppercase tracking-[1em] text-[#7C3AED] mb-16 border-l-2 border-[#7C3AED] pl-10 italic font-mono text-center">
-                  Audio_Capture // 0177_Alpha
-               </div>
-               
-               <h1 className="text-7xl md:text-[14vw] font-black italic uppercase leading-[0.75] tracking-tighter mb-20 text-white text-center">
-                  <TextScramble text="DEEP." /><br/>
-                  <span className="text-transparent" style={{ WebkitTextStroke: "2px rgba(255,255,255,0.6)" }}>RESONANCE.</span>
-               </h1>
-               
-               <p className="text-xl md:text-3xl font-light italic text-white/30 max-w-3xl mx-auto mb-24 leading-relaxed uppercase tracking-widest text-center text-center">
-                  Structural allocation for auditory intent. Architecting the future of sound with tectonic precision.
-               </p>
-               
-               <div className="flex flex-col md:flex-row gap-16 justify-center items-center font-mono text-center text-center">
-                  <div className="flex items-center gap-8 group cursor-pointer text-center">
-                     <div className="w-20 h-px bg-[#7C3AED]/30 group-hover:w-32 transition-all text-center" />
-                     <span className="text-[10px] font-black uppercase tracking-[0.8em] text-white text-center">Listen_Latest</span>
-                  </div>
-                  <div className="hidden md:block w-px h-16 bg-white/5 text-center" />
-                  <div className="font-black text-[9px] uppercase tracking-[0.6em] text-white/10 italic text-center text-center">
-                     Tech // Culture // Evolution
-                  </div>
-               </div>
-            </motion.div>
-         </div>
-
-         {/* Sonic Resonance HUD */}
-         <div className="absolute right-12 bottom-12 flex flex-col items-end gap-4 font-black text-[8px] uppercase tracking-[1em] text-[#7C3AED]/20 hidden md:flex italic font-mono text-center text-center">
-            <span>SONIC_SYNC: ACTIVE</span>
-            <div className="flex gap-1 h-12 items-end text-center">
-               {[1, 2, 3, 4, 5, 6, 7, 8].map(i => <motion.div key={i} animate={{ height: ['10%', '100%', '30%', '80%', '20%'] }} transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.1 }} className="w-[1px] bg-[#7C3AED]" />)}
-            </div>
-         </div>
-         
-         <div className="absolute left-12 bottom-12 hidden md:block">
-            <div className="flex flex-col gap-2 text-[8px] font-black uppercase tracking-[0.4em] text-white/10 italic font-mono text-center text-center">
-               <span>FREQ: 44.1KHZ</span>
-               <span>BIT: 24-BIT</span>
-               <span>GAIN: +3DB</span>
-            </div>
-         </div>
-      </section>
-
-      {/* EPISODES GRID */}
-      <section className="py-48 px-6 md:px-12 max-w-[1800px] mx-auto relative z-10 bg-[#030014]">
-         <div className="flex flex-col md:flex-row justify-between items-end mb-40 border-b border-white/10 pb-20 gap-16 text-center md:text-left">
-            <div>
-               <span className="text-[10px] font-black uppercase tracking-[2em] text-[#7C3AED] mb-8 block italic font-mono text-center md:text-left">Audio_Manifest</span>
-               <h2 className="text-6xl md:text-[10vw] font-black italic uppercase tracking-tighter text-white leading-none text-center md:text-left">The <span className="text-[#7C3AED]/20">Episodes_</span></h2>
-            </div>
-            <div className="flex gap-16 text-[10px] font-black uppercase tracking-[0.6em] text-white/20 italic font-mono text-center md:text-left">
-               <span>Records: [03]</span>
-               <span>Status: [Verified]</span>
-            </div>
-         </div>
-
-         <div className="grid grid-cols-1 md:grid-cols-3 gap-16 text-center">
-            {EPISODES.map((p, i) => (
-                <motion.div 
-                   key={i} 
-                   initial={{ opacity: 0, y: 80 }}
-                   whileInView={{ opacity: 1, y: 0 }}
-                   viewport={{ once: true, margin: "-100px" }}
-                   transition={{ duration: 1.2, delay: i * 0.1, ease: [0.16, 1, 0.3, 1] }}
-                   className="group relative h-[85vh] bg-white/5 border border-white/5 overflow-hidden cursor-pointer hover:border-[#7C3AED]/30 transition-all shadow-2xl text-center"
-                >
-                    <Image src={p.img} alt={p.title} fill className="object-cover opacity-30 grayscale group-hover:grayscale-0 group-hover:scale-110 transition-all duration-1000 text-center" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#030014] via-transparent to-transparent opacity-95 text-center" />
-                    <div className="absolute inset-0 bg-white/5 group-hover:bg-transparent transition-colors duration-700 text-center" />
-                    
-                    <div className="absolute inset-16 flex flex-col justify-between z-10 font-mono text-white text-center">
-                        <div className="flex justify-between items-start text-center">
-                           <div className="p-5 bg-white/5 border border-white/10 rounded-none group-hover:bg-[#7C3AED] group-hover:text-white transition-all shadow-xl text-center">
-                              <Mic2 className="w-8 h-8 text-center" />
-                           </div>
-                           <div className="text-[10px] font-black uppercase tracking-[0.8em] text-[#7C3AED] italic font-mono text-center">Ref_0x{i+177}</div>
-                        </div>
-                        
-                        <div className="text-center">
-                           <span className="text-[10px] uppercase tracking-[0.8em] text-[#7C3AED] mb-8 block italic font-black text-center">EP {p.ep} // {p.cat}</span>
-                           <h3 className="text-5xl md:text-6xl font-black italic uppercase tracking-tighter mb-16 text-white group-hover:tracking-widest transition-all leading-[0.8] text-center">{p.title}</h3>
-                           <div className="flex items-center gap-8 text-[10px] font-black uppercase tracking-[0.6em] opacity-0 group-hover:opacity-100 transition-all translate-y-10 group-hover:translate-y-0 text-white text-center justify-center">
-                              Play_Now <ArrowRight className="w-6 h-6 text-center" />
-                           </div>
-                        </div>
-                    </div>
-                </motion.div>
-            ))}
-         </div>
-      </section>
-
-      {/* FOOTER */}
-      <footer className="py-48 px-6 md:px-12 border-t border-white/5 relative z-10 bg-[#030014]">
-         <div className="max-w-[1800px] mx-auto grid grid-cols-1 md:grid-cols-2 gap-40 text-center md:text-left">
-            <div className="max-w-2xl text-center md:text-left">
-               <div className="text-[#7C3AED] mb-16 flex items-center gap-6 font-black text-2xl italic uppercase tracking-widest font-mono justify-center md:justify-start text-center md:text-left">
-                  <Activity className="w-10 h-10 text-center md:text-left" /> Waves_Logs
-               </div>
-               <p className="text-4xl md:text-6xl font-light italic leading-[0.9] text-white/20 uppercase tracking-tighter mb-20 text-center md:text-left">
-                  WE TREAT SOUND AS ARCHITECTURE. EVERY WAVE A FUNCTION.
-               </p>
-               <div className="flex gap-20 font-black text-[10px] uppercase tracking-[0.8em] text-[#7C3AED]/40 italic font-mono justify-center md:justify-start text-center md:text-left">
-                  <span>Berlin</span>
-                  <span>London</span>
-                  <span>NYC</span>
-               </div>
-            </div>
-            <div className="flex flex-col justify-between items-end text-right font-mono text-center md:text-right">
-               <div className="w-full text-center md:text-right">
-                  <h4 className="text-[12vw] font-black italic uppercase tracking-tighter text-white opacity-[0.02] leading-none mb-20 text-center md:text-right">WAVES</h4>
-                  <nav className="flex flex-col gap-10 font-black text-[10px] uppercase tracking-[0.8em] text-white/10 text-center md:text-right">
-                     <Link href="#" className="hover:text-[#7C3AED] transition-colors group">
-                        Instagram<span className="text-[#7C3AED]/0 group-hover:text-[#7C3AED] transition-all">_</span>
-                     </Link>
-                     <Link href="#" className="hover:text-[#7C3AED] transition-colors group">
-                        Journal<span className="text-[#7C3AED]/0 group-hover:text-[#7C3AED] transition-all">_</span>
-                     </Link>
-                     <Link href="#" className="hover:text-[#7C3AED] transition-colors group">
-                        Legal<span className="text-[#7C3AED]/0 group-hover:text-[#7C3AED] transition-all">_</span>
-                     </Link>
-                  </nav>
-               </div>
-               <div className="font-black text-[9px] uppercase tracking-[1.5em] text-white/5 mt-32 italic text-center md:text-right">
-                  &copy; 2026 // AUDIO_WAVES_MEDIA&trade;
-               </div>
-            </div>
-         </div>
-      </footer>
-    </div>
-  );
+    <footer className="bg-[#0a0a0f] border-t border-white/5 py-32 px-6 md:px-12"><div className="max-w-[1500px] mx-auto grid grid-cols-1 md:grid-cols-4 gap-24"><div className="col-span-1 md:col-span-2"><Link href="/" className="flex items-center gap-3 text-xl font-black tracking-tighter mb-10"><div className="w-8 h-8 bg-[#8b5cf6] text-white rounded-full flex items-center justify-center"><Mic className="w-4 h-4"/></div><span>ESSENTIAL // PODCAST</span></Link><p className="text-[11px] text-white/15 uppercase tracking-[0.2em] max-w-sm italic">Deep tech conversations. Weekly.</p></div><div><h4 className="text-[10px] font-black uppercase tracking-widest mb-10 text-[#8b5cf6]">Listen</h4><ul className="space-y-5 text-[10px] font-bold text-white/20 uppercase tracking-widest">{["Episodes","Spotify","Apple"].map(l=><li key={l}><Link href="#">{l}</Link></li>)}</ul></div><div><h4 className="text-[10px] font-black uppercase tracking-widest mb-10 text-[#8b5cf6]">Connect</h4><ul className="space-y-5 text-[10px] font-bold text-white/20 uppercase tracking-widest">{["Twitter","Discord","Contact"].map(l=><li key={l}><Link href="#">{l}</Link></li>)}</ul></div></div><div className="max-w-[1500px] mx-auto mt-32 pt-16 border-t border-white/5 text-center text-[9px] font-bold text-white/10 uppercase tracking-widest">&copy; 2026 ESSENTIAL PODCAST</div></footer>
+  </div>);
 }

@@ -1,241 +1,32 @@
 "use client";
-
-import { motion, useScroll, useTransform, useSpring, useMotionValue } from "framer-motion";
-import { useRef, useEffect, useState } from "react";
-import Image from "next/image";
+import { motion, useInView, AnimatePresence } from "framer-motion";
+import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import { Heart, Globe2, BookOpen, ArrowRight, Menu, Search, Activity, Zap, Layers, Compass } from "lucide-react";
+import { Heart, Globe, Users, Menu, X, Star, CheckCircle2, BookOpen, HandHeart, Shield } from "lucide-react";
 import "../premium.css";
+const PRG=[{t:"Clean Water Initiative",c:"WATER",loc:"East Africa",d:"Wells and filtration systems for 50 villages."},{t:"Girls Education Fund",c:"EDUCATION",loc:"South Asia",d:"Scholarships and safe schools for 3,000 girls."},{t:"Forest Restoration",c:"ENVIRONMENT",loc:"Amazon Basin",d:"2 million trees planted since 2020."},{t:"Community Health",c:"HEALTH",loc:"Southeast Asia",d:"Mobile clinics serving 200 remote communities."}];
+const SVC=[{icon:<Heart className="w-6 h-6"/>,t:"Direct Aid",d:"100% of designated donations reach the field."},{icon:<Globe className="w-6 h-6"/>,t:"Global Reach",d:"Active programs in 28 countries across 4 continents."},{icon:<Users className="w-6 h-6"/>,t:"Local Partners",d:"We work with established community organizations."},{icon:<BookOpen className="w-6 h-6"/>,t:"Transparency",d:"Quarterly impact reports with full financial disclosure."},{icon:<HandHeart className="w-6 h-6"/>,t:"Volunteer Programs",d:"Join field teams for 2-week impact experiences."},{icon:<Shield className="w-6 h-6"/>,t:"Verified Impact",d:"Third-party audited outcomes and spending."}];
+const TM=[{n:"Dr. Amara Osei",r:"Field Director",q:"Every dollar donated here makes a tangible, measurable difference. I see it every day."},{n:"James McAllister",r:"Monthly Donor",q:"The transparency reports give me complete confidence that my donations matter."},{n:"Priya Sharma",r:"Volunteer",q:"My two weeks in the field changed my perspective on giving forever."}];
+function Reveal({children,delay=0}:{children:React.ReactNode;delay?:number}){const ref=useRef(null);const iv=useInView(ref,{once:true,margin:"-50px"});return<motion.div ref={ref} initial={{opacity:0,y:20}} animate={iv?{opacity:1,y:0}:{}} transition={{duration:0.8,delay}}>{children}</motion.div>;}
+export default function EssentialNonprofitPage(){
+  const[s,setS]=useState(false);const[m,setM]=useState(false);
+  useEffect(()=>{const h=()=>setS(window.scrollY>50);window.addEventListener("scroll",h);return()=>window.removeEventListener("scroll",h);},[]);
+  return(<div className="premium-theme min-h-screen bg-[#faf5f0] text-[#2a1f14] font-mono selection:bg-[#d97706] selection:text-white overflow-x-hidden">
+    <nav className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ${s?"bg-[#faf5f0]/90 backdrop-blur-xl py-4 border-b border-[#2a1f14]/5":"bg-transparent py-10"}`}><div className="max-w-[1500px] mx-auto px-6 md:px-12 flex items-center justify-between"><Link href="/" className="group flex items-center gap-3 text-xl font-black tracking-tighter"><div className="w-8 h-8 bg-[#d97706] rounded-full flex items-center justify-center text-white"><Heart className="w-4 h-4"/></div><span className="group-hover:text-[#d97706] transition-colors">ESSENTIAL // <span className="text-[#2a1f14]/30">GIVING</span></span></Link><div className="hidden lg:flex items-center gap-10 text-[10px] font-bold uppercase tracking-[0.3em] text-[#2a1f14]/30">{["Programs","Impact","About","Donate"].map(l=><Link key={l} href="#" className="hover:text-[#d97706] transition-colors">{l}</Link>)}</div><button className="px-6 py-2.5 bg-[#d97706] text-white text-[10px] font-black uppercase tracking-widest hover:bg-[#2a1f14] transition-all hidden md:block">Donate</button><button onClick={()=>setM(true)} className="lg:hidden"><Menu className="w-6 h-6"/></button></div></nav>
+    <AnimatePresence>{m&&(<motion.div initial={{opacity:0,x:"100%"}} animate={{opacity:1,x:0}} exit={{opacity:0,x:"100%"}} className="fixed inset-0 z-[100] bg-[#faf5f0] p-8 flex flex-col pt-32"><button onClick={()=>setM(false)} className="absolute top-10 right-8"><X className="w-10 h-10"/></button>{["Programs","Impact","About","Donate"].map(l=><Link key={l} href="#" onClick={()=>setM(false)} className="text-5xl font-black tracking-tighter uppercase mb-10">{l}</Link>)}</motion.div>)}</AnimatePresence>
 
-const INITIATIVES = [
-  { icon: <BookOpen className="w-8 h-8" />, title: "PROJECT_NAIROBI", cat: "Education", value: "Verified", img: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&q=80&w=1500" },
-  { icon: <Globe2 className="w-8 h-8" />, title: "GIRLS_FUND_SC", cat: "Scholarship", value: "Active", img: "https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&q=80&w=1500" },
-  { icon: <Heart className="w-8 h-8" />, title: "HEALTH_LINK", cat: "Infrastructure", value: "Locked", img: "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&q=80&w=1500" },
-];
+    <section className="relative min-h-screen flex flex-col justify-center pt-20"><div className="max-w-[1500px] mx-auto px-6 md:px-12 relative z-10"><Reveal><div className="px-3 py-1 bg-[#d97706]/10 border border-[#d97706]/30 text-[#d97706] text-[9px] font-bold uppercase tracking-widest inline-block mb-8">501(C)(3)_VERIFIED</div><h1 className="text-7xl md:text-9xl lg:text-[10rem] font-black leading-[0.8] tracking-tighter uppercase mb-10">Change<br/>Starts<br/><span className="text-[#d97706]">Here.</span></h1><p className="max-w-xl text-lg text-[#2a1f14]/40 leading-relaxed font-light uppercase tracking-widest italic mb-12">Transparent, direct-impact giving. Every dollar makes a measurable difference.</p><div className="flex flex-col sm:flex-row gap-6"><button className="px-12 py-5 bg-[#d97706] text-white text-[10px] font-black uppercase tracking-[0.4em] hover:bg-[#2a1f14] transition-all">Donate_Now</button><button className="px-12 py-5 border border-[#2a1f14]/10 text-[10px] font-black uppercase tracking-[0.4em] hover:bg-[#2a1f14] hover:text-white transition-all">Our_Impact</button></div></Reveal></div></section>
 
-function TextScramble({ text }: { text: string }) {
-  const [display, setDisplay] = useState(text);
-  const chars = "!<>-_\\/[]{}—=+*^?#________";
-  
-  useEffect(() => {
-    let iteration = 0;
-    const interval = setInterval(() => {
-      setDisplay(prev => 
-        text.split("").map((char, index) => {
-          if (index < iteration) return text[index];
-          return chars[Math.floor(Math.random() * chars.length)];
-        }).join("")
-      );
-      if (iteration >= text.length) clearInterval(interval);
-      iteration += 1/3;
-    }, 30);
-    return () => clearInterval(interval);
-  }, [text]);
+    <section className="py-40 bg-white border-y border-[#2a1f14]/5"><div className="max-w-[1500px] mx-auto px-6 md:px-12 grid grid-cols-1 lg:grid-cols-2 gap-24 items-center"><Reveal><span className="text-[10px] text-[#d97706] font-bold uppercase tracking-[0.4em] mb-6 block">About</span><h2 className="text-5xl md:text-7xl font-black tracking-tighter leading-[0.85] mb-8 uppercase">Real <span className="text-[#d97706]">Impact.</span></h2><p className="text-base text-[#2a1f14]/40 leading-relaxed mb-12">Founded in 2018, Essential Giving connects donors directly with communities in need. No overhead bloat — just transparent, effective philanthropy.</p><div className="flex gap-16">{[{v:"$12M+",l:"RAISED"},{v:"28",l:"COUNTRIES"},{v:"500K+",l:"LIVES"}].map((s,i)=><div key={i}><div className="text-3xl font-black text-[#d97706]">{s.v}</div><div className="text-[9px] font-bold text-[#2a1f14]/20 uppercase tracking-widest">{s.l}</div></div>)}</div></Reveal><Reveal delay={0.15}><div className="w-full aspect-square bg-gradient-to-br from-[#d97706]/10 to-[#d97706]/5 rounded-3xl flex items-center justify-center"><Heart className="w-20 h-20 text-[#d97706]/15"/></div></Reveal></div></section>
 
-  return <span>{display}</span>;
-}
+    <section className="py-40 bg-[#faf5f0]"><div className="max-w-[1500px] mx-auto px-6 md:px-12"><Reveal><h2 className="text-6xl md:text-8xl font-black tracking-tighter uppercase leading-[0.85] mb-24">Our <span className="text-[#d97706]">Programs.</span></h2></Reveal><div className="grid grid-cols-1 md:grid-cols-2 gap-8">{PRG.map((p,i)=><Reveal key={i} delay={i*0.05}><div className="group cursor-pointer"><div className="w-full aspect-[16/10] bg-gradient-to-br from-[#d97706]/10 to-[#d97706]/5 rounded-2xl flex items-center justify-center mb-6 group-hover:from-[#d97706]/20 transition-all"><Globe className="w-12 h-12 text-[#d97706]/15"/></div><div className="flex items-center gap-4 mb-2"><span className="text-[9px] font-bold text-[#d97706] uppercase tracking-widest">{p.c}</span><span className="text-[9px] text-[#2a1f14]/20 uppercase tracking-widest">{p.loc}</span></div><h3 className="text-2xl font-black uppercase tracking-tighter group-hover:text-[#d97706] transition-colors mb-2">{p.t}</h3><p className="text-sm text-[#2a1f14]/30">{p.d}</p></div></Reveal>)}</div></div></section>
 
-export default function HopeFoundationSPA() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({ target: containerRef });
-  
-  const yHero = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
-  const heroScale = useTransform(scrollYProgress, [0, 0.5], [1, 1.1]);
-  
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
-  const springX = useSpring(mouseX, { stiffness: 40, damping: 20 });
-  const springY = useSpring(mouseY, { stiffness: 40, damping: 20 });
+    <section className="py-40 bg-white border-y border-[#2a1f14]/5"><div className="max-w-[1500px] mx-auto px-6 md:px-12"><Reveal><h2 className="text-6xl md:text-8xl font-black tracking-tighter uppercase leading-[0.85] mb-24">How We <span className="text-[#d97706]">Help.</span></h2></Reveal><div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">{SVC.map((f,i)=><Reveal key={i} delay={i*0.05}><div className="group p-10 bg-[#faf5f0] border border-[#2a1f14]/5 hover:border-[#d97706]/30 rounded-3xl transition-all"><div className="w-14 h-14 bg-[#d97706]/10 rounded-2xl flex items-center justify-center text-[#d97706] mb-8 group-hover:bg-[#d97706] group-hover:text-white transition-all">{f.icon}</div><h3 className="text-xl font-black uppercase tracking-tighter mb-4 group-hover:text-[#d97706] transition-colors">{f.t}</h3><p className="text-sm text-[#2a1f14]/40">{f.d}</p></div></Reveal>)}</div></div></section>
 
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      mouseX.set(e.clientX - window.innerWidth / 2);
-      mouseY.set(e.clientY - window.innerHeight / 2);
-    };
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, [mouseX, mouseY]);
+    <section className="py-40 bg-[#faf5f0]"><div className="max-w-[1500px] mx-auto px-6 md:px-12"><Reveal><h2 className="text-6xl md:text-8xl font-black tracking-tighter uppercase leading-[0.85] mb-24">Voices Of <span className="text-[#d97706]">Impact.</span></h2></Reveal><div className="grid grid-cols-1 md:grid-cols-3 gap-8">{TM.map((t,i)=><Reveal key={i} delay={i*0.1}><div className="p-10 bg-white border border-[#2a1f14]/5 rounded-3xl h-full flex flex-col"><div className="flex gap-1 mb-6">{[...Array(5)].map((_,j)=><Star key={j} className="w-4 h-4 text-[#d97706] fill-[#d97706]"/>)}</div><p className="text-base text-[#2a1f14]/50 italic leading-relaxed flex-1 mb-8">&ldquo;{t.q}&rdquo;</p><div className="pt-6 border-t border-[#2a1f14]/5"><div className="font-black uppercase text-sm">{t.n}</div><div className="text-[10px] text-[#2a1f14]/30 uppercase tracking-widest">{t.r}</div></div></div></Reveal>)}</div></div></section>
 
-  return (
-    <div ref={containerRef} className="premium-theme bg-[#FAF9F6] text-[#1C2E2A] min-h-screen font-sans selection:bg-[#2A5C4A] selection:text-white overflow-hidden relative uppercase">
-      
-      {/* EARTH GRID & NOISE */}
-      <div className="fixed inset-0 z-0 pointer-events-none">
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(42,92,74,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(42,92,74,0.05)_1px,transparent_1px)] bg-[size:10rem_10rem] [mask-image:radial-gradient(ellipse_60%_60%_at_50%_50%,#000_70%,transparent_100%)]" />
-        <motion.div 
-           style={{ x: springX, y: springY }}
-           className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[70vw] h-[70vw] bg-[#2A5C4A] opacity-[0.05] blur-[150px] rounded-full mix-blend-multiply" 
-        />
-        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.05] mix-blend-multiply" />
-      </div>
+    <section className="py-40 bg-[#2a1f14] text-white text-center"><div className="max-w-[1500px] mx-auto px-6 md:px-12"><Reveal><h2 className="text-6xl md:text-9xl font-black tracking-tighter uppercase mb-12">Give <span className="text-[#d97706]">Today.</span></h2><p className="max-w-xl mx-auto text-sm text-white/30 mb-16 uppercase tracking-widest italic">100% of your donation goes directly to the field.</p><div className="flex justify-center gap-4 flex-wrap">{["$25","$50","$100","$250"].map(a=><button key={a} className="px-10 py-5 border border-white/10 text-[12px] font-black uppercase tracking-widest hover:bg-[#d97706] hover:border-[#d97706] transition-all">{a}</button>)}</div></Reveal></div></section>
 
-      {/* HEADER */}
-      <header className="fixed top-0 left-0 w-full px-6 md:px-12 py-10 flex justify-between items-center z-50 bg-[#FAF9F6]/50 backdrop-blur-3xl border-b border-[#2A5C4A]/5">
-        <Link href="/" className="font-black text-2xl tracking-[0.3em] text-[#2A5C4A] flex items-center gap-4 italic uppercase text-center md:text-left">
-           HOPE<span className="text-[#2A5C4A]/30">_FOUNDATION</span>
-        </Link>
-        
-        <nav className="hidden lg:flex gap-16 font-black text-[10px] uppercase tracking-[0.6em] text-[#1C2E2A]/30 text-center">
-            <Link href="#" className="hover:text-[#2A5C4A] transition-colors group">
-               Mission<span className="inline-block w-0 group-hover:w-3 transition-all overflow-hidden text-[#2A5C4A] italic">.</span>
-            </Link>
-            <Link href="#" className="hover:text-[#2A5C4A] transition-colors group">
-               Initiatives<span className="inline-block w-0 group-hover:w-3 transition-all overflow-hidden text-[#2A5C4A] italic">.</span>
-            </Link>
-            <Link href="#" className="hover:text-[#2A5C4A] transition-colors group">
-               Reports<span className="inline-block w-0 group-hover:w-3 transition-all overflow-hidden text-[#2A5C4A] italic">.</span>
-            </Link>
-        </nav>
-        
-        <div className="flex items-center gap-10">
-           <button className="bg-[#2A5C4A] text-white px-12 py-4 font-black text-[10px] uppercase tracking-[0.4em] hover:bg-[#1C2E2A] transition-all shadow-xl">
-              Donate_Now
-           </button>
-           <Menu className="w-6 h-6 text-[#2A5C4A] cursor-pointer" />
-        </div>
-      </header>
-
-      {/* HERO SECTION */}
-      <section className="relative h-screen flex flex-col justify-center items-center px-6 text-center z-10 pt-20 overflow-hidden text-center">
-         <motion.div style={{ scale: heroScale, y: yHero }} className="absolute inset-0 z-0">
-            <Image src="https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&q=80&w=2500" alt="Foundation" fill className="object-cover opacity-20 grayscale contrast-125" priority />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#FAF9F6] via-transparent to-[#FAF9F6]/40" />
-         </motion.div>
-         
-         <div className="relative z-10 max-w-7xl w-full text-center">
-            <motion.div 
-               initial={{ opacity: 0, scale: 0.95 }}
-               animate={{ opacity: 1, scale: 1 }}
-               transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
-            >
-               <div className="inline-flex items-center gap-4 font-black text-[10px] uppercase tracking-[1em] text-[#2A5C4A] mb-16 border-l-2 border-[#2A5C4A] pl-10 italic font-mono text-center">
-                  Hope_Capture // 0179_Alpha
-               </div>
-               
-               <h1 className="text-7xl md:text-[14vw] font-black italic uppercase leading-[0.75] tracking-tighter mb-20 text-[#2A5C4A] text-center">
-                  <TextScramble text="EDUCATION." /><br/>
-                  <span className="text-transparent" style={{ WebkitTextStroke: "2px #2A5C4A" }}>EVERYTHING.</span>
-               </h1>
-               
-               <p className="text-xl md:text-3xl font-light italic text-[#1C2E2A]/30 max-w-3xl mx-auto mb-24 leading-relaxed uppercase tracking-widest text-center">
-                  Structural allocation for social intent. Architecting the future of human capital with tectonic precision.
-               </p>
-               
-               <div className="flex flex-col md:flex-row gap-16 justify-center items-center font-mono text-center text-[#1C2E2A]">
-                  <div className="flex items-center gap-8 group cursor-pointer">
-                     <div className="w-20 h-px bg-[#2A5C4A]/30 group-hover:w-32 transition-all" />
-                     <span className="text-[10px] font-black uppercase tracking-[0.8em]">Explore_Initiatives</span>
-                  </div>
-                  <div className="hidden md:block w-px h-16 bg-[#1C2E2A]/5" />
-                  <div className="font-black text-[9px] uppercase tracking-[0.6em] text-[#1C2E2A]/10 italic text-center">
-                     50+ Schools // 12k+ Children // 15 Countries
-                  </div>
-               </div>
-            </motion.div>
-         </div>
-
-         {/* Impact HUD */}
-         <div className="absolute right-12 bottom-12 flex flex-col items-end gap-4 font-black text-[8px] uppercase tracking-[1em] text-[#2A5C4A]/20 hidden md:flex italic font-mono text-center">
-            <span>IMPACT_SYNC: ACTIVE</span>
-            <div className="flex gap-1 h-12 items-end">
-               {[1, 2, 3, 4, 5].map(i => <motion.div key={i} animate={{ height: ['20%', '100%', '40%'] }} transition={{ duration: 2, repeat: Infinity, delay: i * 0.2 }} className="w-[1px] bg-[#2A5C4A]" />)}
-            </div>
-         </div>
-         
-         <div className="absolute left-12 bottom-12 hidden md:block">
-            <div className="flex flex-col gap-2 text-[8px] font-black uppercase tracking-[0.4em] text-[#1C2E2A]/10 italic font-mono text-center">
-               <span>FUNDS_ALLOC: 94%</span>
-               <span>VOLUNTEERS: 1,240</span>
-               <span>STATUS: GLOBAL</span>
-            </div>
-         </div>
-      </section>
-
-      {/* INITIATIVES GRID */}
-      <section className="py-48 px-6 md:px-12 max-w-[1800px] mx-auto relative z-10 bg-[#FAF9F6]">
-         <div className="flex flex-col md:flex-row justify-between items-end mb-40 border-b border-[#1C2E2A]/10 pb-20 gap-16 text-center md:text-left">
-            <div>
-               <span className="text-[10px] font-black uppercase tracking-[2em] text-[#2A5C4A] mb-8 block italic font-mono text-center md:text-left">Mission_Manifest</span>
-               <h2 className="text-6xl md:text-[10vw] font-black italic uppercase tracking-tighter text-[#2A5C4A] leading-none text-center md:text-left">The <span className="text-[#2A5C4A]/20">Impact_</span></h2>
-            </div>
-            <div className="flex gap-16 text-[10px] font-black uppercase tracking-[0.6em] text-[#1C2E2A]/20 italic font-mono text-center md:text-left">
-               <span>Records: [03]</span>
-               <span>Status: [Verified]</span>
-            </div>
-         </div>
-
-         <div className="grid grid-cols-1 md:grid-cols-3 gap-16 text-center">
-            {INITIATIVES.map((p, i) => (
-                <motion.div 
-                   key={i} 
-                   initial={{ opacity: 0, y: 80 }}
-                   whileInView={{ opacity: 1, y: 0 }}
-                   viewport={{ once: true, margin: "-100px" }}
-                   transition={{ duration: 1.2, delay: i * 0.1, ease: [0.16, 1, 0.3, 1] }}
-                   className="group relative h-[85vh] bg-white border border-[#1C2E2A]/5 overflow-hidden cursor-pointer hover:border-[#2A5C4A]/30 transition-all shadow-2xl text-center"
-                >
-                    <Image src={p.img} alt={p.title} fill className="object-cover opacity-30 grayscale group-hover:grayscale-0 group-hover:scale-110 transition-all duration-1000 text-center" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#FAF9F6] via-transparent to-transparent opacity-95 text-center" />
-                    <div className="absolute inset-0 bg-[#2A5C4A]/5 group-hover:bg-transparent transition-colors duration-700 text-center" />
-                    
-                    <div className="absolute inset-16 flex flex-col justify-between z-10 font-mono text-[#1C2E2A] text-center">
-                        <div className="flex justify-between items-start text-center">
-                           <div className="p-5 bg-white/5 border border-[#1C2E2A]/10 rounded-none group-hover:bg-[#2A5C4A] group-hover:text-white transition-all shadow-xl text-center">
-                              {p.icon}
-                           </div>
-                           <div className="text-[10px] font-black uppercase tracking-[0.8em] text-[#2A5C4A] italic font-mono text-center">Ref_0x{i+179}</div>
-                        </div>
-                        
-                        <div className="text-center">
-                           <span className="text-[10px] uppercase tracking-[0.8em] text-[#2A5C4A] mb-8 block italic font-black text-center">{p.cat} // Verified</span>
-                           <h3 className="text-5xl md:text-6xl font-black italic uppercase tracking-tighter mb-16 text-[#2A5C4A] group-hover:tracking-widest transition-all leading-[0.8] text-center">{p.title}</h3>
-                           <div className="flex items-center gap-8 text-[10px] font-black uppercase tracking-[0.6em] opacity-0 group-hover:opacity-100 transition-all translate-y-10 group-hover:translate-y-0 text-[#1C2E2A] text-center justify-center">
-                              Report <ArrowRight className="w-6 h-6 text-center" />
-                           </div>
-                        </div>
-                    </div>
-                </motion.div>
-            ))}
-         </div>
-      </section>
-
-      {/* FOOTER */}
-      <footer className="py-48 px-6 md:px-12 border-t border-[#1C2E2A]/5 relative z-10 bg-[#FAF9F6]">
-         <div className="max-w-[1800px] mx-auto grid grid-cols-1 md:grid-cols-2 gap-40 text-center md:text-left">
-            <div className="max-w-2xl text-center md:text-left">
-               <div className="text-[#2A5C4A] mb-16 flex items-center gap-6 font-black text-2xl italic uppercase tracking-widest font-mono justify-center md:justify-start text-center md:text-left">
-                  <Activity className="w-10 h-10 text-center md:text-left" /> Hope_Logs
-               </div>
-               <p className="text-4xl md:text-6xl font-light italic leading-[0.9] text-[#1C2E2A]/20 uppercase tracking-tighter mb-20 text-center md:text-left">
-                  WE TREAT HOPE AS ARCHITECTURE. EVERY DOLLAR A FUNCTION.
-               </p>
-               <div className="flex gap-20 font-black text-[10px] uppercase tracking-[0.8em] text-[#2A5C4A]/40 italic font-mono justify-center md:justify-start text-center md:text-left">
-                  <span>Berlin</span>
-                  <span>London</span>
-                  <span>NYC</span>
-               </div>
-            </div>
-            <div className="flex flex-col justify-between items-end text-right font-mono text-center md:text-right text-[#1C2E2A]">
-               <div className="w-full text-center md:text-right">
-                  <h4 className="text-[12vw] font-black italic uppercase tracking-tighter text-[#2A5C4A] opacity-[0.02] leading-none mb-20 text-center md:text-right">HOPE</h4>
-                  <nav className="flex flex-col gap-10 font-black text-[10px] uppercase tracking-[0.8em] text-[#1C2E2A]/10 text-center md:text-right">
-                     <Link href="#" className="hover:text-[#2A5C4A] transition-colors group">
-                        Instagram<span className="text-[#2A5C4A]/0 group-hover:text-[#2A5C4A] transition-all">_</span>
-                     </Link>
-                     <Link href="#" className="hover:text-[#2A5C4A] transition-colors group">
-                        Reports<span className="text-[#2A5C4A]/0 group-hover:text-[#2A5C4A] transition-all">_</span>
-                     </Link>
-                     <Link href="#" className="hover:text-[#2A5C4A] transition-colors group">
-                        Legal<span className="text-[#2A5C4A]/0 group-hover:text-[#2A5C4A] transition-all">_</span>
-                     </Link>
-                  </nav>
-               </div>
-               <div className="font-black text-[9px] uppercase tracking-[1.5em] text-[#1C2E2A]/5 mt-32 italic text-center md:text-right">
-                  &copy; 2026 // HOPE_FOUNDATION_GLOBAL&trade;
-               </div>
-            </div>
-         </div>
-      </footer>
-    </div>
-  );
+    <footer className="bg-[#2a1f14] border-t border-white/5 py-32 px-6 md:px-12 text-white"><div className="max-w-[1500px] mx-auto grid grid-cols-1 md:grid-cols-4 gap-24"><div className="col-span-1 md:col-span-2"><Link href="/" className="flex items-center gap-3 text-xl font-black tracking-tighter mb-10"><div className="w-8 h-8 bg-[#d97706] text-white rounded-full flex items-center justify-center"><Heart className="w-4 h-4"/></div><span>ESSENTIAL // GIVING</span></Link><p className="text-[11px] text-white/15 uppercase tracking-[0.2em] max-w-sm italic">Transparent philanthropy since 2018.</p></div><div><h4 className="text-[10px] font-black uppercase tracking-widest mb-10 text-[#d97706]">Programs</h4><ul className="space-y-5 text-[10px] font-bold text-white/20 uppercase tracking-widest">{["Water","Education","Health"].map(l=><li key={l}><Link href="#">{l}</Link></li>)}</ul></div><div><h4 className="text-[10px] font-black uppercase tracking-widest mb-10 text-[#d97706]">Connect</h4><ul className="space-y-5 text-[10px] font-bold text-white/20 uppercase tracking-widest">{["About","Volunteer","Contact"].map(l=><li key={l}><Link href="#">{l}</Link></li>)}</ul></div></div><div className="max-w-[1500px] mx-auto mt-32 pt-16 border-t border-white/5 text-center text-[9px] font-bold text-white/10 uppercase tracking-widest">&copy; 2026 ESSENTIAL GIVING</div></footer>
+  </div>);
 }

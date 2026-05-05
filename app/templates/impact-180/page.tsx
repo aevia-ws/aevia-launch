@@ -1,241 +1,30 @@
 "use client";
-
-import { motion, useScroll, useTransform, useSpring, useMotionValue } from "framer-motion";
-import { useRef, useEffect, useState } from "react";
-import Image from "next/image";
+import { motion, useInView, AnimatePresence } from "framer-motion";
+import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import { Scissors, Clock, MapPin, Phone, Menu, Search, ArrowRight, Layers, Activity, Zap, Compass } from "lucide-react";
+import { Scissors, Star as StarIcon, Clock, Menu, X, Star, CheckCircle2, Users, Sparkles, Calendar } from "lucide-react";
 import "../premium.css";
+const SVC=[{icon:<Scissors className="w-6 h-6"/>,t:"Classic Cut",d:"Precision scissor or clipper cut with hot towel finish.",p:"$45"},{icon:<Sparkles className="w-6 h-6"/>,t:"Beard Sculpt",d:"Shape, trim, and condition with premium oils.",p:"$35"},{icon:<StarIcon className="w-6 h-6"/>,t:"Royal Package",d:"Cut, beard, facial, and scalp massage.",p:"$85"},{icon:<Users className="w-6 h-6"/>,t:"Kids Cut",d:"Patient, fun cuts for children under 12.",p:"$25"},{icon:<Calendar className="w-6 h-6"/>,t:"Hot Towel Shave",d:"Traditional straight-razor shave with steam.",p:"$40"},{icon:<Clock className="w-6 h-6"/>,t:"Express Trim",d:"Quick 15-minute shape-up between appointments.",p:"$20"}];
+const TM=[{n:"Marcus Johnson",r:"Regular Client",q:"Best barbershop in the city. Been coming for 3 years and never had a bad cut."},{n:"Alex Rivera",r:"Groom, Wedding",q:"They handled my entire wedding party. Everyone looked incredible."},{n:"Tom Chen",r:"Monthly Regular",q:"The hot towel shave is an experience. You leave feeling like a new person."}];
+function Reveal({children,delay=0}:{children:React.ReactNode;delay?:number}){const ref=useRef(null);const iv=useInView(ref,{once:true,margin:"-50px"});return<motion.div ref={ref} initial={{opacity:0,y:20}} animate={iv?{opacity:1,y:0}:{}} transition={{duration:0.8,delay}}>{children}</motion.div>;}
+export default function EssentialSalonPage(){
+  const[s,setS]=useState(false);const[m,setM]=useState(false);
+  useEffect(()=>{const h=()=>setS(window.scrollY>50);window.addEventListener("scroll",h);return()=>window.removeEventListener("scroll",h);},[]);
+  return(<div className="premium-theme min-h-screen bg-[#0a0a0a] text-white font-mono selection:bg-[#c8956c] selection:text-black overflow-x-hidden">
+    <div className="fixed inset-0 pointer-events-none z-0"><div className="absolute inset-0 bg-[radial-gradient(ellipse_at_30%_20%,#c8956c10_0%,transparent_50%)]"/></div>
+    <nav className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ${s?"bg-[#0a0a0a]/90 backdrop-blur-xl py-4 border-b border-white/5":"bg-transparent py-10"}`}><div className="max-w-[1500px] mx-auto px-6 md:px-12 flex items-center justify-between"><Link href="/" className="group flex items-center gap-3 text-xl font-black tracking-tighter"><div className="w-8 h-8 bg-[#c8956c] rounded-sm flex items-center justify-center text-white"><Scissors className="w-4 h-4"/></div><span className="group-hover:text-[#c8956c] transition-colors">ESSENTIAL // <span className="text-white/30">SALON</span></span></Link><div className="hidden lg:flex items-center gap-10 text-[10px] font-bold uppercase tracking-[0.3em] text-white/30">{["Services","Pricing","About","Book"].map(l=><Link key={l} href="#" className="hover:text-[#c8956c] transition-colors">{l}</Link>)}</div><button className="px-6 py-2.5 bg-[#c8956c] text-white text-[10px] font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all hidden md:block">Book_Now</button><button onClick={()=>setM(true)} className="lg:hidden"><Menu className="w-6 h-6"/></button></div></nav>
+    <AnimatePresence>{m&&(<motion.div initial={{opacity:0,x:"100%"}} animate={{opacity:1,x:0}} exit={{opacity:0,x:"100%"}} className="fixed inset-0 z-[100] bg-[#0a0a0a] p-8 flex flex-col pt-32"><button onClick={()=>setM(false)} className="absolute top-10 right-8"><X className="w-10 h-10"/></button>{["Services","Pricing","About","Book"].map(l=><Link key={l} href="#" onClick={()=>setM(false)} className="text-5xl font-black tracking-tighter uppercase mb-10">{l}</Link>)}</motion.div>)}</AnimatePresence>
 
-const SERVICES = [
-  { icon: <Scissors className="w-8 h-8" />, title: "EXECUTIVE_CUT", cat: "Precision", value: "Verified", img: "https://images.unsplash.com/photo-1593702275687-f8b402bf1fb5?auto=format&fit=crop&q=80&w=1500" },
-  { icon: <Activity className="w-8 h-8" />, title: "HOT_TOWEL_SHAVE", cat: "Traditional", value: "Active", img: "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&q=80&w=1500" },
-  { icon: <Zap className="w-8 h-8" />, title: "SCULPT_DESIGN", cat: "Modern", value: "Locked", img: "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=1500" },
-];
+    <section className="relative min-h-screen flex flex-col justify-center pt-20"><div className="max-w-[1500px] mx-auto px-6 md:px-12 relative z-10"><Reveal><div className="px-3 py-1 bg-[#c8956c]/10 border border-[#c8956c]/30 text-[#c8956c] text-[9px] font-bold uppercase tracking-widest inline-block mb-8">EST._2019</div><h1 className="text-7xl md:text-9xl lg:text-[10rem] font-black leading-[0.8] tracking-tighter uppercase mb-10">Look<br/>Sharp.<br/><span className="text-[#c8956c]">Always.</span></h1><p className="max-w-xl text-lg text-white/30 leading-relaxed font-light uppercase tracking-widest italic mb-12">Premium barbershop & grooming studio. Walk-ins welcome.</p><div className="flex flex-col sm:flex-row gap-6"><button className="px-12 py-5 bg-[#c8956c] text-white text-[10px] font-black uppercase tracking-[0.4em] hover:bg-white hover:text-black transition-all">Book_Appointment</button><button className="px-12 py-5 border border-white/10 text-[10px] font-black uppercase tracking-[0.4em] hover:bg-white hover:text-black transition-all">View_Services</button></div></Reveal></div></section>
 
-function TextScramble({ text }: { text: string }) {
-  const [display, setDisplay] = useState(text);
-  const chars = "!<>-_\\/[]{}—=+*^?#________";
-  
-  useEffect(() => {
-    let iteration = 0;
-    const interval = setInterval(() => {
-      setDisplay(prev => 
-        text.split("").map((char, index) => {
-          if (index < iteration) return text[index];
-          return chars[Math.floor(Math.random() * chars.length)];
-        }).join("")
-      );
-      if (iteration >= text.length) clearInterval(interval);
-      iteration += 1/3;
-    }, 30);
-    return () => clearInterval(interval);
-  }, [text]);
+    <section className="py-40 bg-[#0c0c0c] border-y border-white/5"><div className="max-w-[1500px] mx-auto px-6 md:px-12 grid grid-cols-1 lg:grid-cols-2 gap-24 items-center"><Reveal><span className="text-[10px] text-[#c8956c] font-bold uppercase tracking-[0.4em] mb-6 block">About</span><h2 className="text-5xl md:text-7xl font-black tracking-tighter leading-[0.85] mb-8 uppercase">Craft &<br/><span className="text-[#c8956c]">Tradition.</span></h2><p className="text-base text-white/30 leading-relaxed mb-12">Essential Salon blends old-school barbering craft with modern style. Every cut is a conversation, every shave is a ritual. Walk in looking good, leave looking great.</p><div className="flex gap-16">{[{v:"5K+",l:"CLIENTS"},{v:"4.9★",l:"RATING"},{v:"6",l:"BARBERS"}].map((s,i)=><div key={i}><div className="text-3xl font-black text-[#c8956c]">{s.v}</div><div className="text-[9px] font-bold text-white/15 uppercase tracking-widest">{s.l}</div></div>)}</div></Reveal><Reveal delay={0.15}><div className="w-full aspect-square bg-gradient-to-br from-[#c8956c]/10 to-transparent rounded-3xl flex items-center justify-center"><Scissors className="w-20 h-20 text-[#c8956c]/15"/></div></Reveal></div></section>
 
-  return <span>{display}</span>;
-}
+    <section className="py-40 bg-[#0a0a0a]"><div className="max-w-[1500px] mx-auto px-6 md:px-12"><Reveal><h2 className="text-6xl md:text-8xl font-black tracking-tighter uppercase leading-[0.85] mb-24">Services & <span className="text-[#c8956c]">Prices.</span></h2></Reveal><div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">{SVC.map((f,i)=><Reveal key={i} delay={i*0.05}><div className="group p-10 bg-[#0c0c0c] border border-white/5 hover:border-[#c8956c]/30 rounded-3xl transition-all"><div className="flex justify-between items-start mb-8"><div className="w-14 h-14 bg-white/5 rounded-2xl flex items-center justify-center text-[#c8956c] group-hover:bg-[#c8956c] group-hover:text-white transition-all">{f.icon}</div><div className="text-2xl font-black text-[#c8956c]">{f.p}</div></div><h3 className="text-xl font-black uppercase tracking-tighter mb-4 group-hover:text-[#c8956c] transition-colors">{f.t}</h3><p className="text-sm text-white/30">{f.d}</p></div></Reveal>)}</div></div></section>
 
-export default function ShearsBarberSPA() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({ target: containerRef });
-  
-  const yHero = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
-  const heroScale = useTransform(scrollYProgress, [0, 0.5], [1, 1.1]);
-  
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
-  const springX = useSpring(mouseX, { stiffness: 40, damping: 20 });
-  const springY = useSpring(mouseY, { stiffness: 40, damping: 20 });
+    <section className="py-40 bg-[#0c0c0c] border-y border-white/5"><div className="max-w-[1500px] mx-auto px-6 md:px-12"><Reveal><h2 className="text-6xl md:text-8xl font-black tracking-tighter uppercase leading-[0.85] mb-24">Client <span className="text-[#c8956c]">Reviews.</span></h2></Reveal><div className="grid grid-cols-1 md:grid-cols-3 gap-8">{TM.map((t,i)=><Reveal key={i} delay={i*0.1}><div className="p-10 bg-[#111] border border-white/5 rounded-3xl h-full flex flex-col"><div className="flex gap-1 mb-6">{[...Array(5)].map((_,j)=><Star key={j} className="w-4 h-4 text-[#c8956c] fill-[#c8956c]"/>)}</div><p className="text-base text-white/40 italic leading-relaxed flex-1 mb-8">&ldquo;{t.q}&rdquo;</p><div className="pt-6 border-t border-white/5"><div className="font-black uppercase text-sm">{t.n}</div><div className="text-[10px] text-white/20 uppercase tracking-widest">{t.r}</div></div></div></Reveal>)}</div></div></section>
 
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      mouseX.set(e.clientX - window.innerWidth / 2);
-      mouseY.set(e.clientY - window.innerHeight / 2);
-    };
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, [mouseX, mouseY]);
+    <section className="py-40 bg-[#0a0a0a] text-center"><div className="max-w-[1500px] mx-auto px-6 md:px-12"><Reveal><h2 className="text-6xl md:text-9xl font-black tracking-tighter uppercase mb-12">Book Your <span className="text-[#c8956c]">Cut.</span></h2><p className="max-w-xl mx-auto text-sm text-white/30 mb-16 uppercase tracking-widest italic">Walk-ins welcome. Online booking preferred.</p><button className="px-16 py-6 bg-[#c8956c] text-white text-[12px] font-black uppercase tracking-[0.4em] hover:bg-white hover:text-black transition-all">Reserve_Slot</button></Reveal></div></section>
 
-  return (
-    <div ref={containerRef} className="premium-theme bg-[#0A0A0A] text-[#E5E5E5] min-h-screen font-sans selection:bg-[#C0A080] selection:text-[#0A0A0A] overflow-hidden relative uppercase">
-      
-      {/* BARBER GRID & NOISE */}
-      <div className="fixed inset-0 z-0 pointer-events-none">
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(192,160,128,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(192,160,128,0.05)_1px,transparent_1px)] bg-[size:10rem_10rem] [mask-image:radial-gradient(ellipse_60%_60%_at_50%_50%,#000_70%,transparent_100%)]" />
-        <motion.div 
-           style={{ x: springX, y: springY }}
-           className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[70vw] h-[70vw] bg-[#C0A080] opacity-[0.03] blur-[150px] rounded-full mix-blend-screen" 
-        />
-        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.1] mix-blend-screen" />
-      </div>
-
-      {/* HEADER */}
-      <header className="fixed top-0 left-0 w-full px-6 md:px-12 py-10 flex justify-between items-center z-50 bg-[#0A0A0A]/50 backdrop-blur-3xl border-b border-white/5">
-        <Link href="/" className="font-black text-2xl tracking-[0.3em] text-white flex items-center gap-4 italic uppercase text-center md:text-left">
-           SHEARS<span className="text-[#C0A080]">_HERITAGE</span>
-        </Link>
-        
-        <nav className="hidden lg:flex gap-16 font-black text-[10px] uppercase tracking-[0.6em] text-white/30 text-center">
-            <Link href="#" className="hover:text-[#C0A080] transition-colors group">
-               Services<span className="inline-block w-0 group-hover:w-3 transition-all overflow-hidden text-[#C0A080] italic">.</span>
-            </Link>
-            <Link href="#" className="hover:text-[#C0A080] transition-colors group">
-               Archive<span className="inline-block w-0 group-hover:w-3 transition-all overflow-hidden text-[#C0A080] italic">.</span>
-            </Link>
-            <Link href="#" className="hover:text-[#C0A080] transition-colors group">
-               Journal<span className="inline-block w-0 group-hover:w-3 transition-all overflow-hidden text-[#C0A080] italic">.</span>
-            </Link>
-        </nav>
-        
-        <div className="flex items-center gap-10">
-           <button className="bg-[#C0A080] text-black px-12 py-4 font-black text-[10px] uppercase tracking-[0.4em] hover:bg-white transition-all shadow-[0_0_40px_rgba(192,160,128,0.2)]">
-              Reserve_Chair
-           </button>
-           <Menu className="w-6 h-6 text-[#C0A080] cursor-pointer" />
-        </div>
-      </header>
-
-      {/* HERO SECTION */}
-      <section className="relative h-screen flex flex-col justify-center items-center px-6 text-center z-10 pt-20 overflow-hidden text-center">
-         <motion.div style={{ scale: heroScale, y: yHero }} className="absolute inset-0 z-0">
-            <Image src="https://images.unsplash.com/photo-1593702275687-f8b402bf1fb5?auto=format&fit=crop&q=80&w=2500" alt="Barber" fill className="object-cover opacity-20 grayscale contrast-125" priority />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-transparent to-[#0A0A0A]/40" />
-         </motion.div>
-         
-         <div className="relative z-10 max-w-7xl w-full text-center">
-            <motion.div 
-               initial={{ opacity: 0, scale: 0.95 }}
-               animate={{ opacity: 1, scale: 1 }}
-               transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
-            >
-               <div className="inline-flex items-center gap-4 font-black text-[10px] uppercase tracking-[1em] text-[#C0A080] mb-16 border-l-2 border-[#C0A080] pl-10 italic font-mono text-center">
-                  Grooming_Capture // 0180_Alpha
-               </div>
-               
-               <h1 className="text-7xl md:text-[14vw] font-black italic uppercase leading-[0.75] tracking-tighter mb-20 text-white text-center">
-                  <TextScramble text="PRECISION." /><br/>
-                  <span className="text-transparent" style={{ WebkitTextStroke: "2px rgba(255,255,255,0.6)" }}>HERITAGE.</span>
-               </h1>
-               
-               <p className="text-xl md:text-3xl font-light italic text-white/30 max-w-3xl mx-auto mb-24 leading-relaxed uppercase tracking-widest text-center">
-                  Structural allocation for grooming intent. Architecting the future of style with tectonic precision.
-               </p>
-               
-               <div className="flex flex-col md:flex-row gap-16 justify-center items-center font-mono text-center">
-                  <div className="flex items-center gap-8 group cursor-pointer">
-                     <div className="w-20 h-px bg-[#C0A080]/30 group-hover:w-32 transition-all" />
-                     <span className="text-[10px] font-black uppercase tracking-[0.8em] text-white">Explore_Services</span>
-                  </div>
-                  <div className="hidden md:block w-px h-16 bg-white/5" />
-                  <div className="font-black text-[9px] uppercase tracking-[0.6em] text-white/10 italic text-center">
-                     Established // 2026 // NYC
-                  </div>
-               </div>
-            </motion.div>
-         </div>
-
-         {/* Grooming HUD */}
-         <div className="absolute right-12 bottom-12 flex flex-col items-end gap-4 font-black text-[8px] uppercase tracking-[1em] text-[#C0A080]/20 hidden md:flex italic font-mono text-center">
-            <span>CHAIR_SYNC: ACTIVE</span>
-            <div className="flex gap-1 h-12 items-end">
-               {[1, 2, 3, 4, 5].map(i => <motion.div key={i} animate={{ height: ['20%', '100%', '40%'] }} transition={{ duration: 2, repeat: Infinity, delay: i * 0.2 }} className="w-[1px] bg-[#C0A080]" />)}
-            </div>
-         </div>
-         
-         <div className="absolute left-12 bottom-12 hidden md:block">
-            <div className="flex flex-col gap-2 text-[8px] font-black uppercase tracking-[0.4em] text-white/10 italic font-mono text-center">
-               <span>BLADE: CERAMIC</span>
-               <span>TEMP: 38&deg;C</span>
-               <span>STATUS: PRIMED</span>
-            </div>
-         </div>
-      </section>
-
-      {/* SERVICES GRID */}
-      <section className="py-48 px-6 md:px-12 max-w-[1800px] mx-auto relative z-10 bg-[#0A0A0A]">
-         <div className="flex flex-col md:flex-row justify-between items-end mb-40 border-b border-white/10 pb-20 gap-16 text-center md:text-left">
-            <div>
-               <span className="text-[10px] font-black uppercase tracking-[2em] text-[#C0A080] mb-8 block italic font-mono text-center md:text-left">Grooming_Manifest</span>
-               <h2 className="text-6xl md:text-[10vw] font-black italic uppercase tracking-tighter text-white leading-none text-center md:text-left">The <span className="text-[#C0A080]/20">Legacy_</span></h2>
-            </div>
-            <div className="flex gap-16 text-[10px] font-black uppercase tracking-[0.6em] text-white/20 italic font-mono text-center md:text-left">
-               <span>Records: [03]</span>
-               <span>Status: [Verified]</span>
-            </div>
-         </div>
-
-         <div className="grid grid-cols-1 md:grid-cols-3 gap-16 text-center">
-            {SERVICES.map((p, i) => (
-                <motion.div 
-                   key={i} 
-                   initial={{ opacity: 0, y: 80 }}
-                   whileInView={{ opacity: 1, y: 0 }}
-                   viewport={{ once: true, margin: "-100px" }}
-                   transition={{ duration: 1.2, delay: i * 0.1, ease: [0.16, 1, 0.3, 1] }}
-                   className="group relative h-[85vh] bg-white/5 border border-white/5 overflow-hidden cursor-pointer hover:border-[#C0A080]/30 transition-all shadow-2xl text-center"
-                >
-                    <Image src={p.img} alt={p.title} fill className="object-cover opacity-30 grayscale group-hover:grayscale-0 group-hover:scale-110 transition-all duration-1000 text-center" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-transparent to-transparent opacity-95 text-center" />
-                    <div className="absolute inset-0 bg-white/5 group-hover:bg-transparent transition-colors duration-700 text-center" />
-                    
-                    <div className="absolute inset-16 flex flex-col justify-between z-10 font-mono text-white text-center">
-                        <div className="flex justify-between items-start text-center">
-                           <div className="p-5 bg-white/5 border border-white/10 rounded-none group-hover:bg-[#C0A080] group-hover:text-black transition-all shadow-xl text-center">
-                              {p.icon}
-                           </div>
-                           <div className="text-[10px] font-black uppercase tracking-[0.8em] text-[#C0A080] italic font-mono text-center">Ref_0x{i+180}</div>
-                        </div>
-                        
-                        <div className="text-center">
-                           <span className="text-[10px] uppercase tracking-[0.8em] text-[#C0A080] mb-8 block italic font-black text-center">{p.cat} // Verified</span>
-                           <h3 className="text-5xl md:text-6xl font-black italic uppercase tracking-tighter mb-16 text-white group-hover:tracking-widest transition-all leading-[0.8] text-center">{p.title}</h3>
-                           <div className="flex items-center gap-8 text-[10px] font-black uppercase tracking-[0.6em] opacity-0 group-hover:opacity-100 transition-all translate-y-10 group-hover:translate-y-0 text-white text-center justify-center">
-                              Details <ArrowRight className="w-6 h-6 text-center" />
-                           </div>
-                        </div>
-                    </div>
-                </motion.div>
-            ))}
-         </div>
-      </section>
-
-      {/* FOOTER */}
-      <footer className="py-48 px-6 md:px-12 border-t border-white/5 relative z-10 bg-[#0A0A0A]">
-         <div className="max-w-[1800px] mx-auto grid grid-cols-1 md:grid-cols-2 gap-40 text-center md:text-left">
-            <div className="max-w-2xl text-center md:text-left">
-               <div className="text-[#C0A080] mb-16 flex items-center gap-6 font-black text-2xl italic uppercase tracking-widest font-mono justify-center md:justify-start text-center md:text-left">
-                  <Activity className="w-10 h-10 text-center md:text-left" /> Shears_Logs
-               </div>
-               <p className="text-4xl md:text-6xl font-light italic leading-[0.9] text-white/20 uppercase tracking-tighter mb-20 text-center md:text-left">
-                  WE TREAT CUTS AS ARCHITECTURE. EVERY CHAIR A FUNCTION.
-               </p>
-               <div className="flex gap-20 font-black text-[10px] uppercase tracking-[0.8em] text-[#C0A080]/40 italic font-mono justify-center md:justify-start text-center md:text-left">
-                  <span>Berlin</span>
-                  <span>London</span>
-                  <span>NYC</span>
-               </div>
-            </div>
-            <div className="flex flex-col justify-between items-end text-right font-mono text-center md:text-right">
-               <div className="w-full text-center md:text-right">
-                  <h4 className="text-[12vw] font-black italic uppercase tracking-tighter text-white opacity-[0.02] leading-none mb-20 text-center md:text-right">SHEARS</h4>
-                  <nav className="flex flex-col gap-10 font-black text-[10px] uppercase tracking-[0.8em] text-white/10 text-center md:text-right">
-                     <Link href="#" className="hover:text-[#C0A080] transition-colors group">
-                        Instagram<span className="text-[#C0A080]/0 group-hover:text-[#C0A080] transition-all">_</span>
-                     </Link>
-                     <Link href="#" className="hover:text-[#C0A080] transition-colors group">
-                        Booking<span className="text-[#C0A080]/0 group-hover:text-[#C0A080] transition-all">_</span>
-                     </Link>
-                     <Link href="#" className="hover:text-[#C0A080] transition-colors group">
-                        Legal<span className="text-[#C0A080]/0 group-hover:text-[#C0A080] transition-all">_</span>
-                     </Link>
-                  </nav>
-               </div>
-               <div className="font-black text-[9px] uppercase tracking-[1.5em] text-white/5 mt-32 italic text-center md:text-right">
-                  &copy; 2026 // SHEARS_HERITAGE_BARBER&trade;
-               </div>
-            </div>
-         </div>
-      </footer>
-    </div>
-  );
+    <footer className="bg-[#0a0a0a] border-t border-white/5 py-32 px-6 md:px-12"><div className="max-w-[1500px] mx-auto grid grid-cols-1 md:grid-cols-4 gap-24"><div className="col-span-1 md:col-span-2"><Link href="/" className="flex items-center gap-3 text-xl font-black tracking-tighter mb-10"><div className="w-8 h-8 bg-[#c8956c] text-white rounded-sm flex items-center justify-center"><Scissors className="w-4 h-4"/></div><span>ESSENTIAL // SALON</span></Link><p className="text-[11px] text-white/15 uppercase tracking-[0.2em] max-w-sm italic">Premium barbershop & grooming. Est. 2019.</p></div><div><h4 className="text-[10px] font-black uppercase tracking-widest mb-10 text-[#c8956c]">Hours</h4><ul className="space-y-5 text-[10px] font-bold text-white/20 uppercase tracking-widest"><li>Mon-Fri 9-8</li><li>Sat 9-6</li><li>Sun Closed</li></ul></div><div><h4 className="text-[10px] font-black uppercase tracking-widest mb-10 text-[#c8956c]">Contact</h4><ul className="space-y-5 text-[10px] font-bold text-white/20 uppercase tracking-widest">{["Instagram","Yelp","Call_Us"].map(l=><li key={l}><Link href="#">{l}</Link></li>)}</ul></div></div><div className="max-w-[1500px] mx-auto mt-32 pt-16 border-t border-white/5 text-center text-[9px] font-bold text-white/10 uppercase tracking-widest">&copy; 2026 ESSENTIAL SALON</div></footer>
+  </div>);
 }
