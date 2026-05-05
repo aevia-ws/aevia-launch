@@ -23,7 +23,7 @@ const TESTIMONIALS = [
 const PRICING = [
   { name: "SPRINT", price: "$15K", period: "/mo", features: ["1 senior engineer", "40h / week", "Async standup", "Code reviews"], cta: "Start_Sprint" },
   { name: "SQUAD", price: "$45K", period: "/mo", features: ["3 engineers", "Tech lead included", "Sprint planning", "CI/CD setup", "Weekly demos"], cta: "Build_Squad", featured: true },
-  { name: "FLEET", price: "Custom", period: "", features: ["5+ engineers", "PM + Design", "Architecture", "SLA guarantee", "Dedicated Slack"], cta: "Contact_Sales" },
+  { name: "FLEET", price: "Custom", period: "", features: ["5+ engineers", "PM + Design", "Architecture", "SLA guarantee", "Dedicated Globe"], cta: "Contact_Sales" },
 ];
 
 function Reveal({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
@@ -112,7 +112,7 @@ export default function VeloceTeamPage() {
         <div className="max-w-[1500px] mx-auto grid grid-cols-1 md:grid-cols-4 gap-24">
           <div className="col-span-1 md:col-span-2"><Link href="/" className="flex items-center gap-3 text-xl font-black tracking-tighter mb-10"><div className="w-8 h-8 bg-[#7c3aed] text-white rounded-lg flex items-center justify-center"><Rocket className="w-4 h-4" /></div><span>VÉLOCE // TEAM</span></Link><p className="text-[11px] text-white/15 uppercase tracking-[0.2em] max-w-sm italic">Elite engineering teams on demand.</p></div>
           <div><h4 className="text-[10px] font-black uppercase tracking-widest mb-10 text-[#7c3aed]">Company</h4><ul className="space-y-5 text-[10px] font-bold text-white/20 uppercase tracking-widest">{["Services", "Work", "Team", "Blog"].map(l => <li key={l}><Link href="#">{l}</Link></li>)}</ul></div>
-          <div><h4 className="text-[10px] font-black uppercase tracking-widest mb-10 text-[#7c3aed]">Connect</h4><ul className="space-y-5 text-[10px] font-bold text-white/20 uppercase tracking-widest">{["LinkedIn", "Twitter", "GitHub", "Contact"].map(l => <li key={l}><Link href="#">{l}</Link></li>)}</ul></div>
+          <div><h4 className="text-[10px] font-black uppercase tracking-widest mb-10 text-[#7c3aed]">Connect</h4><ul className="space-y-5 text-[10px] font-bold text-white/20 uppercase tracking-widest">{["LinkedIn", "Globe", "GitHub", "Contact"].map(l => <li key={l}><Link href="#">{l}</Link></li>)}</ul></div>
         </div>
         <div className="max-w-[1500px] mx-auto mt-32 pt-16 border-t border-white/5 text-center text-[9px] font-bold text-white/10 uppercase tracking-widest">&copy; 2026 VÉLOCE TEAM</div>
       </footer>

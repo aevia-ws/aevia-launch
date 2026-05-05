@@ -13,11 +13,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel"
 import { Progress } from "@/components/ui/progress"
 import { Separator } from "@/components/ui/separator"
-import {
-  Menu, TrendingUp, DollarSign, PieChart, BarChart3, Shield, Target,
-  CheckCircle2, ArrowRight, Star, Globe, RefreshCw, Zap, Calendar,
-  Clock, Users, Building, Lock, Phone, Twitter, Linkedin, Youtube, ChevronRight
-} from "lucide-react"
+import { Menu, TrendingUp, DollarSign, PieChart, BarChart3, Shield, Target, CheckCircle2, ArrowRight, Star, Globe, RefreshCw, Zap, Calendar, Clock, Users, Building, Lock, Phone, ChevronRight } from "lucide-react"
 
 function Reveal({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
   const ref = useRef(null)
@@ -945,7 +941,7 @@ export default function MeridianWealthFintech() {
                 SEC-registered, fiduciary-only wealth management for high-net-worth individuals, families, and business owners. No commissions. No conflicts. Just results.
               </p>
               <div className="flex gap-3">
-                {[Twitter, Linkedin, Youtube].map((Icon, i) => (
+                {[Globe, Globe, Globe].map((Icon, i) => (
                   <a key={i} href="#" className="cursor-pointer w-9 h-9 bg-slate-800 rounded-lg flex items-center justify-center hover:bg-blue-600 transition-all duration-200">
                     <Icon className="w-4 h-4 text-slate-400" />
                   </a>

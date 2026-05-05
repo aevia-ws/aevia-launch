@@ -23,7 +23,7 @@ const SERVICES = [
 
 const TESTIMONIALS = [
   { name: "Claire Dubois", role: "Solo Traveler", quote: "Wanderer planned the most incredible three weeks of my life." },
-  { name: "Raj Mehta", role: "Honeymoon", quote: "Our Santorini trip was flawless. Hidden spots you won't find on Instagram." },
+  { name: "Raj Mehta", role: "Honeymoon", quote: "Our Santorini trip was flawless. Hidden spots you won't find on Globe." },
   { name: "Emily Chen", role: "Family Trip", quote: "Traveling with two kids seemed daunting. Wanderer made it effortless." },
 ];
 

@@ -3,33 +3,7 @@
 import { motion, useScroll, useTransform, useInView, AnimatePresence } from "framer-motion";
 import { useState, useRef, useEffect, Suspense } from "react";
 import Image from "next/image";
-import { 
-  ArrowUpRight, 
-  Menu, 
-  X, 
-  Layers, 
-  ShieldCheck,
-  Plus,
-  Play,
-  ArrowRight,
-  ChevronDown,
-  Monitor,
-  LayoutGrid,
-  Zap,
-  Brain,
-  Eye,
-  Maximize2,
-  Minimize2,
-  Box,
-  Settings,
-  Sparkles,
-  Command,
-  Activity,
-  Ruler,
-  Wind,
-  Network,
-  Cpu
-} from "lucide-react";
+import { ArrowUpRight, Menu, X, Layers, ShieldCheck, Plus, Play, ArrowRight, ChevronDown, Monitor, LayoutGrid, Zap, Brain, Eye, Maximize2, Minimize2, Box, Settings, Sparkles, Command, Activity, Ruler, Wind, Network, Cpu } from "lucide-react";
 import "../premium.css";
 
 // ─── DATA ──────────────────────────────────────────────────────────────────

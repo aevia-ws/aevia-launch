@@ -10,24 +10,7 @@ import {
 } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
-import {
-  ArrowRight,
-  TrendingUp,
-  TrendingDown,
-  Activity,
-  Shield,
-  Zap,
-  Globe,
-  Lock,
-  Bell,
-  Search,
-  Menu,
-  X,
-  ChevronRight,
-  BarChart3,
-  PieChart,
-  LineChart,
-} from "lucide-react";
+import { ArrowRight, TrendingUp, TrendingDown, Activity, Shield, Zap, Globe, Lock, Bell, Search, Menu, X, ChevronRight, BarChart3, PieChart, LineChart } from "lucide-react";
 
 import "../premium.css";
 

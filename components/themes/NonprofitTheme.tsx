@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import type { SessionData } from "@/lib/sessions";
 import { ThemeWrapper } from "./ThemeWrapper";
 import { Reveal, Stagger, StaggerItem, MagneticButton } from "./AnimationHelpers";
-import { Heart, Globe, Users, Shield, ArrowRight, CheckCircle, Award, HelpCircle, Activity, TrendingUp, PieChart, Star, Quote, Instagram, Phone, Mail, Calendar } from "lucide-react";
+import { Heart, Globe, Users, Shield, ArrowRight, CheckCircle, Award, HelpCircle, Activity, TrendingUp, PieChart, Star, Quote, Phone, Mail, Calendar } from "lucide-react";
 
 export function NonprofitTheme({ session }: { session: SessionData }) {
   const { formData, generatedContent: c } = session;
@@ -129,8 +129,6 @@ export function NonprofitTheme({ session }: { session: SessionData }) {
             </div>
           </Reveal>
         </div>
-      </section>
-
       </section>
 
       {/* ═══ SECTION 6: OUR HISTORY ═══ */}

@@ -12,30 +12,7 @@ import {
 import { useState, useRef, useEffect, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import {
-  Globe,
-  Radio,
-  Zap,
-  Shield,
-  Layers,
-  Search,
-  Menu,
-  X,
-  ArrowRight,
-  ChevronRight,
-  Cpu,
-  Activity,
-  Box,
-  Binary,
-  Gauge,
-  Navigation,
-  Satellite,
-  Orbit,
-  Signal,
-  Wind,
-  Target,
-  Telescope,
-} from "lucide-react";
+import { Globe, Radio, Zap, Shield, Layers, Search, Menu, X, ArrowRight, ChevronRight, Cpu, Activity, Box, Binary, Gauge, Navigation, Satellite, Orbit, Signal, Wind, Target, Telescope } from "lucide-react";
 
 import "../premium.css";
 

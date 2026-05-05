@@ -14,11 +14,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel"
 import { Progress } from "@/components/ui/progress"
 import { Separator } from "@/components/ui/separator"
-import {
-  Menu, X, Clock, MapPin, Phone, Mail, Star, ChevronDown, ArrowRight,
-  Leaf, Flame, Wine, Utensils, CalendarDays, Users, Camera, Award,
-  Instagram, Facebook, Twitter, Globe, CheckCircle2
-} from "lucide-react"
+import { Menu, X, Clock, MapPin, Phone, Mail, Star, ChevronDown, ArrowRight, Leaf, Flame, Wine, Utensils, CalendarDays, Users, Camera, Award, Globe, CheckCircle2 } from "lucide-react"
 
 function Reveal({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
   const ref = useRef(null)
@@ -387,7 +383,7 @@ export default function LEtoileRestaurant() {
                 <h2 className="text-4xl md:text-6xl font-light">A <span className="italic">Sensory</span> Journey</h2>
               </div>
               <a href="https://instagram.com/letoile.paris" className="text-sm font-sans text-amber-500 flex items-center gap-2 hover:gap-4 transition-all duration-200 cursor-pointer">
-                <Instagram className="w-4 h-4" /> @letoile.paris
+                <Globe className="w-4 h-4" /> @letoile.paris
               </a>
             </div>
           </Reveal>
@@ -650,7 +646,7 @@ export default function LEtoileRestaurant() {
         <div className="flex flex-col md:flex-row justify-between items-center gap-6">
           <span className="text-[9px] font-sans text-[#f5efe6]/15 uppercase tracking-wider">&copy; 2026 L&apos;Étoile Paris · All Rights Reserved</span>
           <div className="flex gap-4">
-            {[<Instagram key="ig" className="w-4 h-4" />, <Facebook key="fb" className="w-4 h-4" />, <Twitter key="tw" className="w-4 h-4" />, <Mail key="mail" className="w-4 h-4" />].map((icon, i) => (
+            {[<Globe key="ig" className="w-4 h-4" />, <Globe key="fb" className="w-4 h-4" />, <Globe key="tw" className="w-4 h-4" />, <Mail key="mail" className="w-4 h-4" />].map((icon, i) => (
               <a key={i} href="#" className="w-9 h-9 rounded-full border border-white/10 flex items-center justify-center text-[#f5efe6]/30 hover:text-amber-500 hover:border-amber-600 transition-all duration-200 cursor-pointer">
                 {icon}
               </a>

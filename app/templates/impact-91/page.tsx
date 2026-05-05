@@ -22,30 +22,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
-import {
-  Diamond,
-  Sparkles,
-  Heart,
-  Star,
-  Check,
-  Instagram,
-  Facebook,
-  Mail,
-  Phone,
-  ChevronRight,
-  ArrowRight,
-  X,
-  Menu,
-  ShoppingBag,
-  Award,
-  Clock,
-  MapPin,
-  PenTool,
-  Scissors,
-  Zap,
-  Search,
-  Globe,
-} from "lucide-react";
+import { Diamond, Sparkles, Heart, Star, Check, Globe, Mail, Phone, ChevronRight, ArrowRight, X, Menu, ShoppingBag, Award, Clock, MapPin, PenTool, Scissors, Zap, Search } from "lucide-react";
 
 import "../premium.css";
 
@@ -559,7 +536,7 @@ export default function AureliaJewelsPage() {
                 Paris, London & New York.
               </p>
               <div className="flex gap-4">
-                {[Instagram, Facebook, Mail].map((Icon, i) => (
+                {[Globe, Globe, Mail].map((Icon, i) => (
                   <button
                     key={i}
                     className="w-12 h-12 rounded-full border border-[#c9a96e]/20 flex items-center justify-center text-[#c9a96e] hover:bg-[#c9a96e] hover:text-white transition-all"

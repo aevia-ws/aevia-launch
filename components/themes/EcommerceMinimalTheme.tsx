@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import type { SessionData } from "@/lib/sessions";
 import { ThemeWrapper } from "./ThemeWrapper";
 import { Reveal, Stagger, StaggerItem } from "./AnimationHelpers";
-import { X, ArrowRight, Minus, Plus, Award, HelpCircle, Activity, CheckCircle, TrendingUp, Quote, Search, Mail, Instagram, Phone, Globe, Shield, Zap } from "lucide-react";
+import { X, ArrowRight, Minus, Plus, Award, HelpCircle, Activity, CheckCircle, TrendingUp, Quote, Search, Mail, Globe, Phone, Shield, Zap } from "lucide-react";
 
 // --- Mock Data Generator ---
 const generateProducts = (businessType: string) => {
@@ -112,8 +112,6 @@ export function EcommerceMinimalTheme({ session }: { session: SessionData }) {
             </Reveal>
           </div>
         </div>
-      </section>
-
       </section>
 
       {/* ═══ SECTION 5: EFFICIENCY STATS ═══ */}

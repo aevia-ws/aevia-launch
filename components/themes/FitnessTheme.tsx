@@ -144,8 +144,6 @@ export function FitnessTheme({ session }: { session: SessionData }) {
         </div>
       </section>
 
-      </section>
-
       {/* ═══ SECTION 6: COACHES TEAM ═══ */}
       <section className="py-32 bg-black">
         <div className="max-w-7xl mx-auto px-6">

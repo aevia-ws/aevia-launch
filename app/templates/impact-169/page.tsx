@@ -14,12 +14,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel"
 import { Progress } from "@/components/ui/progress"
 import { Separator } from "@/components/ui/separator"
-import {
-  Menu, ChefHat, Utensils, ShoppingBag, BarChart3, Bell, Star,
-  CheckCircle2, ArrowRight, ChevronRight, Zap, Globe, Clock,
-  Twitter, Linkedin, Instagram, Youtube, TrendingUp, Shield,
-  Smartphone, QrCode, Users, DollarSign
-} from "lucide-react"
+import { Menu, ChefHat, Utensils, ShoppingBag, BarChart3, Bell, Star, CheckCircle2, ArrowRight, ChevronRight, Zap, Globe, Clock, TrendingUp, Shield, Smartphone, QrCode, Users, DollarSign } from "lucide-react"
 
 function Reveal({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
   const ref = useRef(null)
@@ -794,7 +789,7 @@ export default function TablioFoodTech() {
                 Restaurant tech that drives revenue, not commission bills.
               </p>
               <div className="flex gap-3">
-                {[Twitter, Linkedin, Instagram, Youtube].map((Icon, i) => (
+                {[Globe, Globe, Globe, Globe].map((Icon, i) => (
                   <button key={i} className="cursor-pointer w-9 h-9 rounded-lg bg-slate-800 hover:bg-orange-500 flex items-center justify-center transition-all duration-200">
                     <Icon className="w-4 h-4 text-slate-400 hover:text-white" />
                   </button>

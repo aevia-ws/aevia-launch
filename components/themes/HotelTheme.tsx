@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import type { SessionData } from "@/lib/sessions";
 import { ThemeWrapper } from "./ThemeWrapper";
 import { Reveal, Stagger, StaggerItem, MagneticButton } from "./AnimationHelpers";
-import { Calendar, Users, MapPin, X, Star, Wind, Wifi, Coffee, Utensils, Waves, Award, HelpCircle, Quote, Instagram, ArrowRight, ShieldCheck } from "lucide-react";
+import { Calendar, Users, MapPin, X, Star, Wind, Wifi, Coffee, Utensils, Waves, Award, HelpCircle, Quote, Globe, ArrowRight, ShieldCheck } from "lucide-react";
 
 const ROOMS = [
   { name: "Deluxe Ocean Suite", price: 450, img: "https://images.unsplash.com/photo-1590490360182-c33d57733427?w=1200&q=80" },
@@ -144,8 +144,6 @@ export function HotelTheme({ session }: { session: SessionData }) {
             ))}
           </div>
         </div>
-      </section>
-
       </section>
 
       {/* ═══ SECTION 6: GASTRONOMY ═══ */}

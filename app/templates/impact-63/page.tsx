@@ -38,38 +38,7 @@ import {
 } from "@/components/ui/carousel";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
-import {
-  ArrowRight,
-  ArrowUpRight,
-  Star,
-  Check,
-  Menu,
-  X,
-  Globe,
-  Clock,
-  Quote,
-  Search,
-  ShoppingBag,
-  Activity,
-  Zap,
-  BookOpen,
-  Terminal,
-  Shield,
-  Lock,
-  TrendingUp,
-  TrendingDown,
-  BarChart2,
-  Cpu,
-  Database,
-  Server,
-  AlertTriangle,
-  MousePointer2,
-  Smartphone,
-  Code2,
-  Twitter,
-  Linkedin,
-  Github,
-} from "lucide-react";
+import { ArrowRight, ArrowUpRight, Star, Check, Menu, X, Globe, Clock, Quote, Search, ShoppingBag, Activity, Zap, BookOpen, Terminal, Shield, Lock, TrendingUp, TrendingDown, BarChart2, Cpu, Database, Server, AlertTriangle, MousePointer2, Smartphone, Code2 } from "lucide-react";
 
 import "../premium.css";
 

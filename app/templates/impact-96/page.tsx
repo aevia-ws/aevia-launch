@@ -22,32 +22,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
-import {
-  Camera,
-  Film,
-  Zap,
-  Maximize,
-  Play,
-  Instagram,
-  Twitter,
-  Mail,
-  MapPin,
-  ChevronRight,
-  ArrowRight,
-  X,
-  Menu,
-  Layers,
-  Users,
-  Star,
-  Award,
-  Focus,
-  Frame,
-  Monitor,
-  Share2,
-  Lock,
-  Search,
-  ShoppingBag,
-} from "lucide-react";
+import { Camera, Film, Zap, Maximize, Play, Globe, Mail, MapPin, ChevronRight, ArrowRight, X, Menu, Layers, Users, Star, Award, Focus, Frame, Monitor, Share2, Lock, Search, ShoppingBag } from "lucide-react";
 
 import "../premium.css";
 
@@ -567,7 +542,7 @@ export default function UrbanPulsePage() {
                 between NYC and the digital void.
               </p>
               <div className="flex gap-6">
-                {[Instagram, Twitter, Mail].map((Icon, i) => (
+                {[Globe, Globe, Mail].map((Icon, i) => (
                   <button
                     key={i}
                     className="w-14 h-14 rounded-full border border-white/10 flex items-center justify-center text-white/40 hover:bg-[#ff003c] hover:text-white hover:border-[#ff003c] transition-all"

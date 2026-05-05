@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import type { SessionData } from "@/lib/sessions";
 import { ThemeWrapper } from "./ThemeWrapper";
 import { Reveal, Stagger, StaggerItem, MagneticButton } from "./AnimationHelpers";
-import { ArrowRight, ChevronRight, Globe, Shield, Zap, Award, HelpCircle, Activity, CheckCircle, TrendingUp, Quote, Instagram, Phone, Mail, Search, Clock } from "lucide-react";
+import { ArrowRight, ChevronRight, Globe, Shield, Zap, Award, HelpCircle, Activity, CheckCircle, TrendingUp, Quote, Phone, Mail, Search, Clock } from "lucide-react";
 
 export function MinimalProTheme({ session }: { session: SessionData }) {
   const { formData, generatedContent: c } = session;
@@ -101,8 +101,6 @@ export function MinimalProTheme({ session }: { session: SessionData }) {
             </div>
           </Reveal>
         </div>
-      </section>
-
       </section>
 
       {/* ═══ SECTION 6: EFFICIENCY METRICS ═══ */}

@@ -22,31 +22,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
-import {
-  Plane,
-  Globe,
-  Clock,
-  ShieldCheck,
-  Zap,
-  Instagram,
-  Linkedin,
-  Twitter,
-  Mail,
-  Phone,
-  ChevronRight,
-  ArrowRight,
-  X,
-  Menu,
-  Compass,
-  Navigation,
-  MapPin,
-  Gauge,
-  Users,
-  Award,
-  Calendar,
-  Wind,
-  Star,
-} from "lucide-react";
+import { Plane, Globe, Clock, ShieldCheck, Zap, Mail, Phone, ChevronRight, ArrowRight, X, Menu, Compass, Navigation, MapPin, Gauge, Users, Award, Calendar, Wind, Star } from "lucide-react";
 
 import "../premium.css";
 
@@ -581,7 +557,7 @@ export default function VelocityJetsPage() {
                 speed, and absolute discretion.
               </p>
               <div className="flex gap-6">
-                {[Instagram, Linkedin, Twitter].map((Icon, i) => (
+                {[Globe, Globe, Globe].map((Icon, i) => (
                   <button
                     key={i}
                     className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center text-white/20 hover:bg-[#00f2ff] hover:text-black transition-all"

@@ -13,11 +13,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel"
 import { Progress } from "@/components/ui/progress"
 import { Separator } from "@/components/ui/separator"
-import {
-  Menu, Zap, BarChart3, Mail, MessageSquare, Target, TrendingUp, Users,
-  CheckCircle2, ArrowRight, Star, Globe, Workflow, Layers, RefreshCw,
-  Bell, MousePointer, Calendar, Twitter, Linkedin, Youtube, Instagram
-} from "lucide-react"
+import { Menu, Zap, BarChart3, Mail, MessageSquare, Target, TrendingUp, Users, CheckCircle2, ArrowRight, Star, Globe, Workflow, Layers, RefreshCw, Bell, MousePointer, Calendar } from "lucide-react"
 
 function Reveal({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
   const ref = useRef(null)
@@ -770,7 +766,7 @@ export default function NovaPulseMarketing() {
                 The AI-native marketing automation platform powering personalized customer journeys for 8,400+ high-growth teams.
               </p>
               <div className="flex gap-3">
-                {[Twitter, Linkedin, Youtube, Instagram].map((Icon, i) => (
+                {[Globe, Globe, Globe, Globe].map((Icon, i) => (
                   <a key={i} href="#" className="cursor-pointer w-9 h-9 bg-slate-800 rounded-lg flex items-center justify-center hover:bg-violet-600 transition-all duration-200">
                     <Icon className="w-4 h-4 text-slate-400" />
                   </a>

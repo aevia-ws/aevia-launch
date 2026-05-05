@@ -9,16 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { Separator } from "@/components/ui/separator"
-import {
-  Rocket, Globe, Moon, Sun, Star,
-  Instagram, Twitter, Mail, MapPin,
-  ChevronRight, ArrowRight, X, Menu,
-  Compass, Shield, Timer, Zap,
-  Navigation, Telescope, Microscope, 
-  Settings2, Activity, Info, Share2, 
-  Heart, Search, ShoppingBag, Eye,
-  CloudMoon, Orbit
-} from "lucide-react"
+import { Rocket, Globe, Moon, Sun, Star, Mail, MapPin, ChevronRight, ArrowRight, X, Menu, Compass, Shield, Timer, Zap, Navigation, Telescope, Microscope, Settings2, Activity, Info, Share2, Heart, Search, ShoppingBag, Eye, CloudMoon, Orbit } from "lucide-react"
 
 import "../premium.css";
 
@@ -514,7 +505,7 @@ export default function AstrumReachPage() {
                     The absolute mastery of commercial orbital transit. Engineered for the evolutionary elite in our Tokyo sanctuary.
                  </p>
                  <div className="flex gap-6">
-                    {[Instagram, Twitter, Mail].map((Icon, i) => (
+                    {[Globe, Globe, Mail].map((Icon, i) => (
                       <button key={i} className="w-14 h-14 rounded-full border border-white/10 flex items-center justify-center text-white/40 hover:bg-[#4f46e5] hover:text-black hover:border-[#4f46e5] transition-all">
                          <Icon className="w-5 h-5" />
                       </button>

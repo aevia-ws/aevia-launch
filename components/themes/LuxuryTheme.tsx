@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import type { SessionData } from "@/lib/sessions";
 import { ThemeWrapper } from "./ThemeWrapper";
 import { Reveal, Stagger, StaggerItem, MagneticButton } from "./AnimationHelpers";
-import { Star, ArrowRight, ShieldCheck, Globe, Award, Quote, Instagram, Phone, Mail, Clock, MapPin } from "lucide-react";
+import { Star, ArrowRight, ShieldCheck, Globe, Award, Quote, Phone, Mail, Clock, MapPin } from "lucide-react";
 
 export function LuxuryTheme({ session }: { session: SessionData }) {
   const { formData, generatedContent: c } = session;
@@ -126,8 +126,6 @@ export function LuxuryTheme({ session }: { session: SessionData }) {
             ))}
           </div>
         </div>
-      </section>
-
       </section>
 
       {/* ═══ SECTION 6: THE ATELIER ═══ */}

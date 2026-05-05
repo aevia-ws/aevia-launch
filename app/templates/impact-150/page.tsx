@@ -10,26 +10,7 @@ import {
 } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
-import {
-  Zap,
-  Shield,
-  Cpu,
-  Terminal,
-  Radio,
-  Share2,
-  ShoppingCart,
-  Heart,
-  Search,
-  Menu,
-  X,
-  ChevronRight,
-  Play,
-  ArrowRight,
-  Activity,
-  Crosshair,
-  Eye,
-  Lock,
-} from "lucide-react";
+import { Zap, Shield, Cpu, Terminal, Radio, Share2, ShoppingCart, Heart, Search, Menu, X, ChevronRight, Play, ArrowRight, Activity, Crosshair, Eye, Lock } from "lucide-react";
 
 import "../premium.css";
 

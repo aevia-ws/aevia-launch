@@ -38,32 +38,7 @@ import {
 } from "@/components/ui/carousel";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
-import {
-  ArrowRight,
-  ArrowUpRight,
-  Star,
-  Check,
-  Menu,
-  X,
-  FlaskConical,
-  Dna,
-  Microscope,
-  Heart,
-  BarChart2,
-  Shield,
-  Globe,
-  Clock,
-  Quote,
-  Search,
-  ShoppingBag,
-  Activity,
-  Zap,
-  BookOpen,
-  UserCheck,
-  TrendingUp,
-  Cpu,
-  Twitter,
-} from "lucide-react";
+import { ArrowRight, ArrowUpRight, Star, Check, Menu, X, FlaskConical, Dna, Microscope, Heart, BarChart2, Shield, Globe, Clock, Quote, Search, ShoppingBag, Activity, Zap, BookOpen, UserCheck, TrendingUp, Cpu } from "lucide-react";
 
 import "../premium.css";
 
@@ -942,7 +917,7 @@ export default function NexavirBioPage() {
                     href="#"
                     className="hover:text-[#0066cc] transition-colors flex items-center gap-3"
                   >
-                    <Twitter className="w-3 h-3" /> X_Protocol
+                    <Globe className="w-3 h-3" /> X_Protocol
                   </Link>
                 </li>
                 <li>

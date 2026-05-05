@@ -1,241 +1,635 @@
-"use client";
+"use client"
 
-import { motion, useScroll, useTransform, useSpring, useMotionValue } from "framer-motion";
-import { useRef, useEffect, useState } from "react";
-import Image from "next/image";
-import Link from "next/link";
-import { ShoppingBag, ArrowRight, Menu, Search, Activity, Zap, Layers, Compass } from "lucide-react";
-import "../premium.css";
+import { motion, useScroll, useTransform, useInView, AnimatePresence, useMotionValue, useSpring } from "framer-motion"
+import { useState, useRef, useEffect } from "react"
+import Image from "next/image"
+import Link from "next/link"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
+import { Badge } from "@/components/ui/badge"
+import { Card, CardContent } from "@/components/ui/card"
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel"
+import { Progress } from "@/components/ui/progress"
+import { Separator } from "@/components/ui/separator"
+import { ArrowRight, Menu, X, Star, ChevronRight, Play, CheckCircle2, Scissors, Shirt, Diamond, Eye, Camera, ShoppingBag, MapPin, Phone } from "lucide-react"
 
-const LOOKS = [
-  { icon: <ShoppingBag className="w-8 h-8" />, title: "STRUCTURED_COAT", cat: "Outerwear", value: "Verified", img: "https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&q=80&w=1500" },
-  { icon: <Activity className="w-8 h-8" />, title: "SILK_DRAPED_V3", cat: "Gowns", value: "Active", img: "https://images.unsplash.com/photo-1550614000-4b95d4151745?auto=format&fit=crop&q=80&w=1500" },
-  { icon: <Zap className="w-8 h-8" />, title: "BLAZER_OVER_CORE", cat: "Tailoring", value: "Locked", img: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&q=80&w=1500" },
-];
-
-function TextScramble({ text }: { text: string }) {
-  const [display, setDisplay] = useState(text);
-  const chars = "!<>-_\\/[]{}—=+*^?#________";
-  
-  useEffect(() => {
-    let iteration = 0;
-    const interval = setInterval(() => {
-      setDisplay(prev => 
-        text.split("").map((char, index) => {
-          if (index < iteration) return text[index];
-          return chars[Math.floor(Math.random() * chars.length)];
-        }).join("")
-      );
-      if (iteration >= text.length) clearInterval(interval);
-      iteration += 1/3;
-    }, 30);
-    return () => clearInterval(interval);
-  }, [text]);
-
-  return <span>{display}</span>;
+// ─── REVEAL COMPONENT ────────────────────────────────────────────────────────
+function Reveal({ children, delay = 0, className = "" }: { children: React.ReactNode; delay?: number, className?: string }) {
+  const ref = useRef(null)
+  const isInView = useInView(ref, { once: true, margin: "-80px" })
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 32 }}
+      animate={isInView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.6, delay, ease: [0.22, 1, 0.36, 1] }}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  )
 }
 
-export default function VelmaFashionSPA() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({ target: containerRef });
-  
-  const yHero = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
-  const heroScale = useTransform(scrollYProgress, [0, 0.5], [1, 1.1]);
-  
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
-  const springX = useSpring(mouseX, { stiffness: 40, damping: 20 });
-  const springY = useSpring(mouseY, { stiffness: 40, damping: 20 });
+// ─── DATA ────────────────────────────────────────────────────────────────────
+const NAV_LINKS = [
+  { label: "Lookbook", href: "#lookbook" },
+  { label: "Collections", href: "#collections" },
+  { label: "Maison", href: "#maison" },
+  { label: "Boutiques", href: "#boutiques" },
+]
 
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      mouseX.set(e.clientX - window.innerWidth / 2);
-      mouseY.set(e.clientY - window.innerHeight / 2);
-    };
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, [mouseX, mouseY]);
+const STATS = [
+  { value: "1982", label: "Année de Création", suffix: "" },
+  { value: "14", label: "Collections Annuelles", suffix: "" },
+  { value: "45", label: "Boutiques dans le Monde", suffix: "" },
+  { value: "100", label: "Artisans d'Exception", suffix: "+" },
+  { value: "0", label: "Plastique dans nos Ateliers", suffix: "%" },
+]
+
+const FEATURES = [
+  {
+    id: "couture",
+    title: "Haute Couture",
+    icon: <Scissors className="w-5 h-5" />,
+    description: "L'expression ultime de notre savoir-faire. Chaque pièce est sculptée à la main dans nos ateliers parisiens, nécessitant des centaines d'heures de travail minutieux.",
+    bullets: [
+      "Créations uniques sur-mesure",
+      "Broderies faites main",
+      "Soieries exclusives",
+      "Essayages privés en salon"
+    ],
+    image: "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=800&q=80"
+  },
+  {
+    id: "rtw",
+    title: "Prêt-à-Porter",
+    icon: <Shirt className="w-5 h-5" />,
+    description: "L'allure Velma au quotidien. Des coupes architecturales, des tombés parfaits et des matières nobles sourcées de manière responsable en Europe.",
+    bullets: [
+      "Tailoring structuré",
+      "Mailles en cachemire upcyclé",
+      "Denim éthique japonais",
+      "Pièces intemporelles"
+    ],
+    image: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=800&q=80"
+  },
+  {
+    id: "accessories",
+    title: "Accessoires",
+    icon: <Diamond className="w-5 h-5" />,
+    description: "La touche finale qui définit une silhouette. Maroquinerie sculpturale et joaillerie contemporaine s'allient pour sublimer chaque tenue.",
+    bullets: [
+      "Cuirs au tannage végétal",
+      "Bijoux en or recyclé",
+      "Lunettes artisanales",
+      "Sacs iconiques numérotés"
+    ],
+    image: "https://images.unsplash.com/photo-1584916201218-f4242ceb4809?w=800&q=80"
+  }
+]
+
+const TESTIMONIALS = [
+  {
+    name: "Vogue Paris",
+    role: "Revue de Collection Printemps",
+    avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&q=80",
+    content: "Velma réussit le tour de force de redéfinir le minimalisme. La rigueur des coupes contraste divinement avec la sensualité des drapés. Une masterclass.",
+    rating: 5
+  },
+  {
+    name: "Clara D.",
+    role: "Cliente VIP",
+    avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&q=80",
+    content: "Le service en boutique est exceptionnel. La styliste a su composer une garde-robe capsule qui me correspond parfaitement. Les matières sont divines.",
+    rating: 5
+  },
+  {
+    name: "GQ Magazine",
+    role: "Éditorial",
+    avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&q=80",
+    content: "Leur nouvelle ligne de tailoring détendu capture exactement l'air du temps. C'est l'uniforme parfait pour la nouvelle génération de créatifs.",
+    rating: 5
+  },
+  {
+    name: "Business of Fashion",
+    role: "Rapport Annuel",
+    avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&q=80",
+    content: "L'engagement de Velma envers un sourcing transparent et éthique n'est pas un simple discours marketing. C'est inscrit dans l'ADN même de leurs vêtements.",
+    rating: 5
+  }
+]
+
+const PRICING = [
+  {
+    id: "style",
+    title: "Session Styling",
+    subtitle: "Rendez-vous Conseil",
+    price: "Offert",
+    duration: "1 Heure",
+    description: "Prenez rendez-vous avec l'un de nos stylistes experts pour découvrir la nouvelle collection et trouver les pièces qui sublimeront votre silhouette.",
+    features: [
+      "Styliste dédié en boutique",
+      "Sélection de pièces préparée à l'avance",
+      "Conseils morphologiques",
+      "Rafraîchissements offerts",
+      "Sans obligation d'achat"
+    ],
+    recommended: false
+  },
+  {
+    id: "capsule",
+    title: "Garde-Robe Capsule",
+    subtitle: "Accompagnement Complet",
+    price: "À p. de 2500€",
+    duration: "Demi-journée",
+    description: "Une refonte complète de votre vestiaire saisonnier. Notre équipe construit avec vous une capsule de 10 à 15 pièces parfaitement coordonnées.",
+    features: [
+      "Entretien préalable par téléphone",
+      "Salon privé réservé (3 heures)",
+      "Service de retouches express",
+      "Livraison à domicile ou à l'hôtel",
+      "Suivi personnalisé par votre conseiller"
+    ],
+    recommended: true
+  },
+  {
+    id: "surmesure",
+    title: "Le Sur-Mesure",
+    subtitle: "L'Expérience Ultime",
+    price: "Sur Devis",
+    duration: "3-4 Semaines",
+    description: "Pour les grandes occasions ou l'exigence absolue. Création d'une pièce unique moulée sur vous dans nos ateliers de Haute Couture.",
+    features: [
+      "Rencontre avec la Directrice de Création",
+      "Choix des tissus exclusifs (archives)",
+      "Prise de mesures complète",
+      "3 essayages (toile, bâti, final)",
+      "Patronage conservé à votre nom"
+    ],
+    recommended: false
+  }
+]
+
+const FAQS = [
+  {
+    question: "Où vos vêtements sont-ils fabriqués ?",
+    answer: "Plus de 85% de nos collections sont fabriquées en Europe (France, Italie et Portugal) dans des ateliers partenaires de longue date. Notre ligne Haute Couture est entièrement réalisée dans nos ateliers parisiens historiques."
+  },
+  {
+    question: "Quelle est votre politique de retours ?",
+    answer: "Vous disposez de 30 jours pour retourner toute pièce non portée, dans son emballage d'origine avec étiquettes. Les retours sont offerts en boutique ou via notre service de coursier dédié pour Paris intra-muros."
+  },
+  {
+    question: "Proposez-vous un service de retouches ?",
+    answer: "Oui, un service de retouches gratuit est inclus pour tout achat de prêt-à-porter (ourlets, ajustements de manches ou de taille) pendant la première année suivant votre achat, dans l'ensemble de nos boutiques."
+  },
+  {
+    question: "Vos cuirs sont-ils d'origine éthique ?",
+    answer: "Absolument. Nous n'utilisons que des cuirs issus de l'industrie alimentaire (upcycling), traités avec un tannage végétal sans métaux lourds. Nous proposons également une gamme d'accessoires en matériaux alternatifs innovants (mycélium)."
+  },
+  {
+    question: "Comment entretenir les pièces en soie ?",
+    answer: "Pour préserver l'éclat de nos soieries, nous recommandons exclusivement un nettoyage à sec par un professionnel. Évitez toute vaporisation directe de parfum sur le vêtement."
+  },
+  {
+    question: "Puis-je privatiser un salon pour un essayage ?",
+    answer: "Les salons privés de nos boutiques Flagships peuvent être réservés pour vous et vos invités (jusqu'à 4 personnes). Merci de contacter notre conciergerie avec un préavis de 48 heures."
+  },
+  {
+    question: "Comment authentifier une pièce Velma ?",
+    answer: "Toutes nos pièces de maroquinerie et de Haute Couture sont livrées avec un certificat d'authenticité intégrant une puce NFC invisible. Il vous suffit de l'approcher de votre smartphone pour vérifier son origine."
+  },
+  {
+    question: "Proposez-vous des facilités de paiement ?",
+    answer: "Pour les commandes exceptionnelles (Garde-robe capsule ou Sur-Mesure), nous proposons des paiements échelonnés sécurisés. Nos conseillers en boutique se feront un plaisir de vous détailler ces options."
+  }
+]
+
+// ─── MAIN COMPONENT ────────────────────────────────────────────────────────
+export default function VelmaEditorialTemplate() {
+  const containerRef = useRef<HTMLDivElement>(null)
+  const { scrollYProgress } = useScroll({ target: containerRef })
+  
+  // Parallax Values
+  const heroY = useTransform(scrollYProgress, [0, 1], ["0%", "50%"])
+  const textY = useTransform(scrollYProgress, [0, 1], ["0%", "20%"])
+  const imageScale = useTransform(scrollYProgress, [0, 1], [1, 1.1])
 
   return (
-    <div ref={containerRef} className="premium-theme bg-[#EBE9E4] text-[#1D1D1B] min-h-screen font-sans selection:bg-[#1D1D1B] selection:text-[#EBE9E4] overflow-hidden relative uppercase">
+    <div ref={containerRef} className="min-h-screen bg-[#F5F5F0] text-[#1A1A1A] font-sans selection:bg-[#1A1A1A] selection:text-white" style={{ overflowX: "hidden", scrollBehavior: "smooth" }}>
       
-      {/* FASHION GRID & NOISE */}
-      <div className="fixed inset-0 z-0 pointer-events-none">
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(29,29,27,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(29,29,27,0.05)_1px,transparent_1px)] bg-[size:10rem_10rem] [mask-image:radial-gradient(ellipse:60%_60%_at_50%_50%,#000_70%,transparent_100%)]" />
-        <motion.div 
-           style={{ x: springX, y: springY }}
-           className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[70vw] h-[70vw] bg-[#1D1D1B] opacity-[0.03] blur-[150px] rounded-full mix-blend-multiply" 
-        />
-        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.05] mix-blend-multiply" />
-      </div>
+      {/* ─── 1. NAVBAR (ELEGANT MINIMALIST) ─── */}
+      <nav className="fixed top-0 left-0 right-0 z-50 transition-all duration-300 mix-blend-difference text-white">
+        <div className="max-w-[1600px] mx-auto px-6 h-24 flex items-center justify-between">
+          <Link href="/" className="group cursor-pointer">
+            <span className="text-3xl font-serif italic tracking-tighter">
+              Velma.
+            </span>
+          </Link>
 
-      {/* HEADER */}
-      <header className="fixed top-0 left-0 w-full px-6 md:px-12 py-10 flex justify-between items-center z-50 bg-[#EBE9E4]/50 backdrop-blur-3xl border-b border-[#1D1D1B]/5">
-        <Link href="/" className="font-black text-2xl tracking-[0.3em] text-[#1D1D1B] flex items-center gap-4 italic uppercase text-center md:text-left">
-           VELMA<span className="text-[#1D1D1B]/30">_COLLECTIVE</span>
-        </Link>
-        
-        <nav className="hidden lg:flex gap-16 font-black text-[10px] uppercase tracking-[0.6em] text-[#1D1D1B]/30 text-center">
-            <Link href="#" className="hover:text-[#1D1D1B] transition-colors group">
-               Lookbook<span className="inline-block w-0 group-hover:w-3 transition-all overflow-hidden text-[#1D1D1B] italic">.</span>
-            </Link>
-            <Link href="#" className="hover:text-[#1D1D1B] transition-colors group">
-               Runway<span className="inline-block w-0 group-hover:w-3 transition-all overflow-hidden text-[#1D1D1B] italic">.</span>
-            </Link>
-            <Link href="#" className="hover:text-[#1D1D1B] transition-colors group">
-               Atelier<span className="inline-block w-0 group-hover:w-3 transition-all overflow-hidden text-[#1D1D1B] italic">.</span>
-            </Link>
-        </nav>
-        
-        <div className="flex items-center gap-10">
-           <button className="bg-[#1D1D1B] text-[#EBE9E4] px-12 py-4 font-black text-[10px] uppercase tracking-[0.4em] hover:bg-white hover:text-black transition-all shadow-xl">
-              Shop_The_Look
-           </button>
-           <Menu className="w-6 h-6 text-[#1D1D1B] cursor-pointer" />
-        </div>
-      </header>
-
-      {/* HERO SECTION */}
-      <section className="relative h-screen flex flex-col justify-center items-center px-6 text-center z-10 pt-20 overflow-hidden text-center">
-         <motion.div style={{ scale: heroScale, y: yHero }} className="absolute inset-0 z-0">
-            <Image src="https://images.unsplash.com/photo-1469334031218-e382a71b716b?auto=format&fit=crop&q=80&w=2500" alt="Fashion" fill className="object-cover opacity-20 grayscale contrast-125" priority />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#EBE9E4] via-transparent to-[#EBE9E4]/40" />
-         </motion.div>
-         
-         <div className="relative z-10 max-w-7xl w-full text-center">
-            <motion.div 
-               initial={{ opacity: 0, scale: 0.95 }}
-               animate={{ opacity: 1, scale: 1 }}
-               transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
-            >
-               <div className="inline-flex items-center gap-4 font-black text-[10px] uppercase tracking-[1em] text-[#1D1D1B]/50 mb-16 border-l-2 border-[#1D1D1B] pl-10 italic font-mono text-center">
-                  Visual_Capture // 0185_Alpha
-               </div>
-               
-               <h1 className="text-7xl md:text-[14vw] font-black italic uppercase leading-[0.75] tracking-tighter mb-20 text-[#1D1D1B] text-center">
-                  <TextScramble text="SPRING." /><br/>
-                  <span className="text-transparent" style={{ WebkitTextStroke: "2px #1D1D1B" }}>SUMMER_26.</span>
-               </h1>
-               
-               <p className="text-xl md:text-3xl font-light italic text-[#1D1D1B]/40 max-w-3xl mx-auto mb-24 leading-relaxed uppercase tracking-widest text-center">
-                  Structural allocation for aesthetic intent. Architecting the future of couture with tectonic precision.
-               </p>
-               
-               <div className="flex flex-col md:flex-row gap-16 justify-center items-center font-mono text-center text-[#1D1D1B]">
-                  <div className="flex items-center gap-8 group cursor-pointer">
-                     <div className="w-20 h-px bg-[#1D1D1B]/30 group-hover:w-32 transition-all" />
-                     <span className="text-[10px] font-black uppercase tracking-[0.8em]">Explore_Collection</span>
-                  </div>
-                  <div className="hidden md:block w-px h-16 bg-[#1D1D1B]/5" />
-                  <div className="font-black text-[9px] uppercase tracking-[0.6em] text-[#1D1D1B]/10 italic text-center">
-                     Paris // Milan // NYC // London
-                  </div>
-               </div>
-            </motion.div>
-         </div>
-
-         {/* Fashion HUD */}
-         <div className="absolute right-12 bottom-12 flex flex-col items-end gap-4 font-black text-[8px] uppercase tracking-[1em] text-[#1D1D1B]/20 hidden md:flex italic font-mono text-center">
-            <span>ATELIER_SYNC: ACTIVE</span>
-            <div className="flex gap-1 h-12 items-end">
-               {[1, 2, 3, 4, 5].map(i => <motion.div key={i} animate={{ height: ['20%', '100%', '40%'] }} transition={{ duration: 2, repeat: Infinity, delay: i * 0.2 }} className="w-[1px] bg-[#1D1D1B]" />)}
-            </div>
-         </div>
-         
-         <div className="absolute left-12 bottom-12 hidden md:block">
-            <div className="flex flex-col gap-2 text-[8px] font-black uppercase tracking-[0.4em] text-[#1D1D1B]/10 italic font-mono text-center">
-               <span>FABRIC: SILK</span>
-               <span>THREAD: NYLON</span>
-               <span>STATUS: RUNWAY</span>
-            </div>
-         </div>
-      </section>
-
-      {/* LOOKS GRID */}
-      <section className="py-48 px-6 md:px-12 max-w-[1800px] mx-auto relative z-10 bg-[#EBE9E4]">
-         <div className="flex flex-col md:flex-row justify-between items-end mb-40 border-b border-[#1D1D1B]/10 pb-20 gap-16 text-center md:text-left">
-            <div>
-               <span className="text-[10px] font-black uppercase tracking-[2em] text-[#1D1D1B] mb-8 block italic font-mono text-center md:text-left">Fashion_Manifest</span>
-               <h2 className="text-6xl md:text-[10vw] font-black italic uppercase tracking-tighter text-[#1D1D1B] leading-none text-center md:text-left">The <span className="text-[#1D1D1B]/20">Looks_</span></h2>
-            </div>
-            <div className="flex gap-16 text-[10px] font-black uppercase tracking-[0.6em] text-[#1D1D1B]/20 italic font-mono text-center md:text-left">
-               <span>Records: [03]</span>
-               <span>Status: [Verified]</span>
-            </div>
-         </div>
-
-         <div className="grid grid-cols-1 md:grid-cols-3 gap-16 text-center">
-            {LOOKS.map((p, i) => (
-                <motion.div 
-                   key={i} 
-                   initial={{ opacity: 0, y: 80 }}
-                   whileInView={{ opacity: 1, y: 0 }}
-                   viewport={{ once: true, margin: "-100px" }}
-                   transition={{ duration: 1.2, delay: i * 0.1, ease: [0.16, 1, 0.3, 1] }}
-                   className="group relative h-[85vh] bg-white border border-[#1D1D1B]/5 overflow-hidden cursor-pointer hover:border-[#1D1D1B]/30 transition-all shadow-2xl text-center"
-                >
-                    <Image src={p.img} alt={p.title} fill className="object-cover opacity-30 grayscale group-hover:grayscale-0 group-hover:scale-110 transition-all duration-1000 text-center" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#EBE9E4] via-transparent to-transparent opacity-95 text-center" />
-                    <div className="absolute inset-0 bg-[#1D1D1B]/5 group-hover:bg-transparent transition-colors duration-700 text-center" />
-                    
-                    <div className="absolute inset-16 flex flex-col justify-between z-10 font-mono text-[#1D1D1B] text-center">
-                        <div className="flex justify-between items-start text-center">
-                           <div className="p-5 bg-white/5 border border-[#1D1D1B]/10 rounded-none group-hover:bg-[#1D1D1B] group-hover:text-white transition-all shadow-xl text-center">
-                              {p.icon}
-                           </div>
-                           <div className="text-[10px] font-black uppercase tracking-[0.8em] text-[#1D1D1B] italic font-mono text-center">Ref_0x{i+185}</div>
-                        </div>
-                        
-                        <div className="text-center">
-                           <span className="text-[10px] uppercase tracking-[0.8em] text-[#1D1D1B] mb-8 block italic font-black text-center">{p.cat} // Verified</span>
-                           <h3 className="text-5xl md:text-6xl font-black italic uppercase tracking-tighter mb-16 text-[#1D1D1B] group-hover:tracking-widest transition-all leading-[0.8] text-center">{p.title}</h3>
-                           <div className="flex items-center gap-8 text-[10px] font-black uppercase tracking-[0.6em] opacity-0 group-hover:opacity-100 transition-all translate-y-10 group-hover:translate-y-0 text-[#1D1D1B] text-center justify-center">
-                              Details <ArrowRight className="w-6 h-6 text-center" />
-                           </div>
-                        </div>
-                    </div>
-                </motion.div>
+          {/* Desktop Nav */}
+          <div className="hidden md:flex items-center gap-12">
+            {NAV_LINKS.map((link) => (
+              <Link 
+                key={link.label} 
+                href={link.href} 
+                className="text-xs font-medium tracking-[0.2em] uppercase hover:opacity-50 transition-opacity duration-300 cursor-pointer"
+              >
+                {link.label}
+              </Link>
             ))}
-         </div>
+          </div>
+
+          <div className="hidden md:flex items-center gap-8">
+            <button className="flex items-center gap-2 text-xs font-medium tracking-[0.2em] uppercase hover:opacity-50 transition-opacity cursor-pointer">
+              <ShoppingBag className="w-4 h-4" /> (0)
+            </button>
+            <button className="text-xs font-medium tracking-[0.2em] uppercase hover:opacity-50 transition-opacity cursor-pointer">
+              Rechercher
+            </button>
+          </div>
+
+          {/* Mobile Nav */}
+          <Sheet>
+            <SheetTrigger asChild>
+              <button className="md:hidden p-2 cursor-pointer">
+                <Menu className="w-6 h-6" />
+              </button>
+            </SheetTrigger>
+            <SheetContent side="right" className="bg-[#1A1A1A] text-white w-full sm:w-[400px] border-none">
+              <div className="flex flex-col h-full py-12">
+                <span className="text-4xl font-serif italic tracking-tighter mb-16">Velma.</span>
+                <div className="flex flex-col gap-8">
+                  {NAV_LINKS.map((link) => (
+                    <Link 
+                      key={link.label} 
+                      href={link.href} 
+                      className="text-3xl font-light tracking-tight hover:opacity-50 transition-opacity cursor-pointer"
+                    >
+                      {link.label}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </SheetContent>
+          </Sheet>
+        </div>
+      </nav>
+
+      {/* ─── 2. HERO PARALLAX (OVERSIZED TEXT & BLEND MODE) ─── */}
+      <section className="relative h-[100vh] flex items-center justify-center overflow-hidden bg-[#F5F5F0]">
+        <motion.div style={{ y: heroY, scale: imageScale }} className="absolute inset-0 z-0">
+          <Image 
+            src="https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=2000&q=80" 
+            alt="Editorial Fashion Campaign" 
+            fill 
+            className="object-cover"
+            priority
+          />
+        </motion.div>
+
+        {/* Massive Text Overlay with Blend Mode */}
+        <motion.div 
+          style={{ y: textY }} 
+          className="relative z-10 w-full px-4 mix-blend-exclusion text-white text-center pointer-events-none"
+        >
+          <Reveal>
+            <h1 className="text-[18vw] md:text-[15vw] font-serif italic tracking-tighter leading-[0.8]">
+              Automne
+            </h1>
+          </Reveal>
+          <Reveal delay={0.1}>
+            <h1 className="text-[18vw] md:text-[15vw] font-serif italic tracking-tighter leading-[0.8] ml-12 md:ml-32">
+              Hiver
+            </h1>
+          </Reveal>
+        </motion.div>
+
+        <div className="absolute bottom-12 left-0 right-0 flex justify-center z-20">
+          <Reveal delay={0.4}>
+            <button className="flex flex-col items-center gap-2 text-white mix-blend-difference">
+              <span className="text-[10px] font-medium tracking-[0.3em] uppercase">Découvrir la collection</span>
+              <motion.div 
+                animate={{ y: [0, 8, 0] }} 
+                transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+              >
+                <ArrowRight className="w-4 h-4 rotate-90" />
+              </motion.div>
+            </button>
+          </Reveal>
+        </div>
       </section>
 
-      {/* FOOTER */}
-      <footer className="py-48 px-6 md:px-12 border-t border-[#1D1D1B]/5 relative z-10 bg-[#EBE9E4]">
-         <div className="max-w-[1800px] mx-auto grid grid-cols-1 md:grid-cols-2 gap-40 text-center md:text-left">
-            <div className="max-w-2xl text-center md:text-left">
-               <div className="text-[#1D1D1B] mb-16 flex items-center gap-6 font-black text-2xl italic uppercase tracking-widest font-mono justify-center md:justify-start text-center md:text-left">
-                  <Activity className="w-10 h-10 text-center md:text-left" /> Fashion_Logs
-               </div>
-               <p className="text-4xl md:text-6xl font-light italic leading-[0.9] text-[#1D1D1B]/20 uppercase tracking-tighter mb-20 text-center md:text-left">
-                  WE TREAT LOOKS AS ARCHITECTURE. EVERY STITCH A FUNCTION.
-               </p>
-               <div className="flex gap-20 font-black text-[10px] uppercase tracking-[0.8em] text-[#1D1D1B]/40 italic font-mono justify-center md:justify-start text-center md:text-left">
-                  <span>Berlin</span>
-                  <span>London</span>
-                  <span>NYC</span>
-               </div>
+      {/* ─── 3. STATS BAR (EDITORIAL LIST) ─── */}
+      <section className="py-24 bg-[#1A1A1A] text-white relative z-10">
+        <div className="max-w-[1600px] mx-auto px-6">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-12 md:gap-4">
+            {STATS.map((stat, i) => (
+              <Reveal key={i} delay={i * 0.1}>
+                <div className="flex flex-col group cursor-pointer border-l border-white/20 pl-6 hover:border-white transition-colors duration-500">
+                  <div className="text-4xl md:text-5xl font-serif italic mb-4">
+                    {stat.value}<span className="text-xl font-sans not-italic">{stat.suffix}</span>
+                  </div>
+                  <div className="text-[10px] font-sans font-medium uppercase tracking-[0.2em] text-zinc-400">
+                    {stat.label}
+                  </div>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ─── 4. FEATURES (TABS) ─── */}
+      <section id="collections" className="py-32 relative bg-[#F5F5F0]">
+        <div className="max-w-[1400px] mx-auto px-6 relative z-10">
+          <div className="flex flex-col md:flex-row justify-between items-end mb-24">
+            <Reveal className="max-w-2xl">
+              <h2 className="text-[10px] font-medium uppercase tracking-[0.3em] text-zinc-500 mb-6">Le Vestiaire</h2>
+              <h3 className="text-5xl md:text-7xl font-serif italic tracking-tighter mb-8">L'Art de l'Allure.</h3>
+              <p className="text-lg text-zinc-600 leading-relaxed font-light">
+                Chaque pièce est pensée comme une sculpture en mouvement. Nous ne créons pas des vêtements, nous construisons des attitudes.
+              </p>
+            </Reveal>
+          </div>
+
+          <Tabs defaultValue="rtw" className="w-full">
+            <div className="flex flex-col lg:flex-row gap-16 lg:gap-24">
+              <div className="lg:w-1/3">
+                <TabsList className="flex flex-col h-auto bg-transparent gap-0 items-start">
+                  {FEATURES.map((feature) => (
+                    <TabsTrigger 
+                      key={feature.id} 
+                      value={feature.id}
+                      className="w-full justify-start px-0 py-8 text-left text-zinc-400 data-[state=active]:text-[#1A1A1A] hover:text-[#1A1A1A] transition-all duration-300 cursor-pointer rounded-none border-b border-zinc-300 data-[state=active]:border-[#1A1A1A] shadow-none bg-transparent"
+                    >
+                      <span className="text-2xl md:text-3xl font-serif italic tracking-tight">{feature.title}</span>
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
+                
+                <div className="mt-16 p-8 bg-zinc-100 hidden lg:block">
+                  <h5 className="text-[10px] font-bold uppercase tracking-[0.2em] mb-4">Le Manifeste</h5>
+                  <p className="text-sm leading-relaxed text-zinc-600 mb-6">
+                    "La mode passe, le style reste." Nous croyons en une mode lente, réfléchie, où chaque couture a une raison d'être.
+                  </p>
+                  <Link href="#" className="text-xs font-bold uppercase tracking-widest border-b border-black pb-1 hover:text-zinc-500 transition-colors">
+                    Lire notre engagement éthique
+                  </Link>
+                </div>
+              </div>
+
+              <div className="lg:w-2/3">
+                <AnimatePresence mode="wait">
+                  {FEATURES.map((feature) => (
+                    <TabsContent key={feature.id} value={feature.id} className="mt-0 outline-none">
+                      <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
+                        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                      >
+                        <div className="aspect-[3/4] md:aspect-[16/9] relative w-full overflow-hidden mb-12">
+                          <Image src={feature.image} alt={feature.title} fill className="object-cover" />
+                        </div>
+                        <div className="max-w-2xl">
+                          <h4 className="text-3xl font-serif italic mb-6">{feature.title}</h4>
+                          <p className="text-lg text-zinc-600 font-light leading-relaxed mb-10">{feature.description}</p>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-8">
+                            {feature.bullets.map((bullet, i) => (
+                              <div key={i} className="flex items-center gap-4 border-b border-zinc-200 pb-4">
+                                <div className="w-1 h-1 bg-[#1A1A1A] rounded-full" />
+                                <span className="text-sm font-medium tracking-wide text-zinc-800">{bullet}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </motion.div>
+                    </TabsContent>
+                  ))}
+                </AnimatePresence>
+              </div>
             </div>
-            <div className="flex flex-col justify-between items-end text-right font-mono text-center md:text-right text-[#1D1D1B]">
-               <div className="w-full text-center md:text-right">
-                  <h4 className="text-[12vw] font-black italic uppercase tracking-tighter opacity-[0.02] leading-none mb-20 text-[#1D1D1B] text-center md:text-right">VELMA</h4>
-                  <nav className="flex flex-col gap-10 font-black text-[10px] uppercase tracking-[0.8em] text-[#1D1D1B]/10 text-center md:text-right">
-                     <Link href="#" className="hover:text-[#1D1D1B] transition-colors group">
-                        Instagram<span className="text-[#1D1D1B]/0 group-hover:text-[#1D1D1B] transition-all">_</span>
-                     </Link>
-                     <Link href="#" className="hover:text-[#1D1D1B] transition-colors group">
-                        Lookbook<span className="text-[#1D1D1B]/0 group-hover:text-[#1D1D1B] transition-all">_</span>
-                     </Link>
-                     <Link href="#" className="hover:text-[#1D1D1B] transition-colors group">
-                        Legal<span className="text-[#1D1D1B]/0 group-hover:text-[#1D1D1B] transition-all">_</span>
-                     </Link>
-                  </nav>
-               </div>
-               <div className="font-black text-[9px] uppercase tracking-[1.5em] text-[#1D1D1B]/5 mt-32 italic text-center md:text-right">
-                  &copy; 2026 // VELMA_FASHION_HOUSE&trade;
-               </div>
+          </Tabs>
+        </div>
+      </section>
+
+      {/* ─── 5. TESTIMONIALS CAROUSEL ─── */}
+      <section className="py-32 bg-zinc-200 overflow-hidden relative">
+        <div className="max-w-[1600px] mx-auto px-6 relative z-10">
+          <Reveal>
+            <div className="mb-20 flex justify-between items-end">
+              <div>
+                <h2 className="text-[10px] font-medium uppercase tracking-[0.3em] text-zinc-500 mb-4">Revue de Presse</h2>
+                <h3 className="text-5xl font-serif italic tracking-tighter">Ils en parlent.</h3>
+              </div>
+              <div className="hidden md:flex gap-4">
+                <CarouselPrevious className="relative inset-auto translate-y-0 bg-transparent border border-[#1A1A1A] text-[#1A1A1A] hover:bg-[#1A1A1A] hover:text-white w-12 h-12 rounded-full transition-colors" />
+                <CarouselNext className="relative inset-auto translate-y-0 bg-transparent border border-[#1A1A1A] text-[#1A1A1A] hover:bg-[#1A1A1A] hover:text-white w-12 h-12 rounded-full transition-colors" />
+              </div>
             </div>
-         </div>
+          </Reveal>
+
+          <Carousel className="w-full">
+            <CarouselContent>
+              {TESTIMONIALS.map((testi, i) => (
+                <CarouselItem key={i} className="md:basis-1/2 lg:basis-1/3 pl-6">
+                  <Reveal delay={i * 0.1}>
+                    <Card className="bg-transparent border-none shadow-none cursor-grab active:cursor-grabbing">
+                      <CardContent className="p-0 flex flex-col h-full">
+                        <div className="flex gap-1 mb-8">
+                          {[...Array(testi.rating)].map((_, j) => (
+                            <Star key={j} className="w-4 h-4 fill-[#1A1A1A] text-[#1A1A1A]" />
+                          ))}
+                        </div>
+                        <p className="text-2xl font-serif italic leading-relaxed mb-12 text-[#1A1A1A]">
+                          "{testi.content}"
+                        </p>
+                        <div className="flex items-center gap-4 mt-auto">
+                          <Avatar className="w-12 h-12">
+                            <AvatarImage src={testi.avatar} className="grayscale" />
+                            <AvatarFallback>VE</AvatarFallback>
+                          </Avatar>
+                          <div>
+                            <div className="font-bold text-sm tracking-wide text-[#1A1A1A]">{testi.name}</div>
+                            <div className="text-xs uppercase tracking-widest text-zinc-500">{testi.role}</div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Reveal>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+          </Carousel>
+        </div>
+      </section>
+
+      {/* ─── 6. PRICING (STYLING SESSIONS) ─── */}
+      <section id="services" className="py-32 bg-[#F5F5F0] relative">
+        <div className="max-w-[1400px] mx-auto px-6 relative z-10">
+          <div className="text-center mb-24">
+            <Reveal>
+              <h2 className="text-[10px] font-medium uppercase tracking-[0.3em] text-zinc-500 mb-6">Services Exclusifs</h2>
+              <h3 className="text-5xl md:text-7xl font-serif italic tracking-tighter mb-8">Personal Shopper.</h3>
+              <p className="text-zinc-600 max-w-xl mx-auto text-lg font-light leading-relaxed">
+                Une expérience d'achat intime et sur-mesure. Confiez-nous vos envies, nous concevrons la silhouette parfaite.
+              </p>
+            </Reveal>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {PRICING.map((tier, i) => (
+              <Reveal key={i} delay={i * 0.1}>
+                <Card className={`relative bg-transparent border ${tier.recommended ? 'border-[#1A1A1A]' : 'border-zinc-300'} rounded-none transition-all duration-300 hover:border-[#1A1A1A] group`}>
+                  <CardContent className="p-10 md:p-12">
+                    <div className="text-[10px] uppercase tracking-[0.2em] text-zinc-500 font-bold mb-4">{tier.duration}</div>
+                    <h4 className="text-3xl font-serif italic mb-2">{tier.title}</h4>
+                    <div className="text-xs uppercase tracking-widest text-zinc-600 mb-8">{tier.subtitle}</div>
+                    
+                    <p className="text-sm font-light text-zinc-600 mb-10 h-20 leading-relaxed">{tier.description}</p>
+                    
+                    <div className="mb-10 pb-10 border-b border-zinc-200">
+                      <span className="text-3xl font-medium tracking-tight">{tier.price}</span>
+                    </div>
+
+                    <ul className="space-y-4 mb-12">
+                      {tier.features.map((feat, j) => (
+                        <li key={j} className="flex items-start gap-4 text-sm font-light text-zinc-800">
+                          <CheckCircle2 className="w-4 h-4 text-[#1A1A1A] shrink-0 mt-0.5 opacity-50" />
+                          <span>{feat}</span>
+                        </li>
+                      ))}
+                    </ul>
+
+                    <button className={`w-full py-4 text-xs font-bold uppercase tracking-[0.2em] transition-colors duration-300 ${tier.recommended ? 'bg-[#1A1A1A] text-white hover:bg-zinc-800' : 'bg-transparent border border-[#1A1A1A] text-[#1A1A1A] hover:bg-[#1A1A1A] hover:text-white'}`}>
+                      Prendre Rendez-vous
+                    </button>
+                  </CardContent>
+                </Card>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ─── 7. FAQ ACCORDION ─── */}
+      <section className="py-32 bg-[#1A1A1A] text-white">
+        <div className="max-w-[1000px] mx-auto px-6">
+          <Reveal>
+            <div className="text-center mb-20">
+              <h2 className="text-[10px] font-medium uppercase tracking-[0.3em] text-zinc-400 mb-6">Conciergerie</h2>
+              <h3 className="text-5xl font-serif italic tracking-tighter">Vos Questions.</h3>
+            </div>
+          </Reveal>
+
+          <Reveal delay={0.2}>
+            <Accordion type="single" collapsible className="w-full">
+              {FAQS.map((faq, i) => (
+                <AccordionItem key={i} value={`item-${i}`} className="border-white/20">
+                  <AccordionTrigger className="text-left font-serif italic text-2xl hover:no-underline py-8 hover:text-zinc-300 transition-colors">
+                    {faq.question}
+                  </AccordionTrigger>
+                  <AccordionContent className="text-lg font-light leading-relaxed pb-8 text-zinc-400">
+                    {faq.answer}
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* ─── 8. CTA BANNER ─── */}
+      <section className="py-32 px-6 bg-[#F5F5F0]">
+        <Reveal>
+          <div className="max-w-[1400px] mx-auto">
+            <div className="relative aspect-[21/9] md:aspect-[21/7] overflow-hidden group">
+              <Image 
+                src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=1600&q=80" 
+                alt="Velma Lookbook" 
+                fill 
+                className="object-cover group-hover:scale-105 transition-transform duration-1000"
+              />
+              <div className="absolute inset-0 bg-black/30" />
+              <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-6">
+                <h2 className="text-5xl md:text-7xl font-serif italic text-white mb-10">La Nouvelle Collection</h2>
+                <button className="px-12 py-5 bg-white text-[#1A1A1A] text-xs font-bold uppercase tracking-[0.2em] hover:bg-[#1A1A1A] hover:text-white transition-colors duration-300">
+                  Explorer la boutique
+                </button>
+              </div>
+            </div>
+          </div>
+        </Reveal>
+      </section>
+
+      {/* ─── 9. FOOTER ─── */}
+      <footer className="bg-[#F5F5F0] pt-20 pb-12 border-t border-zinc-300">
+        <div className="max-w-[1600px] mx-auto px-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16 mb-24">
+            <div>
+              <Link href="/" className="inline-block mb-10">
+                <span className="text-4xl font-serif italic tracking-tighter">
+                  Velma.
+                </span>
+              </Link>
+              <p className="text-sm font-light leading-relaxed mb-8 text-zinc-600 max-w-xs">
+                Maison de création fondée à Paris. Redéfinir l'élégance contemporaine par la pureté des lignes et l'exigence des matières.
+              </p>
+            </div>
+
+            <div>
+              <h4 className="font-bold uppercase tracking-[0.2em] text-[10px] mb-8 text-[#1A1A1A]">La Maison</h4>
+              <ul className="space-y-5">
+                <li><a href="#" className="font-light text-sm hover:text-zinc-500 transition-colors cursor-pointer">Notre Histoire</a></li>
+                <li><a href="#" className="font-light text-sm hover:text-zinc-500 transition-colors cursor-pointer">Nos Engagements Éthiques</a></li>
+                <li><a href="#" className="font-light text-sm hover:text-zinc-500 transition-colors cursor-pointer">Carrières</a></li>
+                <li><a href="#" className="font-light text-sm hover:text-zinc-500 transition-colors cursor-pointer">Presse & Éditoriaux</a></li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="font-bold uppercase tracking-[0.2em] text-[10px] mb-8 text-[#1A1A1A]">Service Client</h4>
+              <ul className="space-y-5">
+                <li><a href="#" className="font-light text-sm hover:text-zinc-500 transition-colors cursor-pointer">Livraison & Retours</a></li>
+                <li><a href="#" className="font-light text-sm hover:text-zinc-500 transition-colors cursor-pointer">Guide des Tailles</a></li>
+                <li><a href="#" className="font-light text-sm hover:text-zinc-500 transition-colors cursor-pointer">Entretien des Pièces</a></li>
+                <li><a href="#" className="font-light text-sm hover:text-zinc-500 transition-colors cursor-pointer">Prendre Rendez-vous</a></li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="font-bold uppercase tracking-[0.2em] text-[10px] mb-8 text-[#1A1A1A]">Nous Contacter</h4>
+              <ul className="space-y-6">
+                <li className="flex items-start gap-4">
+                  <MapPin className="w-4 h-4 text-zinc-400 mt-1 shrink-0" />
+                  <span className="text-sm font-light text-zinc-600">32 Rue de la Couture<br/>75008 Paris, France</span>
+                </li>
+                <li className="flex items-center gap-4">
+                  <Phone className="w-4 h-4 text-zinc-400" />
+                  <span className="text-sm font-light text-zinc-600">+33 (0)1 40 20 00 00</span>
+                </li>
+                <li className="flex items-center gap-4 pt-4">
+                  <a href="#" className="w-10 h-10 border border-zinc-300 flex items-center justify-center hover:bg-[#1A1A1A] hover:text-white transition-colors"><Camera className="w-4 h-4" /></a>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="flex flex-col lg:flex-row justify-between items-center gap-8 pt-8 border-t border-zinc-300 text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500">
+            <p>&copy; 2026 MAISON VELMA PARIS. TOUS DROITS RÉSERVÉS.</p>
+            <div className="flex gap-8">
+              <a href="#" className="hover:text-[#1A1A1A] transition-colors cursor-pointer">Mentions Légales</a>
+              <a href="#" className="hover:text-[#1A1A1A] transition-colors cursor-pointer">Politique de Confidentialité</a>
+              <a href="#" className="hover:text-[#1A1A1A] transition-colors cursor-pointer">CGV</a>
+            </div>
+          </div>
+        </div>
       </footer>
+
     </div>
-  );
+  )
 }

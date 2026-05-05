@@ -145,8 +145,6 @@ export function ConsultantTheme({ session }: { session: SessionData }) {
         </div>
       </section>
 
-      </section>
-
       {/* ═══ SECTION 6: PARTNER LOGOS ═══ */}
       <section className="py-20 bg-slate-50 border-y border-slate-100 overflow-hidden">
         <div className="max-w-7xl mx-auto px-6">

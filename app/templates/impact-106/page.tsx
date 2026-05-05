@@ -2,7 +2,7 @@
 import { motion, useInView, AnimatePresence, useMotionValue, useSpring } from "framer-motion";
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import { Palette, Image, Grid3X3, Menu, X, ArrowRight, Camera, Eye, Layers, Monitor, Figma, Award, Pen, Globe, Heart, Aperture } from "lucide-react";
+import { Palette, Image, Grid3X3, Menu, X, ArrowRight, Camera, Eye, Layers, Monitor, Globe, Award, Pen, Heart, Aperture } from "lucide-react";
 import "../premium.css";
 
 const MANIFESTS = {
@@ -185,7 +185,7 @@ export default function StudioVersaPage() {
           <div>
             <h4 className="text-[10px] font-black uppercase tracking-widest mb-10 text-[#e07a32]">Connect</h4>
             <ul className="space-y-5 text-[10px] font-bold text-white/30 uppercase tracking-widest">
-              {["Instagram", "Dribbble", "LinkedIn", "Twitter"].map(l => <li key={l} className="hover:text-white transition-colors"><Link href="#">{l}</Link></li>)}
+              {["Globe", "Globe", "LinkedIn", "Globe"].map(l => <li key={l} className="hover:text-white transition-colors"><Link href="#">{l}</Link></li>)}
             </ul>
           </div>
         </div>

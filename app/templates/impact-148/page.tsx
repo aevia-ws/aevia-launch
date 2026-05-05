@@ -10,27 +10,7 @@ import {
 } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
-import {
-  Leaf,
-  Droplets,
-  Sparkles,
-  Wind,
-  Sun,
-  ArrowRight,
-  Star,
-  Heart,
-  Instagram,
-  Facebook,
-  Twitter,
-  Menu,
-  X,
-  ChevronRight,
-  Check,
-  Play,
-  Volume2,
-  Search,
-  ShoppingBag,
-} from "lucide-react";
+import { Leaf, Droplets, Sparkles, Wind, Sun, ArrowRight, Star, Heart, Globe, Menu, X, ChevronRight, Check, Play, Volume2, Search, ShoppingBag } from "lucide-react";
 
 import "../premium.css";
 
@@ -803,7 +783,7 @@ export default function PureteSkincarePage() {
                       href="#"
                       className="hover:text-white transition-colors cursor-pointer flex items-center gap-3"
                     >
-                      <Instagram className="w-3 h-3" /> Instagram
+                      <Globe className="w-3 h-3" /> Globe
                     </Link>
                   </li>
                   <li>
@@ -811,7 +791,7 @@ export default function PureteSkincarePage() {
                       href="#"
                       className="hover:text-white transition-colors cursor-pointer flex items-center gap-3"
                     >
-                      <Facebook className="w-3 h-3" /> Facebook
+                      <Globe className="w-3 h-3" /> Globe
                     </Link>
                   </li>
                   <li>
@@ -819,7 +799,7 @@ export default function PureteSkincarePage() {
                       href="#"
                       className="hover:text-white transition-colors cursor-pointer flex items-center gap-3"
                     >
-                      <Twitter className="w-3 h-3" /> Pinterest
+                      <Globe className="w-3 h-3" /> Pinterest
                     </Link>
                   </li>
                 </ul>

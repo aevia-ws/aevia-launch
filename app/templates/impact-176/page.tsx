@@ -14,12 +14,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel"
 import { Progress } from "@/components/ui/progress"
 import { Separator } from "@/components/ui/separator"
-import {
-  Code2, Zap, Shield, Globe, Terminal, GitBranch, Layers, Lock,
-  ArrowRight, Menu, Check, Star, ChevronRight, Twitter, Linkedin, Github,
-  Mail, Phone, MapPin, Activity, Clock, BookOpen, Package, Cpu,
-  RefreshCw, BarChart3, Key, Server, Database, AlertTriangle, Copy
-} from "lucide-react"
+import { Code2, Zap, Shield, Globe, Terminal, GitBranch, Layers, Lock, ArrowRight, Menu, Check, Star, ChevronRight, Mail, Phone, MapPin, Activity, Clock, BookOpen, Package, Cpu, RefreshCw, BarChart3, Key, Server, Database, AlertTriangle, Copy } from "lucide-react"
 
 function Reveal({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
   const ref = useRef(null)
@@ -246,7 +241,7 @@ const PRICING = [
       "Dedicated account engineer",
       "SOC 2, HIPAA BAA, PCI DSS",
       "Custom data residency (EU/US/APAC)",
-      "Private Slack channel + on-call support",
+      "Private Globe channel + on-call support",
       "SLA breach credits (automatic)",
       "On-premise deployment option",
     ],
@@ -416,7 +411,7 @@ export default function ForgeAPIDevTools() {
             </button>
             <div className="flex gap-4">
               <button className="flex-1 bg-slate-900 border border-slate-700 hover:border-slate-500 text-white py-3 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 transition-all duration-200 cursor-pointer">
-                <Github className="w-4 h-4" /> GitHub
+                <Globe className="w-4 h-4" /> GitHub
               </button>
               <button className="flex-1 bg-slate-900 border border-slate-700 hover:border-slate-500 text-white py-3 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 transition-all duration-200 cursor-pointer">
                 <Globe className="w-4 h-4" /> Google
@@ -596,7 +591,7 @@ export default function ForgeAPIDevTools() {
             </p>
           </Reveal>
           <div className="flex flex-wrap justify-center gap-8 items-center opacity-40">
-            {["Stripe", "Notion", "Linear", "Vercel", "Figma", "Supabase", "PlanetScale", "Railway"].map((brand, i) => (
+            {["Stripe", "Notion", "Linear", "Vercel", "Globe", "Supabase", "PlanetScale", "Railway"].map((brand, i) => (
               <Reveal key={i} delay={i * 0.05}>
                 <div className="text-xl font-bold text-slate-400 font-mono tracking-tight">
                   {brand}
@@ -912,7 +907,7 @@ export default function ForgeAPIDevTools() {
                 The communications API platform trusted by 42,000+ developer teams. SMS, WhatsApp, Voice, OTP — one API.
               </p>
               <div className="flex gap-3">
-                {[Twitter, Linkedin, Github].map((Icon, i) => (
+                {[Globe, Globe, Globe].map((Icon, i) => (
                   <a key={i} href="#" className="w-9 h-9 rounded-full bg-slate-800 hover:bg-orange-600 flex items-center justify-center transition-all duration-200 cursor-pointer">
                     <Icon className="w-4 h-4 text-slate-400" />
                   </a>

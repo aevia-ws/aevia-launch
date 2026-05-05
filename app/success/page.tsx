@@ -151,7 +151,9 @@ function useOnce(fn: () => void) {
   }, []);
 }
 
-export default function SuccessPage() {
+import { Suspense } from "react";
+
+function SuccessContent() {
   const searchParams = useSearchParams();
   const name     = searchParams.get("name") ?? "Votre site";
   const type     = searchParams.get("type") ?? "landing";
@@ -284,5 +286,13 @@ export default function SuccessPage() {
         </div>
       </motion.div>
     </main>
+  );
+}
+
+export default function SuccessPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-zinc-950 flex items-center justify-center text-zinc-500">Chargement...</div>}>
+      <SuccessContent />
+    </Suspense>
   );
 }

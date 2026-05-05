@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import type { SessionData } from "@/lib/sessions";
 import { ThemeWrapper } from "./ThemeWrapper";
 import { Reveal, Stagger, StaggerItem, MagneticButton } from "./AnimationHelpers";
-import { Cpu, Zap, Shield, BarChart3, ChevronRight, Binary, Fingerprint, Database, Network, Award, HelpCircle, Activity, Star, Quote, Instagram, Phone, Mail, ArrowRight } from "lucide-react";
+import { Cpu, Zap, Shield, BarChart3, ChevronRight, Binary, Fingerprint, Database, Network, Award, HelpCircle, Activity, Star, Quote, Globe, Phone, Mail, ArrowRight } from "lucide-react";
 
 export function TechTheme({ session }: { session: SessionData }) {
   const { formData, generatedContent: c } = session;
@@ -130,8 +130,6 @@ export function TechTheme({ session }: { session: SessionData }) {
             </div>
           </Reveal>
         </div>
-      </section>
-
       </section>
 
       {/* ═══ SECTION 5: PROTOCOL STATS ═══ */}

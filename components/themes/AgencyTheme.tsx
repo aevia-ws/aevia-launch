@@ -202,8 +202,6 @@ export function AgencyTheme({ session }: { session: SessionData }) {
           </div>
         </section>
 
-        </section>
-
         {/* Client Logos */}
         <section className="py-24 bg-black border-y border-white/5 overflow-hidden">
           <div className="max-w-7xl mx-auto px-6">

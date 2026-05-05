@@ -38,34 +38,7 @@ import {
 } from "@/components/ui/carousel";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
-import {
-  Heart,
-  Star,
-  Check,
-  Menu,
-  X,
-  Globe,
-  Clock,
-  Quote,
-  Search,
-  ShoppingBag,
-  Leaf,
-  Wind,
-  Droplets,
-  Sun,
-  Moon,
-  Sparkles,
-  Activity,
-  Instagram,
-  Twitter,
-  Mail,
-  MapPin,
-  Phone,
-  Plus,
-  ArrowRight,
-  ArrowUpRight,
-  ChevronRight,
-} from "lucide-react";
+import { Heart, Star, Check, Menu, X, Globe, Clock, Quote, Search, ShoppingBag, Leaf, Wind, Droplets, Sun, Moon, Sparkles, Activity, Mail, MapPin, Phone, Plus, ArrowRight, ArrowUpRight, ChevronRight } from "lucide-react";
 
 import "../premium.css";
 
@@ -1022,7 +995,7 @@ export default function ZenSpacePage() {
                     href="#"
                     className="hover:text-[#c9a84c] transition-colors flex items-center gap-3"
                   >
-                    <Instagram className="w-3 h-3" /> Instagram
+                    <Globe className="w-3 h-3" /> Globe
                   </Link>
                 </li>
                 <li>

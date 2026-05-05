@@ -5,7 +5,7 @@ import { useRef } from "react";
 import type { SessionData } from "@/lib/sessions";
 import { ThemeWrapper } from "./ThemeWrapper";
 import { Reveal, Stagger, StaggerItem, MagneticButton } from "./AnimationHelpers";
-import { ArrowUpRight, ArrowDown, ExternalLink, Award, HelpCircle, Activity, Star, Quote, Instagram, Phone, Mail, ArrowRight, X, Layout, Layers, Terminal } from "lucide-react";
+import { ArrowUpRight, ArrowDown, ExternalLink, Award, HelpCircle, Activity, Star, Quote, Globe, Phone, Mail, ArrowRight, X, Layout, Layers, Terminal } from "lucide-react";
 
 const PROJECTS = [
   { title: "Metamorphosis", cat: "Art Direction", year: "2026", img: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=1200&q=80" },
@@ -124,8 +124,6 @@ export function PortfolioTheme({ session }: { session: SessionData }) {
         </div>
       </section>
 
-      </section>
-
       {/* ═══ SECTION 5: DISCIPLINE ═══ */}
       <section className="py-40 bg-[#fafafa] border-y">
         <div className="max-w-7xl mx-auto px-6">
@@ -160,8 +158,8 @@ export function PortfolioTheme({ session }: { session: SessionData }) {
              transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
              className="flex gap-20 text-6xl md:text-8xl font-black uppercase tracking-tighter italic text-gray-100"
            >
-              <span>Framer Motion // Next.js // TypeScript // WebGL // GSAP // Figma // Adobe Suite //</span>
-              <span>Framer Motion // Next.js // TypeScript // WebGL // GSAP // Figma // Adobe Suite //</span>
+              <span>Framer Motion // Next.js // TypeScript // WebGL // GSAP // Globe // Adobe Suite //</span>
+              <span>Framer Motion // Next.js // TypeScript // WebGL // GSAP // Globe // Adobe Suite //</span>
            </motion.div>
         </div>
       </section>
@@ -262,7 +260,7 @@ export function PortfolioTheme({ session }: { session: SessionData }) {
                 {formData.email}
               </a>
               <div className="flex gap-12 font-bold text-xs uppercase tracking-widest text-gray-400">
-                <span className="cursor-pointer hover:text-black transition-colors">Instagram</span>
+                <span className="cursor-pointer hover:text-black transition-colors">Globe</span>
                 <span className="cursor-pointer hover:text-black transition-colors">Behance</span>
                 <span className="cursor-pointer hover:text-black transition-colors">LinkedIn</span>
               </div>

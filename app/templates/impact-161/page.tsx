@@ -13,11 +13,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel"
 import { Progress } from "@/components/ui/progress"
 import { Separator } from "@/components/ui/separator"
-import {
-  Menu, MapPin, Home, Building2, TrendingUp, Star, Search, ArrowRight,
-  CheckCircle2, Phone, Mail, Calendar, DollarSign, Users, Award,
-  Globe, ChevronRight, Twitter, Instagram, Linkedin, Facebook, Youtube, Heart
-} from "lucide-react"
+import { Menu, MapPin, Home, Building2, TrendingUp, Star, Search, ArrowRight, CheckCircle2, Phone, Mail, Calendar, DollarSign, Users, Award, Globe, ChevronRight, Heart } from "lucide-react"
 
 function Reveal({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
   const ref = useRef(null)
@@ -782,7 +778,7 @@ export default function NexEstateRealEstate() {
                 New York's premier luxury real estate platform. Connecting discerning buyers, sellers, and investors with exceptional properties since 2008.
               </p>
               <div className="flex gap-3">
-                {[Twitter, Instagram, Linkedin, Facebook].map((Icon, i) => (
+                {[Globe, Globe, Globe, Globe].map((Icon, i) => (
                   <a key={i} href="#" className="cursor-pointer w-9 h-9 bg-slate-800 rounded-lg flex items-center justify-center hover:bg-amber-500 transition-all duration-200">
                     <Icon className="w-4 h-4 text-slate-300" />
                   </a>

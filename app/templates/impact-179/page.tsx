@@ -11,29 +11,7 @@ import {
 } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
-import {
-  Heart,
-  Globe,
-  Users,
-  Menu,
-  X,
-  Star,
-  CheckCircle2,
-  BookOpen,
-  HandHeart,
-  Shield,
-  ArrowRight,
-  ChevronRight,
-  MapPin,
-  Mail,
-  Instagram,
-  Facebook,
-  Twitter,
-  Droplets,
-  Sprout,
-  Sun,
-  Activity,
-} from "lucide-react";
+import { Heart, Globe, Users, Menu, X, Star, CheckCircle2, BookOpen, HandHeart, Shield, ArrowRight, ChevronRight, MapPin, Mail, Droplets, Sprout, Sun, Activity } from "lucide-react";
 
 import {
   Accordion,
@@ -765,7 +743,7 @@ export default function EssentialGivingPage() {
                 A 501(c)(3) non-profit organization dedicated to transparent, direct-impact philanthropy in the world's most vulnerable regions.
               </p>
               <div className="flex gap-4">
-                {[Instagram, Facebook, Twitter].map((Icon, i) => (
+                {[Globe, Globe, Globe].map((Icon, i) => (
                   <a key={i} href="#" className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-[#c2410c] hover:text-white transition-colors">
                     <Icon className="w-4 h-4" />
                   </a>

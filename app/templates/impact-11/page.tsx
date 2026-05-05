@@ -3,21 +3,7 @@
 import { motion, useScroll, useTransform, useInView, AnimatePresence } from "framer-motion";
 import { useState, useRef, useEffect, Suspense } from "react";
 import Image from "next/image";
-import { 
-  ArrowUpRight, 
-  ChevronDown, 
-  Menu, 
-  X, 
-  LayoutGrid, 
-  Maximize2, 
-  Layers, 
-  Compass, 
-  Monitor, 
-  ShieldCheck,
-  MousePointer2,
-  Plus,
-  Play
-} from "lucide-react";
+import { ArrowUpRight, ChevronDown, Menu, X, LayoutGrid, Maximize2, Layers, Compass, Monitor, ShieldCheck, MousePointer2, Plus, Play } from "lucide-react";
 import "../premium.css";
 
 // ─── DATA ──────────────────────────────────────────────────────────────────

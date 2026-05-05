@@ -14,11 +14,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel"
 import { Progress } from "@/components/ui/progress"
 import { Separator } from "@/components/ui/separator"
-import {
-  Menu, HardHat, ClipboardList, MapPin, Users, BarChart3, Wrench,
-  CheckCircle2, ArrowRight, ChevronRight, Zap, Star, Shield, Clock,
-  Twitter, Linkedin, Youtube, FileText, AlertTriangle, TrendingUp, Smartphone
-} from "lucide-react"
+import { Menu, HardHat, ClipboardList, MapPin, Users, BarChart3, Wrench, CheckCircle2, ArrowRight, ChevronRight, Zap, Star, Shield, Clock, Globe, FileText, AlertTriangle, TrendingUp, Smartphone } from "lucide-react"
 
 function Reveal({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
   const ref = useRef(null)
@@ -777,7 +773,7 @@ export default function FieldflowConstruction() {
                 Construction management built for the field, not the boardroom.
               </p>
               <div className="flex gap-3">
-                {[Twitter, Linkedin, Youtube].map((Icon, i) => (
+                {[Globe, Globe, Globe].map((Icon, i) => (
                   <button key={i} className="cursor-pointer w-9 h-9 rounded-lg bg-slate-800 hover:bg-yellow-500 flex items-center justify-center transition-all duration-200">
                     <Icon className="w-4 h-4 text-slate-400" />
                   </button>

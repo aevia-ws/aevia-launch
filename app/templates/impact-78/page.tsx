@@ -38,45 +38,7 @@ import {
 } from "@/components/ui/carousel";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
-import {
-  Coffee,
-  Droplets,
-  Thermometer,
-  Wind,
-  Zap,
-  Globe,
-  Activity,
-  Terminal,
-  Box,
-  Share2,
-  Layers,
-  Maximize,
-  Monitor,
-  MousePointer2,
-  Navigation,
-  Wifi,
-  Shield,
-  Instagram,
-  Twitter,
-  Mail,
-  Phone,
-  Check,
-  Menu,
-  X,
-  Star,
-  MapPin,
-  Clock,
-  Lock,
-  Plus,
-  Search,
-  Bell,
-  Settings,
-  ArrowRight,
-  ArrowUpRight,
-  ChevronRight,
-  CupSoda,
-  Flame,
-} from "lucide-react";
+import { Coffee, Droplets, Thermometer, Wind, Zap, Globe, Activity, Terminal, Box, Share2, Layers, Maximize, Monitor, MousePointer2, Navigation, Wifi, Shield, Mail, Phone, Check, Menu, X, Star, MapPin, Clock, Lock, Plus, Search, Bell, Settings, ArrowRight, ArrowUpRight, ChevronRight, CupSoda, Flame } from "lucide-react";
 
 import "../premium.css";
 
@@ -809,7 +771,7 @@ export default function AetherRoasteryPage() {
                     href="#"
                     className="hover:text-orange-500 transition-colors flex items-center gap-3"
                   >
-                    <Instagram className="w-3 h-3" /> Instagram
+                    <Globe className="w-3 h-3" /> Globe
                   </Link>
                 </li>
                 <li>
@@ -817,7 +779,7 @@ export default function AetherRoasteryPage() {
                     href="#"
                     className="hover:text-orange-500 transition-colors flex items-center gap-3"
                   >
-                    <Twitter className="w-3 h-3" /> X_Mission
+                    <Globe className="w-3 h-3" /> X_Mission
                   </Link>
                 </li>
                 <li>

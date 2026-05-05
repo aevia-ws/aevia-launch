@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import type { SessionData } from "@/lib/sessions";
 import { ThemeWrapper } from "./ThemeWrapper";
 import { Reveal, Stagger, StaggerItem, MagneticButton } from "./AnimationHelpers";
-import { Sparkles, ArrowRight, Zap, Globe, Layers, Shield, Cpu, Database, Network, Award, HelpCircle, Star, Quote, Instagram, Phone, Mail } from "lucide-react";
+import { Sparkles, ArrowRight, Zap, Globe, Layers, Shield, Cpu, Database, Network, Award, HelpCircle, Star, Quote, Phone, Mail } from "lucide-react";
 
 export function AuroraTheme({ session }: { session: SessionData }) {
   const { formData, generatedContent: c } = session;
@@ -113,8 +113,6 @@ export function AuroraTheme({ session }: { session: SessionData }) {
             </div>
           </Reveal>
         </div>
-      </section>
-
       </section>
 
       {/* ═══ SECTION 5: QUANTUM METRICS ═══ */}

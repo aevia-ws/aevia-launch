@@ -3,32 +3,7 @@
 import { motion, useScroll, useTransform, useInView, AnimatePresence } from "framer-motion";
 import { useState, useRef, useEffect, Suspense } from "react";
 import Image from "next/image";
-import { 
-  ArrowUpRight, 
-  Menu, 
-  X, 
-  Layers, 
-  ShieldCheck,
-  Plus,
-  Play,
-  ArrowRight,
-  ChevronDown,
-  Monitor,
-  LayoutGrid,
-  Zap,
-  Activity,
-  Waveform,
-  Cpu,
-  Globe,
-  Database,
-  Command,
-  Settings,
-  Eye,
-  Maximize2,
-  Minimize2,
-  Box,
-  Wind
-} from "lucide-react";
+import { ArrowUpRight, Menu, X, Layers, ShieldCheck, Plus, Play, ArrowRight, ChevronDown, Monitor, LayoutGrid, Zap, Activity, Cpu, Globe, Database, Command, Settings, Eye, Maximize2, Minimize2, Box, Wind } from "lucide-react";
 import "../premium.css";
 
 // ─── DATA ──────────────────────────────────────────────────────────────────
@@ -68,7 +43,7 @@ const METRICS = [
 
 const CAPABILITIES = [
   { icon: Activity, title: "Wave Forge", desc: "Engineering spectral volumes through a lens of mathematical and structural purity." },
-  { icon: Waveform, title: "Signal Logic", desc: "Scaling signal interactions through distributed wave orchestration and logic synthesis." },
+  { icon: Activity, title: "Signal Logic", desc: "Scaling signal interactions through distributed wave orchestration and logic synthesis." },
   { icon: Cpu, title: "Pulse Sync", desc: "Synchronizing system spikes with real-time biological demand cycles for absolute sync." },
   { icon: Box, title: "Immune Shell", desc: "Leveraging heavy archival data fabrication for ultra-high fidelity signal protection." }
 ];

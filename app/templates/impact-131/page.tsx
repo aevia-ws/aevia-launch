@@ -10,23 +10,7 @@ import {
 } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
-import {
-  ArrowRight,
-  ChevronDown,
-  Grape,
-  Droplets,
-  MapPin,
-  Award,
-  ShieldCheck,
-  Sun,
-  Wind,
-  ChevronRight,
-  X,
-  Menu,
-  ShoppingBag,
-  Plus,
-  Minus,
-} from "lucide-react";
+import { ArrowRight, ChevronDown, Grape, Droplets, MapPin, Award, ShieldCheck, Sun, Wind, ChevronRight, X, Menu, ShoppingBag, Plus, Minus } from "lucide-react";
 
 import "../premium.css";
 

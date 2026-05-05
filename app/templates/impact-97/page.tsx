@@ -22,32 +22,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
-import {
-  Anchor,
-  Compass,
-  Ship,
-  ShieldCheck,
-  Star,
-  Instagram,
-  Twitter,
-  Mail,
-  MapPin,
-  ChevronRight,
-  ArrowRight,
-  X,
-  Menu,
-  Waves,
-  Wind,
-  Sun,
-  Map,
-  Clock,
-  Phone,
-  Search,
-  ShoppingBag,
-  Maximize,
-  Activity,
-  Droplets,
-} from "lucide-react";
+import { Anchor, Compass, Ship, ShieldCheck, Star, Globe, Mail, MapPin, ChevronRight, ArrowRight, X, Menu, Waves, Wind, Sun, Map, Clock, Phone, Search, ShoppingBag, Maximize, Activity, Droplets } from "lucide-react";
 
 import "../premium.css";
 
@@ -587,7 +562,7 @@ export default function HorizonYachtPage() {
                 discerning navigators.
               </p>
               <div className="flex gap-6">
-                {[Instagram, Twitter, Mail].map((Icon, i) => (
+                {[Globe, Globe, Mail].map((Icon, i) => (
                   <button
                     key={i}
                     className="w-14 h-14 rounded-full border border-white/10 flex items-center justify-center text-white/40 hover:bg-[#c5a059] hover:text-[#020a13] hover:border-[#c5a059] transition-all"

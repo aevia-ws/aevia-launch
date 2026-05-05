@@ -10,31 +10,7 @@ import {
 } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
-import {
-  Clock,
-  Shield,
-  Cpu,
-  Zap,
-  Activity,
-  Crosshair,
-  Eye,
-  Lock,
-  Terminal,
-  Radio,
-  Share2,
-  ShoppingCart,
-  Heart,
-  Search,
-  Menu,
-  X,
-  ChevronRight,
-  Play,
-  ArrowRight,
-  Ruler,
-  Hexagon,
-  Layers,
-  PenTool,
-} from "lucide-react";
+import { Clock, Shield, Cpu, Zap, Activity, Crosshair, Eye, Lock, Terminal, Radio, Share2, ShoppingCart, Heart, Search, Menu, X, ChevronRight, Play, ArrowRight, Ruler, Hexagon, Layers, PenTool } from "lucide-react";
 
 import "../premium.css";
 
@@ -608,7 +584,7 @@ export default function ChronosLabPage() {
                     href="#"
                     className="hover:text-white transition-colors flex items-center gap-2"
                   >
-                    <Radio className="w-3 h-3" /> Instagram
+                    <Radio className="w-3 h-3" /> Globe
                   </Link>
                 </li>
                 <li>

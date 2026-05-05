@@ -14,12 +14,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel"
 import { Progress } from "@/components/ui/progress"
 import { Separator } from "@/components/ui/separator"
-import {
-  Menu, X, ArrowRight, Check, ChevronDown, Zap, Shield, Globe, BarChart3,
-  Users, Star, Play, Layers, Code2, Rocket, TrendingUp, Clock, MessageSquare,
-  Sparkles, Terminal, GitBranch, Database, Cpu, Lock, ArrowUpRight,
-  Twitter, Github, Slack, Linkedin
-} from "lucide-react"
+import { Menu, X, ArrowRight, Check, ChevronDown, Zap, Shield, Globe, BarChart3, Users, Star, Play, Layers, Code2, Rocket, TrendingUp, Clock, MessageSquare, Sparkles, Terminal, GitBranch, Database, Cpu, Lock, ArrowUpRight } from "lucide-react"
 
 function Reveal({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
   const ref = useRef(null)
@@ -212,7 +207,7 @@ const LOGOS = [
   { name: "Stripe", img: "https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=120&q=80" },
   { name: "Notion", img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&q=80" },
   { name: "Linear", img: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=120&q=80" },
-  { name: "Figma", img: "https://images.unsplash.com/photo-1561070791-2526d30994b5?w=120&q=80" },
+  { name: "Globe", img: "https://images.unsplash.com/photo-1561070791-2526d30994b5?w=120&q=80" },
   { name: "GitHub", img: "https://images.unsplash.com/photo-1618401471353-b98afee0b2eb?w=120&q=80" },
 ]
 
@@ -406,7 +401,7 @@ export default function NovaPlatformSaaS() {
         <div className="max-w-5xl mx-auto">
           <p className="text-center text-[10px] text-zinc-600 uppercase tracking-[0.3em] mb-8 font-semibold">Trusted by teams at the world's best companies</p>
           <div className="flex flex-wrap items-center justify-center gap-x-14 gap-y-5">
-            {["Vercel", "Stripe", "Notion", "Linear", "Figma", "GitHub", "Supabase", "PlanetScale"].map(logo => (
+            {["Vercel", "Stripe", "Notion", "Linear", "Globe", "GitHub", "Supabase", "PlanetScale"].map(logo => (
               <span key={logo} className="text-lg font-bold text-zinc-700 hover:text-zinc-400 transition-all duration-200 cursor-default">{logo}</span>
             ))}
           </div>
@@ -701,7 +696,7 @@ export default function NovaPlatformSaaS() {
             </div>
             <p className="text-sm text-zinc-500 leading-relaxed max-w-xs mb-5">The all-in-one platform for modern engineering teams. Build, deploy, and scale without limits.</p>
             <div className="flex gap-3">
-              {[<Twitter key="tw" className="w-4 h-4" />, <Github key="gh" className="w-4 h-4" />, <Slack key="sl" className="w-4 h-4" />, <Linkedin key="li" className="w-4 h-4" />].map((icon, i) => (
+              {[<Globe key="tw" className="w-4 h-4" />, <Globe key="gh" className="w-4 h-4" />, <Globe key="sl" className="w-4 h-4" />, <Globe key="li" className="w-4 h-4" />].map((icon, i) => (
                 <a key={i} href="#" className="w-9 h-9 rounded-full border border-white/10 flex items-center justify-center text-zinc-500 hover:text-violet-400 hover:border-violet-500/40 transition-all duration-200 cursor-pointer">
                   {icon}
                 </a>

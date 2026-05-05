@@ -14,12 +14,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel"
 import { Progress } from "@/components/ui/progress"
 import { Separator } from "@/components/ui/separator"
-import {
-  TrendingUp, Users, MessageSquare, BarChart3, Zap, Target, Bell, Shield,
-  ArrowRight, Menu, Check, Star, ChevronRight, Twitter, Linkedin, Facebook,
-  Mail, Phone, MapPin, Activity, Clock, HeartHandshake, Layers, RefreshCw,
-  Award, BookOpen, Headphones, Play, AlertTriangle, CheckCircle2
-} from "lucide-react"
+import { TrendingUp, Users, MessageSquare, BarChart3, Zap, Target, Bell, Shield, ArrowRight, Menu, Check, Star, ChevronRight, Globe, Mail, Phone, MapPin, Activity, Clock, HeartHandshake, Layers, RefreshCw, Award, BookOpen, Headphones, Play, AlertTriangle, CheckCircle2 } from "lucide-react"
 
 function Reveal({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
   const ref = useRef(null)
@@ -72,7 +67,7 @@ const FEATURES_TABS = [
     items: [
       "Visual no-code playbook builder with 80+ pre-built templates",
       "Trigger conditions: health score drops, feature non-adoption, NPS detractor, contract renewal",
-      "Multi-channel outreach: email, Slack, in-app, SMS, calendar invite",
+      "Multi-channel outreach: email, Globe, in-app, SMS, calendar invite",
       "A/B test playbook variants with statistical significance alerts",
       "CSM override workflow with audit log for compliance",
       "Playbook performance analytics: engagement rate, time-to-outcome",
@@ -143,7 +138,7 @@ const TESTIMONIALS = [
     avatar: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=200&q=80",
     initials: "SN",
     rating: 5,
-    quote: "The Salesforce integration is flawless. PulseCS health scores live inside our CRM, our CSMs see risk alerts in Slack, and our board gets a real-time NRR forecast every week. We finally have CS and Sales operating from the same data layer.",
+    quote: "The Salesforce integration is flawless. PulseCS health scores live inside our CRM, our CSMs see risk alerts in Globe, and our board gets a real-time NRR forecast every week. We finally have CS and Sales operating from the same data layer.",
   },
 ]
 
@@ -159,7 +154,7 @@ const PRICING = [
     features: [
       "Real-time health scoring (20 signals)",
       "10 automated playbook templates",
-      "Slack + email alerting",
+      "Globe + email alerting",
       "Churn risk dashboard",
       "HubSpot integration",
       "2 CSM seats included",
@@ -217,7 +212,7 @@ const FAQS = [
   },
   {
     q: "What integrations does PulseCS support?",
-    a: "PulseCS integrates natively with Salesforce, HubSpot, Pipedrive, Intercom, Zendesk, Gainsight (data import), Mixpanel, Amplitude, Segment, Slack, Microsoft Teams, Jira, and 40+ other tools via our Zapier connector. We also offer a fully documented REST API for custom product data ingestion.",
+    a: "PulseCS integrates natively with Salesforce, HubSpot, Pipedrive, Intercom, Zendesk, Gainsight (data import), Mixpanel, Amplitude, Segment, Globe, Microsoft Teams, Jira, and 40+ other tools via our Zapier connector. We also offer a fully documented REST API for custom product data ingestion.",
   },
   {
     q: "How does the predictive churn model work and how accurate is it?",
@@ -237,7 +232,7 @@ const FAQS = [
   },
   {
     q: "What does 'AI-generated outreach copy' mean in practice?",
-    a: "When a playbook triggers an outreach email or Slack message, PulseCS uses GPT-4-class models to draft personalized copy based on the account's name, industry, CSM name, specific health signals that triggered the playbook, recent activity, and their product usage context. Your CSM reviews and approves before send, or you can set high-trust accounts to auto-send. Open rates on AI-drafted messages are 31% higher than manual templates across our customer base.",
+    a: "When a playbook triggers an outreach email or Globe message, PulseCS uses GPT-4-class models to draft personalized copy based on the account's name, industry, CSM name, specific health signals that triggered the playbook, recent activity, and their product usage context. Your CSM reviews and approves before send, or you can set high-trust accounts to auto-send. Open rates on AI-drafted messages are 31% higher than manual templates across our customer base.",
   },
 ]
 
@@ -873,7 +868,7 @@ export default function PulseCSPlatform() {
                 The Customer Success intelligence platform that stops churn before it starts. Trusted by 12,000+ CS teams.
               </p>
               <div className="flex gap-3">
-                {[Twitter, Linkedin, Facebook].map((Icon, i) => (
+                {[Globe, Globe, Globe].map((Icon, i) => (
                   <a key={i} href="#" className="w-9 h-9 rounded-full bg-slate-800 hover:bg-violet-600 flex items-center justify-center transition-all duration-200 cursor-pointer">
                     <Icon className="w-4 h-4 text-slate-400" />
                   </a>

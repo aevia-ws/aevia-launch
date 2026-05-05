@@ -38,47 +38,7 @@ import {
 } from "@/components/ui/carousel";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
-import {
-  Shield,
-  ShieldCheck,
-  ShieldAlert,
-  Lock,
-  Zap,
-  Activity,
-  Terminal,
-  Cpu,
-  Box,
-  Share2,
-  Layers,
-  Maximize,
-  Monitor,
-  MousePointer2,
-  Navigation,
-  Globe,
-  Smartphone,
-  Twitter,
-  Linkedin,
-  Github,
-  MapPin,
-  Wifi,
-  Mail,
-  Phone,
-  Check,
-  Menu,
-  X,
-  Star,
-  Plus,
-  Search,
-  Clock,
-  Bell,
-  Settings,
-  Database,
-  Server,
-  ArrowRight,
-  ArrowUpRight,
-  ChevronRight,
-  Eye,
-} from "lucide-react";
+import { Shield, ShieldCheck, ShieldAlert, Lock, Zap, Activity, Terminal, Cpu, Box, Share2, Layers, Maximize, Monitor, MousePointer2, Navigation, Globe, Smartphone, MapPin, Wifi, Mail, Phone, Check, Menu, X, Star, Plus, Search, Clock, Bell, Settings, Database, Server, ArrowRight, ArrowUpRight, ChevronRight, Eye } from "lucide-react";
 
 import "../premium.css";
 
@@ -1021,7 +981,7 @@ export default function CyberSecurityPage() {
                     href="#"
                     className="hover:text-emerald-500 transition-colors flex items-center gap-3"
                   >
-                    <Linkedin className="w-3 h-3" /> LinkedIn
+                    <Globe className="w-3 h-3" /> LinkedIn
                   </Link>
                 </li>
                 <li>
@@ -1029,7 +989,7 @@ export default function CyberSecurityPage() {
                     href="#"
                     className="hover:text-emerald-500 transition-colors flex items-center gap-3"
                   >
-                    <Twitter className="w-3 h-3" /> X_Mission
+                    <Globe className="w-3 h-3" /> X_Mission
                   </Link>
                 </li>
                 <li>

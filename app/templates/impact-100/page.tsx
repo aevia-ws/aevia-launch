@@ -22,32 +22,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
-import {
-  Compass,
-  Layout,
-  Maximize,
-  Ruler,
-  Sparkles,
-  Instagram,
-  Twitter,
-  Mail,
-  MapPin,
-  ChevronRight,
-  ArrowRight,
-  X,
-  Menu,
-  Box,
-  Home,
-  Layers,
-  PencilLine,
-  Focus,
-  Frame,
-  Monitor,
-  Share2,
-  Lock,
-  Search,
-  ShoppingBag,
-} from "lucide-react";
+import { Compass, Layout, Maximize, Ruler, Sparkles, Globe, Mail, MapPin, ChevronRight, ArrowRight, X, Menu, Box, Home, Layers, PencilLine, Focus, Frame, Monitor, Share2, Lock, Search, ShoppingBag } from "lucide-react";
 
 import "../premium.css";
 
@@ -550,7 +525,7 @@ export default function NovaSpacesPage() {
                 architectural purity and the silent power of minimalism.
               </p>
               <div className="flex gap-6">
-                {[Instagram, Twitter, Mail].map((Icon, i) => (
+                {[Globe, Globe, Mail].map((Icon, i) => (
                   <button
                     key={i}
                     className="w-14 h-14 rounded-full border border-black/10 flex items-center justify-center text-black/40 hover:bg-black hover:text-white hover:border-black transition-all"

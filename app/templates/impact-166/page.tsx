@@ -13,11 +13,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel"
 import { Progress } from "@/components/ui/progress"
 import { Separator } from "@/components/ui/separator"
-import {
-  Menu, Scale, FileText, Users, Search, Clock, CheckCircle2, ArrowRight,
-  Star, Globe, Shield, Building, TrendingUp, BookOpen, Gavel, Briefcase,
-  Phone, Mail, Calendar, Twitter, Linkedin, Youtube, ChevronRight, AlertCircle
-} from "lucide-react"
+import { Menu, Scale, FileText, Users, Search, Clock, CheckCircle2, ArrowRight, Star, Globe, Shield, Building, TrendingUp, BookOpen, Gavel, Briefcase, Phone, Mail, Calendar, ChevronRight, AlertCircle } from "lucide-react"
 
 function Reveal({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
   const ref = useRef(null)
@@ -837,7 +833,7 @@ export default function LexBridgeLegalTech() {
                 Senior-led legal counsel across M&A, litigation, employment, and regulatory matters. Est. 1987. New York · London · Singapore · Dubai.
               </p>
               <div className="flex gap-3">
-                {[Twitter, Linkedin, Youtube].map((Icon, i) => (
+                {[Globe, Globe, Globe].map((Icon, i) => (
                   <a key={i} href="#" className="cursor-pointer w-9 h-9 bg-slate-800 rounded-lg flex items-center justify-center hover:bg-amber-500/20 border border-transparent hover:border-amber-500/30 transition-all duration-200">
                     <Icon className="w-4 h-4 text-slate-400" />
                   </a>

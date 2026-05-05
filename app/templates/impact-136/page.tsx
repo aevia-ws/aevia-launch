@@ -11,20 +11,7 @@ import {
 } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
-import {
-  ArrowRight,
-  ArrowUpRight,
-  Play,
-  Maximize,
-  X,
-  Instagram,
-  Twitter,
-  Dribbble,
-  ArrowDown,
-  Sparkles,
-  Command,
-  Eye,
-} from "lucide-react";
+import { ArrowRight, ArrowUpRight, Play, Maximize, X, Globe, ArrowDown, Sparkles, Command, Eye } from "lucide-react";
 
 import "../premium.css";
 
@@ -566,19 +553,19 @@ export default function TextRevealPage() {
                 href="#"
                 className="w-14 h-14 rounded-full border border-zinc-800 flex items-center justify-center hover:bg-white hover:text-black hover:border-white transition-all"
               >
-                <Instagram className="w-5 h-5" />
+                <Globe className="w-5 h-5" />
               </a>
               <a
                 href="#"
                 className="w-14 h-14 rounded-full border border-zinc-800 flex items-center justify-center hover:bg-white hover:text-black hover:border-white transition-all"
               >
-                <Twitter className="w-5 h-5" />
+                <Globe className="w-5 h-5" />
               </a>
               <a
                 href="#"
                 className="w-14 h-14 rounded-full border border-zinc-800 flex items-center justify-center hover:bg-white hover:text-black hover:border-white transition-all"
               >
-                <Dribbble className="w-5 h-5" />
+                <Globe className="w-5 h-5" />
               </a>
             </Reveal>
           </div>
@@ -607,12 +594,12 @@ export default function TextRevealPage() {
               <ul className="space-y-4 text-sm text-zinc-400">
                 <li>
                   <Link href="#" className="hover:text-white transition-colors">
-                    Instagram
+                    Globe
                   </Link>
                 </li>
                 <li>
                   <Link href="#" className="hover:text-white transition-colors">
-                    Twitter (X)
+                    Globe (X)
                   </Link>
                 </li>
                 <li>

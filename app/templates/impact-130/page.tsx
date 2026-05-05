@@ -10,26 +10,7 @@ import {
 } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
-import {
-  ArrowRight,
-  ArrowLeft,
-  Instagram,
-  Twitter,
-  Linkedin,
-  Mail,
-  ArrowUpRight,
-  Compass,
-  Maximize2,
-  Play,
-  Pause,
-  Camera,
-  Award,
-  Star,
-  ChevronDown,
-  ChevronRight,
-  Minimize2,
-  MapPin,
-} from "lucide-react";
+import { ArrowRight, ArrowLeft, Globe, Mail, ArrowUpRight, Compass, Maximize2, Play, Pause, Camera, Award, Star, ChevronDown, ChevronRight, Minimize2, MapPin } from "lucide-react";
 
 import "../premium.css";
 
@@ -727,19 +708,19 @@ export default function SplitRevealPage() {
                       href="#"
                       className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center hover:bg-emerald-400 hover:text-black hover:border-emerald-400 transition-colors"
                     >
-                      <Instagram className="w-5 h-5" />
+                      <Globe className="w-5 h-5" />
                     </a>
                     <a
                       href="#"
                       className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center hover:bg-emerald-400 hover:text-black hover:border-emerald-400 transition-colors"
                     >
-                      <Twitter className="w-5 h-5" />
+                      <Globe className="w-5 h-5" />
                     </a>
                     <a
                       href="#"
                       className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center hover:bg-emerald-400 hover:text-black hover:border-emerald-400 transition-colors"
                     >
-                      <Linkedin className="w-5 h-5" />
+                      <Globe className="w-5 h-5" />
                     </a>
                   </div>
                 </Reveal>

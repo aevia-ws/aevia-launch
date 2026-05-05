@@ -13,11 +13,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel"
 import { Progress } from "@/components/ui/progress"
 import { Separator } from "@/components/ui/separator"
-import {
-  Plane, Globe, Star, MapPin, Phone, Mail, Instagram, Facebook, Twitter, Linkedin,
-  Check, ChevronRight, Menu, X, ArrowRight, Shield, Clock, Award, Users, Heart,
-  Compass, Mountain, Waves, Coffee, Sparkles, Crown, Gem, Calendar, Headphones
-} from "lucide-react"
+import { Plane, Globe, Star, MapPin, Phone, Mail, Check, ChevronRight, Menu, X, ArrowRight, Shield, Clock, Award, Users, Heart, Compass, Mountain, Waves, Coffee, Sparkles, Crown, Gem, Calendar, Headphones } from "lucide-react"
 
 // ─── Reveal Component ───────────────────────────────────────────────────────
 function Reveal({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
@@ -872,7 +868,7 @@ export default function EvasionDoree() {
                 Agence de voyages de luxe, fondée en 2007. Spécialistes des itinéraires sur mesure, jets privés et expériences exclusives.
               </p>
               <div className="flex gap-3">
-                {[Instagram, Facebook, Twitter, Linkedin].map((Icon, i) => (
+                {[Globe, Globe, Globe, Globe].map((Icon, i) => (
                   <a key={i} href="#"
                     className="w-9 h-9 rounded-xl bg-[#1a2235] border border-[#c9a96e]/15 flex items-center justify-center hover:bg-[#c9a96e]/10 hover:border-[#c9a96e]/40 transition-all duration-200 cursor-pointer">
                     <Icon className="w-4 h-4 text-[#c9a96e]" />

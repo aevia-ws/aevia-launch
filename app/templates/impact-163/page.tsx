@@ -14,11 +14,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel"
 import { Progress } from "@/components/ui/progress"
 import { Separator } from "@/components/ui/separator"
-import {
-  Menu, Users, BriefcaseIcon, Search, Star, CheckCircle2, ChevronRight,
-  BarChart3, Zap, Shield, Target, Clock, ArrowRight, Globe, Bell,
-  UserCheck, FileText, TrendingUp, Building2, Twitter, Linkedin, Github, Mail
-} from "lucide-react"
+import { Menu, Users, BriefcaseIcon, Search, Star, CheckCircle2, ChevronRight, BarChart3, Zap, Shield, Target, Clock, ArrowRight, Globe, Bell, UserCheck, FileText, TrendingUp, Building2, Mail } from "lucide-react"
 
 function Reveal({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
   const ref = useRef(null)
@@ -441,7 +437,7 @@ export default function TalentFlowHRPage() {
                   <div className="space-y-6">
                     <h3 className="text-3xl font-black text-slate-900">Find qualified candidates before they apply</h3>
                     <p className="text-lg text-slate-600 leading-relaxed">
-                      TalentFlow's AI sourcing engine continuously scans LinkedIn, GitHub, Dribbble, and 80+ professional networks to surface passive candidates who match your exact role requirements — before they ever hit the job boards.
+                      TalentFlow's AI sourcing engine continuously scans LinkedIn, GitHub, Globe, and 80+ professional networks to surface passive candidates who match your exact role requirements — before they ever hit the job boards.
                     </p>
                     <ul className="space-y-4">
                       {[
@@ -773,7 +769,7 @@ export default function TalentFlowHRPage() {
                 The AI-native recruiting platform that helps companies hire the best people, twice as fast.
               </p>
               <div className="flex items-center gap-3 mt-5">
-                {[Twitter, Linkedin, Github].map((Icon, i) => (
+                {[Globe, Globe, Globe].map((Icon, i) => (
                   <Link key={i} href="#" className="cursor-pointer w-9 h-9 rounded-lg bg-slate-800 hover:bg-violet-600 flex items-center justify-center transition-all duration-200">
                     <Icon className="w-4 h-4 text-slate-300" />
                   </Link>

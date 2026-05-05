@@ -10,26 +10,7 @@ import {
 } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
-import {
-  Play,
-  Pause,
-  FastForward,
-  Rewind,
-  Volume2,
-  Mic2,
-  Headphones,
-  Star,
-  ArrowRight,
-  Rss,
-  Share2,
-  Download,
-  Clock,
-  Calendar,
-  CheckCircle2,
-  Menu,
-  X,
-  ChevronRight,
-} from "lucide-react";
+import { Play, Pause, FastForward, Rewind, Volume2, Mic2, Headphones, Star, ArrowRight, Rss, Share2, Download, Clock, Calendar, CheckCircle2, Menu, X, ChevronRight } from "lucide-react";
 
 import "../premium.css";
 
@@ -133,8 +114,8 @@ function Reveal({
   );
 }
 
-// Simulated Audio Waveform
-function Waveform({ isPlaying }: { isPlaying: boolean }) {
+// Simulated Audio Activity
+function Activity({ isPlaying }: { isPlaying: boolean }) {
   return (
     <div className="flex items-center gap-[2px] h-8 w-24">
       {[...Array(15)].map((_, i) => (
@@ -523,7 +504,7 @@ export default function DeepcastPage() {
 
                         <div className="flex items-center gap-6 pt-6 border-t border-slate-800">
                           {activeEpisode === ep.id && (
-                            <Waveform isPlaying={isPlaying} />
+                            <Activity isPlaying={isPlaying} />
                           )}
                           <div className="flex items-center gap-4 ml-auto">
                             <button className="text-slate-500 hover:text-white transition-colors flex items-center gap-2 text-xs font-bold uppercase tracking-widest">

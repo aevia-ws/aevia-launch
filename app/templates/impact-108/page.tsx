@@ -12,33 +12,7 @@ import {
 import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import {
-  Clock,
-  Zap,
-  Shield,
-  Layers,
-  Search,
-  Menu,
-  X,
-  ArrowRight,
-  ChevronRight,
-  Cpu,
-  Binary,
-  Database,
-  Lock,
-  Box,
-  Fingerprint,
-  TrendingUp,
-  TrendingDown,
-  BarChart3,
-  Activity,
-  History,
-  Timer,
-  ZapOff,
-  Briefcase,
-  Globe,
-  Coins,
-} from "lucide-react";
+import { Clock, Zap, Shield, Layers, Search, Menu, X, ArrowRight, ChevronRight, Cpu, Binary, Database, Lock, Box, Fingerprint, TrendingUp, TrendingDown, BarChart3, Activity, History, Timer, ZapOff, Briefcase, Globe, Coins } from "lucide-react";
 
 import "../premium.css";
 

@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import type { SessionData } from "@/lib/sessions";
 import { MagneticButton } from "./AnimationHelpers";
-import { Mail, Instagram, Linkedin, Phone } from "lucide-react";
+import { Mail, Globe, Phone } from "lucide-react";
 
 interface ThemeWrapperProps {
   session: SessionData;
@@ -80,8 +80,8 @@ export function ThemeWrapper({
           <div>
             <div className="font-bold mb-6 uppercase text-xs tracking-widest">Follow Us</div>
             <div className="flex gap-4">
-              {formData.instagram && <Instagram className="w-5 h-5 cursor-pointer hover:opacity-70" />}
-              {formData.linkedin && <Linkedin className="w-5 h-5 cursor-pointer hover:opacity-70" />}
+              {formData.instagram && <Globe className="w-5 h-5 cursor-pointer hover:opacity-70" />}
+              {formData.linkedin && <Globe className="w-5 h-5 cursor-pointer hover:opacity-70" />}
             </div>
           </div>
         </div>

@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import type { SessionData } from "@/lib/sessions";
 import { ThemeWrapper } from "./ThemeWrapper";
 import { Reveal, Stagger, StaggerItem, MagneticButton } from "./AnimationHelpers";
-import { Utensils, Clock, MapPin, X, Check, Users, Calendar, ChefHat, Star, Quote, Instagram, Phone, Mail, ArrowRight, Wine, Sparkles, Award, HelpCircle, ShieldCheck } from "lucide-react";
+import { Utensils, Clock, MapPin, X, Check, Users, Calendar, ChefHat, Star, Quote, Globe, Phone, Mail, ArrowRight, Wine, Sparkles, Award, HelpCircle, ShieldCheck } from "lucide-react";
 
 const MENU_DATA = {
   Entrees: [
@@ -297,7 +297,7 @@ export function RestaurantTheme({ session }: { session: SessionData }) {
               </div>
               {(formData.instagram || formData.linkedin) && (
                 <div className="flex gap-4 mt-10">
-                  {formData.instagram && <a href={`https://instagram.com/${formData.instagram}`} className="w-12 h-12 rounded-full bg-zinc-100 flex items-center justify-center hover:bg-zinc-200 transition-colors"><Instagram className="w-5 h-5" /></a>}
+                  {formData.instagram && <a href={`https://instagram.com/${formData.instagram}`} className="w-12 h-12 rounded-full bg-zinc-100 flex items-center justify-center hover:bg-zinc-200 transition-colors"><Globe className="w-5 h-5" /></a>}
                 </div>
               )}
             </Reveal>
@@ -324,8 +324,6 @@ export function RestaurantTheme({ session }: { session: SessionData }) {
             </Reveal>
           </div>
         </div>
-      </section>
-
       </section>
 
       {/* ═══ SECTION 10: PARTNER AWARDS / PRESS ═══ */}
@@ -374,7 +372,7 @@ export function RestaurantTheme({ session }: { session: SessionData }) {
               <div className="aspect-square overflow-hidden rounded-2xl group relative cursor-pointer">
                 <img src={img} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-[2s] grayscale group-hover:grayscale-0" />
                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                   <Instagram className="w-8 h-8 text-white" />
+                   <Globe className="w-8 h-8 text-white" />
                 </div>
               </div>
             </StaggerItem>

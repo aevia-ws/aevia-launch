@@ -138,8 +138,6 @@ export function HealthcareTheme({ session }: { session: SessionData }) {
         </div>
       </section>
 
-      </section>
-
       {/* ═══ SECTION 7: DEPARTMENTS ═══ */}
       <section className="py-32 bg-slate-50 border-y">
         <div className="max-w-7xl mx-auto px-6">

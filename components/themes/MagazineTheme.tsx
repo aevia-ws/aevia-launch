@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import type { SessionData } from "@/lib/sessions";
 import { ThemeWrapper } from "./ThemeWrapper";
 import { Reveal, Stagger, StaggerItem } from "./AnimationHelpers";
-import { ArrowRight, BookOpen, Clock, Tag, TrendingUp, PlayCircle, Search, Mic, Star, Award, HelpCircle, Quote, Instagram, Phone, Mail, Calendar } from "lucide-react";
+import { ArrowRight, BookOpen, Clock, Tag, TrendingUp, PlayCircle, Search, Mic, Star, Award, HelpCircle, Quote, Globe, Phone, Mail, Calendar } from "lucide-react";
 
 const ARTICLES = [
   { title: "The Future of Digital Ecosystems", cat: "Technology", date: "May 24, 2026", img: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&q=80" },
@@ -111,8 +111,6 @@ export function MagazineTheme({ session }: { session: SessionData }) {
             ))}
           </Stagger>
         </div>
-      </section>
-
       </section>
 
       {/* ═══ SECTION 5: MULTIMEDIA FEATURE ═══ */}

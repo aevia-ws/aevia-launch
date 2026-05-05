@@ -22,33 +22,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
-import {
-  Sparkles,
-  Heart,
-  ShieldCheck,
-  Zap,
-  Star,
-  Instagram,
-  Facebook,
-  Mail,
-  Phone,
-  ChevronRight,
-  ArrowRight,
-  X,
-  Menu,
-  Stethoscope,
-  Microscope,
-  Droplets,
-  Users,
-  Award,
-  Clock,
-  MapPin,
-  Search,
-  Calendar,
-  Activity,
-  ZapIcon,
-  Scan,
-} from "lucide-react";
+import { Sparkles, Heart, ShieldCheck, Zap, Star, Globe, Mail, Phone, ChevronRight, ArrowRight, X, Menu, Stethoscope, Microscope, Droplets, Users, Award, Clock, MapPin, Search, Calendar, Activity, ZapIcon, Scan } from "lucide-react";
 
 import "../premium.css";
 
@@ -577,7 +551,7 @@ export default function LumiereClinicPage() {
                 Private consultations in London, Zürich & New York.
               </p>
               <div className="flex gap-4">
-                {[Instagram, Facebook, Mail].map((Icon, i) => (
+                {[Globe, Globe, Mail].map((Icon, i) => (
                   <button
                     key={i}
                     className="w-12 h-12 rounded-full border border-[#9db2bf]/20 flex items-center justify-center text-[#9db2bf] hover:bg-[#9db2bf] hover:text-white transition-all"

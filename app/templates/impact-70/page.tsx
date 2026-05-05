@@ -38,39 +38,7 @@ import {
 } from "@/components/ui/carousel";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
-import {
-  Satellite,
-  Globe,
-  Menu,
-  ArrowRight,
-  ChevronDown,
-  Rocket,
-  Radio,
-  Shield,
-  Star,
-  Check,
-  Zap,
-  Activity,
-  Database,
-  Plus,
-  Terminal,
-  Cpu,
-  Box,
-  Share2,
-  Layers,
-  Maximize,
-  Monitor,
-  MousePointer2,
-  Navigation,
-  Smartphone,
-  Twitter,
-  Linkedin,
-  Github,
-  MapPin,
-  Wifi,
-  Mail,
-  Phone,
-} from "lucide-react";
+import { Satellite, Globe, Menu, ArrowRight, ChevronDown, Rocket, Radio, Shield, Star, Check, Zap, Activity, Database, Plus, Terminal, Cpu, Box, Share2, Layers, Maximize, Monitor, MousePointer2, Navigation, Smartphone, MapPin, Wifi, Mail, Phone } from "lucide-react";
 
 import "../premium.css";
 
@@ -991,7 +959,7 @@ export default function ApexOrbitalPage() {
                     href="#"
                     className="hover:text-blue-500 transition-colors flex items-center gap-3"
                   >
-                    <Twitter className="w-3 h-3" /> X_Mission
+                    <Globe className="w-3 h-3" /> X_Mission
                   </Link>
                 </li>
                 <li>
@@ -999,7 +967,7 @@ export default function ApexOrbitalPage() {
                     href="#"
                     className="hover:text-blue-500 transition-colors flex items-center gap-3"
                   >
-                    <Github className="w-3 h-3" /> API_Docs
+                    <Globe className="w-3 h-3" /> API_Docs
                   </Link>
                 </li>
                 <li>

@@ -210,7 +210,7 @@ export default function WaveFXPage() {
             <p className="text-[11px] text-white/15 uppercase tracking-[0.2em] max-w-sm leading-relaxed italic">Open-source visual computing toolkit. GPU-native. Production-ready.</p>
           </div>
           <div><h4 className="text-[10px] font-black uppercase tracking-widest mb-10 text-[#6366f1]">Resources</h4><ul className="space-y-5 text-[10px] font-bold text-white/20 uppercase tracking-widest">{["Docs", "Examples", "Changelog", "Blog"].map(l => <li key={l}><Link href="#">{l}</Link></li>)}</ul></div>
-          <div><h4 className="text-[10px] font-black uppercase tracking-widest mb-10 text-[#6366f1]">Community</h4><ul className="space-y-5 text-[10px] font-bold text-white/20 uppercase tracking-widest">{["GitHub", "Discord", "Twitter", "Stack_Overflow"].map(l => <li key={l}><Link href="#">{l}</Link></li>)}</ul></div>
+          <div><h4 className="text-[10px] font-black uppercase tracking-widest mb-10 text-[#6366f1]">Community</h4><ul className="space-y-5 text-[10px] font-bold text-white/20 uppercase tracking-widest">{["GitHub", "Discord", "Globe", "Stack_Overflow"].map(l => <li key={l}><Link href="#">{l}</Link></li>)}</ul></div>
         </div>
         <div className="max-w-[1500px] mx-auto mt-32 pt-16 border-t border-white/5 text-center text-[9px] font-bold text-white/10 uppercase tracking-widest">&copy; 2026 WAVE FX — MIT LICENSE</div>
       </footer>

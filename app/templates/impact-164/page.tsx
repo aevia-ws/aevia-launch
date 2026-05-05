@@ -14,12 +14,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel"
 import { Progress } from "@/components/ui/progress"
 import { Separator } from "@/components/ui/separator"
-import {
-  Menu, Truck, Package, Globe, BarChart3, Zap, Shield, Clock,
-  MapPin, AlertTriangle, CheckCircle2, ChevronRight, ArrowRight,
-  TrendingDown, Layers, Bell, Settings, RefreshCw, Star,
-  Twitter, Linkedin, Github, Building2, Boxes
-} from "lucide-react"
+import { Menu, Truck, Package, Globe, BarChart3, Zap, Shield, Clock, MapPin, AlertTriangle, CheckCircle2, ChevronRight, ArrowRight, TrendingDown, Layers, Bell, Settings, RefreshCw, Star, Building2, Boxes } from "lucide-react"
 
 function Reveal({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
   const ref = useRef(null)
@@ -724,7 +719,7 @@ export default function ChainOSLogisticsPage() {
                 The supply chain intelligence platform for companies that can't afford surprises.
               </p>
               <div className="flex items-center gap-3 mt-5">
-                {[Twitter, Linkedin, Github].map((Icon, i) => (
+                {[Globe, Globe, Globe].map((Icon, i) => (
                   <Link key={i} href="#" className="cursor-pointer w-9 h-9 rounded-lg bg-slate-800 hover:bg-sky-600 flex items-center justify-center transition-all duration-200">
                     <Icon className="w-4 h-4 text-slate-300" />
                   </Link>

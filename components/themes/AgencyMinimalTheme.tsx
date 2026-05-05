@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import type { SessionData } from "@/lib/sessions";
 import { ThemeWrapper } from "./ThemeWrapper";
 import { Reveal, Stagger, StaggerItem, MagneticButton } from "./AnimationHelpers";
-import { ArrowUpRight, Check, Users, Globe, Zap, ArrowRight, Award, HelpCircle, Activity, CheckCircle, TrendingUp, Quote, Search, Mail, Instagram, Phone, Shield, Calendar } from "lucide-react";
+import { ArrowUpRight, Check, Users, Globe, Zap, ArrowRight, Award, HelpCircle, Activity, CheckCircle, TrendingUp, Quote, Search, Mail, Phone, Shield, Calendar } from "lucide-react";
 
 export function AgencyMinimalTheme({ session }: { session: SessionData }) {
   const { formData, generatedContent: c } = session;
@@ -111,8 +111,6 @@ export function AgencyMinimalTheme({ session }: { session: SessionData }) {
             ))}
           </div>
         </div>
-      </section>
-
       </section>
 
       {/* ═══ SECTION 5: AGENCY STATS ═══ */}

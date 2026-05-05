@@ -38,37 +38,7 @@ import {
 } from "@/components/ui/carousel";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
-import {
-  ArrowRight,
-  ArrowUpRight,
-  Star,
-  Check,
-  Menu,
-  X,
-  Globe,
-  Clock,
-  Quote,
-  Search,
-  ShoppingBag,
-  Box,
-  Cpu,
-  Eye,
-  Layers,
-  Maximize,
-  Monitor,
-  MousePointer2,
-  Navigation,
-  Radio,
-  Shield,
-  Smartphone,
-  Terminal,
-  Zap,
-  MapPin,
-  Phone,
-  Mail,
-  Instagram,
-  Twitter,
-} from "lucide-react";
+import { ArrowRight, ArrowUpRight, Star, Check, Menu, X, Globe, Clock, Quote, Search, ShoppingBag, Box, Cpu, Eye, Layers, Maximize, Monitor, MousePointer2, Navigation, Radio, Shield, Smartphone, Terminal, Zap, MapPin, Phone, Mail } from "lucide-react";
 
 import "../premium.css";
 
@@ -936,7 +906,7 @@ export default function VisionRealEstatePage() {
                     href="#"
                     className="hover:text-rose-600 transition-colors flex items-center gap-3"
                   >
-                    <Instagram className="w-3 h-3" /> Instagram
+                    <Globe className="w-3 h-3" /> Globe
                   </Link>
                 </li>
                 <li>
@@ -944,7 +914,7 @@ export default function VisionRealEstatePage() {
                     href="#"
                     className="hover:text-rose-600 transition-colors flex items-center gap-3"
                   >
-                    <Twitter className="w-3 h-3" /> X_Protocol
+                    <Globe className="w-3 h-3" /> X_Protocol
                   </Link>
                 </li>
                 <li>

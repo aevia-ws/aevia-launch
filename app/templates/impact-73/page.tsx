@@ -38,43 +38,7 @@ import {
 } from "@/components/ui/carousel";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
-import {
-  Video,
-  Play,
-  Radio,
-  Users,
-  Heart,
-  MessageSquare,
-  Share2,
-  Search,
-  Bell,
-  Plus,
-  Settings,
-  Shield,
-  Flame,
-  Trophy,
-  Monitor,
-  Smartphone,
-  Globe,
-  Activity,
-  Terminal,
-  Instagram,
-  Twitter,
-  Github,
-  Mail,
-  Phone,
-  Check,
-  Menu,
-  X,
-  Star,
-  MapPin,
-  Clock,
-  Lock,
-  ArrowRight,
-  ArrowUpRight,
-  ChevronRight,
-  Zap,
-} from "lucide-react";
+import { Video, Play, Radio, Users, Heart, MessageSquare, Share2, Search, Bell, Plus, Settings, Shield, Flame, Trophy, Monitor, Smartphone, Globe, Activity, Terminal, Mail, Phone, Check, Menu, X, Star, MapPin, Clock, Lock, ArrowRight, ArrowUpRight, ChevronRight, Zap } from "lucide-react";
 
 import "../premium.css";
 
@@ -857,7 +821,7 @@ export default function StreamHubPage() {
                     href="#"
                     className="hover:text-rose-500 transition-colors flex items-center gap-3"
                   >
-                    <Instagram className="w-3 h-3" /> Instagram
+                    <Globe className="w-3 h-3" /> Globe
                   </Link>
                 </li>
                 <li>
@@ -865,7 +829,7 @@ export default function StreamHubPage() {
                     href="#"
                     className="hover:text-rose-500 transition-colors flex items-center gap-3"
                   >
-                    <Twitter className="w-3 h-3" /> X_Mission
+                    <Globe className="w-3 h-3" /> X_Mission
                   </Link>
                 </li>
                 <li>
@@ -873,7 +837,7 @@ export default function StreamHubPage() {
                     href="#"
                     className="hover:text-rose-500 transition-colors flex items-center gap-3"
                   >
-                    <Github className="w-3 h-3" /> API_Docs
+                    <Globe className="w-3 h-3" /> API_Docs
                   </Link>
                 </li>
               </ul>

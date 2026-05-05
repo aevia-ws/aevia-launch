@@ -14,11 +14,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel"
 import { Progress } from "@/components/ui/progress"
 import { Separator } from "@/components/ui/separator"
-import {
-  Menu, X, CalendarDays, Users, BarChart3, Ticket, MapPin, Bell,
-  Star, ChevronRight, CheckCircle2, Zap, Globe, Clock, ArrowRight,
-  Twitter, Linkedin, Instagram, Youtube, TrendingUp, Shield
-} from "lucide-react"
+import { Menu, X, CalendarDays, Users, BarChart3, Ticket, MapPin, Bell, Star, ChevronRight, CheckCircle2, Zap, Globe, Clock, ArrowRight, TrendingUp, Shield } from "lucide-react"
 
 function Reveal({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
   const ref = useRef(null)
@@ -216,7 +212,7 @@ const PRICING = [
       "Advanced security (SSO, SAML, SOC 2)",
       "On-site check-in hardware support",
       "Custom reporting and BI integrations",
-      "24/7 phone + Slack support",
+      "24/7 phone + Globe support",
     ],
     cta: "Contact Sales",
     highlighted: false,
@@ -513,7 +509,7 @@ export default function EventoraPlatform() {
             </p>
           </Reveal>
           <div className="flex flex-wrap items-center justify-center gap-8 opacity-60">
-            {["Salesforce", "HubSpot", "Mailchimp", "Slack", "Zoom", "Google Analytics", "Stripe", "PayPal"].map((tool) => (
+            {["Salesforce", "HubSpot", "Mailchimp", "Globe", "Zoom", "Google Analytics", "Stripe", "PayPal"].map((tool) => (
               <Reveal key={tool}>
                 <div className="cursor-pointer px-6 py-3 bg-white rounded-xl border border-slate-200 font-bold text-slate-600 text-sm hover:opacity-100 hover:border-violet-300 hover:text-violet-700 transition-all duration-200 shadow-sm">
                   {tool}
@@ -734,7 +730,7 @@ export default function EventoraPlatform() {
                 The complete event management platform for modern organizers.
               </p>
               <div className="flex gap-3">
-                {[Twitter, Linkedin, Instagram, Youtube].map((Icon, i) => (
+                {[Globe, Globe, Globe, Globe].map((Icon, i) => (
                   <button key={i} className="cursor-pointer w-9 h-9 rounded-lg bg-slate-800 hover:bg-violet-600 flex items-center justify-center transition-all duration-200">
                     <Icon className="w-4 h-4 text-slate-400 hover:text-white" />
                   </button>

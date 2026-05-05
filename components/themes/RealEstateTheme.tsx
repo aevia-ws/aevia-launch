@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import type { SessionData } from "@/lib/sessions";
 import { ThemeWrapper } from "./ThemeWrapper";
 import { Reveal, Stagger, StaggerItem, MagneticButton } from "./AnimationHelpers";
-import { MapPin, Home, Maximize2, BedDouble, Bath, ArrowUpRight, Search, Building, Star, Award, ShieldCheck, Quote, Instagram, Phone, Mail } from "lucide-react";
+import { MapPin, Home, Maximize2, BedDouble, Bath, ArrowUpRight, Search, Building, Star, Award, ShieldCheck, Quote, Globe, Phone, Mail } from "lucide-react";
 
 const PROPERTIES = [
   { name: "The Skyline Penthouse", price: "$4,500,000", beds: 4, baths: 5, sqft: 4200, img: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1200&q=80" },
@@ -157,8 +157,6 @@ export function RealEstateTheme({ session }: { session: SessionData }) {
             </div>
           </Reveal>
         </div>
-      </section>
-
       </section>
 
       {/* ═══ SECTION 7: STATS COUNTER ═══ */}

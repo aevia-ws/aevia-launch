@@ -22,29 +22,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
-import {
-  Flame,
-  UtensilsCrossed,
-  Wine,
-  Star,
-  Award,
-  Instagram,
-  Twitter,
-  Mail,
-  MapPin,
-  ChevronRight,
-  ArrowRight,
-  X,
-  Menu,
-  Clock,
-  Phone,
-  Search,
-  ShoppingBag,
-  ChefHat,
-  Beef,
-  Droplets,
-  GlassWater,
-} from "lucide-react";
+import { Flame, UtensilsCrossed, Wine, Star, Award, Globe, Mail, MapPin, ChevronRight, ArrowRight, X, Menu, Clock, Phone, Search, ShoppingBag, ChefHat, Beef, Droplets, GlassWater } from "lucide-react";
 
 import "../premium.css";
 
@@ -543,7 +521,7 @@ export default function EmberGrillPage() {
                 pursuit of culinary intensity.
               </p>
               <div className="flex gap-6">
-                {[Instagram, Twitter, Mail].map((Icon, i) => (
+                {[Globe, Globe, Mail].map((Icon, i) => (
                   <button
                     key={i}
                     className="w-14 h-14 rounded-full border border-white/10 flex items-center justify-center text-white/40 hover:bg-[#ff4d00] hover:text-white hover:border-[#ff4d00] transition-all"

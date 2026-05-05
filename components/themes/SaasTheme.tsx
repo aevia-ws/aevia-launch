@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import type { SessionData } from "@/lib/sessions";
 import { ThemeWrapper } from "./ThemeWrapper";
 import { Reveal, Stagger, StaggerItem, MagneticButton } from "./AnimationHelpers";
-import { Code2, Zap, Shield, BarChart2, Github, Slack, Figma, Database, Award, ShieldCheck, HelpCircle, Activity } from "lucide-react";
+import { Code2, Zap, Shield, BarChart2, Globe, Database, Award, ShieldCheck, HelpCircle, Activity } from "lucide-react";
 
 export function SaasTheme({ session }: { session: SessionData }) {
   const { formData, generatedContent: c } = session;
@@ -128,9 +128,9 @@ export function SaasTheme({ session }: { session: SessionData }) {
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {[
-              { icon: <Github />, name: "GitHub" },
-              { icon: <Slack />, name: "Slack" },
-              { icon: <Figma />, name: "Figma" },
+              { icon: <Globe />, name: "GitHub" },
+              { icon: <Globe />, name: "Globe" },
+              { icon: <Globe />, name: "Globe" },
               { icon: <Database />, name: "PostgreSQL" },
             ].map((int, i) => (
               <Reveal key={i} delay={i * 0.1}>
@@ -204,8 +204,6 @@ export function SaasTheme({ session }: { session: SessionData }) {
             ))}
           </Stagger>
         </div>
-      </section>
-
       </section>
 
       {/* Client Logos */}

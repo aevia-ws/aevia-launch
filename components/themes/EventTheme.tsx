@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import type { SessionData } from "@/lib/sessions";
 import { ThemeWrapper } from "./ThemeWrapper";
 import { Reveal, Stagger, StaggerItem, MagneticButton } from "./AnimationHelpers";
-import { Calendar, MapPin, Ticket, Users, Zap, Clock, Mic, Star, Layout, Award, HelpCircle, Phone, Mail, Instagram, ArrowRight, PlayCircle, Quote, Map } from "lucide-react";
+import { Calendar, MapPin, Ticket, Users, Zap, Clock, Mic, Star, Layout, Award, HelpCircle, Phone, Mail, Globe, ArrowRight, PlayCircle, Quote, Map } from "lucide-react";
 
 export function EventTheme({ session }: { session: SessionData }) {
   const { formData, generatedContent: c } = session;
@@ -155,8 +155,6 @@ export function EventTheme({ session }: { session: SessionData }) {
             </div>
           </Reveal>
         </div>
-      </section>
-
       </section>
 
       {/* ═══ SECTION 6: EVENT SCHEDULE ═══ */}

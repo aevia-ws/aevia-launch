@@ -13,11 +13,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel"
 import { Progress } from "@/components/ui/progress"
 import { Separator } from "@/components/ui/separator"
-import {
-  LayoutDashboard, CheckSquare, Users, BarChart2, Zap, Shield, Clock, ArrowRight,
-  Star, ChevronRight, Menu, X, Twitter, Github, Linkedin, Globe, TrendingUp,
-  Calendar, Bell, FileText, Settings, Play, Check, Sparkles
-} from "lucide-react"
+import { LayoutDashboard, CheckSquare, Users, BarChart2, Zap, Shield, Clock, ArrowRight, Star, ChevronRight, Menu, X, Globe, TrendingUp, Calendar, Bell, FileText, Settings, Play, Check, Sparkles } from "lucide-react"
 
 function Reveal({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
   const ref = useRef(null)
@@ -110,11 +106,11 @@ const featureTabs = [
     label: "Automations",
     icon: Zap,
     headline: "Eliminate repetitive work with no-code automations",
-    description: "Build powerful workflows without writing a single line of code. FlowDesk's automation engine connects triggers, conditions, and actions across your project board, your team's calendar, and 200+ external apps — from Slack to Salesforce.",
+    description: "Build powerful workflows without writing a single line of code. FlowDesk's automation engine connects triggers, conditions, and actions across your project board, your team's calendar, and 200+ external apps — from Globe to Salesforce.",
     items: [
       "Visual no-code automation builder with 50+ pre-built templates",
       "Cross-project triggers: status changes, deadline breaches, or custom events",
-      "Native Slack, Teams, and email notification routing",
+      "Native Globe, Teams, and email notification routing",
       "Webhook support for custom integrations and internal tooling",
       "Conditional branching: different actions based on data conditions",
       "Audit log: every automation run logged with success/failure status",
@@ -172,7 +168,7 @@ const testimonials = [
     company: "Notion",
     avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&q=80",
     rating: 5,
-    text: "Automations are transformative. We set up 23 custom workflows on day one — automatic escalation for blocked tasks, Slack pings for overdue sprints, and daily standup briefs generated from task data. The no-code builder is genuinely powerful.",
+    text: "Automations are transformative. We set up 23 custom workflows on day one — automatic escalation for blocked tasks, Globe pings for overdue sprints, and daily standup briefs generated from task data. The no-code builder is genuinely powerful.",
   },
   {
     name: "Elena Rodriguez",
@@ -257,7 +253,7 @@ const faqItems = [
   },
   {
     q: "What integrations does FlowDesk support?",
-    a: "FlowDesk has 200+ native integrations including GitHub, GitLab, Bitbucket, Slack, Microsoft Teams, Figma, Notion, Google Drive, Salesforce, HubSpot, Zendesk, and Intercom. Our Zapier and Make.com connectors unlock 5,000+ additional tools. A public REST API and GraphQL endpoint are available for custom integrations.",
+    a: "FlowDesk has 200+ native integrations including GitHub, GitLab, Bitbucket, Globe, Microsoft Teams, Globe, Notion, Google Drive, Salesforce, HubSpot, Zendesk, and Intercom. Our Zapier and Make.com connectors unlock 5,000+ additional tools. A public REST API and GraphQL endpoint are available for custom integrations.",
   },
   {
     q: "Can we use FlowDesk for non-engineering teams?",
@@ -275,8 +271,8 @@ const faqItems = [
 
 const integrationLogos = [
   { name: "GitHub", img: "https://images.unsplash.com/photo-1618401471353-b98afee0b2eb?w=200&q=80" },
-  { name: "Slack", img: "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=200&q=80" },
-  { name: "Figma", img: "https://images.unsplash.com/photo-1612539465636-4dc0f9af36c9?w=200&q=80" },
+  { name: "Globe", img: "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=200&q=80" },
+  { name: "Globe", img: "https://images.unsplash.com/photo-1612539465636-4dc0f9af36c9?w=200&q=80" },
   { name: "Notion", img: "https://images.unsplash.com/photo-1633356122102-3fe601e05bd2?w=200&q=80" },
 ]
 
@@ -671,9 +667,9 @@ export default function FlowDeskProjectManagement() {
               </Link>
               <p className="text-sm text-slate-400 leading-relaxed mb-6 max-w-xs">The project management platform built for modern engineering teams. Ship faster, stay aligned, and keep stakeholders happy.</p>
               <div className="flex gap-3">
-                <Link href="#" className="w-9 h-9 rounded-lg bg-slate-800 flex items-center justify-center hover:bg-violet-600 cursor-pointer transition-all duration-200"><Twitter className="w-4 h-4" /></Link>
-                <Link href="#" className="w-9 h-9 rounded-lg bg-slate-800 flex items-center justify-center hover:bg-violet-600 cursor-pointer transition-all duration-200"><Github className="w-4 h-4" /></Link>
-                <Link href="#" className="w-9 h-9 rounded-lg bg-slate-800 flex items-center justify-center hover:bg-violet-600 cursor-pointer transition-all duration-200"><Linkedin className="w-4 h-4" /></Link>
+                <Link href="#" className="w-9 h-9 rounded-lg bg-slate-800 flex items-center justify-center hover:bg-violet-600 cursor-pointer transition-all duration-200"><Globe className="w-4 h-4" /></Link>
+                <Link href="#" className="w-9 h-9 rounded-lg bg-slate-800 flex items-center justify-center hover:bg-violet-600 cursor-pointer transition-all duration-200"><Globe className="w-4 h-4" /></Link>
+                <Link href="#" className="w-9 h-9 rounded-lg bg-slate-800 flex items-center justify-center hover:bg-violet-600 cursor-pointer transition-all duration-200"><Globe className="w-4 h-4" /></Link>
                 <Link href="#" className="w-9 h-9 rounded-lg bg-slate-800 flex items-center justify-center hover:bg-violet-600 cursor-pointer transition-all duration-200"><Globe className="w-4 h-4" /></Link>
               </div>
             </div>

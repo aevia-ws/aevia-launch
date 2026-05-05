@@ -12,29 +12,7 @@ import {
 import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import {
-  Activity,
-  Zap,
-  Shield,
-  Layers,
-  Search,
-  Menu,
-  X,
-  ArrowRight,
-  ChevronRight,
-  Cpu,
-  Binary,
-  Radio,
-  Gauge,
-  Dna,
-  Microscope,
-  FlaskConical,
-  Brain,
-  Pulse,
-  Heart,
-  Eye,
-  Waves,
-} from "lucide-react";
+import { Activity, Zap, Shield, Layers, Search, Menu, X, ArrowRight, ChevronRight, Cpu, Binary, Radio, Gauge, Dna, Microscope, FlaskConical, Brain, Pulse, Heart, Eye, Waves } from "lucide-react";
 
 import "../premium.css";
 
@@ -411,7 +389,7 @@ export default function NeuralLinkPage() {
                   <div className="absolute top-6 left-6 text-[8px] font-bold text-white/20 tracking-widest uppercase">
                     CORTICAL_SCAN // DEPTH: 1.2mm
                   </div>
-                  {/* Pulse Waveform */}
+                  {/* Pulse Activity */}
                   <div className="absolute inset-0 flex items-center justify-center">
                     <svg
                       viewBox="0 0 400 100"

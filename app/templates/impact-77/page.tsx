@@ -39,43 +39,7 @@ import {
 } from "@/components/ui/carousel";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
-import {
-  Watch,
-  Clock,
-  Shield,
-  Star,
-  Heart,
-  Share2,
-  ShoppingBag,
-  Search,
-  Compass,
-  Zap,
-  Activity,
-  Globe,
-  Monitor,
-  Smartphone,
-  Terminal,
-  Instagram,
-  Twitter,
-  Linkedin,
-  Github,
-  Mail,
-  Phone,
-  Check,
-  Menu,
-  X,
-  MapPin,
-  Lock,
-  Plus,
-  Bell,
-  Settings,
-  ArrowRight,
-  ArrowUpRight,
-  ChevronRight,
-  Eye,
-  Layers,
-  Box,
-} from "lucide-react";
+import { Watch, Clock, Shield, Star, Heart, Share2, ShoppingBag, Search, Compass, Zap, Activity, Globe, Monitor, Smartphone, Terminal, Mail, Phone, Check, Menu, X, MapPin, Lock, Plus, Bell, Settings, ArrowRight, ArrowUpRight, ChevronRight, Eye, Layers, Box } from "lucide-react";
 
 import "../premium.css";
 
@@ -821,7 +785,7 @@ export default function HorologsLuxePage() {
                     href="#"
                     className="hover:text-white transition-colors flex items-center gap-3"
                   >
-                    <Instagram className="w-3 h-3" /> Instagram
+                    <Globe className="w-3 h-3" /> Globe
                   </Link>
                 </li>
                 <li>
@@ -829,7 +793,7 @@ export default function HorologsLuxePage() {
                     href="#"
                     className="hover:text-white transition-colors flex items-center gap-3"
                   >
-                    <Linkedin className="w-3 h-3" /> LinkedIn
+                    <Globe className="w-3 h-3" /> LinkedIn
                   </Link>
                 </li>
                 <li>

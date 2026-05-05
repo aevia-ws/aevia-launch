@@ -10,18 +10,7 @@ import {
 } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
-import {
-  ArrowRight,
-  ArrowDown,
-  MapPin,
-  AlignRight,
-  X,
-  ChevronRight,
-  Ruler,
-  Hexagon,
-  Layers,
-  PenTool,
-} from "lucide-react";
+import { ArrowRight, ArrowDown, MapPin, AlignRight, X, ChevronRight, Ruler, Hexagon, Layers, PenTool } from "lucide-react";
 
 import "../premium.css";
 
@@ -631,7 +620,7 @@ export default function VoidArchPage() {
                     href="#"
                     className="hover:text-white transition-colors hover-target"
                   >
-                    Instagram
+                    Globe
                   </Link>
                 </li>
                 <li>

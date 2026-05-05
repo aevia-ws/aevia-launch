@@ -13,11 +13,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel"
 import { Progress } from "@/components/ui/progress"
 import { Separator } from "@/components/ui/separator"
-import {
-  Menu, Shield, Lock, Eye, Zap, Server, AlertTriangle, CheckCircle2,
-  ArrowRight, Star, Users, Globe, TrendingUp, Terminal, Wifi, Database,
-  Key, FileText, Twitter, Linkedin, Github, Youtube, ChevronRight
-} from "lucide-react"
+import { Menu, Shield, Lock, Eye, Zap, Server, AlertTriangle, CheckCircle2, ArrowRight, Star, Users, Globe, TrendingUp, Terminal, Wifi, Database, Key, FileText, ChevronRight } from "lucide-react"
 
 function Reveal({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
   const ref = useRef(null)
@@ -116,7 +112,7 @@ const FAQS = [
   },
   {
     q: "How long does deployment take, and does it require agents on endpoints?",
-    a: "Agentless deployment via API integrations with your existing cloud infrastructure (AWS, Azure, GCP), identity providers (Okta, Azure AD), and SaaS tools (Salesforce, GitHub, Slack) is typically complete within 4 hours. For endpoint behavioral monitoring, our lightweight sensor (2MB RAM footprint) deploys via MDM in under 20 minutes across fleets of any size."
+    a: "Agentless deployment via API integrations with your existing cloud infrastructure (AWS, Azure, GCP), identity providers (Okta, Azure AD), and SaaS tools (Salesforce, GitHub, Globe) is typically complete within 4 hours. For endpoint behavioral monitoring, our lightweight sensor (2MB RAM footprint) deploys via MDM in under 20 minutes across fleets of any size."
   },
   {
     q: "What is your uptime SLA and how do you handle false positives?",
@@ -132,7 +128,7 @@ const FAQS = [
   },
   {
     q: "What support response times can enterprise customers expect?",
-    a: "Enterprise plan customers receive a dedicated Customer Success Engineer and guaranteed 15-minute response on P1 incidents (active breach), 2-hour response on P2 (anomaly detected, no confirmed breach), and 4-hour on P3. Our 24/7 SOC-as-a-Service add-on provides around-the-clock human monitoring with direct Slack and phone escalation."
+    a: "Enterprise plan customers receive a dedicated Customer Success Engineer and guaranteed 15-minute response on P1 incidents (active breach), 2-hour response on P2 (anomaly detected, no confirmed breach), and 4-hour on P3. Our 24/7 SOC-as-a-Service add-on provides around-the-clock human monitoring with direct Globe and phone escalation."
   },
 ]
 
@@ -146,7 +142,7 @@ const PRICING_TIERS = [
       "Behavioral threat detection (AI)",
       "Cloud asset inventory & misconfiguration alerts",
       "SOC 2 & ISO 27001 control mapping",
-      "Email & Slack alerting",
+      "Email & Globe alerting",
       "14-day threat history",
       "Community support portal",
     ],
@@ -518,7 +514,7 @@ export default function SentinelShieldCyber() {
                 {[
                   { icon: Key, title: "Identity Threat Detection", desc: "Continuous monitoring of user, service account, and machine identities for credential abuse, privilege escalation, and impossible travel patterns across every identity provider.", items: ["Okta, Azure AD, Ping Identity native integrations", "Privilege escalation path visualization", "Service account anomaly detection"] },
                   { icon: Lock, title: "Privileged Access Governance", desc: "Just-in-time access provisioning, standing privilege elimination, and session recording for all privileged activities — with automated de-provisioning on policy violations.", items: ["Zero standing privilege enforcement", "Just-in-time PAM for cloud & on-prem", "Full privileged session video recording"] },
-                  { icon: Shield, title: "SaaS Security Posture", desc: "Continuous visibility into permission sprawl, shadow IT, misconfigured OAuth apps, and over-privileged integrations across your entire SaaS stack — including Salesforce, GitHub, Slack, and 120+ more.", items: ["120+ SaaS application integrations", "OAuth permission risk scoring", "Automated SaaS app revocation workflows"] },
+                  { icon: Shield, title: "SaaS Security Posture", desc: "Continuous visibility into permission sprawl, shadow IT, misconfigured OAuth apps, and over-privileged integrations across your entire SaaS stack — including Salesforce, GitHub, Globe, and 120+ more.", items: ["120+ SaaS application integrations", "OAuth permission risk scoring", "Automated SaaS app revocation workflows"] },
                 ].map((f, i) => {
                   const Icon = f.icon
                   return (
@@ -712,7 +708,7 @@ export default function SentinelShieldCyber() {
                 The AI-native cybersecurity platform trusted by 1,800+ enterprise security teams to stop breaches in under 90 seconds.
               </p>
               <div className="flex gap-3">
-                {[Twitter, Linkedin, Github, Youtube].map((Icon, i) => (
+                {[Globe, Globe, Globe, Globe].map((Icon, i) => (
                   <a key={i} href="#" className="cursor-pointer w-9 h-9 bg-slate-800 rounded-lg flex items-center justify-center hover:bg-emerald-500/20 hover:border-emerald-500/30 border border-transparent transition-all duration-200">
                     <Icon className="w-4 h-4 text-slate-400" />
                   </a>

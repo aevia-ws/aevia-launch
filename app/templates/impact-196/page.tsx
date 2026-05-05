@@ -220,7 +220,7 @@ export default function GrandFinaleSPA() {
                   <h4 className="text-[12vw] font-black italic uppercase tracking-tighter opacity-[0.02] leading-none mb-20 text-white text-center md:text-right">GRAND</h4>
                   <nav className="flex flex-col gap-10 font-black text-[10px] uppercase tracking-[0.8em] text-white/10 text-center md:text-right">
                      <Link href="#" className="hover:text-white transition-colors group">
-                        Instagram<span className="text-white/0 group-hover:text-white transition-all">_</span>
+                        Globe<span className="text-white/0 group-hover:text-white transition-all">_</span>
                      </Link>
                      <Link href="#" className="hover:text-white transition-colors group">
                         Archive<span className="text-white/0 group-hover:text-white transition-all">_</span>

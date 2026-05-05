@@ -38,31 +38,7 @@ import {
 } from "@/components/ui/carousel";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
-import {
-  ArrowRight,
-  ArrowUpRight,
-  Star,
-  Check,
-  Menu,
-  X,
-  MapPin,
-  Phone,
-  Mail,
-  ChevronDown,
-  ChevronRight,
-  ShieldCheck,
-  Globe,
-  Clock,
-  Quote,
-  Search,
-  ShoppingBag,
-  Building2,
-  Camera,
-  Palette,
-  Ruler,
-  Layers,
-  Activity,
-} from "lucide-react";
+import { ArrowRight, ArrowUpRight, Star, Check, Menu, X, MapPin, Phone, Mail, ChevronDown, ChevronRight, ShieldCheck, Globe, Clock, Quote, Search, ShoppingBag, Building2, Camera, Palette, Ruler, Layers, Activity } from "lucide-react";
 
 import "../premium.css";
 

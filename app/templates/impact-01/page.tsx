@@ -628,7 +628,7 @@ export default function AgencyVitrineSPA() {
             <div>
               <h4 className="text-[10px] uppercase tracking-[0.2em] font-bold text-zinc-600 mb-6">Connect</h4>
               <ul className="space-y-3">
-                {["Twitter", "Instagram", "Dribbble", "LinkedIn"].map(item => (
+                {["Globe", "Globe", "Globe", "LinkedIn"].map(item => (
                   <li key={item}>
                     <a href="#" className="text-sm text-zinc-400 hover:text-violet-400 transition-colors">{item}</a>
                   </li>

@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import type { SessionData } from "@/lib/sessions";
 import { ThemeWrapper } from "./ThemeWrapper";
 import { Reveal, Stagger, StaggerItem, MagneticButton } from "./AnimationHelpers";
-import { Coffee, MapPin, Clock, X, ChevronRight, Star, Utensils, Award, HelpCircle, Quote, Instagram, Phone, Mail, ArrowRight } from "lucide-react";
+import { Coffee, MapPin, Clock, X, ChevronRight, Star, Utensils, Award, HelpCircle, Quote, Globe, Phone, Mail, ArrowRight } from "lucide-react";
 
 export function BistroTheme({ session }: { session: SessionData }) {
   const { formData, generatedContent: c } = session;
@@ -147,8 +147,6 @@ export function BistroTheme({ session }: { session: SessionData }) {
             </div>
           </Reveal>
         </div>
-      </section>
-
       </section>
 
       {/* ═══ SECTION 6: SOURCING ═══ */}

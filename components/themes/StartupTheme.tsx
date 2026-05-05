@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import type { SessionData } from "@/lib/sessions";
 import { ThemeWrapper } from "./ThemeWrapper";
 import { Reveal, Stagger, StaggerItem, MagneticButton } from "./AnimationHelpers";
-import { Rocket, Zap, Shield, BarChart2, Globe, Users, TrendingUp, Check, Layout, Award, HelpCircle, Star, Quote, Instagram, Phone, Mail, ArrowRight, PlayCircle } from "lucide-react";
+import { Rocket, Zap, Shield, BarChart2, Globe, Users, TrendingUp, Check, Layout, Award, HelpCircle, Star, Quote, Phone, Mail, ArrowRight, PlayCircle } from "lucide-react";
 
 export function StartupTheme({ session }: { session: SessionData }) {
   const { formData, generatedContent: c } = session;
@@ -128,8 +128,6 @@ export function StartupTheme({ session }: { session: SessionData }) {
             </div>
           </Reveal>
         </div>
-      </section>
-
       </section>
 
       {/* ═══ SECTION 6: PRODUCT ROADMAP ═══ */}

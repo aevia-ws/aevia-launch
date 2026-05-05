@@ -22,31 +22,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
-import {
-  Building2,
-  Key,
-  ShieldCheck,
-  Globe,
-  Star,
-  Instagram,
-  Linkedin,
-  Twitter,
-  Mail,
-  Phone,
-  ChevronRight,
-  ArrowRight,
-  X,
-  Menu,
-  Gem,
-  Briefcase,
-  MapPin,
-  Search,
-  Plane,
-  Users,
-  Award,
-  Calendar,
-  Compass,
-} from "lucide-react";
+import { Building2, Key, ShieldCheck, Globe, Star, Mail, Phone, ChevronRight, ArrowRight, X, Menu, Gem, Briefcase, MapPin, Search, Plane, Users, Award, Calendar, Compass } from "lucide-react";
 
 import "../premium.css";
 
@@ -553,7 +529,7 @@ export default function SkylineConciergePage() {
                 absolute lifestyle sovereignty. Confidential by design.
               </p>
               <div className="flex gap-6">
-                {[Instagram, Linkedin, Twitter].map((Icon, i) => (
+                {[Globe, Globe, Globe].map((Icon, i) => (
                   <button
                     key={i}
                     className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center text-white/20 hover:bg-[#c9a96e] hover:text-black transition-all"

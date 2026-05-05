@@ -10,20 +10,7 @@ import {
 } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
-import {
-  ArrowRight,
-  Building2,
-  MapPin,
-  Activity,
-  Shield,
-  Users,
-  Network,
-  Maximize,
-  Play,
-  X,
-  ChevronRight,
-  Compass,
-} from "lucide-react";
+import { ArrowRight, Building2, MapPin, Activity, Shield, Users, Network, Maximize, Play, X, ChevronRight, Compass } from "lucide-react";
 
 import "../premium.css";
 

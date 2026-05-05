@@ -189,7 +189,7 @@ export default function AtelierInteriorPage() {
             <p className="text-[11px] text-[#faf7f2]/15 uppercase tracking-[0.2em] max-w-sm leading-relaxed italic">Luxury interior design studio. Paris & New York.</p>
           </div>
           <div><h4 className="text-[10px] font-black uppercase tracking-widest mb-10 text-[#a0845c]">Studio</h4><ul className="space-y-5 text-[10px] font-bold text-[#faf7f2]/20 uppercase tracking-widest">{["Services", "Portfolio", "Process", "Press"].map(l => <li key={l}><Link href="#">{l}</Link></li>)}</ul></div>
-          <div><h4 className="text-[10px] font-black uppercase tracking-widest mb-10 text-[#a0845c]">Connect</h4><ul className="space-y-5 text-[10px] font-bold text-[#faf7f2]/20 uppercase tracking-widest">{["Instagram", "Pinterest", "LinkedIn", "Contact"].map(l => <li key={l}><Link href="#">{l}</Link></li>)}</ul></div>
+          <div><h4 className="text-[10px] font-black uppercase tracking-widest mb-10 text-[#a0845c]">Connect</h4><ul className="space-y-5 text-[10px] font-bold text-[#faf7f2]/20 uppercase tracking-widest">{["Globe", "Pinterest", "LinkedIn", "Contact"].map(l => <li key={l}><Link href="#">{l}</Link></li>)}</ul></div>
         </div>
         <div className="max-w-[1500px] mx-auto mt-32 pt-16 border-t border-[#faf7f2]/5 text-center text-[9px] font-bold text-[#faf7f2]/10 uppercase tracking-widest">&copy; 2026 ATELIER INTERIOR</div>
       </footer>

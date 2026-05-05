@@ -14,12 +14,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel"
 import { Progress } from "@/components/ui/progress"
 import { Separator } from "@/components/ui/separator"
-import {
-  Plane, MapPin, Star, Hotel, Calendar, Users, Globe, Shield, Clock,
-  ArrowRight, Menu, Check, ChevronRight, Twitter, Instagram, Linkedin,
-  Facebook, Mail, Phone, Zap, TrendingUp, Headphones, Compass, Wifi,
-  Coffee, Car, CreditCard, Award, Search, Heart
-} from "lucide-react"
+import { Plane, MapPin, Star, Hotel, Calendar, Users, Globe, Shield, Clock, ArrowRight, Menu, Check, ChevronRight, Mail, Phone, Zap, TrendingUp, Headphones, Compass, Wifi, Coffee, Car, CreditCard, Award, Search, Heart } from "lucide-react"
 
 function Reveal({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
   const ref = useRef(null)
@@ -874,7 +869,7 @@ export default function VoyageIQPlatform() {
                 AI-powered travel planning, elite concierge, and bulletproof trip protection for 2 million travelers worldwide.
               </p>
               <div className="flex gap-3">
-                {[Twitter, Instagram, Linkedin, Facebook].map((Icon, i) => (
+                {[Globe, Globe, Globe, Globe].map((Icon, i) => (
                   <a key={i} href="#" className="w-9 h-9 rounded-full bg-slate-800 hover:bg-sky-600 flex items-center justify-center transition-all duration-200 cursor-pointer">
                     <Icon className="w-4 h-4 text-slate-400" />
                   </a>

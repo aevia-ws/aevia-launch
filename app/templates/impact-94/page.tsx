@@ -22,30 +22,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
-import {
-  Flower2,
-  Heart,
-  Star,
-  Sparkles,
-  Mail,
-  Instagram,
-  Facebook,
-  Phone,
-  ShoppingBag,
-  ChevronRight,
-  ArrowRight,
-  X,
-  Menu,
-  Clock,
-  MapPin,
-  Search,
-  Calendar,
-  Award,
-  Leaf,
-  Sun,
-  Wind,
-  Droplets,
-} from "lucide-react";
+import { Flower2, Heart, Star, Sparkles, Mail, Globe, Phone, ShoppingBag, ChevronRight, ArrowRight, X, Menu, Clock, MapPin, Search, Calendar, Award, Leaf, Sun, Wind, Droplets } from "lucide-react";
 
 import "../premium.css";
 
@@ -545,7 +522,7 @@ export default function BotanicaFlowersPage() {
                 ethical regenerative flower farms.
               </p>
               <div className="flex gap-4">
-                {[Instagram, Facebook, Mail].map((Icon, i) => (
+                {[Globe, Globe, Mail].map((Icon, i) => (
                   <button
                     key={i}
                     className="w-12 h-12 rounded-full border border-[#d4a373]/20 flex items-center justify-center text-[#d4a373] hover:bg-[#d4a373] hover:text-white transition-all"

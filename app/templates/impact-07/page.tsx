@@ -9,14 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { Separator } from "@/components/ui/separator"
-import {
-  Volume2, Music, Mic2, Disc, Waves,
-  Instagram, Twitter, Mail, MapPin,
-  ChevronRight, ArrowRight, X, Menu,
-  Headphones, Radio, Settings2, Play,
-  Speaker, Zap, Activity, Info,
-  Share2, Heart, Search, ShoppingBag
-} from "lucide-react"
+import { Volume2, Music, Mic2, Disc, Waves, Globe, Mail, MapPin, ChevronRight, ArrowRight, X, Menu, Headphones, Radio, Settings2, Play, Speaker, Zap, Activity, Info, Share2, Heart, Search, ShoppingBag } from "lucide-react"
 
 import "../premium.css";
 
@@ -510,7 +503,7 @@ export default function AetherSoundPage() {
                     The absolute mastery of acoustic engineering. Engineered for the evolutionary audiophile in our Berlin sanctuary.
                  </p>
                  <div className="flex gap-6">
-                    {[Instagram, Twitter, Mail].map((Icon, i) => (
+                    {[Globe, Globe, Mail].map((Icon, i) => (
                       <button key={i} className="w-14 h-14 rounded-full border border-white/10 flex items-center justify-center text-white/40 hover:bg-[#c9a84c] hover:text-black hover:border-[#c9a84c] transition-all">
                          <Icon className="w-5 h-5" />
                       </button>

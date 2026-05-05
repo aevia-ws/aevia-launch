@@ -1,33 +1,679 @@
-"use client";
-import { motion, useInView, AnimatePresence } from "framer-motion";
-import { useState, useRef, useEffect } from "react";
-import Link from "next/link";
-import { Brain, Cpu, Sparkles, Menu, X, Star, CheckCircle2, Shield, Zap, BarChart3 } from "lucide-react";
-import "../premium.css";
-const FEAT=[{icon:<Brain className="w-6 h-6"/>,t:"Custom AI Models",d:"Fine-tuned LLMs trained on your proprietary data."},{icon:<Zap className="w-6 h-6"/>,t:"Real-Time Inference",d:"Sub-100ms latency with auto-scaling GPU clusters."},{icon:<Shield className="w-6 h-6"/>,t:"Enterprise Security",d:"SOC 2, HIPAA, and GDPR compliant infrastructure."},{icon:<BarChart3 className="w-6 h-6"/>,t:"Analytics Dashboard",d:"Monitor usage, costs, and model performance in real time."},{icon:<Cpu className="w-6 h-6"/>,t:"RAG Pipelines",d:"Retrieval-augmented generation with vector search."},{icon:<Sparkles className="w-6 h-6"/>,t:"AI Agents",d:"Autonomous agents that execute multi-step workflows."}];
-const TM=[{n:"Sarah Chen",r:"CTO, FinTech Startup",q:"Cognix cut our ML infrastructure costs by 70% while improving accuracy."},{n:"Dr. James Park",r:"Head of AI, Pharma",q:"The RAG pipeline handles our 500K document corpus flawlessly. Game-changer."},{n:"Maria Santos",r:"VP Engineering",q:"We replaced three internal tools with one Cognix integration. Incredible."}];
-const PR=[{n:"STARTER",p:"$99",pd:"/mo",f:["10K API calls","1 custom model","Community support","Basic analytics"],c:"Start_Free"},{n:"SCALE",p:"$499",pd:"/mo",f:["100K API calls","5 custom models","Priority support","Advanced analytics","RAG pipeline","Team seats"],c:"Scale_Up",ft:true},{n:"ENTERPRISE",p:"Custom",pd:"",f:["Unlimited calls","Unlimited models","Dedicated GPU","SLA guarantee","Custom integrations","On-prem option"],c:"Contact_Sales"}];
-function Reveal({children,delay=0}:{children:React.ReactNode;delay?:number}){const ref=useRef(null);const iv=useInView(ref,{once:true,margin:"-50px"});return<motion.div ref={ref} initial={{opacity:0,y:20}} animate={iv?{opacity:1,y:0}:{}} transition={{duration:0.8,delay}}>{children}</motion.div>;}
-export default function CognixAIPage(){
-  const[s,setS]=useState(false);const[m,setM]=useState(false);
-  useEffect(()=>{const h=()=>setS(window.scrollY>50);window.addEventListener("scroll",h);return()=>window.removeEventListener("scroll",h);},[]);
-  return(<div className="premium-theme min-h-screen bg-[#060612] text-white font-mono selection:bg-[#22d3ee] selection:text-black overflow-x-hidden">
-    <div className="fixed inset-0 pointer-events-none z-0"><div className="absolute inset-0 bg-[radial-gradient(ellipse_at_30%_0%,#22d3ee12_0%,transparent_40%)]"/></div>
-    <nav className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ${s?"bg-[#060612]/90 backdrop-blur-xl py-4 border-b border-white/5":"bg-transparent py-10"}`}><div className="max-w-[1500px] mx-auto px-6 md:px-12 flex items-center justify-between"><Link href="/" className="group flex items-center gap-3 text-xl font-black tracking-tighter"><div className="w-8 h-8 bg-[#22d3ee] rounded-lg flex items-center justify-center text-black"><Brain className="w-4 h-4"/></div><span className="group-hover:text-[#22d3ee] transition-colors">COGNIX // <span className="text-white/30">AI</span></span></Link><div className="hidden lg:flex items-center gap-10 text-[10px] font-bold uppercase tracking-[0.3em] text-white/30">{["Platform","Pricing","Docs","Blog"].map(l=><Link key={l} href="#" className="hover:text-[#22d3ee] transition-colors">{l}</Link>)}</div><button className="px-6 py-2.5 bg-[#22d3ee] text-black text-[10px] font-black uppercase tracking-widest hover:bg-white transition-all hidden md:block">Start_Free</button><button onClick={()=>setM(true)} className="lg:hidden"><Menu className="w-6 h-6"/></button></div></nav>
-    <AnimatePresence>{m&&(<motion.div initial={{opacity:0,x:"100%"}} animate={{opacity:1,x:0}} exit={{opacity:0,x:"100%"}} className="fixed inset-0 z-[100] bg-[#060612] p-8 flex flex-col pt-32"><button onClick={()=>setM(false)} className="absolute top-10 right-8"><X className="w-10 h-10"/></button>{["Platform","Pricing","Docs","Blog"].map(l=><Link key={l} href="#" onClick={()=>setM(false)} className="text-5xl font-black tracking-tighter uppercase mb-10">{l}</Link>)}</motion.div>)}</AnimatePresence>
+"use client"
 
-    <section className="relative min-h-screen flex flex-col justify-center pt-20"><div className="max-w-[1500px] mx-auto px-6 md:px-12 relative z-10"><Reveal><div className="px-3 py-1 bg-[#22d3ee]/10 border border-[#22d3ee]/30 text-[#22d3ee] text-[9px] font-bold uppercase tracking-widest inline-block mb-8">AI_PLATFORM_V4</div><h1 className="text-7xl md:text-9xl lg:text-[10rem] font-black leading-[0.8] tracking-tighter uppercase mb-10">Ship AI.<br/><span className="text-[#22d3ee]">Faster.</span></h1><p className="max-w-xl text-lg text-white/30 leading-relaxed font-light uppercase tracking-widest italic mb-12">Custom AI models, RAG pipelines, and autonomous agents. Enterprise-ready.</p><div className="flex flex-col sm:flex-row gap-6"><button className="px-12 py-5 bg-[#22d3ee] text-black text-[10px] font-black uppercase tracking-[0.4em] hover:bg-white transition-all shadow-[0_0_50px_rgba(34,211,238,0.15)]">Try_Free</button><button className="px-12 py-5 border border-white/10 text-[10px] font-black uppercase tracking-[0.4em] hover:bg-white hover:text-black transition-all">View_Docs</button></div></Reveal></div></section>
+import { motion, useScroll, useTransform, useInView, AnimatePresence, useMotionValue, useSpring } from "framer-motion"
+import { useState, useRef, useEffect } from "react"
+import Image from "next/image"
+import Link from "next/link"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
+import { Badge } from "@/components/ui/badge"
+import { Card, CardContent } from "@/components/ui/card"
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel"
+import { Progress } from "@/components/ui/progress"
+import { Separator } from "@/components/ui/separator"
+import { ArrowRight, Menu, X, Star, ChevronRight, Play, Terminal, Cpu, Database, Network, Key, Layers, Globe, Zap, TerminalSquare, Lock, Server, CheckCircle2,  MessageCircle, MessageSquare, Brain, LineChart, Cpu as Chip } from "lucide-react"
 
-    <section className="py-32 bg-[#080818] border-y border-white/5"><div className="max-w-[1500px] mx-auto px-6 md:px-12"><Reveal><div className="grid grid-cols-2 md:grid-cols-4 gap-16 text-center">{[{v:"50M+",l:"API_CALLS/DAY"},{v:"<100ms",l:"LATENCY"},{v:"99.99%",l:"UPTIME"},{v:"2,000+",l:"COMPANIES"}].map((s,i)=><div key={i}><div className="text-4xl md:text-5xl font-black text-[#22d3ee] mb-2">{s.v}</div><div className="text-[9px] font-black text-white/15 uppercase tracking-widest">{s.l}</div></div>)}</div></Reveal></div></section>
+// ─── REVEAL COMPONENT ────────────────────────────────────────────────────────
+function Reveal({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
+  const ref = useRef(null)
+  const isInView = useInView(ref, { once: true, margin: "-80px" })
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 32 }}
+      animate={isInView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.6, delay, ease: [0.22, 1, 0.36, 1] }}
+    >
+      {children}
+    </motion.div>
+  )
+}
 
-    <section className="py-40 bg-[#060612]"><div className="max-w-[1500px] mx-auto px-6 md:px-12"><Reveal><h2 className="text-6xl md:text-8xl font-black tracking-tighter uppercase leading-[0.85] mb-24">Platform <span className="text-[#22d3ee]">Features.</span></h2></Reveal><div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">{FEAT.map((f,i)=><Reveal key={i} delay={i*0.05}><div className="group p-10 bg-[#080818] border border-white/5 hover:border-[#22d3ee]/30 rounded-3xl transition-all"><div className="w-14 h-14 bg-white/5 rounded-2xl flex items-center justify-center text-[#22d3ee] mb-8 group-hover:bg-[#22d3ee] group-hover:text-black transition-all">{f.icon}</div><h3 className="text-xl font-black uppercase tracking-tighter mb-4 group-hover:text-[#22d3ee] transition-colors">{f.t}</h3><p className="text-sm text-white/30">{f.d}</p></div></Reveal>)}</div></div></section>
+// ─── DATA ────────────────────────────────────────────────────────────────────
+const NAV_LINKS = [
+  { label: "Platform", href: "#platform" },
+  { label: "Models", href: "#models" },
+  { label: "Solutions", href: "#solutions" },
+  { label: "Pricing", href: "#pricing" },
+]
 
-    <section className="py-40 bg-[#080818] border-y border-white/5"><div className="max-w-[1500px] mx-auto px-6 md:px-12"><Reveal><h2 className="text-6xl md:text-8xl font-black tracking-tighter uppercase leading-[0.85] mb-24">Customer <span className="text-[#22d3ee]">Stories.</span></h2></Reveal><div className="grid grid-cols-1 md:grid-cols-3 gap-8">{TM.map((t,i)=><Reveal key={i} delay={i*0.1}><div className="p-10 bg-[#0a0a1a] border border-white/5 rounded-3xl h-full flex flex-col"><div className="flex gap-1 mb-6">{[...Array(5)].map((_,j)=><Star key={j} className="w-4 h-4 text-[#22d3ee] fill-[#22d3ee]"/>)}</div><p className="text-base text-white/40 italic leading-relaxed flex-1 mb-8">&ldquo;{t.q}&rdquo;</p><div className="pt-6 border-t border-white/5"><div className="font-black uppercase text-sm">{t.n}</div><div className="text-[10px] text-white/20 uppercase tracking-widest">{t.r}</div></div></div></Reveal>)}</div></div></section>
+const STATS = [
+  { value: "99.99", label: "Uptime SLA", suffix: "%" },
+  { value: "50", label: "API Requests / day", suffix: "M+" },
+  { value: "<40", label: "Global Latency", suffix: "ms" },
+  { value: "15", label: "Proprietary LLMs", suffix: "+" },
+  { value: "256", label: "Bit Encryption", suffix: "" },
+]
 
-    <section className="py-40 bg-[#060612]"><div className="max-w-[1500px] mx-auto px-6 md:px-12"><Reveal><h2 className="text-6xl md:text-8xl font-black tracking-tighter leading-[0.85] mb-24 uppercase text-center">Simple <span className="text-[#22d3ee]">Pricing.</span></h2></Reveal><div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">{PR.map((p,i)=><Reveal key={i} delay={i*0.1}><div className={`group p-10 border rounded-3xl transition-all ${p.ft?"bg-[#22d3ee]/5 border-[#22d3ee]/30 scale-105":"bg-[#080818] border-white/5"}`}><div className="text-[9px] font-bold text-[#22d3ee] uppercase tracking-widest mb-2">{p.n}</div><div className="text-4xl font-black mb-1">{p.p}<span className="text-lg text-white/30">{p.pd}</span></div><div className="space-y-4 mt-8 pt-8 border-t border-white/5">{p.f.map((f,j)=><div key={j} className="flex items-center gap-3 text-[10px] text-white/40"><CheckCircle2 className="w-3.5 h-3.5 text-[#22d3ee]"/>{f}</div>)}</div><button className={`mt-8 w-full py-3 text-[10px] font-black uppercase tracking-widest transition-all rounded-lg ${p.ft?"bg-[#22d3ee] text-black":"border border-white/10 hover:bg-[#22d3ee] hover:text-black"}`}>{p.c}</button></div></Reveal>)}</div></div></section>
+const FEATURES = [
+  {
+    id: "nlp",
+    title: "Natural Language",
+    icon: <Brain className="w-6 h-6" />,
+    description: "Our core NLP engine understands context, nuance, and sentiment across 95 languages. Easily embed human-like reasoning into your existing applications.",
+    bullets: [
+      "Zero-shot classification",
+      "Semantic search & RAG ready",
+      "Real-time translation & sentiment",
+      "Custom vocabulary fine-tuning"
+    ],
+    image: "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=800&q=80"
+  },
+  {
+    id: "predictive",
+    title: "Predictive Analytics",
+    icon: <LineChart className="w-6 h-6" />,
+    description: "Ingest massive datasets and let Cognix generate high-accuracy predictive models automatically. Uncover hidden correlations in your business data without writing Python.",
+    bullets: [
+      "Automated feature engineering",
+      "Time-series forecasting",
+      "Anomaly detection engine",
+      "Exportable ML pipelines"
+    ],
+    image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&q=80"
+  },
+  {
+    id: "automation",
+    title: "Agentic Workflows",
+    icon: <Chip className="w-6 h-6" />,
+    description: "Deploy autonomous AI agents that can chain tools, read APIs, and complete complex multi-step tasks. Transform static scripts into dynamic, thinking workflows.",
+    bullets: [
+      "Visual agent builder",
+      "Pre-built tool integrations",
+      "Human-in-the-loop approvals",
+      "Full execution audit logs"
+    ],
+    image: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800&q=80"
+  }
+]
 
-    <section className="py-40 bg-[#080818] text-center border-t border-white/5"><div className="max-w-[1500px] mx-auto px-6 md:px-12"><Reveal><h2 className="text-6xl md:text-9xl font-black tracking-tighter uppercase mb-12">Build With <span className="text-[#22d3ee]">AI.</span></h2><button className="px-16 py-6 bg-[#22d3ee] text-black text-[12px] font-black uppercase tracking-[0.4em] hover:bg-white transition-all shadow-[0_0_60px_rgba(34,211,238,0.1)]">Get_Started</button></Reveal></div></section>
+const TESTIMONIALS = [
+  {
+    name: "David Schwartz",
+    role: "CTO, FinTech Global",
+    avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&q=80",
+    content: "We replaced our entire legacy NLP pipeline with Cognix's APIs. We saw a 40% reduction in cloud costs and a massive bump in entity extraction accuracy.",
+    rating: 5
+  },
+  {
+    name: "Dr. Amira Patel",
+    role: "Lead Data Scientist",
+    avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&q=80",
+    content: "The ability to spin up agentic workflows without worrying about underlying compute infrastructure is brilliant. Cognix handles the scaling seamlessly.",
+    rating: 5
+  },
+  {
+    name: "Michael Chang",
+    role: "VP Engineering",
+    avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&q=80",
+    content: "Security was our main concern. Cognix's VPC peering and SOC2 compliance made it the only generative AI platform our infosec team would approve.",
+    rating: 5
+  },
+  {
+    name: "Sarah Jenkins",
+    role: "Product Manager",
+    avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&q=80",
+    content: "The RAG (Retrieval-Augmented Generation) endpoint works out of the box. We built an internal knowledge bot in exactly 2 days.",
+    rating: 5
+  }
+]
 
-    <footer className="bg-[#060612] border-t border-white/5 py-32 px-6 md:px-12"><div className="max-w-[1500px] mx-auto grid grid-cols-1 md:grid-cols-4 gap-24"><div className="col-span-1 md:col-span-2"><Link href="/" className="flex items-center gap-3 text-xl font-black tracking-tighter mb-10"><div className="w-8 h-8 bg-[#22d3ee] text-black rounded-lg flex items-center justify-center"><Brain className="w-4 h-4"/></div><span>COGNIX // AI</span></Link><p className="text-[11px] text-white/15 uppercase tracking-[0.2em] max-w-sm italic">AI platform for enterprise.</p></div><div><h4 className="text-[10px] font-black uppercase tracking-widest mb-10 text-[#22d3ee]">Product</h4><ul className="space-y-5 text-[10px] font-bold text-white/20 uppercase tracking-widest">{["Platform","Docs","Status"].map(l=><li key={l}><Link href="#">{l}</Link></li>)}</ul></div><div><h4 className="text-[10px] font-black uppercase tracking-widest mb-10 text-[#22d3ee]">Connect</h4><ul className="space-y-5 text-[10px] font-bold text-white/20 uppercase tracking-widest">{["Twitter","GitHub","Contact"].map(l=><li key={l}><Link href="#">{l}</Link></li>)}</ul></div></div><div className="max-w-[1500px] mx-auto mt-32 pt-16 border-t border-white/5 text-center text-[9px] font-bold text-white/10 uppercase tracking-widest">&copy; 2026 COGNIX AI</div></footer>
-  </div>);
+const PRICING = [
+  {
+    id: "startup",
+    title: "Startup",
+    subtitle: "For agile teams building MVPs",
+    price: "$49",
+    duration: "/ month",
+    description: "Access to our base models and enough API credits to get your AI-powered application off the ground.",
+    features: [
+      "1M API Tokens included",
+      "Access to standard NLP models",
+      "Community Discord support",
+      "5 Agentic workflows",
+      "Standard rate limits"
+    ],
+    recommended: false
+  },
+  {
+    id: "pro",
+    title: "Professional",
+    subtitle: "For scaling applications",
+    price: "$199",
+    duration: "/ month",
+    description: "Higher rate limits, advanced predictive models, and RAG capabilities for production deployments.",
+    features: [
+      "10M API Tokens included",
+      "Access to advanced & predictive models",
+      "Priority email support",
+      "Unlimited workflows",
+      "Custom vector database integration"
+    ],
+    recommended: true
+  },
+  {
+    id: "enterprise",
+    title: "Enterprise",
+    subtitle: "For security-first organizations",
+    price: "Custom",
+    duration: "Annual",
+    description: "Dedicated instances, zero data retention policies, and custom model fine-tuning.",
+    features: [
+      "Unlimited Tokens (Volume pricing)",
+      "Zero Data Retention (ZDR)",
+      "VPC Peering & Single Tenant",
+      "Dedicated Solutions Architect",
+      "Custom model fine-tuning",
+      "SOC2 & HIPAA Compliance"
+    ],
+    recommended: false
+  }
+]
+
+const FAQS = [
+  {
+    question: "Do you train your models on customer data?",
+    answer: "No. By default, customer data sent via the API is not used to train our base models. For Enterprise customers, we offer a strict Zero Data Retention (ZDR) policy."
+  },
+  {
+    question: "How does the token pricing work?",
+    answer: "A token is roughly equivalent to 4 characters of text. You are billed for both input (prompt) tokens and output (completion) tokens. Images and data files are converted to token equivalents based on size."
+  },
+  {
+    question: "Can I deploy Cognix models on-premise?",
+    answer: "Yes, our Enterprise tier offers Virtual Private Cloud (VPC) peering or fully air-gapped on-premise deployments for highly regulated industries like defense and healthcare."
+  },
+  {
+    question: "What languages do your NLP models support?",
+    answer: "Our latest models (Cognix-v4) natively understand and generate text in 95 languages, with near-human accuracy in English, Spanish, French, German, Mandarin, and Japanese."
+  },
+  {
+    question: "Is there a rate limit on the APIs?",
+    answer: "Startup plans are limited to 60 requests per minute (RPM). Professional plans increase this to 500 RPM. Enterprise plans have custom limits based on provisioned infrastructure."
+  },
+  {
+    question: "Do you support RAG out of the box?",
+    answer: "Yes, our platform includes built-in vector storage and retrieval endpoints. You can upload PDFs, connect your Notion, or sync your Confluence, and the API will automatically handle the chunking, embedding, and retrieval."
+  }
+]
+
+// ─── MAIN COMPONENT ────────────────────────────────────────────────────────
+export default function CognixAITemplate() {
+  const containerRef = useRef<HTMLDivElement>(null)
+  const { scrollYProgress } = useScroll({ target: containerRef })
+  
+  // Parallax Values
+  const heroY = useTransform(scrollYProgress, [0, 1], ["0%", "40%"])
+  const textY = useTransform(scrollYProgress, [0, 1], ["0%", "15%"])
+  const opacityHero = useTransform(scrollYProgress, [0, 0.25], [1, 0])
+
+  // Mouse Parallax for Floating Card
+  const mouseX = useMotionValue(0)
+  const mouseY = useMotionValue(0)
+  const springX = useSpring(mouseX, { stiffness: 100, damping: 30 })
+  const springY = useSpring(mouseY, { stiffness: 100, damping: 30 })
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      const { innerWidth, innerHeight } = window
+      mouseX.set((e.clientX - innerWidth / 2) / 25)
+      mouseY.set((e.clientY - innerHeight / 2) / 25)
+    }
+    window.addEventListener("mousemove", handleMouseMove)
+    return () => window.removeEventListener("mousemove", handleMouseMove)
+  }, [mouseX, mouseY])
+
+  return (
+    <div ref={containerRef} className="min-h-screen bg-[#020204] text-[#E2E8F0] font-sans selection:bg-[#7000FF] selection:text-white" style={{ overflowX: "hidden", scrollBehavior: "smooth" }}>
+      
+      {/* ─── 1. NAVBAR STICKY ─── */}
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-[#020204]/80 backdrop-blur-xl border-b border-white/5 transition-all duration-300">
+        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-3 group cursor-pointer">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#7000FF] to-[#00F0FF] flex items-center justify-center shadow-[0_0_15px_rgba(112,0,255,0.4)] group-hover:shadow-[0_0_25px_rgba(112,0,255,0.6)] transition-all duration-300">
+              <Brain className="w-5 h-5 text-white" />
+            </div>
+            <span className="text-xl font-bold tracking-tight text-white transition-colors duration-300">
+              Cognix AI
+            </span>
+          </Link>
+
+          {/* Desktop Nav */}
+          <div className="hidden md:flex items-center gap-8">
+            {NAV_LINKS.map((link) => (
+              <Link 
+                key={link.label} 
+                href={link.href} 
+                className="text-sm font-medium text-slate-400 hover:text-white transition-all duration-200 cursor-pointer"
+              >
+                {link.label}
+              </Link>
+            ))}
+          </div>
+
+          <div className="hidden md:flex items-center gap-4">
+            <button className="text-sm font-medium text-slate-300 hover:text-white transition-colors cursor-pointer">
+              Login
+            </button>
+            <button className="px-5 py-2.5 bg-white text-black text-sm font-bold rounded-lg hover:shadow-[0_0_20px_rgba(255,255,255,0.3)] transition-all duration-300 cursor-pointer">
+              Get API Key
+            </button>
+          </div>
+
+          {/* Mobile Nav */}
+          <Sheet>
+            <SheetTrigger asChild>
+              <button className="md:hidden p-2 text-slate-300 hover:text-white cursor-pointer">
+                <Menu className="w-6 h-6" />
+              </button>
+            </SheetTrigger>
+            <SheetContent side="right" className="bg-[#0A0A0F] border-l border-white/10 text-white w-[300px]">
+              <div className="flex flex-col gap-6 mt-12">
+                {NAV_LINKS.map((link) => (
+                  <Link 
+                    key={link.label} 
+                    href={link.href} 
+                    className="text-lg font-medium text-slate-400 hover:text-white transition-colors cursor-pointer"
+                  >
+                    {link.label}
+                  </Link>
+                ))}
+                <Separator className="bg-white/10 my-4" />
+                <button className="px-6 py-3 bg-white text-black text-sm font-bold rounded-lg cursor-pointer">
+                  Get API Key
+                </button>
+              </div>
+            </SheetContent>
+          </Sheet>
+        </div>
+      </nav>
+
+      {/* ─── 2. HERO PARALLAX ─── */}
+      <section className="relative h-[100vh] flex items-center justify-center overflow-hidden">
+        {/* Background Gradients */}
+        <motion.div style={{ y: heroY, opacity: opacityHero }} className="absolute inset-0 z-0">
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-[1000px] h-[600px] bg-[#7000FF] opacity-[0.15] blur-[120px] rounded-full mix-blend-screen pointer-events-none" />
+          <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-[#00F0FF] opacity-[0.1] blur-[100px] rounded-full mix-blend-screen pointer-events-none" />
+          <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] mix-blend-overlay pointer-events-none" />
+        </motion.div>
+
+        <motion.div style={{ y: textY }} className="relative z-10 max-w-5xl mx-auto px-6 text-center mt-20">
+          <Reveal>
+            <Badge className="bg-white/5 text-[#00F0FF] hover:bg-white/10 border border-[#00F0FF]/30 mb-8 px-4 py-1.5 cursor-pointer transition-all duration-300 font-mono text-xs">
+              <Sparkles className="w-3 h-3 mr-2 inline" /> Introducing Cognix-v4 Models
+            </Badge>
+          </Reveal>
+          
+          <Reveal delay={0.1}>
+            <h1 className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tight text-white mb-6 leading-[1.05]">
+              Intelligence <br className="hidden md:block" />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#7000FF] to-[#00F0FF]">
+                as an API.
+              </span>
+            </h1>
+          </Reveal>
+
+          <Reveal delay={0.2}>
+            <p className="text-lg md:text-xl text-slate-400 font-medium max-w-2xl mx-auto mb-10 leading-relaxed">
+              Embed state-of-the-art NLP, predictive analytics, and autonomous agents into your software with just 3 lines of code. Enterprise-grade security out of the box.
+            </p>
+          </Reveal>
+
+          <Reveal delay={0.3} className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <button className="w-full sm:w-auto px-8 py-4 bg-white text-black font-bold text-sm rounded-lg hover:scale-105 hover:shadow-[0_0_30px_rgba(255,255,255,0.2)] transition-all duration-300 cursor-pointer flex items-center justify-center gap-2">
+              Start for Free <ArrowRight className="w-4 h-4" />
+            </button>
+            <Dialog>
+              <DialogTrigger asChild>
+                <button className="w-full sm:w-auto px-8 py-4 border border-white/10 bg-white/5 backdrop-blur-md text-white font-bold text-sm rounded-lg hover:bg-white/10 transition-all duration-300 cursor-pointer flex items-center justify-center gap-3">
+                  <Play className="w-4 h-4 text-[#7000FF]" /> Watch Demo
+                </button>
+              </DialogTrigger>
+              <DialogContent className="bg-[#0A0A0F] border-white/10 text-white sm:max-w-[800px] p-0 overflow-hidden">
+                <div className="aspect-video relative w-full bg-black flex items-center justify-center">
+                  <div className="w-12 h-12 rounded-full border-t-2 border-[#7000FF] animate-spin" />
+                </div>
+              </DialogContent>
+            </Dialog>
+          </Reveal>
+        </motion.div>
+
+        {/* Floating Code Snippet Card */}
+        <motion.div 
+          style={{ x: springX, y: springY }}
+          className="hidden lg:block absolute bottom-20 left-20 z-20 p-5 rounded-2xl border border-white/10 bg-black/60 backdrop-blur-xl shadow-2xl cursor-pointer hover:border-[#7000FF]/50 transition-colors duration-300"
+        >
+          <div className="flex gap-2 mb-3">
+            <div className="w-3 h-3 rounded-full bg-red-500" />
+            <div className="w-3 h-3 rounded-full bg-yellow-500" />
+            <div className="w-3 h-3 rounded-full bg-green-500" />
+          </div>
+          <pre className="font-mono text-xs text-slate-300">
+            <span className="text-[#7000FF]">import</span> {"{ Cognix }"} <span className="text-[#7000FF]">from</span> "cognix-sdk";<br/><br/>
+            <span className="text-[#7000FF]">const</span> ai = <span className="text-[#7000FF]">new</span> Cognix(API_KEY);<br/>
+            <span className="text-[#7000FF]">const</span> res = <span className="text-[#7000FF]">await</span> ai.generate({"{"}<br/>
+            {"  "}prompt: <span className="text-[#00F0FF]">"Analyze churn data"</span>,<br/>
+            {"  "}model: <span className="text-[#00F0FF]">"cognix-v4-turbo"</span><br/>
+            {"}"});
+          </pre>
+        </motion.div>
+      </section>
+
+      {/* ─── 3. STATS BAR ─── */}
+      <section className="py-16 border-y border-white/5 bg-[#050508] relative z-10">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-8 md:gap-4 divide-x-0 md:divide-x divide-white/5">
+            {STATS.map((stat, i) => (
+              <Reveal key={i} delay={i * 0.1}>
+                <div className="flex flex-col items-center text-center cursor-pointer group">
+                  <div className="text-4xl lg:text-5xl font-black text-white mb-2 font-mono group-hover:text-[#00F0FF] transition-colors duration-300">
+                    {stat.value}<span className="text-[#7000FF]">{stat.suffix}</span>
+                  </div>
+                  <div className="text-xs text-slate-500 font-bold uppercase tracking-widest">
+                    {stat.label}
+                  </div>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ─── 4. FEATURES (TABS) ─── */}
+      <section id="platform" className="py-32 relative bg-[#020204]">
+        <div className="max-w-7xl mx-auto px-6 relative z-10">
+          <div className="text-center mb-20">
+            <Reveal>
+              <h2 className="text-sm font-mono text-[#7000FF] font-bold mb-4 uppercase tracking-widest">Capabilities</h2>
+              <h3 className="text-4xl md:text-5xl font-black text-white mb-6 tracking-tight">The AI Engine Room</h3>
+              <p className="text-slate-400 max-w-2xl mx-auto leading-relaxed text-lg">
+                One unified API giving you access to the world's most advanced generative models, retrieval systems, and predictive algorithms.
+              </p>
+            </Reveal>
+          </div>
+
+          <Tabs defaultValue="nlp" className="w-full flex flex-col lg:flex-row gap-12 lg:gap-16">
+            <div className="lg:w-1/3">
+              <TabsList className="flex flex-col h-auto bg-transparent gap-3 items-stretch">
+                {FEATURES.map((feature) => (
+                  <TabsTrigger 
+                    key={feature.id} 
+                    value={feature.id}
+                    className="justify-start px-6 py-5 text-left data-[state=active]:bg-[#7000FF]/10 data-[state=active]:text-[#7000FF] text-slate-400 hover:text-white hover:bg-white/5 transition-all duration-300 cursor-pointer rounded-xl border border-transparent data-[state=active]:border-[#7000FF]/30"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="p-2 rounded-lg bg-black/50 border border-white/5">{feature.icon}</div>
+                      <span className="text-base font-bold">{feature.title}</span>
+                    </div>
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+            </div>
+
+            <div className="lg:w-2/3">
+              <AnimatePresence mode="wait">
+                {FEATURES.map((feature) => (
+                  <TabsContent key={feature.id} value={feature.id} className="mt-0 outline-none">
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.98 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.98 }}
+                      transition={{ duration: 0.4 }}
+                      className="bg-[#0A0A0F] border border-white/10 rounded-2xl overflow-hidden shadow-2xl relative group"
+                    >
+                      <div className="absolute top-0 right-0 p-32 bg-[#00F0FF] opacity-[0.05] blur-[100px] rounded-full pointer-events-none" />
+                      
+                      <div className="aspect-[2/1] relative w-full overflow-hidden border-b border-white/10">
+                        <Image src={feature.image} alt={feature.title} fill className="object-cover group-hover:scale-105 transition-transform duration-1000" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0F] to-transparent opacity-90" />
+                      </div>
+                      
+                      <div className="p-8 md:p-12 relative z-10 -mt-10">
+                        <h4 className="text-2xl font-bold text-white mb-4">{feature.title}</h4>
+                        <p className="text-slate-400 leading-relaxed mb-8">{feature.description}</p>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-6">
+                          {feature.bullets.map((bullet, i) => (
+                            <div key={i} className="flex items-center gap-3">
+                              <CheckCircle2 className="w-5 h-5 text-[#7000FF]" />
+                              <span className="text-sm text-slate-300 font-medium">{bullet}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </motion.div>
+                  </TabsContent>
+                ))}
+              </AnimatePresence>
+            </div>
+          </Tabs>
+        </div>
+      </section>
+
+      {/* ─── 5. TESTIMONIALS CAROUSEL ─── */}
+      <section className="py-32 bg-[#050508] border-y border-white/5 overflow-hidden relative">
+        <div className="max-w-7xl mx-auto px-6 relative z-10">
+          <Reveal>
+            <div className="text-center mb-16">
+              <h2 className="text-sm font-mono text-[#00F0FF] font-bold mb-4 uppercase tracking-widest">Case Studies</h2>
+              <h3 className="text-4xl font-black text-white">Engineered for Production</h3>
+            </div>
+          </Reveal>
+
+          <Carousel className="w-full max-w-6xl mx-auto">
+            <CarouselContent>
+              {TESTIMONIALS.map((testi, i) => (
+                <CarouselItem key={i} className="md:basis-1/2 lg:basis-1/2 pl-6">
+                  <Reveal delay={i * 0.1}>
+                    <Card className="bg-[#0A0A0F] border-white/10 hover:border-[#00F0FF]/40 transition-colors duration-300 cursor-pointer h-full rounded-2xl">
+                      <CardContent className="p-8 flex flex-col h-full justify-between">
+                        <div>
+                          <div className="flex gap-1 mb-6">
+                            {[...Array(testi.rating)].map((_, j) => (
+                              <Star key={j} className="w-4 h-4 fill-[#7000FF] text-[#7000FF]" />
+                            ))}
+                          </div>
+                          <p className="text-slate-300 text-lg leading-relaxed mb-8 font-medium">
+                            "{testi.content}"
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-4 pt-6 mt-auto border-t border-white/5">
+                          <Avatar className="w-12 h-12 border border-white/20">
+                            <AvatarImage src={testi.avatar} />
+                            <AvatarFallback>CX</AvatarFallback>
+                          </Avatar>
+                          <div>
+                            <div className="text-white font-bold text-sm">{testi.name}</div>
+                            <div className="text-slate-500 text-xs mt-1">{testi.role}</div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Reveal>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <div className="flex justify-center gap-4 mt-12">
+              <CarouselPrevious className="relative inset-auto translate-y-0 bg-white/5 border-white/10 text-white hover:bg-white hover:text-black transition-colors" />
+              <CarouselNext className="relative inset-auto translate-y-0 bg-white/5 border-white/10 text-white hover:bg-white hover:text-black transition-colors" />
+            </div>
+          </Carousel>
+        </div>
+      </section>
+
+      {/* ─── 6. PRICING ─── */}
+      <section id="pricing" className="py-32 bg-[#020204] relative">
+        <div className="max-w-7xl mx-auto px-6 relative z-10">
+          <div className="text-center mb-20">
+            <Reveal>
+              <h2 className="text-sm font-mono text-[#7000FF] font-bold mb-4 uppercase tracking-widest">Pricing</h2>
+              <h3 className="text-4xl md:text-5xl font-black text-white mb-6">Scale without limits</h3>
+              <p className="text-slate-400 max-w-xl mx-auto">
+                Transparent pricing based on compute and token usage. Start building for free, upgrade when you hit production.
+              </p>
+            </Reveal>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
+            {PRICING.map((tier, i) => (
+              <Reveal key={i} delay={i * 0.1}>
+                <Card className={`relative bg-[#0A0A0F] border ${tier.recommended ? 'border-[#7000FF] shadow-[0_0_40px_rgba(112,0,255,0.15)] lg:scale-105 z-10' : 'border-white/10'} hover:border-[#7000FF]/50 transition-all duration-300 cursor-pointer overflow-hidden rounded-2xl`}>
+                  {tier.recommended && (
+                    <div className="absolute top-0 inset-x-0 bg-gradient-to-r from-[#7000FF] to-[#00F0FF] text-white text-[10px] font-bold uppercase tracking-widest text-center py-1.5">
+                      Most Popular
+                    </div>
+                  )}
+                  <CardContent className={`p-8 ${tier.recommended ? 'pt-10' : ''}`}>
+                    <h4 className="text-2xl font-bold text-white mb-1">{tier.title}</h4>
+                    <div className="text-sm text-slate-500 mb-6 font-medium">{tier.subtitle}</div>
+                    <p className="text-sm text-slate-400 mb-8 h-10">{tier.description}</p>
+                    
+                    <div className="flex items-end gap-1 mb-8 border-b border-white/5 pb-8">
+                      <span className="text-4xl font-black text-white">{tier.price}</span>
+                      <span className="text-sm text-slate-500 mb-1">{tier.duration}</span>
+                    </div>
+
+                    <ul className="space-y-4 mb-10">
+                      {tier.features.map((feat, j) => (
+                        <li key={j} className="flex items-start gap-3 text-sm text-slate-300 font-medium">
+                          <CheckCircle2 className="w-4 h-4 text-[#00F0FF] shrink-0 mt-0.5" />
+                          <span>{feat}</span>
+                        </li>
+                      ))}
+                    </ul>
+
+                    <button className={`w-full py-4 text-sm font-bold rounded-lg transition-all duration-300 ${tier.recommended ? 'bg-white text-black hover:bg-slate-200' : 'bg-transparent border border-white/20 text-white hover:bg-white hover:text-black'}`}>
+                      {tier.price === "Custom" ? "Contact Sales" : "Get Started"}
+                    </button>
+                  </CardContent>
+                </Card>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ─── 7. FAQ ACCORDION ─── */}
+      <section className="py-32 bg-[#050508] border-t border-white/5">
+        <div className="max-w-4xl mx-auto px-6">
+          <Reveal>
+            <div className="text-center mb-16">
+              <h2 className="text-sm font-mono text-[#00F0FF] font-bold mb-4 uppercase tracking-widest">Support</h2>
+              <h3 className="text-4xl font-black text-white">Frequently Asked Questions</h3>
+            </div>
+          </Reveal>
+
+          <Reveal delay={0.2}>
+            <Accordion type="single" collapsible className="w-full">
+              {FAQS.map((faq, i) => (
+                <AccordionItem key={i} value={`item-${i}`} className="border-white/10">
+                  <AccordionTrigger className="text-left text-white hover:text-[#00F0FF] hover:no-underline font-bold text-lg py-6 transition-colors">
+                    {faq.question}
+                  </AccordionTrigger>
+                  <AccordionContent className="text-slate-400 leading-relaxed pb-6 text-base">
+                    {faq.answer}
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* ─── 8. CTA BANNER ─── */}
+      <section className="py-24 px-6 relative z-10 bg-[#020204]">
+        <Reveal>
+          <div className="max-w-6xl mx-auto bg-gradient-to-br from-[#100A20] to-[#050508] border border-[#7000FF]/30 rounded-3xl p-12 md:p-24 text-center relative overflow-hidden group">
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#7000FF] to-[#00F0FF]" />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#7000FF] opacity-[0.05] rounded-full blur-[100px] pointer-events-none" />
+            
+            <div className="relative z-10">
+              <Brain className="w-16 h-16 text-white mx-auto mb-8 drop-shadow-[0_0_15px_rgba(112,0,255,0.8)]" />
+              <h2 className="text-4xl md:text-6xl font-black text-white mb-6">Build the future, today.</h2>
+              <p className="text-lg text-slate-400 max-w-2xl mx-auto mb-10">
+                Get your free API key now and start integrating intelligent features into your product in minutes.
+              </p>
+              <div className="flex flex-col sm:flex-row justify-center gap-4">
+                <button className="px-10 py-4 bg-white text-black font-bold rounded-lg hover:scale-105 transition-all duration-300 cursor-pointer shadow-[0_0_20px_rgba(255,255,255,0.1)]">
+                  Generate API Key
+                </button>
+                <button className="px-10 py-4 bg-transparent text-white font-bold border border-white/20 rounded-lg hover:bg-white/5 transition-all duration-300 cursor-pointer">
+                  View Documentation
+                </button>
+              </div>
+            </div>
+          </div>
+        </Reveal>
+      </section>
+
+      {/* ─── 9. FOOTER ─── */}
+      <footer className="bg-[#020204] pt-24 pb-12 border-t border-white/10">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-20">
+            <div>
+              <Link href="/" className="flex items-center gap-3 mb-8 cursor-pointer">
+                <div className="w-8 h-8 rounded bg-[#7000FF] flex items-center justify-center">
+                  <Brain className="w-5 h-5 text-white" />
+                </div>
+                <span className="text-xl font-bold tracking-tight text-white">
+                  Cognix AI
+                </span>
+              </Link>
+              <p className="text-slate-500 text-sm leading-relaxed mb-8">
+                Empowering developers with enterprise-grade artificial intelligence infrastructure and state-of-the-art predictive models.
+              </p>
+              <div className="flex gap-4">
+                <a href="#" className="w-10 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-all cursor-pointer"><MessageCircle className="w-4 h-4" /></a>
+                <a href="#" className="w-10 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-all cursor-pointer"><TerminalSquare className="w-4 h-4" /></a>
+              </div>
+            </div>
+
+            <div>
+              <h4 className="text-white font-bold uppercase tracking-widest text-xs mb-8">Platform</h4>
+              <ul className="space-y-4">
+                <li><a href="#" className="text-slate-500 hover:text-white transition-colors text-sm font-medium cursor-pointer">NLP API</a></li>
+                <li><a href="#" className="text-slate-500 hover:text-white transition-colors text-sm font-medium cursor-pointer">Predictive Models</a></li>
+                <li><a href="#" className="text-slate-500 hover:text-white transition-colors text-sm font-medium cursor-pointer">Agentic Workflows</a></li>
+                <li><a href="#" className="text-slate-500 hover:text-white transition-colors text-sm font-medium cursor-pointer">Security & Compliance</a></li>
+                <li><a href="#" className="text-slate-500 hover:text-white transition-colors text-sm font-medium cursor-pointer">Pricing</a></li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="text-white font-bold uppercase tracking-widest text-xs mb-8">Resources</h4>
+              <ul className="space-y-4">
+                <li><a href="#" className="text-slate-500 hover:text-white transition-colors text-sm font-medium cursor-pointer">Documentation</a></li>
+                <li><a href="#" className="text-slate-500 hover:text-white transition-colors text-sm font-medium cursor-pointer">API Reference</a></li>
+                <li><a href="#" className="text-slate-500 hover:text-white transition-colors text-sm font-medium cursor-pointer">Tutorials & Guides</a></li>
+                <li><a href="#" className="text-slate-500 hover:text-white transition-colors text-sm font-medium cursor-pointer">Status Dashboard</a></li>
+                <li><a href="#" className="text-slate-500 hover:text-white transition-colors text-sm font-medium cursor-pointer">Blog</a></li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="text-white font-bold uppercase tracking-widest text-xs mb-8">Company</h4>
+              <ul className="space-y-4">
+                <li><a href="#" className="text-slate-500 hover:text-white transition-colors text-sm font-medium cursor-pointer">About Us</a></li>
+                <li><a href="#" className="text-slate-500 hover:text-white transition-colors text-sm font-medium cursor-pointer">Careers</a></li>
+                <li><a href="#" className="text-slate-500 hover:text-white transition-colors text-sm font-medium cursor-pointer">Contact Sales</a></li>
+                <li><a href="#" className="text-slate-500 hover:text-white transition-colors text-sm font-medium cursor-pointer">Partners</a></li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs font-medium text-slate-600">
+            <p>&copy; 2026 Cognix AI, Inc. All rights reserved.</p>
+            <div className="flex gap-6">
+              <a href="#" className="hover:text-white transition-colors cursor-pointer">Terms of Service</a>
+              <a href="#" className="hover:text-white transition-colors cursor-pointer">Privacy Policy</a>
+              <a href="#" className="hover:text-white transition-colors cursor-pointer">Security</a>
+            </div>
+          </div>
+        </div>
+      </footer>
+
+    </div>
+  )
 }

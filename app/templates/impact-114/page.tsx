@@ -11,20 +11,7 @@ import {
 } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
-import {
-  ArrowRight,
-  ArrowLeft,
-  Menu,
-  X,
-  MapPin,
-  Camera,
-  ExternalLink,
-  Instagram,
-  ChevronDown,
-  Compass,
-  Calendar,
-  Info,
-} from "lucide-react";
+import { ArrowRight, ArrowLeft, Menu, X, MapPin, Camera, ExternalLink, Globe, ChevronDown, Compass, Calendar, Info } from "lucide-react";
 
 import "../premium.css";
 
@@ -703,7 +690,7 @@ export default function TerraSliderPage() {
                     href="#"
                     className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center hover:bg-white hover:text-black transition-colors"
                   >
-                    <Instagram className="w-5 h-5" />
+                    <Globe className="w-5 h-5" />
                   </a>
                   <a
                     href="#"
@@ -778,10 +765,10 @@ export default function TerraSliderPage() {
               </div>
               <div className="flex gap-6">
                 <a href="#" className="hover:text-white transition-colors">
-                  Instagram
+                  Globe
                 </a>
                 <a href="#" className="hover:text-white transition-colors">
-                  Twitter
+                  Globe
                 </a>
               </div>
             </div>

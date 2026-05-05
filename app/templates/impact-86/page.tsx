@@ -38,55 +38,7 @@ import {
 } from "@/components/ui/carousel";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
-import {
-  Sparkles,
-  Wand2,
-  Zap,
-  Globe,
-  Activity,
-  Terminal,
-  Box,
-  Share2,
-  Layers,
-  Maximize,
-  Monitor,
-  MousePointer2,
-  Navigation,
-  Wifi,
-  Shield,
-  ShoppingBag,
-  Search,
-  Star,
-  Instagram,
-  Twitter,
-  Mail,
-  Phone,
-  Check,
-  Menu,
-  X,
-  MapPin,
-  Clock,
-  Lock,
-  Plus,
-  Bell,
-  Settings,
-  ArrowRight,
-  ArrowUpRight,
-  ChevronRight,
-  Eye,
-  PenTool,
-  FlaskConical,
-  Droplets,
-  HeartPulse,
-  Microscope,
-  Wind,
-  Trees,
-  Flower2,
-  Heart,
-  Moon,
-  Sun,
-  Waves,
-} from "lucide-react";
+import { Sparkles, Wand2, Zap, Globe, Activity, Terminal, Box, Share2, Layers, Maximize, Monitor, MousePointer2, Navigation, Wifi, Shield, ShoppingBag, Search, Star, Mail, Phone, Check, Menu, X, MapPin, Clock, Lock, Plus, Bell, Settings, ArrowRight, ArrowUpRight, ChevronRight, Eye, PenTool, FlaskConical, Droplets, HeartPulse, Microscope, Wind, Trees, Flower2, Heart, Moon, Sun, Waves } from "lucide-react";
 
 import "../premium.css";
 
@@ -662,7 +614,7 @@ export default function AuraWellnessPage() {
                 restored mind.
               </p>
               <div className="flex gap-4">
-                {[Instagram, Twitter, Mail].map((Icon, i) => (
+                {[Globe, Globe, Mail].map((Icon, i) => (
                   <button
                     key={i}
                     className="w-12 h-12 rounded-full border border-[#c9b7a2]/20 flex items-center justify-center text-[#c9b7a2] hover:bg-[#c9b7a2] hover:text-white transition-all"

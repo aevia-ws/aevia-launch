@@ -9,15 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { Separator } from "@/components/ui/separator"
-import {
-  Leaf, Droplets, Sun, Wind, ShieldCheck,
-  Instagram, Twitter, Mail, MapPin,
-  ChevronRight, ArrowRight, X, Menu,
-  FlaskConical, Microscope, Thermometer,
-  Sprout, Award, Settings2, Activity,
-  Info, Share2, Heart, Search, 
-  ShoppingBag, Eye, Star, Zap
-} from "lucide-react"
+import { Leaf, Droplets, Sun, Wind, ShieldCheck, Globe, Mail, MapPin, ChevronRight, ArrowRight, X, Menu, FlaskConical, Microscope, Thermometer, Sprout, Award, Settings2, Activity, Info, Share2, Heart, Search, ShoppingBag, Eye, Star, Zap } from "lucide-react"
 
 import "../premium.css";
 
@@ -521,7 +513,7 @@ export default function VeridianPage() {
                     The absolute mastery of botanical craft. Engineered for the evolutionary elite in our California sanctuary.
                  </p>
                  <div className="flex gap-6">
-                    {[Instagram, Twitter, Mail].map((Icon, i) => (
+                    {[Globe, Globe, Mail].map((Icon, i) => (
                       <button key={i} className="w-14 h-14 rounded-full border border-white/10 flex items-center justify-center text-white/40 hover:bg-[#c4a45e] hover:text-black hover:border-[#c4a45e] transition-all">
                          <Icon className="w-5 h-5" />
                       </button>

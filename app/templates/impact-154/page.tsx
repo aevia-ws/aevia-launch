@@ -29,7 +29,7 @@ const TESTIMONIALS = [
 
 const PRICING = [
   { name: "PROJECT", price: "$8K", period: "+", features: ["Single deliverable", "2 revisions", "30-day timeline", "Source files"], cta: "Start" },
-  { name: "RETAINER", price: "$5K", period: "/mo", features: ["40h monthly", "Priority queue", "Slack access", "Strategy calls", "All formats"], cta: "Retain", featured: true },
+  { name: "RETAINER", price: "$5K", period: "/mo", features: ["40h monthly", "Priority queue", "Globe access", "Strategy calls", "All formats"], cta: "Retain", featured: true },
   { name: "PARTNERSHIP", price: "Custom", period: "", features: ["Embedded team", "Quarterly planning", "Full brand ownership", "SLA", "Equity option"], cta: "Talk" },
 ];
 
@@ -129,7 +129,7 @@ export default function ObliqServicesPage() {
         <div className="max-w-[1500px] mx-auto grid grid-cols-1 md:grid-cols-4 gap-24">
           <div className="col-span-1 md:col-span-2"><Link href="/" className="flex items-center gap-3 text-xl font-black tracking-tighter mb-10"><div className="w-8 h-8 bg-[#e11d48] text-white rounded-sm flex items-center justify-center"><Sparkles className="w-4 h-4" /></div><span>OBLIQ // STUDIO</span></Link><p className="text-[11px] text-white/15 uppercase tracking-[0.2em] max-w-sm italic">Creative agency. Berlin.</p></div>
           <div><h4 className="text-[10px] font-black uppercase tracking-widest mb-10 text-[#e11d48]">Studio</h4><ul className="space-y-5 text-[10px] font-bold text-white/20 uppercase tracking-widest">{["Services", "Work", "About"].map(l => <li key={l}><Link href="#">{l}</Link></li>)}</ul></div>
-          <div><h4 className="text-[10px] font-black uppercase tracking-widest mb-10 text-[#e11d48]">Social</h4><ul className="space-y-5 text-[10px] font-bold text-white/20 uppercase tracking-widest">{["Instagram", "Dribbble", "LinkedIn"].map(l => <li key={l}><Link href="#">{l}</Link></li>)}</ul></div>
+          <div><h4 className="text-[10px] font-black uppercase tracking-widest mb-10 text-[#e11d48]">Social</h4><ul className="space-y-5 text-[10px] font-bold text-white/20 uppercase tracking-widest">{["Globe", "Globe", "LinkedIn"].map(l => <li key={l}><Link href="#">{l}</Link></li>)}</ul></div>
         </div>
         <div className="max-w-[1500px] mx-auto mt-32 pt-16 border-t border-white/5 text-center text-[9px] font-bold text-white/10 uppercase tracking-widest">&copy; 2026 OBLIQ STUDIO</div>
       </footer>

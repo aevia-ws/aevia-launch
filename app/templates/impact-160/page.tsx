@@ -13,11 +13,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel"
 import { Progress } from "@/components/ui/progress"
 import { Separator } from "@/components/ui/separator"
-import {
-  Heart, Video, Shield, Clock, Users, Star, Check, ArrowRight, ChevronRight,
-  Menu, Twitter, Linkedin, Globe, TrendingUp, Zap, Activity, Stethoscope,
-  Pill, Brain, FileText, Lock, Phone, Sparkles, CalendarDays
-} from "lucide-react"
+import { Heart, Video, Shield, Clock, Users, Star, Check, ArrowRight, ChevronRight, Menu, Globe, TrendingUp, Zap, Activity, Stethoscope, Pill, Brain, FileText, Lock, Phone, Sparkles, CalendarDays } from "lucide-react"
 
 function Reveal({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
   const ref = useRef(null)
@@ -652,7 +648,7 @@ export default function CareConnectTelemedicine() {
               </Link>
               <p className="text-sm text-slate-400 leading-relaxed mb-6 max-w-xs">Board-certified telehealth for primary care, mental health, urgent care, and chronic disease management. Available in all 50 states.</p>
               <div className="flex gap-3">
-                {[Twitter, Linkedin, Globe].map((Icon, j) => (
+                {[Globe, Globe, Globe].map((Icon, j) => (
                   <Link key={j} href="#" className="w-9 h-9 rounded-lg bg-slate-800 flex items-center justify-center hover:bg-teal-500 cursor-pointer transition-all duration-200"><Icon className="w-4 h-4" /></Link>
                 ))}
               </div>

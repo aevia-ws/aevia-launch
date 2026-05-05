@@ -11,27 +11,7 @@ import {
 } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
-import {
-  Sparkles,
-  Shield,
-  Clock,
-  Menu,
-  X,
-  Star,
-  CheckCircle2,
-  Home,
-  Droplets,
-  Leaf,
-  ArrowRight,
-  ChevronRight,
-  MapPin,
-  Phone,
-  Mail,
-  Instagram,
-  Facebook,
-  Twitter,
-  Wind,
-} from "lucide-react";
+import { Sparkles, Shield, Clock, Menu, X, Star, CheckCircle2, Home, Droplets, Leaf, ArrowRight, ChevronRight, MapPin, Phone, Mail, Globe, Wind } from "lucide-react";
 
 import {
   Accordion,
@@ -826,7 +806,7 @@ export default function PristineCleaningPage() {
                 Elevating the standard of residential and commercial cleaning through eco-conscious practices and uncompromising attention to detail.
               </p>
               <div className="flex gap-4">
-                {[Instagram, Facebook, Twitter].map((Icon, i) => (
+                {[Globe, Globe, Globe].map((Icon, i) => (
                   <a key={i} href="#" className="w-10 h-10 rounded-full bg-[#f0faf5] flex items-center justify-center text-[#0f2419] hover:bg-[#10b981] hover:text-white transition-colors">
                     <Icon className="w-4 h-4" />
                   </a>

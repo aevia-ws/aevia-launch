@@ -10,26 +10,7 @@ import {
 } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
-import {
-  ArrowRight,
-  Box,
-  Ruler,
-  Tool,
-  Hexagon,
-  Layers,
-  PenTool,
-  Shield,
-  Globe,
-  Star,
-  ShoppingBag,
-  Search,
-  Menu,
-  X,
-  ChevronRight,
-  Play,
-  ArrowLeft,
-  ArrowUpRight,
-} from "lucide-react";
+import { ArrowRight, Box, Ruler, Tool, Hexagon, Layers, PenTool, Shield, Globe, Star, ShoppingBag, Search, Menu, X, ChevronRight, Play, ArrowLeft, ArrowUpRight } from "lucide-react";
 
 import "../premium.css";
 

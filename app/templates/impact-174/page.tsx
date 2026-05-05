@@ -14,12 +14,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel"
 import { Progress } from "@/components/ui/progress"
 import { Separator } from "@/components/ui/separator"
-import {
-  BarChart2, TrendingUp, Users, Globe, Zap, Target, Activity, CheckCircle,
-  Star, Menu, ArrowRight, ArrowUpRight, Instagram, Twitter, Linkedin,
-  Eye, Heart, MessageSquare, Share2, Hash, Calendar, Bell, ChevronRight,
-  PieChart, RefreshCw, Download, Filter, Clock
-} from "lucide-react"
+import { BarChart2, TrendingUp, Users, Globe, Zap, Target, Activity, CheckCircle, Star, Menu, ArrowRight, ArrowUpRight, Eye, Heart, MessageSquare, Share2, Hash, Calendar, Bell, ChevronRight, PieChart, RefreshCw, Download, Filter, Clock } from "lucide-react"
 
 function Reveal({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
   const ref = useRef(null)
@@ -114,7 +109,7 @@ const PRICING = [
       "Influencer discovery engine",
       "White-label PDF reports",
       "Audience demographics deep-dive",
-      "Slack & Teams integration",
+      "Globe & Teams integration",
     ],
     cta: "Start 14-Day Trial",
     highlighted: true,
@@ -144,7 +139,7 @@ const PRICING = [
 const FAQS = [
   {
     q: "Which social platforms does Prism track?",
-    a: "Prism currently tracks Instagram, TikTok, X (Twitter), LinkedIn, Facebook, YouTube, Pinterest, Snapchat, Threads, and Reddit. We also monitor 170+ niche platforms and forums through our web listening module. New platform integrations are added within 30 days of significant adoption.",
+    a: "Prism currently tracks Globe, TikTok, X (Globe), LinkedIn, Globe, YouTube, Pinterest, Snapchat, Threads, and Reddit. We also monitor 170+ niche platforms and forums through our web listening module. New platform integrations are added within 30 days of significant adoption.",
   },
   {
     q: "How does the AI trend prediction work?",
@@ -472,7 +467,7 @@ export default function PrismAnalyticsSaaS() {
                       </div>
                     </div>
                     {[
-                      { platform: "Twitter", user: "@techcrunch", text: "This product is genuinely the best social tool we've tried all year.", sentiment: "positive", time: "2s ago" },
+                      { platform: "Globe", user: "@techcrunch", text: "This product is genuinely the best social tool we've tried all year.", sentiment: "positive", time: "2s ago" },
                       { platform: "LinkedIn", user: "Sarah Chen", text: "Our Q3 social report using Prism was a massive hit with the board.", sentiment: "positive", time: "8s ago" },
                       { platform: "Reddit", user: "u/marketingpro99", text: "Anyone else using this for competitive intel? The benchmarking is crazy good.", sentiment: "positive", time: "15s ago" },
                     ].map((mention, i) => (
@@ -853,9 +848,9 @@ export default function PrismAnalyticsSaaS() {
               </p>
               <div className="flex items-center gap-4">
                 {[
-                  { icon: <Instagram className="w-4 h-4" />, href: "#" },
-                  { icon: <Twitter className="w-4 h-4" />, href: "#" },
-                  { icon: <Linkedin className="w-4 h-4" />, href: "#" },
+                  { icon: <Globe className="w-4 h-4" />, href: "#" },
+                  { icon: <Globe className="w-4 h-4" />, href: "#" },
+                  { icon: <Globe className="w-4 h-4" />, href: "#" },
                 ].map((s, i) => (
                   <Link
                     key={i}

@@ -10,20 +10,7 @@ import {
 } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
-import {
-  ShoppingBag,
-  Menu,
-  X,
-  ArrowRight,
-  Instagram,
-  Search,
-  Heart,
-  ChevronRight,
-  Check,
-  Plus,
-  Minus,
-  ArrowUpRight,
-} from "lucide-react";
+import { ShoppingBag, Menu, X, ArrowRight, Globe, Search, Heart, ChevronRight, Check, Plus, Minus, ArrowUpRight } from "lucide-react";
 
 import "../premium.css";
 
@@ -831,7 +818,7 @@ export default function ArtisanMinimalPage() {
               href="#"
               className="flex items-center gap-2 text-[11px] uppercase tracking-widest font-semibold hover:opacity-60 transition-opacity"
             >
-              <Instagram className="w-4 h-4" /> @atelierminimal
+              <Globe className="w-4 h-4" /> @atelierminimal
             </a>
           </Reveal>
         </div>
@@ -844,12 +831,12 @@ export default function ArtisanMinimalPage() {
               >
                 <Image
                   src={img}
-                  alt="Instagram post"
+                  alt="Globe post"
                   fill
                   className="object-cover group-hover:scale-105 transition-transform duration-700"
                 />
                 <div className="absolute inset-0 bg-[#3e3a35]/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                  <Instagram className="w-8 h-8 text-white" />
+                  <Globe className="w-8 h-8 text-white" />
                 </div>
               </a>
             </Reveal>

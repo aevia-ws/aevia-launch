@@ -12,28 +12,7 @@ import {
 import { useState, useRef, useEffect, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import {
-  Zap,
-  Shield,
-  Layers,
-  Search,
-  Menu,
-  X,
-  ArrowRight,
-  ChevronRight,
-  Cpu,
-  Activity,
-  Lock,
-  Box,
-  Binary,
-  Globe,
-  Radio,
-  Gauge,
-  Wind,
-  Atom,
-  Orbit,
-  FlaskConical,
-} from "lucide-react";
+import { Zap, Shield, Layers, Search, Menu, X, ArrowRight, ChevronRight, Cpu, Activity, Lock, Box, Binary, Globe, Radio, Gauge, Wind, Atom, Orbit, FlaskConical } from "lucide-react";
 
 import "../premium.css";
 

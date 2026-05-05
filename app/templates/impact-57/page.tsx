@@ -38,43 +38,7 @@ import {
 } from "@/components/ui/carousel";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
-import {
-  Activity,
-  Zap,
-  Shield,
-  ChevronRight,
-  Star,
-  Check,
-  Menu,
-  X,
-  ArrowRight,
-  Play,
-  TrendingUp,
-  Timer,
-  Cpu,
-  BarChart3,
-  Bolt,
-  Radio,
-  Layers,
-  Gauge,
-  Twitter,
-  Instagram,
-  Youtube,
-  Linkedin,
-  Globe,
-  Database,
-  Server,
-  Smartphone,
-  Search,
-  ShoppingBag,
-  Heart,
-  Dna,
-  Microscope,
-  Binary,
-  FlaskConical,
-  Target,
-  Award,
-} from "lucide-react";
+import { Activity, Zap, Shield, ChevronRight, Star, Check, Menu, X, ArrowRight, Play, TrendingUp, Timer, Cpu, BarChart3, Bolt, Radio, Layers, Gauge, Globe, Database, Server, Smartphone, Search, ShoppingBag, Heart, Dna, Microscope, Binary, FlaskConical, Target, Award } from "lucide-react";
 
 import "../premium.css";
 
@@ -953,7 +917,7 @@ export default function StrydePerformancePage() {
                     href="#"
                     className="hover:text-[#00e5ff] transition-colors flex items-center gap-3"
                   >
-                    <Instagram className="w-3 h-3" /> Instagram
+                    <Globe className="w-3 h-3" /> Globe
                   </Link>
                 </li>
                 <li>
@@ -961,7 +925,7 @@ export default function StrydePerformancePage() {
                     href="#"
                     className="hover:text-[#00e5ff] transition-colors flex items-center gap-3"
                   >
-                    <Twitter className="w-3 h-3" /> X_Protocol
+                    <Globe className="w-3 h-3" /> X_Protocol
                   </Link>
                 </li>
                 <li>
@@ -969,7 +933,7 @@ export default function StrydePerformancePage() {
                     href="#"
                     className="hover:text-[#00e5ff] transition-colors flex items-center gap-3"
                   >
-                    <Youtube className="w-3 h-3" /> Neural_Link
+                    <Globe className="w-3 h-3" /> Neural_Link
                   </Link>
                 </li>
               </ul>

@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import type { SessionData } from "@/lib/sessions";
 import { ThemeWrapper } from "./ThemeWrapper";
 import { Reveal, Stagger, StaggerItem, MagneticButton } from "./AnimationHelpers";
-import { CheckCircle2, ArrowRight, X, Maximize2, Shield, Users, Clock, Award, HelpCircle, Activity, TrendingUp, Quote, Search, Mail, Instagram, Phone, Globe, Zap, Calendar } from "lucide-react";
+import { CheckCircle2, ArrowRight, X, Maximize2, Shield, Users, Clock, Award, HelpCircle, Activity, TrendingUp, Quote, Search, Mail, Globe, Phone, Zap, Calendar } from "lucide-react";
 
 const GALLERY = [
   "https://images.unsplash.com/photo-1497366216548-37526070297c?w=1200&q=80",
@@ -215,8 +215,6 @@ export function VitrineTheme({ session }: { session: SessionData }) {
             ))}
           </Stagger>
         </div>
-      </section>
-
       </section>
 
       {/* ═══ SECTION 8: THE PROCESS ═══ */}

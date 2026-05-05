@@ -38,30 +38,7 @@ import {
 } from "@/components/ui/carousel";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
-import {
-  Skull,
-  Flame,
-  Droplets,
-  Shield,
-  Clock,
-  Check,
-  Instagram,
-  Twitter,
-  Globe,
-  Mail,
-  Phone,
-  ChevronRight,
-  ArrowRight,
-  X,
-  Menu,
-  Star,
-  Box,
-  PenTool,
-  Scissors,
-  Heart,
-  Zap,
-  Camera,
-} from "lucide-react";
+import { Skull, Flame, Droplets, Shield, Clock, Check, Globe, Mail, Phone, ChevronRight, ArrowRight, X, Menu, Star, Box, PenTool, Scissors, Heart, Zap, Camera } from "lucide-react";
 
 import "../premium.css";
 
@@ -496,8 +473,8 @@ export default function InkAndIronPage() {
                       {artist.bio}
                     </p>
                     <div className="pt-6 flex gap-4">
-                      <Instagram className="w-4 h-4 text-white/20 hover:text-[#ff3e3e] cursor-pointer transition-colors" />
-                      <Twitter className="w-4 h-4 text-white/20 hover:text-[#ff3e3e] cursor-pointer transition-colors" />
+                      <Globe className="w-4 h-4 text-white/20 hover:text-[#ff3e3e] cursor-pointer transition-colors" />
+                      <Globe className="w-4 h-4 text-white/20 hover:text-[#ff3e3e] cursor-pointer transition-colors" />
                     </div>
                   </div>
                 </div>
@@ -642,7 +619,7 @@ export default function InkAndIronPage() {
                 Built for the permanent collector. Est. 2026.
               </p>
               <div className="flex gap-4">
-                {[Instagram, Twitter, Mail].map((Icon, i) => (
+                {[Globe, Globe, Mail].map((Icon, i) => (
                   <button
                     key={i}
                     className="w-12 h-12 rounded-sm border border-white/10 flex items-center justify-center text-white/40 hover:bg-[#ff3e3e] hover:text-white transition-all"

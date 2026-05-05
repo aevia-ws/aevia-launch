@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import type { SessionData } from "@/lib/sessions";
 import { ThemeWrapper } from "./ThemeWrapper";
 import { Reveal, Stagger, StaggerItem, MagneticButton } from "./AnimationHelpers";
-import { ShoppingBag, X, Plus, Minus, Star, ShieldCheck, Truck, RotateCcw, ArrowRight, Mail, MapPin, Phone, Award, HelpCircle, Zap, Clock, Shield, Instagram, Quote, PlayCircle } from "lucide-react";
+import { ShoppingBag, X, Plus, Minus, Star, ShieldCheck, Truck, RotateCcw, ArrowRight, Mail, MapPin, Phone, Award, HelpCircle, Zap, Clock, Shield, Globe, Quote, PlayCircle } from "lucide-react";
 
 // --- Mock Data Generator ---
 const generateProducts = (businessType: string) => {
@@ -161,8 +161,6 @@ export function EcommerceLuxuryTheme({ session }: { session: SessionData }) {
             ))}
           </Stagger>
         </div>
-      </section>
-
       </section>
 
       {/* ═══ SECTION 4: ARTISAN SPOTLIGHT ═══ */}

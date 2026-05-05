@@ -10,22 +10,7 @@ import {
 } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
-import {
-  ArrowRight,
-  Utensils,
-  Clock,
-  MapPin,
-  Phone,
-  Instagram,
-  Facebook,
-  Calendar,
-  ChefHat,
-  Star,
-  ChevronRight,
-  Menu,
-  X,
-  Wine,
-} from "lucide-react";
+import { ArrowRight, Utensils, Clock, MapPin, Phone, Globe, Calendar, ChefHat, Star, ChevronRight, Menu, X, Wine } from "lucide-react";
 
 import "../premium.css";
 
@@ -711,13 +696,13 @@ export default function TrattoriaMenuPage() {
                   href="#"
                   className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center hover:border-[#d97736] hover:text-[#d97736] transition-colors"
                 >
-                  <Instagram className="w-4 h-4" />
+                  <Globe className="w-4 h-4" />
                 </a>
                 <a
                   href="#"
                   className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center hover:border-[#d97736] hover:text-[#d97736] transition-colors"
                 >
-                  <Facebook className="w-4 h-4" />
+                  <Globe className="w-4 h-4" />
                 </a>
               </div>
             </div>

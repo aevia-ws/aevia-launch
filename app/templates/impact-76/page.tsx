@@ -38,45 +38,7 @@ import {
 } from "@/components/ui/carousel";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
-import {
-  Compass,
-  Map,
-  Layers,
-  Box,
-  Maximize,
-  Globe,
-  Activity,
-  Terminal,
-  Cpu,
-  Monitor,
-  MousePointer2,
-  Navigation,
-  Wifi,
-  Shield,
-  Zap,
-  Instagram,
-  Twitter,
-  Linkedin,
-  Github,
-  Mail,
-  Phone,
-  Check,
-  Menu,
-  X,
-  Star,
-  MapPin,
-  Clock,
-  Lock,
-  Plus,
-  Search,
-  Bell,
-  Settings,
-  ArrowRight,
-  ArrowUpRight,
-  ChevronRight,
-  PenTool,
-  Home,
-} from "lucide-react";
+import { Compass, Map, Layers, Box, Maximize, Globe, Activity, Terminal, Cpu, Monitor, MousePointer2, Navigation, Wifi, Shield, Zap, Mail, Phone, Check, Menu, X, Star, MapPin, Clock, Lock, Plus, Search, Bell, Settings, ArrowRight, ArrowUpRight, ChevronRight, PenTool, Home } from "lucide-react";
 
 import "../premium.css";
 
@@ -731,7 +693,7 @@ export default function StructuraArchPage() {
                     href="#"
                     className="hover:text-white transition-colors flex items-center gap-3"
                   >
-                    <Instagram className="w-3 h-3" /> Instagram
+                    <Globe className="w-3 h-3" /> Globe
                   </Link>
                 </li>
                 <li>
@@ -739,7 +701,7 @@ export default function StructuraArchPage() {
                     href="#"
                     className="hover:text-white transition-colors flex items-center gap-3"
                   >
-                    <Linkedin className="w-3 h-3" /> LinkedIn
+                    <Globe className="w-3 h-3" /> LinkedIn
                   </Link>
                 </li>
                 <li>

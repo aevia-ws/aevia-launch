@@ -22,36 +22,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
-import {
-  Watch,
-  Zap,
-  Diamond,
-  ShieldCheck,
-  Star,
-  Instagram,
-  Twitter,
-  Mail,
-  MapPin,
-  ChevronRight,
-  ArrowRight,
-  X,
-  Menu,
-  Clock,
-  Activity,
-  Maximize,
-  Settings,
-  Compass,
-  Globe,
-  Shield,
-  Award,
-  Focus,
-  Frame,
-  Monitor,
-  Share2,
-  Lock,
-  Search,
-  ShoppingBag,
-} from "lucide-react";
+import { Watch, Zap, Diamond, ShieldCheck, Star, Globe, Mail, MapPin, ChevronRight, ArrowRight, X, Menu, Clock, Activity, Maximize, Settings, Compass, Shield, Award, Focus, Frame, Monitor, Share2, Lock, Search, ShoppingBag } from "lucide-react";
 
 import "../premium.css";
 
@@ -570,7 +541,7 @@ export default function ZenithWatchesPage() {
                 millennium in our Le Locle sanctuary.
               </p>
               <div className="flex gap-6">
-                {[Instagram, Twitter, Mail].map((Icon, i) => (
+                {[Globe, Globe, Mail].map((Icon, i) => (
                   <button
                     key={i}
                     className="w-14 h-14 rounded-full border border-white/10 flex items-center justify-center text-white/40 hover:bg-[#d4af37] hover:text-black hover:border-[#d4af37] transition-all"

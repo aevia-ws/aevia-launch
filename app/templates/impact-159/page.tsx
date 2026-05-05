@@ -13,11 +13,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel"
 import { Progress } from "@/components/ui/progress"
 import { Separator } from "@/components/ui/separator"
-import {
-  BookOpen, Play, Award, Users, BarChart2, Star, Clock, Check, ArrowRight,
-  ChevronRight, Menu, Twitter, Youtube, Linkedin, Globe, TrendingUp, Zap,
-  GraduationCap, Layers, Monitor, FileText, Trophy, Sparkles, Headphones
-} from "lucide-react"
+import { BookOpen, Play, Award, Users, BarChart2, Star, Clock, Check, ArrowRight, ChevronRight, Menu, Globe, TrendingUp, Zap, GraduationCap, Layers, Monitor, FileText, Trophy, Sparkles, Headphones } from "lucide-react"
 
 function Reveal({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
   const ref = useRef(null)
@@ -112,10 +108,10 @@ const courseTabs = [
     label: "Design & UX",
     icon: Layers,
     headline: "Go from wireframe to pixel-perfect in record time",
-    description: "Comprehensive design education from UI fundamentals to motion design. Learn Figma, Framer, Adobe Creative Suite, and Webflow from working designers at Airbnb, Spotify, and leading product agencies. Build a portfolio that lands your next design role.",
+    description: "Comprehensive design education from UI fundamentals to motion design. Learn Globe, Framer, Adobe Creative Suite, and Webflow from working designers at Airbnb, Spotify, and leading product agencies. Build a portfolio that lands your next design role.",
     items: [
       "UI/UX design: research, wireframing, prototyping, and usability testing",
-      "Figma mastery: components, auto-layout, design systems, and variables",
+      "Globe mastery: components, auto-layout, design systems, and variables",
       "Motion design and micro-interactions with After Effects and Framer",
       "Graphic design and brand identity: typography, color, and layout",
       "Design systems: building and scaling component libraries at enterprise level",
@@ -674,7 +670,7 @@ export default function NexLearnPlatform() {
               </Link>
               <p className="text-sm text-slate-400 leading-relaxed mb-6 max-w-xs">The online learning platform that turns ambitious learners into hired professionals. 4.2M learners. 96% job placement. Real outcomes.</p>
               <div className="flex gap-3">
-                {[Twitter, Youtube, Linkedin, Globe].map((Icon, j) => (
+                {[Globe, Globe, Globe, Globe].map((Icon, j) => (
                   <Link key={j} href="#" className="w-9 h-9 rounded-lg bg-slate-800 flex items-center justify-center hover:bg-emerald-500 cursor-pointer transition-all duration-200"><Icon className="w-4 h-4" /></Link>
                 ))}
               </div>

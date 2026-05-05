@@ -5,7 +5,7 @@ import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from
 import type { SessionData } from "@/lib/sessions";
 import { ThemeWrapper } from "./ThemeWrapper";
 import { Reveal, Stagger, StaggerItem } from "./AnimationHelpers";
-import { ShoppingBag, X, Plus, Minus, Star, ShieldCheck, Truck, RotateCcw, Quote, ArrowRight, Mail, MapPin, Phone, Heart, Clock, Instagram, HelpCircle, Gift, Award } from "lucide-react";
+import { ShoppingBag, X, Plus, Minus, Star, ShieldCheck, Truck, RotateCcw, Quote, ArrowRight, Mail, MapPin, Phone, Heart, Clock, Globe, HelpCircle, Gift, Award } from "lucide-react";
 
 // --- Mock Data Generator ---
 const generateProducts = (businessType: string, brandColor: string) => {
@@ -381,7 +381,7 @@ export function EcommerceTheme({ session }: { session: SessionData }) {
             <p className="text-zinc-400 mt-4 uppercase text-[10px] font-bold tracking-widest">Follow us for daily inspiration</p>
           </Reveal>
           <button className="hidden md:flex items-center gap-2 text-xs font-black uppercase tracking-widest">
-            <Instagram className="w-4 h-4" /> View Profile
+            <Globe className="w-4 h-4" /> View Profile
           </button>
         </div>
         
@@ -399,7 +399,7 @@ export function EcommerceTheme({ session }: { session: SessionData }) {
             <div key={i} className="w-64 h-64 flex-shrink-0 relative group">
               <img src={img} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" />
               <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                <Instagram className="w-8 h-8 text-white" />
+                <Globe className="w-8 h-8 text-white" />
               </div>
             </div>
           ))}

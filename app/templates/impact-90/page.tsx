@@ -22,30 +22,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
-import {
-  Utensils,
-  MapPin,
-  Clock,
-  Star,
-  Check,
-  Instagram,
-  Facebook,
-  Mail,
-  Phone,
-  ChevronRight,
-  ArrowRight,
-  X,
-  Menu,
-  ShoppingBag,
-  Heart,
-  Zap,
-  Coffee,
-  Award,
-  Flame,
-  Leaf,
-  Timer,
-  Wind,
-} from "lucide-react";
+import { Utensils, MapPin, Clock, Star, Check, Globe, Mail, Phone, ChevronRight, ArrowRight, X, Menu, ShoppingBag, Heart, Zap, Coffee, Award, Flame, Leaf, Timer, Wind } from "lucide-react";
 
 import "../premium.css";
 
@@ -646,8 +623,8 @@ export default function ArtisanBakeryPage() {
               RESERVED.
             </span>
             <div className="flex gap-6">
-              <Instagram className="w-4 h-4 hover:text-[#c9a66b] cursor-pointer" />
-              <Facebook className="w-4 h-4 hover:text-[#c9a66b] cursor-pointer" />
+              <Globe className="w-4 h-4 hover:text-[#c9a66b] cursor-pointer" />
+              <Globe className="w-4 h-4 hover:text-[#c9a66b] cursor-pointer" />
             </div>
           </div>
           <div className="flex gap-10">

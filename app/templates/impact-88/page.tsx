@@ -16,15 +16,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
-import {
-  X,
-  Menu,
-  ArrowRight,
-  Instagram,
-  Star,
-  Clock,
-  Check,
-} from "lucide-react";
+import { X, Menu, ArrowRight, Globe, Star, Clock, Check } from "lucide-react";
 
 const PALETTE = [
   "All",
@@ -585,7 +577,7 @@ export default function VelvetNails() {
                 href="#"
                 className="w-10 h-10 rounded-full border border-[#d4a0a0]/20 flex items-center justify-center text-[#d4a0a0] hover:bg-[#d4a0a0] hover:text-white transition-all"
               >
-                <Instagram className="w-4 h-4" />
+                <Globe className="w-4 h-4" />
               </a>
             </div>
           </div>
@@ -621,7 +613,7 @@ export default function VelvetNails() {
                 "Our Artists",
                 "Booking",
                 "Gift Cards",
-                "Instagram",
+                "Globe",
                 "Contact",
               ].map((l) => (
                 <li key={l}>

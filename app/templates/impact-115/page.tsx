@@ -10,20 +10,7 @@ import {
 } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
-import {
-  ArrowRight,
-  Leaf,
-  Waves,
-  Wind,
-  Sun,
-  Menu,
-  X,
-  Instagram,
-  ArrowUpRight,
-  Play,
-  Compass,
-  MapPin,
-} from "lucide-react";
+import { ArrowRight, Leaf, Waves, Wind, Sun, Menu, X, Globe, ArrowUpRight, Play, Compass, MapPin } from "lucide-react";
 
 import "../premium.css";
 
@@ -617,7 +604,7 @@ export default function VerdaParallaxPage() {
                 href="#"
                 className="w-14 h-14 rounded-full border border-white/10 flex items-center justify-center hover:bg-[#10b981] hover:border-[#10b981] hover:text-[#021008] transition-all"
               >
-                <Instagram className="w-5 h-5" />
+                <Globe className="w-5 h-5" />
               </a>
               <a
                 href="#"

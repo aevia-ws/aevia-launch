@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import type { SessionData } from "@/lib/sessions";
 import { ThemeWrapper } from "./ThemeWrapper";
 import { Reveal, Stagger, StaggerItem, MagneticButton } from "./AnimationHelpers";
-import { Sparkles, ArrowRight, Layers, Layout, MousePointer2, Smartphone, Activity, Cpu, Globe, Shield, Star, Award, HelpCircle, Quote, Instagram, Phone, Mail, Search, CheckCircle } from "lucide-react";
+import { Sparkles, ArrowRight, Layers, Layout, MousePointer2, Smartphone, Activity, Cpu, Globe, Shield, Star, Award, HelpCircle, Quote, Phone, Mail, Search, CheckCircle } from "lucide-react";
 
 export function VitrineModernTheme({ session }: { session: SessionData }) {
   const { formData, generatedContent: c } = session;
@@ -131,8 +131,6 @@ export function VitrineModernTheme({ session }: { session: SessionData }) {
             </Reveal>
           </div>
         </div>
-      </section>
-
       </section>
 
       {/* ═══ SECTION 5: DASHBOARD SHOWCASE ═══ */}

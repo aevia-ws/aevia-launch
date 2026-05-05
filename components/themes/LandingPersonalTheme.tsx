@@ -5,7 +5,7 @@ import { useRef } from "react";
 import type { SessionData } from "@/lib/sessions";
 import { ThemeWrapper } from "./ThemeWrapper";
 import { Reveal, Stagger, StaggerItem, MagneticButton } from "./AnimationHelpers";
-import { ArrowDown, Mail, Github, Linkedin, Twitter, MessageSquare, ExternalLink, Award, HelpCircle, Activity, CheckCircle, TrendingUp, Quote, Search, Instagram, Phone, Globe, Shield, Zap, ArrowRight, PlayCircle } from "lucide-react";
+import { ArrowDown, Mail, Globe, MessageSquare, ExternalLink, Award, HelpCircle, Activity, CheckCircle, TrendingUp, Quote, Search, Phone, Shield, Zap, ArrowRight, PlayCircle } from "lucide-react";
 
 export function LandingPersonalTheme({ session }: { session: SessionData }) {
   const { formData, generatedContent: c } = session;
@@ -37,7 +37,7 @@ export function LandingPersonalTheme({ session }: { session: SessionData }) {
               className="text-7xl md:text-9xl font-black mb-12 leading-[0.9] tracking-tighter text-black"
             >
               {formData.businessName}.
-            </h1 >
+            </motion.h1>
             <h2 className="text-3xl md:text-5xl font-light italic text-gray-400 mb-12 leading-tight">
               {c?.heroHeadline}
             </h2>
@@ -53,9 +53,9 @@ export function LandingPersonalTheme({ session }: { session: SessionData }) {
                 Let&apos;s Connect
               </MagneticButton>
               <div className="flex gap-6">
-                <Twitter className="w-5 h-5 text-gray-300 hover:text-black transition-colors cursor-pointer" />
-                <Linkedin className="w-5 h-5 text-gray-300 hover:text-black transition-colors cursor-pointer" />
-                <Github className="w-5 h-5 text-gray-300 hover:text-black transition-colors cursor-pointer" />
+                <Globe className="w-5 h-5 text-gray-300 hover:text-black transition-colors cursor-pointer" />
+                <Globe className="w-5 h-5 text-gray-300 hover:text-black transition-colors cursor-pointer" />
+                <Globe className="w-5 h-5 text-gray-300 hover:text-black transition-colors cursor-pointer" />
               </div>
             </div>
           </Reveal>
@@ -147,8 +147,6 @@ export function LandingPersonalTheme({ session }: { session: SessionData }) {
             ))}
           </Stagger>
         </div>
-      </section>
-
       </section>
 
       {/* ═══ SECTION 5: PERSONAL STATS ═══ */}
@@ -267,9 +265,9 @@ export function LandingPersonalTheme({ session }: { session: SessionData }) {
                 {formData.email}
               </a>
               <div className="flex gap-12 font-bold text-xs uppercase tracking-widest text-gray-400">
-                <span className="cursor-pointer hover:text-black transition-colors">Instagram</span>
+                <span className="cursor-pointer hover:text-black transition-colors">Globe</span>
                 <span className="cursor-pointer hover:text-black transition-colors">LinkedIn</span>
-                <span className="cursor-pointer hover:text-black transition-colors">Twitter</span>
+                <span className="cursor-pointer hover:text-black transition-colors">Globe</span>
               </div>
             </div>
           </Reveal>

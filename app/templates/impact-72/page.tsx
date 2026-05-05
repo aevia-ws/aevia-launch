@@ -38,42 +38,7 @@ import {
 } from "@/components/ui/carousel";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
-import {
-  Wallet,
-  Landmark,
-  ArrowUpRight,
-  ArrowDownRight,
-  Activity,
-  ShieldCheck,
-  Globe,
-  Zap,
-  PieChart,
-  CreditCard,
-  Layers,
-  BarChart3,
-  Check,
-  Menu,
-  X,
-  Star,
-  MapPin,
-  Clock,
-  Smartphone,
-  Instagram,
-  Twitter,
-  Mail,
-  Phone,
-  Lock,
-  Plus,
-  Terminal,
-  Cpu,
-  Box,
-  Share2,
-  Maximize,
-  Monitor,
-  MousePointer2,
-  Navigation,
-  Wifi,
-} from "lucide-react";
+import { Wallet, Landmark, ArrowUpRight, ArrowDownRight, Activity, ShieldCheck, Globe, Zap, PieChart, CreditCard, Layers, BarChart3, Check, Menu, X, Star, MapPin, Clock, Smartphone, Mail, Phone, Lock, Plus, Terminal, Cpu, Box, Share2, Maximize, Monitor, MousePointer2, Navigation, Wifi } from "lucide-react";
 
 import "../premium.css";
 
@@ -1043,7 +1008,7 @@ export default function FinTechPage() {
                     href="#"
                     className="hover:text-blue-500 transition-colors flex items-center gap-3"
                   >
-                    <Instagram className="w-3 h-3" /> Instagram
+                    <Globe className="w-3 h-3" /> Globe
                   </Link>
                 </li>
                 <li>
@@ -1051,7 +1016,7 @@ export default function FinTechPage() {
                     href="#"
                     className="hover:text-blue-500 transition-colors flex items-center gap-3"
                   >
-                    <Twitter className="w-3 h-3" /> X_Mission
+                    <Globe className="w-3 h-3" /> X_Mission
                   </Link>
                 </li>
                 <li>

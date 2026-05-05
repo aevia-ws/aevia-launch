@@ -4,7 +4,9 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 
-export default function CheckoutPage() {
+import { Suspense } from "react";
+
+function CheckoutContent() {
   const searchParams = useSearchParams();
   const type        = searchParams.get("type")        ?? "landing";
   const name        = searchParams.get("name")        ?? "Votre site";
@@ -149,5 +151,13 @@ export default function CheckoutPage() {
         </div>
       </div>
     </main>
+  );
+}
+
+export default function CheckoutPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-zinc-950 flex items-center justify-center text-zinc-500">Chargement...</div>}>
+      <CheckoutContent />
+    </Suspense>
   );
 }

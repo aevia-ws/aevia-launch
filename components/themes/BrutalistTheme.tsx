@@ -5,7 +5,7 @@ import { useRef } from "react";
 import type { SessionData } from "@/lib/sessions";
 import { ThemeWrapper } from "./ThemeWrapper";
 import { Reveal, Stagger, StaggerItem } from "./AnimationHelpers";
-import { ArrowDown, ArrowUpRight, Plus, Hash, Activity, Terminal, HelpCircle, Cpu, Database, Network, Award, Star, Quote, Instagram, Phone, Mail, ArrowRight, X } from "lucide-react";
+import { ArrowDown, ArrowUpRight, Plus, Hash, Activity, Terminal, HelpCircle, Cpu, Database, Network, Award, Star, Quote, Globe, Phone, Mail, ArrowRight, X } from "lucide-react";
 
 export function BrutalistTheme({ session }: { session: SessionData }) {
   const { formData, generatedContent: c } = session;
@@ -112,8 +112,6 @@ export function BrutalistTheme({ session }: { session: SessionData }) {
             </div>
           </Reveal>
         </div>
-      </section>
-
       </section>
 
       {/* ═══ SECTION 5: RAW STATS ═══ */}

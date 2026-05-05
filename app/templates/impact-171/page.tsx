@@ -14,12 +14,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel"
 import { Progress } from "@/components/ui/progress"
 import { Separator } from "@/components/ui/separator"
-import {
-  Heart, Globe, Users, HandHeart, TreePine, Droplets, BookOpen, ShieldCheck,
-  Star, ArrowRight, Menu, X, Check, ChevronRight, Twitter, Instagram, Linkedin,
-  Facebook, Mail, Phone, MapPin, TrendingUp, Award, Clock, DollarSign, Leaf,
-  Sun, Waves, Home
-} from "lucide-react"
+import { Heart, Globe, Users, HandHeart, TreePine, Droplets, BookOpen, ShieldCheck, Star, ArrowRight, Menu, X, Check, ChevronRight, Mail, Phone, MapPin, TrendingUp, Award, Clock, DollarSign, Leaf, Sun, Waves, Home } from "lucide-react"
 
 function Reveal({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
   const ref = useRef(null)
@@ -831,7 +826,7 @@ export default function KindredNonProfit() {
                 The world's most transparent donation platform. Verified impact. Real beneficiaries. Every dollar tracked.
               </p>
               <div className="flex gap-3">
-                {[Twitter, Instagram, Linkedin, Facebook].map((Icon, i) => (
+                {[Globe, Globe, Globe, Globe].map((Icon, i) => (
                   <a key={i} href="#" className="w-9 h-9 rounded-full bg-slate-800 hover:bg-emerald-600 flex items-center justify-center transition-all duration-200 cursor-pointer">
                     <Icon className="w-4 h-4 text-slate-400 hover:text-white transition-colors duration-200" />
                   </a>

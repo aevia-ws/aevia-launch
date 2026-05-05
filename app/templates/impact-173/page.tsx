@@ -14,11 +14,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel"
 import { Progress } from "@/components/ui/progress"
 import { Separator } from "@/components/ui/separator"
-import {
-  Dumbbell, Activity, Heart, Flame, Zap, Target, TrendingUp, CheckCircle,
-  Star, Menu, ArrowRight, Play, Users, Award, Clock, Shield, ChevronRight,
-  Instagram, Twitter, Youtube, Facebook, BarChart2, Calendar, Headphones
-} from "lucide-react"
+import { Dumbbell, Activity, Heart, Flame, Zap, Target, TrendingUp, CheckCircle, Star, Menu, ArrowRight, Play, Users, Award, Clock, Shield, ChevronRight, Globe, BarChart2, Calendar, Headphones } from "lucide-react"
 
 function Reveal({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
   const ref = useRef(null)
@@ -834,10 +830,10 @@ export default function PulseForgeApp() {
               </p>
               <div className="flex items-center gap-4">
                 {[
-                  { icon: <Instagram className="w-4 h-4" />, href: "#" },
-                  { icon: <Twitter className="w-4 h-4" />, href: "#" },
-                  { icon: <Youtube className="w-4 h-4" />, href: "#" },
-                  { icon: <Facebook className="w-4 h-4" />, href: "#" },
+                  { icon: <Globe className="w-4 h-4" />, href: "#" },
+                  { icon: <Globe className="w-4 h-4" />, href: "#" },
+                  { icon: <Globe className="w-4 h-4" />, href: "#" },
+                  { icon: <Globe className="w-4 h-4" />, href: "#" },
                 ].map((s, i) => (
                   <Link
                     key={i}

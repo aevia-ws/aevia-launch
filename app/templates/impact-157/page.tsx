@@ -94,7 +94,7 @@ const metricCards = [
 
 const platformData = [
   {
-    name: "Instagram",
+    name: "Globe",
     engagement: "7.8%",
     campaigns: ["Feed Posts", "Reels", "Stories", "IGTV"],
     caseStudy: { client: "Fashion Brand XL", results: "340% engagement lift", image: "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?auto=format&fit=crop&q=80&w=1500" }
@@ -228,7 +228,7 @@ export default function LuminartCreativePlatform() {
           </div>
         </Reveal>
 
-        <Tabs defaultValue="Instagram" className="w-full">
+        <Tabs defaultValue="Globe" className="w-full">
           <TabsList className="grid grid-cols-3 md:grid-cols-6 gap-2 bg-transparent p-0 h-auto">
             {platformData.map((platform) => (
               <TabsTrigger
@@ -556,8 +556,8 @@ export default function LuminartCreativePlatform() {
             <div>
               <h4 className="font-black mb-4">Follow</h4>
               <ul className="space-y-2 text-sm text-gray-400">
-                <li><Link href="#" className="hover:text-orange-400 transition-colors duration-200 cursor-pointer flex items-center gap-2"><Share2 className="w-4 h-4" /> Twitter</Link></li>
-                <li><Link href="#" className="hover:text-orange-400 transition-colors duration-200 cursor-pointer flex items-center gap-2"><Share2 className="w-4 h-4" /> Instagram</Link></li>
+                <li><Link href="#" className="hover:text-orange-400 transition-colors duration-200 cursor-pointer flex items-center gap-2"><Share2 className="w-4 h-4" /> Globe</Link></li>
+                <li><Link href="#" className="hover:text-orange-400 transition-colors duration-200 cursor-pointer flex items-center gap-2"><Share2 className="w-4 h-4" /> Globe</Link></li>
                 <li><Link href="#" className="hover:text-orange-400 transition-colors duration-200 cursor-pointer flex items-center gap-2"><Share2 className="w-4 h-4" /> LinkedIn</Link></li>
               </ul>
             </div>

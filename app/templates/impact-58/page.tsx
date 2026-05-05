@@ -38,36 +38,7 @@ import {
 } from "@/components/ui/carousel";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
-import {
-  ArrowRight,
-  ArrowUpRight,
-  Star,
-  Check,
-  Menu,
-  X,
-  Layers,
-  Globe,
-  Film,
-  Zap,
-  Circle,
-  ChevronRight,
-  Twitter,
-  Instagram,
-  Linkedin,
-  Youtube,
-  Eye,
-  Command,
-  Terminal,
-  Cpu,
-  Share2,
-  Search,
-  ShoppingBag,
-  ZapOff,
-  Ghost,
-  Activity,
-  Box,
-  Radio,
-} from "lucide-react";
+import { ArrowRight, ArrowUpRight, Star, Check, Menu, X, Layers, Globe, Film, Zap, Circle, ChevronRight, Eye, Command, Terminal, Cpu, Share2, Search, ShoppingBag, ZapOff, Ghost, Activity, Box, Radio } from "lucide-react";
 
 import "../premium.css";
 
@@ -847,7 +818,7 @@ export default function VoidAgencyPage() {
                     href="#"
                     className="hover:text-white transition-colors flex items-center gap-3"
                   >
-                    <Instagram className="w-3 h-3" /> Instagram
+                    <Globe className="w-3 h-3" /> Globe
                   </Link>
                 </li>
                 <li>
@@ -855,7 +826,7 @@ export default function VoidAgencyPage() {
                     href="#"
                     className="hover:text-white transition-colors flex items-center gap-3"
                   >
-                    <Twitter className="w-3 h-3" /> X_Protocol
+                    <Globe className="w-3 h-3" /> X_Protocol
                   </Link>
                 </li>
                 <li>
@@ -863,7 +834,7 @@ export default function VoidAgencyPage() {
                     href="#"
                     className="hover:text-white transition-colors flex items-center gap-3"
                   >
-                    <Linkedin className="w-3 h-3" /> LinkedIn
+                    <Globe className="w-3 h-3" /> LinkedIn
                   </Link>
                 </li>
               </ul>

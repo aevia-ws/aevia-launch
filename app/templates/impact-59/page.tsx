@@ -38,39 +38,7 @@ import {
 } from "@/components/ui/carousel";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
-import {
-  Wind,
-  Leaf,
-  Sun,
-  Moon,
-  Mountain,
-  Heart,
-  Check,
-  Star,
-  Menu,
-  ArrowRight,
-  ChevronRight,
-  MapPin,
-  Users,
-  Clock,
-  Twitter,
-  Instagram,
-  Youtube,
-  Flower,
-  Waves,
-  Flame,
-  Eye,
-  Quote,
-  ShieldCheck,
-  Timer,
-  Globe,
-  Search,
-  ShoppingBag,
-  Sparkles,
-  Anchor,
-  BookOpen,
-  Compass,
-} from "lucide-react";
+import { Wind, Leaf, Sun, Moon, Mountain, Heart, Check, Star, Menu, ArrowRight, ChevronRight, MapPin, Users, Clock, Globe, Flower, Waves, Flame, Eye, Quote, ShieldCheck, Timer, Search, ShoppingBag, Sparkles, Anchor, BookOpen, Compass } from "lucide-react";
 
 import "../premium.css";
 
@@ -864,7 +832,7 @@ export default function LuminalRetreatsPage() {
                     href="#"
                     className="hover:text-[#3d7a5e] transition-colors flex items-center gap-3"
                   >
-                    <Instagram className="w-3 h-3" /> Instagram
+                    <Globe className="w-3 h-3" /> Globe
                   </Link>
                 </li>
                 <li>
@@ -872,7 +840,7 @@ export default function LuminalRetreatsPage() {
                     href="#"
                     className="hover:text-[#3d7a5e] transition-colors flex items-center gap-3"
                   >
-                    <Twitter className="w-3 h-3" /> X_Protocol
+                    <Globe className="w-3 h-3" /> X_Protocol
                   </Link>
                 </li>
                 <li>

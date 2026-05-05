@@ -10,26 +10,7 @@ import {
 } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
-import {
-  ChevronRight,
-  ArrowRight,
-  Shield,
-  Zap,
-  Activity,
-  Globe,
-  Lock,
-  BarChart,
-  Settings,
-  Users,
-  Server,
-  CheckCircle2,
-  Menu,
-  X,
-  Play,
-  Twitter,
-  Linkedin,
-  Github,
-} from "lucide-react";
+import { ChevronRight, ArrowRight, Shield, Zap, Activity, Globe, Lock, BarChart, Settings, Users, Server, CheckCircle2, Menu, X, Play } from "lucide-react";
 
 import "../premium.css";
 
@@ -107,7 +88,7 @@ const PRICING = [
     features: [
       "Unlimited monthly events",
       "Global edge network (250+ locations)",
-      "24/7 Phone & Slack support",
+      "24/7 Phone & Globe support",
       "Unlimited data retention",
       "Dedicated Technical Account Manager",
       "Custom compliance reporting",
@@ -141,7 +122,7 @@ const INTEGRATIONS = [
   "Azure",
   "Snowflake",
   "Datadog",
-  "Slack",
+  "Globe",
   "PagerDuty",
   "Terraform",
   "Kubernetes",
@@ -825,19 +806,19 @@ export default function NexusSaaSPage() {
                   href="#"
                   className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 transition-colors"
                 >
-                  <Twitter className="w-4 h-4" />
+                  <Globe className="w-4 h-4" />
                 </a>
                 <a
                   href="#"
                   className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 transition-colors"
                 >
-                  <Github className="w-4 h-4" />
+                  <Globe className="w-4 h-4" />
                 </a>
                 <a
                   href="#"
                   className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 transition-colors"
                 >
-                  <Linkedin className="w-4 h-4" />
+                  <Globe className="w-4 h-4" />
                 </a>
               </div>
             </div>

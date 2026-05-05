@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { use } from "react";
 import Link from "next/link";
 import { ArrowLeft, Copy, Check, Rocket, Loader2 } from "lucide-react";
-import { GeneratedSite } from "@/components/GeneratedSite";
+import GeneratedSite from "@/components/GeneratedSite";
 import type { SessionData } from "@/lib/sessions";
 
 export default function PreviewPage({ params }: { params: Promise<{ sessionId: string }> }) {

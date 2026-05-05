@@ -2,7 +2,7 @@
 import { motion, useInView, AnimatePresence, useMotionValue, useSpring } from "framer-motion";
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import { Camera, Aperture, Image, Menu, X, ArrowRight, Layers, Grid3X3, Palette, Eye, Pen, Monitor, Figma, Code, Globe, Award } from "lucide-react";
+import { Camera, Aperture, Image, Menu, X, ArrowRight, Layers, Grid3X3, Palette, Eye, Pen, Monitor, Globe, Code, Award } from "lucide-react";
 import "../premium.css";
 
 const MANIFESTS = {
@@ -15,7 +15,7 @@ const MANIFESTS = {
   ],
   services: [
     { name: "BRAND // IDENTITY", icon: <Palette className="w-5 h-5" />, items: ["Logo Systems", "Visual Language", "Brand Guidelines", "Motion Identity"] },
-    { name: "PRODUCT // DESIGN", icon: <Figma className="w-5 h-5" />, items: ["UI/UX Design", "Design Systems", "Prototyping", "User Research"] },
+    { name: "PRODUCT // DESIGN", icon: <Globe className="w-5 h-5" />, items: ["UI/UX Design", "Design Systems", "Prototyping", "User Research"] },
     { name: "DEVELOPMENT", icon: <Code className="w-5 h-5" />, items: ["React / Next.js", "Creative Coding", "WebGL / 3D", "Performance"] },
   ],
   recognition: [
@@ -192,7 +192,7 @@ export default function FolioStudioPage() {
           <div>
             <h4 className="text-[10px] font-black uppercase tracking-widest mb-10 text-white/40">Connect</h4>
             <ul className="space-y-5 text-[10px] font-bold text-white/20 uppercase tracking-widest">
-              {["Twitter/X", "Dribbble", "GitHub", "LinkedIn"].map(l => <li key={l} className="hover:text-white transition-colors"><Link href="#">{l}</Link></li>)}
+              {["Globe/X", "Globe", "GitHub", "LinkedIn"].map(l => <li key={l} className="hover:text-white transition-colors"><Link href="#">{l}</Link></li>)}
             </ul>
           </div>
         </div>

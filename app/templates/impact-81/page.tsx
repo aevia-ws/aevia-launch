@@ -38,46 +38,7 @@ import {
 } from "@/components/ui/carousel";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
-import {
-  Camera,
-  Film,
-  Sparkles,
-  Wand2,
-  Zap,
-  Globe,
-  Activity,
-  Terminal,
-  Box,
-  Share2,
-  Layers,
-  Maximize,
-  Monitor,
-  MousePointer2,
-  Navigation,
-  Wifi,
-  Shield,
-  ShoppingBag,
-  Search,
-  Star,
-  Instagram,
-  Twitter,
-  Mail,
-  Phone,
-  Check,
-  Menu,
-  X,
-  MapPin,
-  Clock,
-  Lock,
-  Plus,
-  Bell,
-  Settings,
-  ArrowRight,
-  ArrowUpRight,
-  ChevronRight,
-  Eye,
-  PenTool,
-} from "lucide-react";
+import { Camera, Film, Sparkles, Wand2, Zap, Globe, Activity, Terminal, Box, Share2, Layers, Maximize, Monitor, MousePointer2, Navigation, Wifi, Shield, ShoppingBag, Search, Star, Mail, Phone, Check, Menu, X, MapPin, Clock, Lock, Plus, Bell, Settings, ArrowRight, ArrowUpRight, ChevronRight, Eye, PenTool } from "lucide-react";
 
 import "../premium.css";
 
@@ -775,7 +736,7 @@ export default function MosaicOSPage() {
                     href="#"
                     className="hover:text-black transition-colors flex items-center gap-3"
                   >
-                    <Instagram className="w-3 h-3" /> Instagram
+                    <Globe className="w-3 h-3" /> Globe
                   </Link>
                 </li>
                 <li>
@@ -783,7 +744,7 @@ export default function MosaicOSPage() {
                     href="#"
                     className="hover:text-black transition-colors flex items-center gap-3"
                   >
-                    <Twitter className="w-3 h-3" /> X_Mission
+                    <Globe className="w-3 h-3" /> X_Mission
                   </Link>
                 </li>
                 <li>
