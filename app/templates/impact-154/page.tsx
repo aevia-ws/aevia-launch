@@ -1,329 +1,138 @@
-"use client"
-import { motion, useScroll, useTransform, useInView, useMotionValue, useSpring } from "framer-motion"
-import { useState, useRef, useEffect } from "react"
-import Image from "next/image"
-import Link from "next/link"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
-import { Badge } from "@/components/ui/badge"
-import { Card, CardContent } from "@/components/ui/card"
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel"
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
-import { Beer, Flame } from "lucide-react"
+"use client";
+import { motion, useInView, AnimatePresence } from "framer-motion";
+import { useState, useRef, useEffect } from "react";
+import Link from "next/link";
+import { Pen, Megaphone, Film, Menu, X, Star, CheckCircle2, Layers, Eye, Target, Sparkles } from "lucide-react";
+import "../premium.css";
+
+const SERVICES = [
+  { icon: <Pen className="w-6 h-6" />, title: "Brand Identity", desc: "Logo, typography, color systems, and brand guidelines that resonate." },
+  { icon: <Layers className="w-6 h-6" />, title: "Web Design", desc: "Responsive websites with motion, micro-interactions, and CMS." },
+  { icon: <Film className="w-6 h-6" />, title: "Motion & Video", desc: "Brand films, product demos, and social content that converts." },
+  { icon: <Megaphone className="w-6 h-6" />, title: "Digital Strategy", desc: "SEO, paid media, and content strategy aligned with business goals." },
+  { icon: <Eye className="w-6 h-6" />, title: "UI/UX Design", desc: "User research, wireframes, prototypes, and design systems." },
+  { icon: <Target className="w-6 h-6" />, title: "Conversion Optimization", desc: "A/B testing, funnel analysis, and landing page optimization." },
+];
+
+const PROJECTS = [
+  { title: "Luma Rebrand", cat: "BRAND", desc: "Complete identity overhaul for AI startup." },
+  { title: "Norde E-Commerce", cat: "WEB", desc: "Headless Shopify for Scandinavian furniture." },
+  { title: "Axis Campaign", cat: "STRATEGY", desc: "Launch campaign generating 2M impressions in 48h." },
+  { title: "Prism App", cat: "UI/UX", desc: "FinTech dashboard used by 50K daily active users." },
+];
+
+const TESTIMONIALS = [
+  { name: "Leo Andersen", role: "CEO, Luma AI", quote: "Obliq understood our vision before we could articulate it. The rebrand doubled our inbound leads." },
+  { name: "Hana Yoshida", role: "CMO, Norde", quote: "Our conversion rate tripled after the redesign. The ROI speaks for itself." },
+  { name: "Jules Martin", role: "Founder, Axis", quote: "They don't just design — they think strategically. Every pixel has a purpose." },
+];
+
+const PRICING = [
+  { name: "PROJECT", price: "$8K", period: "+", features: ["Single deliverable", "2 revisions", "30-day timeline", "Source files"], cta: "Start" },
+  { name: "RETAINER", price: "$5K", period: "/mo", features: ["40h monthly", "Priority queue", "Slack access", "Strategy calls", "All formats"], cta: "Retain", featured: true },
+  { name: "PARTNERSHIP", price: "Custom", period: "", features: ["Embedded team", "Quarterly planning", "Full brand ownership", "SLA", "Equity option"], cta: "Talk" },
+];
 
 function Reveal({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
-  const ref = useRef(null)
-  const inView = useInView(ref, { once: true, margin: "-60px" })
-  return <motion.div ref={ref} initial={{ opacity: 0, y: 24 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.55, delay, ease: [0.25, 0.46, 0.45, 0.94] }}>{children}</motion.div>
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, margin: "-50px" });
+  return <motion.div ref={ref} initial={{ opacity: 0, y: 20 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.8, delay }}>{children}</motion.div>;
 }
 
-function Counter({ target, suffix = "", prefix = "" }: { target: number; suffix?: string; prefix?: string }) {
-  const [count, setCount] = useState(0)
-  const ref = useRef(null)
-  const inView = useInView(ref, { once: true })
-  useEffect(() => {
-    if (!inView) return
-    const step = target / 90
-    const t = setInterval(() => setCount(c => { const n = c + step; if (n >= target) { clearInterval(t); return target; } return n; }), 16)
-    return () => clearInterval(t)
-  }, [inView, target])
-  return <span ref={ref}>{prefix}{Math.floor(count).toLocaleString()}{suffix}</span>
-}
-
-function MagneticBtn({ children, className = "" }: { children: React.ReactNode; className?: string }) {
-  const x = useMotionValue(0); const y = useMotionValue(0)
-  const sx = useSpring(x, { stiffness: 400, damping: 20 })
-  const sy = useSpring(y, { stiffness: 400, damping: 20 })
-  const ref = useRef<HTMLButtonElement>(null)
-  const handleMouse = (e: React.MouseEvent) => {
-    const r = ref.current!.getBoundingClientRect()
-    x.set((e.clientX - r.left - r.width/2) * 0.3)
-    y.set((e.clientY - r.top - r.height/2) * 0.3)
-  }
-  return <motion.button ref={ref} style={{ x: sx, y: sy }} onMouseMove={handleMouse} onMouseLeave={() => { x.set(0); y.set(0) }} className={`cursor-pointer ${className}`}>{children}</motion.button>
-}
-
-const beers = [
-  { name: "Crisp IPA", abv: "6.2%", ibu: "68", flavor: "Citrus, pine, crisp finish", image: "https://images.unsplash.com/photo-1555658636-6e4a36218be7?auto=format&fit=crop&q=80&w=400" },
-  { name: "Midnight Stout", abv: "7.8%", ibu: "45", flavor: "Coffee, chocolate, roast", image: "https://images.unsplash.com/photo-1555658636-6e4a36218be7?auto=format&fit=crop&q=80&w=400" },
-  { name: "Golden Lager", abv: "4.5%", ibu: "22", flavor: "Clean, malty, refreshing", image: "https://images.unsplash.com/photo-1555658636-6e4a36218be7?auto=format&fit=crop&q=80&w=400" },
-  { name: "Sour Grapefruit", abv: "5.1%", ibu: "15", flavor: "Tart, citrus, bright", image: "https://images.unsplash.com/photo-1555658636-6e4a36218be7?auto=format&fit=crop&q=80&w=400" },
-  { name: "Autumn Harvest", abv: "6.8%", ibu: "52", flavor: "Spice, fruit, warming", image: "https://images.unsplash.com/photo-1555658636-6e4a36218be7?auto=format&fit=crop&q=80&w=400" },
-  { name: "Berry Wheat", abv: "5.4%", ibu: "28", flavor: "Berry, wheat, smooth", image: "https://images.unsplash.com/photo-1555658636-6e4a36218be7?auto=format&fit=crop&q=80&w=400" },
-  { name: "Double Hops", abv: "8.2%", ibu: "85", flavor: "Bold, hoppy, bold finish", image: "https://images.unsplash.com/photo-1555658636-6e4a36218be7?auto=format&fit=crop&q=80&w=400" },
-  { name: "Honey Session", abv: "4.2%", ibu: "18", flavor: "Honey, subtle malt", image: "https://images.unsplash.com/photo-1555658636-6e4a36218be7?auto=format&fit=crop&q=80&w=400" }
-]
-
-const brewerStories = [
-  { name: "Marcus Sterling", role: "Head Brewer", style: "IPA Specialist", image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=400" },
-  { name: "Sarah Chen", role: "Barrel Master", style: "Stout Expert", image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=400" },
-  { name: "James O'Brien", role: "Master Brewer", style: "Lager Craftsman", image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=400" }
-]
-
-export default function KinfolkBrewing() {
-  const [selectedBeer, setSelectedBeer] = useState<typeof beers[0] | null>(null)
-  const [open, setOpen] = useState(false)
-  const containerRef = useRef<HTMLDivElement>(null)
-  const { scrollYProgress } = useScroll({ target: containerRef })
-  const y = useTransform(scrollYProgress, [0, 1], ["0%", "50%"])
+export default function ObliqServicesPage() {
+  const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  useEffect(() => { const h = () => setScrolled(window.scrollY > 50); window.addEventListener("scroll", h); return () => window.removeEventListener("scroll", h); }, []);
 
   return (
-    <div ref={containerRef} style={{ overflowX: 'hidden', scrollBehavior: 'smooth' }} className="min-h-screen bg-[#fdf6ec] text-[#1a0d00] font-sans">
+    <div className="premium-theme min-h-screen bg-[#0a0a0a] text-white font-mono selection:bg-[#e11d48] selection:text-white overflow-x-hidden">
+      <div className="fixed inset-0 pointer-events-none z-0"><div className="absolute inset-0 bg-[radial-gradient(ellipse_at_70%_20%,#e11d4812_0%,transparent_50%)]" /></div>
 
-      {/* HERO */}
-      <section className="relative h-screen flex items-center justify-center px-6 md:px-12 overflow-hidden">
-        <motion.div style={{ y }} className="absolute inset-0 z-0">
-          <Image src="https://images.unsplash.com/photo-1555658636-6e4a36218be7?auto=format&fit=crop&q=80&w=2000" alt="hero" fill className="object-cover" priority />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#fdf6ec] via-transparent to-[#fdf6ec]" />
+      <nav className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ${scrolled ? "bg-[#0a0a0a]/90 backdrop-blur-xl py-4 border-b border-white/5" : "bg-transparent py-10"}`}>
+        <div className="max-w-[1500px] mx-auto px-6 md:px-12 flex items-center justify-between">
+          <Link href="/" className="group flex items-center gap-3 text-xl font-black tracking-tighter"><div className="w-8 h-8 bg-[#e11d48] rounded-sm flex items-center justify-center text-white"><Sparkles className="w-4 h-4" /></div><span className="group-hover:text-[#e11d48] transition-colors">OBLIQ // <span className="text-white/30">STUDIO</span></span></Link>
+          <div className="hidden lg:flex items-center gap-10 text-[10px] font-bold uppercase tracking-[0.3em] text-white/30">{["Services", "Work", "About", "Contact"].map(l => <Link key={l} href="#" className="hover:text-[#e11d48] transition-colors">{l}</Link>)}</div>
+          <button className="px-6 py-2.5 bg-[#e11d48] text-white text-[10px] font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all hidden md:block">Get_Quote</button>
+          <button onClick={() => setMenuOpen(true)} className="lg:hidden"><Menu className="w-6 h-6" /></button>
+        </div>
+      </nav>
+
+      <AnimatePresence>{menuOpen && (
+        <motion.div initial={{ opacity: 0, x: "100%" }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: "100%" }} className="fixed inset-0 z-[100] bg-[#0a0a0a] p-8 flex flex-col pt-32">
+          <button onClick={() => setMenuOpen(false)} className="absolute top-10 right-8"><X className="w-10 h-10" /></button>
+          {["Services", "Work", "About", "Contact"].map(l => <Link key={l} href="#" onClick={() => setMenuOpen(false)} className="text-5xl font-black tracking-tighter uppercase mb-10">{l}</Link>)}
         </motion.div>
+      )}</AnimatePresence>
 
-        <div className="relative z-10 max-w-5xl text-center">
-          <motion.h1 initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="text-6xl md:text-8xl font-black tracking-tight mb-6 text-[#1a0d00]">
-            Kinfolk Brewing
-          </motion.h1>
-          <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.2 }} className="text-lg md:text-2xl text-[#1a0d00]/60 max-w-2xl mx-auto mb-12">
-            Craft beer crafted with intention. Est. 2014.
-          </motion.p>
-          <motion.button initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }} onClick={() => setOpen(true)} className="px-8 py-4 bg-[#d97706] text-white font-bold cursor-pointer hover:bg-[#1a0d00] hover:text-[#d97706] transition-all duration-200">
-            Book Taproom Tour
-          </motion.button>
-        </div>
-      </section>
-
-      {/* BEER CATALOG */}
-      <section className="py-20 md:py-32 px-6 md:px-12 max-w-7xl mx-auto">
-        <Reveal>
-          <h2 className="text-4xl md:text-6xl font-black mb-12">Our Beer Selection</h2>
-        </Reveal>
-
-        <Tabs defaultValue="all" className="w-full">
-          <TabsList className="grid grid-cols-2 md:grid-cols-5 gap-2 mb-12 bg-transparent">
-            <TabsTrigger value="all" className="cursor-pointer">All</TabsTrigger>
-            <TabsTrigger value="ipas" className="cursor-pointer">IPAs</TabsTrigger>
-            <TabsTrigger value="stouts" className="cursor-pointer">Stouts</TabsTrigger>
-            <TabsTrigger value="lagers" className="cursor-pointer">Lagers</TabsTrigger>
-            <TabsTrigger value="seasonals" className="cursor-pointer">Seasonals</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="all">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-              {beers.map((beer, i) => (
-                <Reveal key={i} delay={i * 0.1}>
-                  <motion.div onClick={() => { setSelectedBeer(beer); setOpen(true); }} className="group relative cursor-pointer overflow-hidden bg-white border border-[#d97706]/20 hover:border-[#d97706] transition-all duration-300">
-                    <div className="relative h-64 overflow-hidden bg-[#fdf6ec]">
-                      <Image src={beer.image} alt={beer.name} fill className="object-cover group-hover:scale-105 transition-transform duration-300" />
-                    </div>
-                    <div className="p-4">
-                      <h3 className="text-lg font-bold mb-2">{beer.name}</h3>
-                      <div className="flex gap-2 mb-3">
-                        <Badge className="bg-[#d97706] text-white cursor-pointer text-xs">{beer.abv}</Badge>
-                        <Badge className="bg-[#2d5a3d] text-white cursor-pointer text-xs">{beer.ibu} IBU</Badge>
-                      </div>
-                      <p className="text-sm text-[#1a0d00]/60 mb-3">{beer.flavor}</p>
-                      <motion.div className="flex items-center gap-2 text-[#d97706] opacity-0 group-hover:opacity-100 transition-all duration-300">
-                        Learn More <span className="ml-auto">→</span>
-                      </motion.div>
-                    </div>
-                  </motion.div>
-                </Reveal>
-              ))}
+      <section className="relative min-h-screen flex flex-col justify-center pt-20">
+        <div className="max-w-[1500px] mx-auto px-6 md:px-12 relative z-10">
+          <Reveal>
+            <div className="px-3 py-1 bg-[#e11d48]/10 border border-[#e11d48]/30 text-[#e11d48] text-[9px] font-bold uppercase tracking-widest inline-block mb-8">CREATIVE_AGENCY</div>
+            <h1 className="text-7xl md:text-9xl lg:text-[10rem] font-black leading-[0.8] tracking-tighter uppercase mb-10">Design <br /> That <br /> <span className="text-[#e11d48]">Converts.</span></h1>
+            <p className="max-w-xl text-lg text-white/30 leading-relaxed font-light uppercase tracking-widest italic mb-12">Brand, web, motion, and strategy. We build brands that people remember.</p>
+            <div className="flex flex-col sm:flex-row gap-6">
+              <button className="px-12 py-5 bg-[#e11d48] text-white text-[10px] font-black uppercase tracking-[0.4em] hover:bg-white hover:text-black transition-all">View_Work</button>
+              <button className="px-12 py-5 border border-white/10 text-[10px] font-black uppercase tracking-[0.4em] hover:bg-white hover:text-black transition-all">Get_Quote</button>
             </div>
-          </TabsContent>
-        </Tabs>
-      </section>
-
-      {/* TAPROOM GALLERY */}
-      <section className="py-20 md:py-32 px-6 md:px-12 bg-[#2d5a3d] text-white">
-        <Reveal>
-          <h2 className="text-4xl md:text-6xl font-black mb-12">Visit Our Taprooms</h2>
-        </Reveal>
-        <Carousel>
-          <CarouselContent>
-            {[
-              "https://images.unsplash.com/photo-1608715174306-e6835065d75d?auto=format&fit=crop&q=80&w=1200",
-              "https://images.unsplash.com/photo-1555658636-6e4a36218be7?auto=format&fit=crop&q=80&w=1200",
-              "https://images.unsplash.com/photo-1577720643272-265b434fb4f5?auto=format&fit=crop&q=80&w=1200"
-            ].map((img, i) => (
-              <CarouselItem key={i} className="md:basis-full">
-                <div className="relative h-96 w-full">
-                  <Image src={img} alt={`Taproom ${i}`} fill className="object-cover" />
-                </div>
-              </CarouselItem>
-            ))}
-          </CarouselContent>
-          <CarouselPrevious className="cursor-pointer" />
-          <CarouselNext className="cursor-pointer" />
-        </Carousel>
-      </section>
-
-      {/* BREWING PROCESS */}
-      <section className="py-20 md:py-32 px-6 md:px-12 max-w-4xl mx-auto">
-        <Reveal>
-          <h2 className="text-4xl md:text-6xl font-black mb-12">The Brewing Process</h2>
-        </Reveal>
-        <Accordion type="single" collapsible>
-          {[
-            { title: "Milling", description: "Grain preparation and crushing for optimal extraction and flavor development" },
-            { title: "Mashing", description: "Temperature-controlled steeping to convert starches into fermentable sugars" },
-            { title: "Fermenting", description: "Yeast activation and fermentation over 7-14 days depending on beer style" },
-            { title: "Conditioning", description: "Carbonation and aging to develop complexity and achieve peak flavor" }
-          ].map((item, i) => (
-            <Reveal key={i} delay={i * 0.1}>
-              <AccordionItem value={`item-${i}`} className="border-b border-[#1a0d00]/10">
-                <AccordionTrigger className="cursor-pointer py-4 hover:text-[#d97706] transition-colors">{item.title}</AccordionTrigger>
-                <AccordionContent className="text-[#1a0d00]/60 py-4">{item.description}</AccordionContent>
-              </AccordionItem>
-            </Reveal>
-          ))}
-        </Accordion>
-      </section>
-
-      {/* SEASONAL RELEASES */}
-      <section className="py-20 md:py-32 px-6 md:px-12 max-w-7xl mx-auto">
-        <Reveal>
-          <h2 className="text-4xl md:text-6xl font-black mb-12">Seasonal Releases</h2>
-        </Reveal>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          {[
-            { season: "Spring", beer: "Wildflower Pale", date: "March 15" },
-            { season: "Summer", beer: "Citrus Crush", date: "June 1" },
-            { season: "Fall", beer: "Pumpkin Spice Porter", date: "September 1" },
-            { season: "Winter", beer: "Holiday Blend", date: "December 1" }
-          ].map((release, i) => (
-            <Reveal key={i} delay={i * 0.1}>
-              <Card className="bg-white border-[#d97706]/20 hover:border-[#d97706] transition-all duration-300 cursor-pointer">
-                <CardContent className="p-6 text-center">
-                  <Badge className="mb-4 bg-[#d97706] text-white cursor-pointer">{release.season}</Badge>
-                  <h3 className="font-bold mb-2">{release.beer}</h3>
-                  <p className="text-sm text-[#1a0d00]/60">Available {release.date}</p>
-                </CardContent>
-              </Card>
-            </Reveal>
-          ))}
+          </Reveal>
         </div>
       </section>
 
-      {/* BEER SCHOOL */}
-      <section className="py-20 md:py-32 px-6 md:px-12 max-w-6xl mx-auto">
-        <Reveal>
-          <h2 className="text-4xl md:text-6xl font-black mb-12">Beer School</h2>
-        </Reveal>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {[
-            { title: "Tasting 101", desc: "Learn proper tasting techniques and flavor identification" },
-            { title: "Beer Pairing", desc: "Discover perfect food and beer combinations" },
-            { title: "Home Brew Kit", desc: "Start your own brewing journey at home" }
-          ].map((course, i) => (
-            <Reveal key={i} delay={i * 0.1}>
-              <Card className="bg-white border-[#2d5a3d]/20 hover:border-[#2d5a3d] transition-all duration-300">
-                <CardContent className="p-6">
-                  <h3 className="text-xl font-bold mb-3">{course.title}</h3>
-                  <p className="text-[#1a0d00]/60 mb-4">{course.desc}</p>
-                  <Link href="#" className="text-[#d97706] font-bold cursor-pointer hover:text-[#2d5a3d] transition-colors">Learn More →</Link>
-                </CardContent>
-              </Card>
-            </Reveal>
-          ))}
+      <section className="py-40 bg-[#0c0c0c] border-y border-white/5">
+        <div className="max-w-[1500px] mx-auto px-6 md:px-12 grid grid-cols-1 lg:grid-cols-2 gap-24 items-center">
+          <Reveal>
+            <span className="text-[10px] text-[#e11d48] font-bold uppercase tracking-[0.4em] mb-6 block">About</span>
+            <h2 className="text-5xl md:text-7xl font-black tracking-tighter leading-[0.85] mb-8 uppercase">Oblique <span className="text-[#e11d48]">Thinking.</span></h2>
+            <p className="text-base text-white/30 leading-relaxed mb-12">Founded in Berlin, Obliq is a 15-person creative studio that blends strategy with craft. We work with startups and enterprise brands to create work that moves needles — not just pixels.</p>
+            <div className="flex gap-16">{[{ val: "80+", label: "BRANDS" }, { val: "12", label: "AWARDS" }, { val: "15", label: "TEAM" }].map((s, i) => <div key={i}><div className="text-3xl font-black text-[#e11d48]">{s.val}</div><div className="text-[9px] font-bold text-white/15 uppercase tracking-widest">{s.label}</div></div>)}</div>
+          </Reveal>
+          <Reveal delay={0.15}><div className="w-full aspect-square bg-gradient-to-br from-[#e11d48]/10 to-transparent rounded-3xl flex items-center justify-center"><Sparkles className="w-20 h-20 text-[#e11d48]/15" /></div></Reveal>
         </div>
       </section>
 
-      {/* STATS */}
-      <section className="py-20 md:py-32 px-6 md:px-12 bg-[#1a0d00] text-white">
-        <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-          <Reveal><div><div className="text-4xl md:text-5xl font-black mb-2">Est.<br/><Counter target={2014} /></div><p className="text-sm opacity-60">Founded</p></div></Reveal>
-          <Reveal delay={0.1}><div><div className="text-4xl md:text-5xl font-black mb-2"><Counter target={45} /></div><p className="text-sm opacity-60">Total Beers</p></div></Reveal>
-          <Reveal delay={0.2}><div><div className="text-4xl md:text-5xl font-black mb-2"><Counter target={8} /></div><p className="text-sm opacity-60">Gold Medals</p></div></Reveal>
-          <Reveal delay={0.3}><div><div className="text-4xl md:text-5xl font-black mb-2"><Counter target={2} /></div><p className="text-sm opacity-60">Taprooms</p></div></Reveal>
+      <section className="py-40 bg-[#0a0a0a]">
+        <div className="max-w-[1500px] mx-auto px-6 md:px-12">
+          <Reveal><h2 className="text-6xl md:text-8xl font-black tracking-tighter uppercase leading-[0.85] mb-24">Our <span className="text-[#e11d48]">Services.</span></h2></Reveal>
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">{SERVICES.map((s, i) => <Reveal key={i} delay={i * 0.05}><div className="group p-10 bg-[#0c0c0c] border border-white/5 hover:border-[#e11d48]/30 rounded-3xl transition-all"><div className="w-14 h-14 bg-white/5 rounded-2xl flex items-center justify-center text-[#e11d48] mb-8 group-hover:bg-[#e11d48] group-hover:text-white transition-all">{s.icon}</div><h3 className="text-xl font-black uppercase tracking-tighter mb-4 group-hover:text-[#e11d48] transition-colors">{s.title}</h3><p className="text-sm text-white/30">{s.desc}</p></div></Reveal>)}</div>
         </div>
       </section>
 
-      {/* BREWERS */}
-      <section className="py-20 md:py-32 px-6 md:px-12 max-w-6xl mx-auto">
-        <Reveal>
-          <h2 className="text-4xl md:text-6xl font-black mb-12">Meet the Brewers</h2>
-        </Reveal>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {brewerStories.map((brewer, i) => (
-            <Reveal key={i} delay={i * 0.1}>
-              <motion.div className="text-center hover:scale-105 transition-transform duration-300">
-                <Avatar className="h-32 w-32 mx-auto mb-6 border-4 border-[#d97706]">
-                  <AvatarImage src={brewer.image} alt={brewer.name} />
-                  <AvatarFallback>{brewer.name.charAt(0)}</AvatarFallback>
-                </Avatar>
-                <h3 className="text-lg font-bold mb-1">{brewer.name}</h3>
-                <Badge variant="outline" className="mb-3 cursor-pointer">{brewer.role}</Badge>
-                <p className="text-sm text-[#1a0d00]/60">{brewer.style}</p>
-              </motion.div>
-            </Reveal>
-          ))}
+      <section className="py-40 bg-[#0c0c0c] border-y border-white/5">
+        <div className="max-w-[1500px] mx-auto px-6 md:px-12">
+          <Reveal><h2 className="text-6xl md:text-8xl font-black tracking-tighter uppercase leading-[0.85] mb-24">Selected <span className="text-[#e11d48]">Work.</span></h2></Reveal>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">{PROJECTS.map((p, i) => <Reveal key={i} delay={i * 0.05}><div className="group cursor-pointer"><div className="w-full aspect-[16/10] bg-gradient-to-br from-[#e11d48]/10 to-transparent rounded-2xl flex items-center justify-center mb-6 group-hover:from-[#e11d48]/20 transition-all"><Pen className="w-12 h-12 text-[#e11d48]/15" /></div><span className="text-[9px] font-bold text-[#e11d48] uppercase tracking-widest">{p.cat}</span><h3 className="text-2xl font-black uppercase tracking-tighter group-hover:text-[#e11d48] transition-colors mb-2">{p.title}</h3><p className="text-sm text-white/30">{p.desc}</p></div></Reveal>)}</div>
         </div>
       </section>
 
-      {/* FAQ */}
-      <section className="py-20 md:py-32 px-6 md:px-12 max-w-4xl mx-auto">
-        <Reveal>
-          <h2 className="text-4xl md:text-6xl font-black mb-12">FAQ</h2>
-        </Reveal>
-        <Accordion type="single" collapsible>
-          {[
-            { q: "Where can I find your beers?", a: "Available at 300+ retailers and our two taproom locations in downtown and riverside" },
-            { q: "Do you offer brewery tours?", a: "Yes! Tours available Tuesday-Sunday, booking required. $15 per person includes samples." },
-            { q: "Can I order online?", a: "Limited online ordering available for growlers and merchandise. Shipping restrictions apply." },
-            { q: "Do you host private events?", a: "Absolutely! Contact our events team for private taproom bookings and catering options." }
-          ].map((item, i) => (
-            <Reveal key={i} delay={i * 0.1}>
-              <AccordionItem value={`faq-${i}`} className="border-b border-[#1a0d00]/10">
-                <AccordionTrigger className="cursor-pointer py-4 hover:text-[#d97706] transition-colors">{item.q}</AccordionTrigger>
-                <AccordionContent className="text-[#1a0d00]/60 py-4">{item.a}</AccordionContent>
-              </AccordionItem>
-            </Reveal>
-          ))}
-        </Accordion>
+      <section className="py-40 bg-[#0a0a0a]">
+        <div className="max-w-[1500px] mx-auto px-6 md:px-12">
+          <Reveal><h2 className="text-6xl md:text-8xl font-black tracking-tighter uppercase leading-[0.85] mb-24">Client <span className="text-[#e11d48]">Words.</span></h2></Reveal>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">{TESTIMONIALS.map((t, i) => <Reveal key={i} delay={i * 0.1}><div className="p-10 bg-[#0c0c0c] border border-white/5 rounded-3xl h-full flex flex-col"><div className="flex gap-1 mb-6">{[...Array(5)].map((_, j) => <Star key={j} className="w-4 h-4 text-[#e11d48] fill-[#e11d48]" />)}</div><p className="text-base text-white/40 italic leading-relaxed flex-1 mb-8">&ldquo;{t.quote}&rdquo;</p><div className="pt-6 border-t border-white/5"><div className="font-black uppercase text-sm">{t.name}</div><div className="text-[10px] text-white/20 uppercase tracking-widest">{t.role}</div></div></div></Reveal>)}</div>
+        </div>
       </section>
 
-      {/* BEER DETAIL DIALOG */}
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          {selectedBeer && (
-            <>
-              <DialogHeader>
-                <DialogTitle className="text-2xl">{selectedBeer.name}</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-6">
-                <div className="relative h-64 w-full">
-                  <Image src={selectedBeer.image} alt={selectedBeer.name} fill className="object-cover rounded" />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-[#d97706]/10 p-4 rounded">
-                    <p className="text-xs opacity-60 mb-1">ABV</p>
-                    <p className="text-2xl font-bold text-[#d97706]">{selectedBeer.abv}</p>
-                  </div>
-                  <div className="bg-[#2d5a3d]/10 p-4 rounded">
-                    <p className="text-xs opacity-60 mb-1">IBU</p>
-                    <p className="text-2xl font-bold text-[#2d5a3d]">{selectedBeer.ibu}</p>
-                  </div>
-                </div>
-                <div><p className="text-sm font-bold opacity-60 mb-2">Flavor Profile</p><p>{selectedBeer.flavor}</p></div>
-                <MagneticBtn className="w-full px-6 py-3 bg-[#d97706] text-white font-bold hover:bg-[#1a0d00] transition-all duration-300">
-                  Find Near You
-                </MagneticBtn>
-              </div>
-            </>
-          )}
-        </DialogContent>
-      </Dialog>
-
-      {/* FOOTER CTA */}
-      <section className="py-20 md:py-32 px-6 md:px-12 bg-[#1a0d00] text-white text-center">
-        <Reveal>
-          <h2 className="text-4xl md:text-6xl font-black mb-6">Craft Your Next Experience</h2>
-          <p className="text-lg text-white/60 mb-8 max-w-2xl mx-auto">Visit one of our taprooms or order a growler for home</p>
-          <MagneticBtn className="px-8 py-4 bg-[#d97706] text-white font-bold cursor-pointer hover:bg-white hover:text-[#d97706] transition-all duration-200">
-            Book Your Taproom Visit
-          </MagneticBtn>
-        </Reveal>
+      <section className="py-40 bg-[#0c0c0c] border-y border-white/5">
+        <div className="max-w-[1500px] mx-auto px-6 md:px-12">
+          <Reveal><h2 className="text-6xl md:text-8xl font-black tracking-tighter leading-[0.85] mb-24 uppercase text-center">Our <span className="text-[#e11d48]">Pricing.</span></h2></Reveal>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">{PRICING.map((p, i) => <Reveal key={i} delay={i * 0.1}><div className={`group p-10 border rounded-3xl transition-all ${p.featured ? "bg-[#e11d48]/5 border-[#e11d48]/30 scale-105" : "bg-[#111] border-white/5"}`}><div className="text-[9px] font-bold text-[#e11d48] uppercase tracking-widest mb-2">{p.name}</div><div className="text-4xl font-black mb-1">{p.price}<span className="text-lg text-white/30">{p.period}</span></div><div className="space-y-4 mt-8 pt-8 border-t border-white/5">{p.features.map((f, j) => <div key={j} className="flex items-center gap-3 text-[10px] text-white/40"><CheckCircle2 className="w-3.5 h-3.5 text-[#e11d48]" />{f}</div>)}</div><button className={`mt-8 w-full py-3 text-[10px] font-black uppercase tracking-widest transition-all rounded-lg ${p.featured ? "bg-[#e11d48] text-white" : "border border-white/10 hover:bg-[#e11d48] hover:text-white"}`}>{p.cta}</button></div></Reveal>)}</div>
+        </div>
       </section>
+
+      <section className="py-40 bg-[#0a0a0a] text-center">
+        <div className="max-w-[1500px] mx-auto px-6 md:px-12"><Reveal>
+          <h2 className="text-6xl md:text-9xl font-black tracking-tighter uppercase mb-12">Start A <span className="text-[#e11d48]">Project.</span></h2>
+          <button className="px-16 py-6 bg-[#e11d48] text-white text-[12px] font-black uppercase tracking-[0.4em] hover:bg-white hover:text-black transition-all">Get_In_Touch</button>
+        </Reveal></div>
+      </section>
+
+      <footer className="bg-[#0a0a0a] border-t border-white/5 py-32 px-6 md:px-12">
+        <div className="max-w-[1500px] mx-auto grid grid-cols-1 md:grid-cols-4 gap-24">
+          <div className="col-span-1 md:col-span-2"><Link href="/" className="flex items-center gap-3 text-xl font-black tracking-tighter mb-10"><div className="w-8 h-8 bg-[#e11d48] text-white rounded-sm flex items-center justify-center"><Sparkles className="w-4 h-4" /></div><span>OBLIQ // STUDIO</span></Link><p className="text-[11px] text-white/15 uppercase tracking-[0.2em] max-w-sm italic">Creative agency. Berlin.</p></div>
+          <div><h4 className="text-[10px] font-black uppercase tracking-widest mb-10 text-[#e11d48]">Studio</h4><ul className="space-y-5 text-[10px] font-bold text-white/20 uppercase tracking-widest">{["Services", "Work", "About"].map(l => <li key={l}><Link href="#">{l}</Link></li>)}</ul></div>
+          <div><h4 className="text-[10px] font-black uppercase tracking-widest mb-10 text-[#e11d48]">Social</h4><ul className="space-y-5 text-[10px] font-bold text-white/20 uppercase tracking-widest">{["Instagram", "Dribbble", "LinkedIn"].map(l => <li key={l}><Link href="#">{l}</Link></li>)}</ul></div>
+        </div>
+        <div className="max-w-[1500px] mx-auto mt-32 pt-16 border-t border-white/5 text-center text-[9px] font-bold text-white/10 uppercase tracking-widest">&copy; 2026 OBLIQ STUDIO</div>
+      </footer>
     </div>
-  )
+  );
 }

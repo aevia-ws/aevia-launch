@@ -1,340 +1,126 @@
-"use client"
-import { motion, useScroll, useTransform, useInView, useMotionValue, useSpring } from "framer-motion"
-import { useState, useRef, useEffect } from "react"
-import Image from "next/image"
-import Link from "next/link"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
-import { Badge } from "@/components/ui/badge"
-import { Card, CardContent } from "@/components/ui/card"
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel"
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
-import { Heart, Users } from "lucide-react"
+"use client";
+import { motion, useInView, AnimatePresence } from "framer-motion";
+import { useState, useRef, useEffect } from "react";
+import Link from "next/link";
+import { Frame, Palette, Eye, Menu, X, Star, CheckCircle2, Sparkles, Image, Layers, Grid3X3 } from "lucide-react";
+import "../premium.css";
+
+const COLLECTIONS = [
+  { title: "Chromatic Drift", artist: "Yuki Tanaka", medium: "DIGITAL", year: "2026" },
+  { title: "Urban Decay", artist: "Marcus Cole", medium: "PHOTOGRAPHY", year: "2025" },
+  { title: "Fluid State", artist: "Elena Voss", medium: "GENERATIVE", year: "2026" },
+  { title: "Silent Grid", artist: "Amir Hassan", medium: "SCULPTURE", year: "2025" },
+];
+
+const FEATURES = [
+  { icon: <Frame className="w-6 h-6" />, title: "Curated Collections", desc: "Hand-selected works from emerging and established digital artists worldwide." },
+  { icon: <Eye className="w-6 h-6" />, title: "Virtual Gallery", desc: "Immersive 3D walkthroughs of every exhibition from anywhere in the world." },
+  { icon: <Sparkles className="w-6 h-6" />, title: "Artist Residencies", desc: "Three-month funded programs for artists pushing digital boundaries." },
+  { icon: <Image className="w-6 h-6" />, title: "Limited Editions", desc: "Authenticated prints and digital editions with provenance tracking." },
+  { icon: <Layers className="w-6 h-6" />, title: "Collector Services", desc: "Advisory, framing, installation, and collection management." },
+  { icon: <Grid3X3 className="w-6 h-6" />, title: "Exhibition Design", desc: "Full-service exhibition curation, design, and production." },
+];
+
+const TESTIMONIALS = [
+  { name: "Sophie Laurent", role: "Collector, Paris", quote: "Art Index introduced me to artists I'd never have found. My collection has never been more exciting." },
+  { name: "James Park", role: "Artist", quote: "The residency changed my practice. The support and exposure were transformative." },
+  { name: "Dr. Amara Osei", role: "Museum Director", quote: "Their curation is exceptional. We've partnered on three exhibitions and each exceeded expectations." },
+];
+
+const PRICING = [
+  { name: "VISITOR", price: "Free", period: "", features: ["Browse collections", "Artist profiles", "Exhibition calendar", "Newsletter"], cta: "Join_Free" },
+  { name: "COLLECTOR", price: "$29", period: "/mo", features: ["Early access", "Virtual previews", "Advisory calls", "Priority purchasing", "Provenance docs"], cta: "Subscribe", featured: true },
+  { name: "PATRON", price: "$199", period: "/mo", features: ["Private viewings", "Studio visits", "Custom commissions", "VIP events", "Tax advisory"], cta: "Become_Patron" },
+];
 
 function Reveal({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
-  const ref = useRef(null)
-  const inView = useInView(ref, { once: true, margin: "-60px" })
-  return <motion.div ref={ref} initial={{ opacity: 0, y: 24 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.55, delay, ease: [0.25, 0.46, 0.45, 0.94] }}>{children}</motion.div>
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, margin: "-50px" });
+  return <motion.div ref={ref} initial={{ opacity: 0, y: 20 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.8, delay }}>{children}</motion.div>;
 }
 
-function Counter({ target, suffix = "", prefix = "" }: { target: number; suffix?: string; prefix?: string }) {
-  const [count, setCount] = useState(0)
-  const ref = useRef(null)
-  const inView = useInView(ref, { once: true })
-  useEffect(() => {
-    if (!inView) return
-    const step = target / 90
-    const t = setInterval(() => setCount(c => { const n = c + step; if (n >= target) { clearInterval(t); return target; } return n; }), 16)
-    return () => clearInterval(t)
-  }, [inView, target])
-  return <span ref={ref}>{prefix}{Math.floor(count).toLocaleString()}{suffix}</span>
-}
-
-function MagneticBtn({ children, className = "" }: { children: React.ReactNode; className?: string }) {
-  const x = useMotionValue(0); const y = useMotionValue(0)
-  const sx = useSpring(x, { stiffness: 400, damping: 20 })
-  const sy = useSpring(y, { stiffness: 400, damping: 20 })
-  const ref = useRef<HTMLButtonElement>(null)
-  const handleMouse = (e: React.MouseEvent) => {
-    const r = ref.current!.getBoundingClientRect()
-    x.set((e.clientX - r.left - r.width/2) * 0.3)
-    y.set((e.clientY - r.top - r.height/2) * 0.3)
-  }
-  return <motion.button ref={ref} style={{ x: sx, y: sy }} onMouseMove={handleMouse} onMouseLeave={() => { x.set(0); y.set(0) }} className={`cursor-pointer ${className}`}>{children}</motion.button>
-}
-
-const doctors = [
-  { name: "Dr. Sarah Mitchell", specialty: "Fertility Specialist", hospital: "Columbia Medical", book: true, image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=400" },
-  { name: "Dr. James Chen", specialty: "OB/GYN", hospital: "Mt. Sinai", book: true, image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=400" },
-  { name: "Dr. Maria Gonzalez", specialty: "Prenatal Care", hospital: "NYU Langone", book: true, image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&q=80&w=400" },
-  { name: "Dr. Lisa Wang", specialty: "Menopausal Health", hospital: "Cornell Medical", book: true, image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=400" }
-]
-
-export default function MiraHealth() {
-  const [selectedDoctor, setSelectedDoctor] = useState<typeof doctors[0] | null>(null)
-  const [open, setOpen] = useState(false)
-  const containerRef = useRef<HTMLDivElement>(null)
-  const { scrollYProgress } = useScroll({ target: containerRef })
-  const y = useTransform(scrollYProgress, [0, 1], ["0%", "50%"])
+export default function ArtIndexPage() {
+  const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  useEffect(() => { const h = () => setScrolled(window.scrollY > 50); window.addEventListener("scroll", h); return () => window.removeEventListener("scroll", h); }, []);
 
   return (
-    <div ref={containerRef} style={{ overflowX: 'hidden', scrollBehavior: 'smooth' }} className="min-h-screen bg-[#fdf8f0] text-[#2d2d2d] font-sans">
+    <div className="premium-theme min-h-screen bg-[#0a0a0a] text-white font-mono selection:bg-[#a855f7] selection:text-black overflow-x-hidden">
+      <div className="fixed inset-0 pointer-events-none z-0"><div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_0%,#a855f715_0%,transparent_50%)]" /></div>
 
-      {/* HERO */}
-      <section className="relative h-screen flex items-center justify-center px-6 md:px-12 overflow-hidden">
-        <motion.div style={{ y }} className="absolute inset-0 z-0">
-          <Image src="https://images.unsplash.com/photo-1559757175-0eb30cd8c063?auto=format&fit=crop&q=80&w=2000" alt="hero" fill className="object-cover" priority />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#fdf8f0] via-transparent to-[#fdf8f0]" />
+      <nav className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ${scrolled ? "bg-[#0a0a0a]/90 backdrop-blur-xl py-4 border-b border-white/5" : "bg-transparent py-10"}`}>
+        <div className="max-w-[1500px] mx-auto px-6 md:px-12 flex items-center justify-between">
+          <Link href="/" className="group flex items-center gap-3 text-xl font-black tracking-tighter"><div className="w-8 h-8 bg-[#a855f7] rounded-full flex items-center justify-center text-white"><Palette className="w-4 h-4" /></div><span className="group-hover:text-[#a855f7] transition-colors">ART // <span className="text-white/30">INDEX</span></span></Link>
+          <div className="hidden lg:flex items-center gap-10 text-[10px] font-bold uppercase tracking-[0.3em] text-white/30">{["Collections", "Artists", "Events", "Join"].map(l => <Link key={l} href="#" className="hover:text-[#a855f7] transition-colors">{l}</Link>)}</div>
+          <button className="px-6 py-2.5 bg-[#a855f7] text-white text-[10px] font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all hidden md:block">Join_Now</button>
+          <button onClick={() => setMenuOpen(true)} className="lg:hidden"><Menu className="w-6 h-6" /></button>
+        </div>
+      </nav>
+
+      <AnimatePresence>{menuOpen && (
+        <motion.div initial={{ opacity: 0, x: "100%" }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: "100%" }} className="fixed inset-0 z-[100] bg-[#0a0a0a] p-8 flex flex-col pt-32">
+          <button onClick={() => setMenuOpen(false)} className="absolute top-10 right-8"><X className="w-10 h-10" /></button>
+          {["Collections", "Artists", "Events", "Join"].map(l => <Link key={l} href="#" onClick={() => setMenuOpen(false)} className="text-5xl font-black tracking-tighter uppercase mb-10">{l}</Link>)}
         </motion.div>
+      )}</AnimatePresence>
 
-        <div className="relative z-10 max-w-5xl text-center">
-          <motion.h1 initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="text-6xl md:text-8xl font-black tracking-tight mb-6 text-[#9b2335]">
-            Mira Health
-          </motion.h1>
-          <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.2 }} className="text-lg md:text-2xl text-[#2d2d2d]/60 max-w-2xl mx-auto mb-12">
-            Women's health & fertility care that listens
-          </motion.p>
-          <motion.button initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }} onClick={() => setOpen(true)} className="px-8 py-4 bg-[#9b2335] text-white font-bold cursor-pointer hover:bg-[#2d2d2d] hover:text-[#9b2335] transition-all duration-200">
-            Schedule Appointment
-          </motion.button>
-        </div>
-      </section>
-
-      {/* CARE PATHWAY */}
-      <section className="py-20 md:py-32 px-6 md:px-12 max-w-7xl mx-auto">
-        <Reveal>
-          <h2 className="text-4xl md:text-6xl font-black mb-12">Our Care Services</h2>
-        </Reveal>
-
-        <Tabs defaultValue="fertility" className="w-full">
-          <TabsList className="grid grid-cols-2 md:grid-cols-5 gap-2 mb-12 bg-transparent">
-            <TabsTrigger value="fertility" className="cursor-pointer">Fertility</TabsTrigger>
-            <TabsTrigger value="gynecology" className="cursor-pointer">Gynecology</TabsTrigger>
-            <TabsTrigger value="prenatal" className="cursor-pointer">Prenatal</TabsTrigger>
-            <TabsTrigger value="postpartum" className="cursor-pointer">Postpartum</TabsTrigger>
-            <TabsTrigger value="menopause" className="cursor-pointer">Menopause</TabsTrigger>
-          </TabsList>
-
-          {[
-            { value: "fertility", services: ["Fertility Testing", "IVF Treatment", "Egg Freezing", "Male Factor Evaluation"] },
-            { value: "gynecology", services: ["Annual Exams", "Contraception", "Pap Smears", "Hormonal Management"] },
-            { value: "prenatal", services: ["Obstetric Care", "Ultrasounds", "Genetic Testing", "Nutrition Counseling"] },
-            { value: "postpartum", services: ["Postpartum Check-ups", "Lactation Support", "Mental Health Screening", "Recovery Care"] },
-            { value: "menopause", services: ["Hormone Therapy", "Symptom Management", "Bone Health", "Wellness Support"] }
-          ].map((tab) => (
-            <TabsContent key={tab.value} value={tab.value}>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {tab.services.map((service, i) => (
-                  <Reveal key={i} delay={i * 0.1}>
-                    <Card className="bg-white border-[#fde8e8]/50 hover:border-[#9b2335]/50 transition-all duration-300 cursor-pointer">
-                      <CardContent className="p-6">
-                        <h3 className="font-bold mb-3">{service}</h3>
-                        <div className="flex gap-2">
-                          <Badge className="bg-[#6b8f71] text-white cursor-pointer text-xs">In-Person</Badge>
-                          <Badge className="bg-[#9b2335] text-white cursor-pointer text-xs">Telehealth</Badge>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </Reveal>
-                ))}
-              </div>
-            </TabsContent>
-          ))}
-        </Tabs>
-      </section>
-
-      {/* DOCTOR TEAM */}
-      <section className="py-20 md:py-32 px-6 md:px-12 max-w-6xl mx-auto">
-        <Reveal>
-          <h2 className="text-4xl md:text-6xl font-black mb-12">Our Physicians</h2>
-        </Reveal>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {doctors.map((doctor, i) => (
-            <Reveal key={i} delay={i * 0.1}>
-              <motion.div className="text-center hover:scale-105 transition-transform duration-300">
-                <Avatar className="h-32 w-32 mx-auto mb-6 border-4 border-[#9b2335]">
-                  <AvatarImage src={doctor.image} alt={doctor.name} />
-                  <AvatarFallback>{doctor.name.charAt(0)}</AvatarFallback>
-                </Avatar>
-                <h3 className="text-lg font-bold mb-1">{doctor.name}</h3>
-                <Badge variant="outline" className="mb-3 cursor-pointer">{doctor.specialty}</Badge>
-                <div className="text-xs text-[#2d2d2d]/60 mb-4">
-                  <p>{doctor.hospital}</p>
-                </div>
-                <button onClick={() => { setSelectedDoctor(doctor); setOpen(true); }} className="text-[#9b2335] font-bold text-sm cursor-pointer hover:text-[#2d2d2d] transition-colors">
-                  Book Appointment →
-                </button>
-              </motion.div>
-            </Reveal>
-          ))}
-        </div>
-      </section>
-
-      {/* PATIENT JOURNEY */}
-      <section className="py-20 md:py-32 px-6 md:px-12 max-w-4xl mx-auto">
-        <Reveal>
-          <h2 className="text-4xl md:text-6xl font-black mb-12">Your Journey With Us</h2>
-        </Reveal>
-        <div className="space-y-6">
-          {[
-            { step: 1, title: "Initial Consultation", desc: "Meet with our physicians to discuss your health goals" },
-            { step: 2, title: "Comprehensive Testing", desc: "Personalized diagnostic testing and health assessment" },
-            { step: 3, title: "Treatment Plan", desc: "Customized care plan tailored to your needs" },
-            { step: 4, title: "Ongoing Support", desc: "Continuous monitoring and wellness support" }
-          ].map((item, i) => (
-            <Reveal key={i} delay={i * 0.1}>
-              <motion.div className="flex gap-6 items-start">
-                <div className="flex-shrink-0">
-                  <div className="flex items-center justify-center h-12 w-12 rounded-full bg-[#9b2335] text-white font-bold">
-                    {item.step}
-                  </div>
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold mb-2">{item.title}</h3>
-                  <p className="text-[#2d2d2d]/60">{item.desc}</p>
-                </div>
-              </motion.div>
-            </Reveal>
-          ))}
-        </div>
-      </section>
-
-      {/* STATS */}
-      <section className="py-20 md:py-32 px-6 md:px-12 bg-[#9b2335] text-white">
-        <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-          <Reveal><div><div className="text-4xl md:text-5xl font-black mb-2"><Counter target={10000} />+</div><p className="text-sm opacity-60">Patients Served</p></div></Reveal>
-          <Reveal delay={0.1}><div><div className="text-4xl md:text-5xl font-black mb-2"><Counter target={15} /></div><p className="text-sm opacity-60">Board-Certified Physicians</p></div></Reveal>
-          <Reveal delay={0.2}><div><div className="text-4xl md:text-5xl font-black mb-2">4.9<span className="text-2xl">★</span></div><p className="text-sm opacity-60">Patient Rating</p></div></Reveal>
-          <Reveal delay={0.3}><div><div className="text-4xl md:text-5xl font-black mb-2">98<span className="text-2xl">%</span></div><p className="text-sm opacity-60">Recommendation</p></div></Reveal>
-        </div>
-      </section>
-
-      {/* WHAT TO EXPECT */}
-      <section className="py-20 md:py-32 px-6 md:px-12 max-w-4xl mx-auto">
-        <Reveal>
-          <h2 className="text-4xl md:text-6xl font-black mb-12">What to Expect</h2>
-        </Reveal>
-        <Accordion type="single" collapsible>
-          {[
-            { title: "First Visit", description: "Comprehensive health history, physical exam, and personalized consultation (60-90 minutes)" },
-            { title: "Testing", description: "Blood work, imaging, or specialized testing based on your needs. Results typically within 3-5 business days" },
-            { title: "Treatment Plans", description: "Detailed discussion of options, timelines, costs, and next steps tailored to your goals" },
-            { title: "Ongoing Care", description: "Regular follow-ups, monitoring, and adjustments to ensure optimal outcomes" }
-          ].map((item, i) => (
-            <Reveal key={i} delay={i * 0.1}>
-              <AccordionItem value={`item-${i}`} className="border-b border-[#2d2d2d]/10">
-                <AccordionTrigger className="cursor-pointer py-4 hover:text-[#9b2335] transition-colors">{item.title}</AccordionTrigger>
-                <AccordionContent className="text-[#2d2d2d]/60 py-4">{item.description}</AccordionContent>
-              </AccordionItem>
-            </Reveal>
-          ))}
-        </Accordion>
-      </section>
-
-      {/* INSURANCE & BILLING */}
-      <section className="py-20 md:py-32 px-6 md:px-12 max-w-6xl mx-auto">
-        <Reveal>
-          <h2 className="text-4xl md:text-6xl font-black mb-12">Insurance & Billing</h2>
-        </Reveal>
-        <div className="mb-12">
-          <h3 className="font-bold mb-6 text-lg">We Accept</h3>
-          <div className="flex flex-wrap gap-4">
-            {["Aetna", "Blue Cross", "Cigna", "Empire", "Medicaid", "Medicare"].map((ins, i) => (
-              <Badge key={i} className="bg-[#fde8e8] text-[#9b2335] cursor-pointer">{ins}</Badge>
-            ))}
-          </div>
-        </div>
-        <Accordion type="single" collapsible>
-          {[
-            { title: "Insurance Coverage", description: "Most preventive care, fertility treatments, and office visits are covered. Verify your plan for specifics." },
-            { title: "FSA/HSA", description: "We accept FSA and HSA cards for eligible expenses. Ask our billing team for details." },
-            { title: "Payment Plans", description: "Flexible payment plans available for out-of-pocket costs. We work with you on affordability." }
-          ].map((item, i) => (
-            <Reveal key={i} delay={i * 0.1}>
-              <AccordionItem value={`billing-${i}`} className="border-b border-[#2d2d2d]/10">
-                <AccordionTrigger className="cursor-pointer py-4 hover:text-[#9b2335] transition-colors">{item.title}</AccordionTrigger>
-                <AccordionContent className="text-[#2d2d2d]/60 py-4">{item.description}</AccordionContent>
-              </AccordionItem>
-            </Reveal>
-          ))}
-        </Accordion>
-      </section>
-
-      {/* TESTIMONIALS */}
-      <section className="py-20 md:py-32 px-6 md:px-12 bg-[#fdf8f0]">
-        <Reveal>
-          <h2 className="text-4xl md:text-6xl font-black mb-12 text-center">Patient Stories</h2>
-        </Reveal>
-        <div className="max-w-4xl mx-auto">
-          <Carousel>
-            <CarouselContent>
-              {[
-                { text: "The team at Mira Health made my fertility journey manageable and hopeful. I'm now a proud mother of twins!", author: "Jennifer M." },
-                { text: "Compassionate care with cutting-edge medicine. Every question was answered. Thank you, Mira!", author: "Amanda T." },
-                { text: "Best gynecology experience I've had. They genuinely listen and care about your health.", author: "Rachel K." }
-              ].map((testimonial, i) => (
-                <CarouselItem key={i} className="md:basis-full">
-                  <Card className="bg-white border-[#fde8e8]/50">
-                    <CardContent className="p-8 text-center">
-                      <p className="text-lg mb-6 italic text-[#2d2d2d]/60">"{testimonial.text}"</p>
-                      <p className="font-bold text-[#9b2335]">{testimonial.author}</p>
-                    </CardContent>
-                  </Card>
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-            <CarouselPrevious className="cursor-pointer" />
-            <CarouselNext className="cursor-pointer" />
-          </Carousel>
-        </div>
-      </section>
-
-      {/* FAQ */}
-      <section className="py-20 md:py-32 px-6 md:px-12 max-w-4xl mx-auto">
-        <Reveal>
-          <h2 className="text-4xl md:text-6xl font-black mb-12">FAQ</h2>
-        </Reveal>
-        <Accordion type="single" collapsible>
-          {[
-            { q: "Do you offer telehealth appointments?", a: "Yes, telehealth is available for consultations, follow-ups, and certain procedures." },
-            { q: "Do I need a referral?", a: "No referral needed to schedule an appointment. Many insurance plans don't require one." },
-            { q: "What are your office hours?", a: "Monday-Friday 8am-6pm, Saturday 9am-2pm. After-hours urgent care available." },
-            { q: "Can international patients be treated?", a: "Yes, we welcome international patients. We can arrange remote consultations initially." }
-          ].map((item, i) => (
-            <Reveal key={i} delay={i * 0.1}>
-              <AccordionItem value={`faq-${i}`} className="border-b border-[#2d2d2d]/10">
-                <AccordionTrigger className="cursor-pointer py-4 hover:text-[#9b2335] transition-colors">{item.q}</AccordionTrigger>
-                <AccordionContent className="text-[#2d2d2d]/60 py-4">{item.a}</AccordionContent>
-              </AccordionItem>
-            </Reveal>
-          ))}
-        </Accordion>
-      </section>
-
-      {/* APPOINTMENT DIALOG */}
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="text-2xl">Schedule Your Appointment</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-6">
-            {selectedDoctor && (
-              <div className="bg-[#fde8e8] p-4 rounded">
-                <p className="text-sm opacity-60 mb-2">Selected Physician</p>
-                <p className="font-bold">{selectedDoctor.name}</p>
-                <p className="text-sm text-[#2d2d2d]/60">{selectedDoctor.specialty}</p>
-              </div>
-            )}
-            <div className="space-y-3">
-              <div>
-                <label className="block text-sm font-bold mb-2">Preferred Service</label>
-                <select className="w-full border border-[#2d2d2d]/20 p-2 rounded cursor-pointer">
-                  <option>Select a service...</option>
-                  <option>Initial Consultation</option>
-                  <option>Follow-up Visit</option>
-                  <option>Testing</option>
-                  <option>Telehealth</option>
-                </select>
-              </div>
+      <section className="relative min-h-screen flex flex-col justify-center pt-20">
+        <div className="max-w-[1500px] mx-auto px-6 md:px-12 relative z-10">
+          <Reveal>
+            <div className="px-3 py-1 bg-[#a855f7]/10 border border-[#a855f7]/30 text-[#a855f7] text-[9px] font-bold uppercase tracking-widest inline-block mb-8">NOW_EXHIBITING</div>
+            <h1 className="text-7xl md:text-9xl lg:text-[10rem] font-black leading-[0.8] tracking-tighter uppercase mb-10">Art <br /> Without <br /> <span className="text-[#a855f7]">Borders.</span></h1>
+            <p className="max-w-xl text-lg text-white/30 leading-relaxed font-light uppercase tracking-widest italic mb-12">Digital art gallery and collector platform. Discover, collect, and commission extraordinary work.</p>
+            <div className="flex flex-col sm:flex-row gap-6">
+              <button className="px-12 py-5 bg-[#a855f7] text-white text-[10px] font-black uppercase tracking-[0.4em] hover:bg-white hover:text-black transition-all shadow-[0_0_50px_rgba(168,85,247,0.2)]">View_Collections</button>
+              <button className="px-12 py-5 border border-white/10 text-[10px] font-black uppercase tracking-[0.4em] hover:bg-white hover:text-black transition-all">Meet_Artists</button>
             </div>
-            <MagneticBtn className="w-full px-6 py-3 bg-[#9b2335] text-white font-bold hover:bg-[#2d2d2d] transition-all duration-300">
-              Continue Booking
-            </MagneticBtn>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* FOOTER CTA */}
-      <section className="py-20 md:py-32 px-6 md:px-12 bg-[#9b2335] text-white text-center">
-        <Reveal>
-          <h2 className="text-4xl md:text-6xl font-black mb-6">Your health journey starts here</h2>
-          <p className="text-lg text-white/60 mb-8 max-w-2xl mx-auto">Compassionate, expert care tailored to your unique needs</p>
-          <MagneticBtn className="px-8 py-4 bg-white text-[#9b2335] font-bold cursor-pointer hover:bg-[#2d2d2d] hover:text-white transition-all duration-200">
-            Book Your Appointment Today
-          </MagneticBtn>
-        </Reveal>
+          </Reveal>
+        </div>
       </section>
+
+      <section className="py-40 bg-[#0c0c0c] border-y border-white/5">
+        <div className="max-w-[1500px] mx-auto px-6 md:px-12">
+          <Reveal><h2 className="text-6xl md:text-8xl font-black tracking-tighter uppercase leading-[0.85] mb-24">Current <span className="text-[#a855f7]">Shows.</span></h2></Reveal>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">{COLLECTIONS.map((c, i) => <Reveal key={i} delay={i * 0.05}><div className="group cursor-pointer"><div className="w-full aspect-[16/10] bg-gradient-to-br from-[#a855f7]/10 to-[#a855f7]/5 rounded-2xl flex items-center justify-center mb-6 group-hover:from-[#a855f7]/20 transition-all"><Frame className="w-12 h-12 text-[#a855f7]/15" /></div><div className="flex items-center gap-4 mb-2"><span className="text-[9px] font-bold text-[#a855f7] uppercase tracking-widest">{c.medium}</span><span className="text-[9px] text-white/20 uppercase tracking-widest">{c.year}</span></div><h3 className="text-2xl font-black uppercase tracking-tighter group-hover:text-[#a855f7] transition-colors mb-1">{c.title}</h3><p className="text-sm text-white/30">{c.artist}</p></div></Reveal>)}</div>
+        </div>
+      </section>
+
+      <section className="py-40 bg-[#0a0a0a]">
+        <div className="max-w-[1500px] mx-auto px-6 md:px-12">
+          <Reveal><h2 className="text-6xl md:text-8xl font-black tracking-tighter uppercase leading-[0.85] mb-24">What We <span className="text-[#a855f7]">Offer.</span></h2></Reveal>
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">{FEATURES.map((f, i) => <Reveal key={i} delay={i * 0.05}><div className="group p-10 bg-[#0c0c0c] border border-white/5 hover:border-[#a855f7]/30 rounded-3xl transition-all"><div className="w-14 h-14 bg-white/5 rounded-2xl flex items-center justify-center text-[#a855f7] mb-8 group-hover:bg-[#a855f7] group-hover:text-white transition-all">{f.icon}</div><h3 className="text-xl font-black uppercase tracking-tighter mb-4 group-hover:text-[#a855f7] transition-colors">{f.title}</h3><p className="text-sm text-white/30">{f.desc}</p></div></Reveal>)}</div>
+        </div>
+      </section>
+
+      <section className="py-40 bg-[#0c0c0c] border-y border-white/5">
+        <div className="max-w-[1500px] mx-auto px-6 md:px-12">
+          <Reveal><h2 className="text-6xl md:text-8xl font-black tracking-tighter uppercase leading-[0.85] mb-24">Collector <span className="text-[#a855f7]">Voices.</span></h2></Reveal>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">{TESTIMONIALS.map((t, i) => <Reveal key={i} delay={i * 0.1}><div className="p-10 bg-[#111] border border-white/5 rounded-3xl h-full flex flex-col"><div className="flex gap-1 mb-6">{[...Array(5)].map((_, j) => <Star key={j} className="w-4 h-4 text-[#a855f7] fill-[#a855f7]" />)}</div><p className="text-base text-white/40 italic leading-relaxed flex-1 mb-8">&ldquo;{t.quote}&rdquo;</p><div className="pt-6 border-t border-white/5"><div className="font-black uppercase text-sm">{t.name}</div><div className="text-[10px] text-white/20 uppercase tracking-widest">{t.role}</div></div></div></Reveal>)}</div>
+        </div>
+      </section>
+
+      <section className="py-40 bg-[#0a0a0a]">
+        <div className="max-w-[1500px] mx-auto px-6 md:px-12">
+          <Reveal><h2 className="text-6xl md:text-8xl font-black tracking-tighter leading-[0.85] mb-24 uppercase text-center">Membership <span className="text-[#a855f7]">Plans.</span></h2></Reveal>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">{PRICING.map((p, i) => <Reveal key={i} delay={i * 0.1}><div className={`group p-10 border rounded-3xl transition-all ${p.featured ? "bg-[#a855f7]/5 border-[#a855f7]/30 scale-105" : "bg-[#0c0c0c] border-white/5"}`}><div className="text-[9px] font-bold text-[#a855f7] uppercase tracking-widest mb-2">{p.name}</div><div className="text-4xl font-black mb-1">{p.price}<span className="text-lg text-white/30">{p.period}</span></div><div className="space-y-4 mt-8 pt-8 border-t border-white/5">{p.features.map((f, j) => <div key={j} className="flex items-center gap-3 text-[10px] text-white/40"><CheckCircle2 className="w-3.5 h-3.5 text-[#a855f7]" />{f}</div>)}</div><button className={`mt-8 w-full py-3 text-[10px] font-black uppercase tracking-widest transition-all rounded-lg ${p.featured ? "bg-[#a855f7] text-white" : "border border-white/10 hover:bg-[#a855f7] hover:text-white"}`}>{p.cta}</button></div></Reveal>)}</div>
+        </div>
+      </section>
+
+      <section className="py-40 bg-[#0c0c0c] text-center border-t border-white/5">
+        <div className="max-w-[1500px] mx-auto px-6 md:px-12"><Reveal>
+          <h2 className="text-6xl md:text-9xl font-black tracking-tighter uppercase mb-12">See The <span className="text-[#a855f7]">Art.</span></h2>
+          <button className="px-16 py-6 bg-[#a855f7] text-white text-[12px] font-black uppercase tracking-[0.4em] hover:bg-white hover:text-black transition-all shadow-[0_0_60px_rgba(168,85,247,0.15)]">Enter_Gallery</button>
+        </Reveal></div>
+      </section>
+
+      <footer className="bg-[#0a0a0a] border-t border-white/5 py-32 px-6 md:px-12">
+        <div className="max-w-[1500px] mx-auto grid grid-cols-1 md:grid-cols-4 gap-24">
+          <div className="col-span-1 md:col-span-2"><Link href="/" className="flex items-center gap-3 text-xl font-black tracking-tighter mb-10"><div className="w-8 h-8 bg-[#a855f7] text-white rounded-full flex items-center justify-center"><Palette className="w-4 h-4" /></div><span>ART // INDEX</span></Link><p className="text-[11px] text-white/15 uppercase tracking-[0.2em] max-w-sm italic">Digital art gallery & collector platform.</p></div>
+          <div><h4 className="text-[10px] font-black uppercase tracking-widest mb-10 text-[#a855f7]">Gallery</h4><ul className="space-y-5 text-[10px] font-bold text-white/20 uppercase tracking-widest">{["Collections", "Artists", "Events"].map(l => <li key={l}><Link href="#">{l}</Link></li>)}</ul></div>
+          <div><h4 className="text-[10px] font-black uppercase tracking-widest mb-10 text-[#a855f7]">Connect</h4><ul className="space-y-5 text-[10px] font-bold text-white/20 uppercase tracking-widest">{["Instagram", "Twitter", "Contact"].map(l => <li key={l}><Link href="#">{l}</Link></li>)}</ul></div>
+        </div>
+        <div className="max-w-[1500px] mx-auto mt-32 pt-16 border-t border-white/5 text-center text-[9px] font-bold text-white/10 uppercase tracking-widest">&copy; 2026 ART INDEX</div>
+      </footer>
     </div>
-  )
+  );
 }
