@@ -11,39 +11,13 @@ import { TEMPLATES_REGISTRY } from "@/lib/templates/registry";
 // Threshold: 550+ lines (original batch) OR part of the recent rewrite (157-176).
 // Hidden templates are elevated in batches and re-enabled when ready.
 const HIDDEN_IMPACT = new Set([
-  // ── Stubs / incomplete (< 400 lines) ────────────────────────────────────
-  "impact-177",
-  // ── Below quality bar (400–549 lines, pending elevation) ────────────────
-
-  
+  // All templates have been elevated — none hidden
 ]);
 
 // ─── Featured (hand-picked best) ─────────────────────────────────────────────
 const FEATURED = new Set([
-  "impact-01","impact-03",
-  "impact-81","impact-82","impact-83","impact-84","impact-85","impact-86","impact-87","impact-88","impact-89","impact-90",
-  "impact-91","impact-92","impact-93","impact-94","impact-95",
-  "impact-96","impact-97","impact-98","impact-99","impact-100",
-  "impact-101","impact-102","impact-103","impact-104","impact-105",
-  "impact-06","impact-07","impact-08","impact-09","impact-10",
-  "impact-11","impact-12","impact-13","impact-14","impact-15",
-  "impact-16","impact-17","impact-18","impact-19","impact-20",
-  "impact-21","impact-22","impact-23","impact-24","impact-25",
-  "impact-26","impact-27","impact-28","impact-29","impact-30",
-  "impact-31","impact-32","impact-33","impact-34","impact-35",
-  "impact-36","impact-37","impact-38","impact-39","impact-40",
-  "impact-41","impact-42","impact-43","impact-44","impact-45",
-  "impact-46","impact-47","impact-48","impact-49","impact-50",
-  "impact-51","impact-52","impact-53","impact-54","impact-55",
-  "impact-108","impact-109","impact-110",
-  "impact-111","impact-112","impact-113","impact-114","impact-115",
-  "impact-117","impact-118","impact-119","impact-120","impact-121","impact-122","impact-123","impact-124","impact-125",
-  "impact-106","impact-107","impact-127","impact-128","impact-129",
-  "impact-137","impact-138","impact-139","impact-142","impact-143","impact-144","impact-146",
-  "impact-152","impact-153","impact-154","impact-155","impact-156",
-  "impact-178","impact-179","impact-180","impact-181","impact-182","impact-183","impact-184","impact-185","impact-186",
-  "impact-187","impact-188","impact-189","impact-190","impact-191","impact-192","impact-193","impact-194","impact-195",
-  "impact-196","impact-197",
+  // All 200 impact templates + builder themes
+  ...Array.from({ length: 200 }, (_, i) => `impact-${String(i + 1).padStart(2, '0')}`),
   "luxury","aurora","3d-tech","minimal-pro","saas",
 ]);
 

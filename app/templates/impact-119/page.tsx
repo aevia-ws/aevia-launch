@@ -1,256 +1,306 @@
-"use client";
-import { motion, useInView, AnimatePresence, useMotionValue, useSpring } from "framer-motion";
-import { useState, useRef, useEffect } from "react";
-import Link from "next/link";
-import { Dumbbell, Flame, Heart, Menu, X, ArrowRight, Timer, Zap, Trophy, Target, Activity, BarChart3, Users, Crown, Footprints, Swords } from "lucide-react";
-import "../premium.css";
+"use client"
+import { motion, useScroll, useTransform, useInView } from "framer-motion"
+import { useRef, useState, useEffect } from "react"
+import Link from "next/link"
+import { Cloud, ArrowRight, Menu, Shield, Zap, Globe, Cpu, Database, Server, ChevronRight, Activity, Terminal } from "lucide-react"
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 
-const MANIFESTS = {
-  hero: { members: "18,400", classes: "120/wk", trainers: "85", status: "FACILITY_OPEN" },
-  programs: [
-    { id: "forge", name: "FORGE // HIIT", desc: "High-intensity interval training combining Olympic lifts, plyometrics, and metabolic conditioning for maximum caloric burn.", icon: <Flame className="w-5 h-5" />, specs: ["45 Min Sessions", "Heart Rate Zones", "600+ Cal Burn"] },
-    { id: "iron", name: "IRON // STRENGTH", desc: "Progressive overload strength program with periodized programming, real-time form analysis, and load tracking.", icon: <Dumbbell className="w-5 h-5" />, specs: ["12-Week Cycles", "RPE Tracking", "PR Logging"] },
-    { id: "apex", name: "APEX // COMBAT", desc: "Combat conditioning blending Muay Thai, Brazilian Jiu-Jitsu, and boxing fundamentals in a team-based format.", icon: <Swords className="w-5 h-5" />, specs: ["Striking + Grappling", "Sparring Rounds", "Competition Prep"] },
-  ],
-  telemetry: [
-    { label: "MEMBER_RETENTION", val: 94, color: "#ef4444" },
-    { label: "CLASS_CAPACITY", val: 87, color: "#ef4444" },
-    { label: "TRAINER_RATING", val: 98, color: "#22c55e" },
-    { label: "TRANSFORMATION", val: 91, color: "#ef4444" },
-  ],
-  leaderboard: [
-    { rank: "01", name: "ATLAS_GRIND", metric: "2,400 lbs", category: "Total Lifted / Week" },
-    { rank: "02", name: "VIPER_CARDIO", metric: "42.8 km", category: "Distance / Week" },
-    { rank: "03", name: "TITAN_CORE", metric: "1,200 reps", category: "Core Volume / Week" },
-    { rank: "04", name: "BLAZE_HIIT", metric: "8,400 cal", category: "Calories Burned / Week" },
-  ],
-};
-
-function Reveal({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
-  const ref = useRef(null);
-  const inView = useInView(ref, { once: true, margin: "-50px" });
-  return <motion.div ref={ref} initial={{ opacity: 0, y: 20 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.8, delay, ease: [0.25, 0.1, 0.25, 1] }}>{children}</motion.div>;
+function Reveal({ children, delay = 0, y = 40 }: { children: React.ReactNode; delay?: number; y?: number }) {
+  const ref = useRef(null)
+  const isInView = useInView(ref, { once: true, margin: "-80px" })
+  return (
+    <motion.div ref={ref} initial={{ opacity: 0, y }} animate={isInView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 1, delay, ease: [0.16, 1, 0.3, 1] }}>
+      {children}
+    </motion.div>
+  )
 }
 
-function MagneticBtn({ children, className = "" }: { children: React.ReactNode; className?: string }) {
-  const x = useMotionValue(0), y = useMotionValue(0);
-  const sx = useSpring(x, { stiffness: 300, damping: 20 }), sy = useSpring(y, { stiffness: 300, damping: 20 });
-  const ref = useRef<HTMLButtonElement>(null);
-  return <motion.button ref={ref} style={{ x: sx, y: sy }} onMouseMove={(e) => { const r = ref.current?.getBoundingClientRect(); if (r) { x.set((e.clientX - r.left - r.width / 2) * 0.4); y.set((e.clientY - r.top - r.height / 2) * 0.4); }}} onMouseLeave={() => { x.set(0); y.set(0); }} className={className}>{children}</motion.button>;
-}
+const NODES = [
+  { title: "Edge Compute", desc: "120+ global regions with <5ms latency to end-users.", icon: Cpu, color: "#3b82f6" },
+  { title: "Object Storage", desc: "S3-compatible, multi-region replication with 11 nines of durability.", icon: Database, color: "#8b5cf6" },
+  { title: "Managed K8s", desc: "Auto-scaling clusters with built-in service mesh and observability.", icon: Server, color: "#ec4899" },
+]
 
-export default function IronXFitnessPage() {
-  const [scrolled, setScrolled] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
-  useEffect(() => { const h = () => setScrolled(window.scrollY > 50); window.addEventListener("scroll", h); return () => window.removeEventListener("scroll", h); }, []);
+const STATS = [
+  { value: "99.999%", label: "Uptime SLA" },
+  { value: "250TB/s", label: "Network Capacity" },
+  { value: "45ms", label: "Global Avg Latency" },
+  { value: "24/7", label: "Expert Support" },
+]
+
+const INTEGRATIONS = [
+  "Terraform", "Kubernetes", "GitHub", "GitLab", "Slack", "Prometheus", "Grafana", "Redis"
+]
+
+export default function NebulaCloudPage() {
+  const [scrolled, setScrolled] = useState(false)
+
+  useEffect(() => {
+    const h = () => setScrolled(window.scrollY > 60)
+    window.addEventListener("scroll", h)
+    return () => window.removeEventListener("scroll", h)
+  }, [])
 
   return (
-    <div className="premium-theme min-h-screen bg-[#0a0404] text-white font-mono selection:bg-[#ef4444] selection:text-black overflow-x-hidden">
-      <div className="fixed inset-0 pointer-events-none z-0">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,#200808_0%,transparent_50%)]" />
-        <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: `repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(239,68,68,0.08) 35px, rgba(239,68,68,0.08) 36px)` }} />
-        {/* Pulse lines */}
-        {[...Array(3)].map((_, i) => (
-          <motion.div key={i} animate={{ opacity: [0, 0.08, 0], x: ["-100%", "100%"] }} transition={{ duration: 4, repeat: Infinity, delay: i * 1.3 }}
-            className="absolute h-px bg-gradient-to-r from-transparent via-[#ef4444] to-transparent" style={{ top: `${30 + i * 20}%`, width: "100%" }} />
-        ))}
-      </div>
-
-      <nav className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ${scrolled ? "bg-[#0a0404]/90 backdrop-blur-xl py-4 border-b border-white/5" : "bg-transparent py-10"}`}>
-        <div className="max-w-[1500px] mx-auto px-6 md:px-12 flex items-center justify-between">
-          <Link href="/" className="group flex items-center gap-3 text-xl font-black tracking-tighter">
-            <div className="w-8 h-8 bg-[#ef4444] rounded-sm flex items-center justify-center text-white"><Flame className="w-5 h-5" /></div>
-            <span className="group-hover:text-[#ef4444] transition-colors">IRON // <span className="text-white/40">X</span></span>
+    <div className="bg-[#020617] text-white font-sans min-h-screen selection:bg-blue-500 selection:text-white overflow-x-hidden">
+      
+      {/* ── NAVBAR ────────────────── */}
+      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-700 ${scrolled ? "bg-[#020617]/80 backdrop-blur-2xl border-b border-blue-500/10 py-4" : "bg-transparent py-8"}`}>
+        <div className="max-w-[1400px] mx-auto px-6 md:px-12 flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-3 group">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-violet-600 flex items-center justify-center group-hover:rotate-12 transition-transform duration-500">
+              <Cloud className="w-5 h-5 text-white" />
+            </div>
+            <span className="text-xl font-bold tracking-tighter">Nebula<span className="text-blue-500">Cloud</span></span>
           </Link>
-          <div className="hidden lg:flex items-center gap-10 text-[10px] font-bold uppercase tracking-[0.3em] text-white/40">
-            {["Programs", "Schedule", "Trainers", "Membership"].map(l => <Link key={l} href="#" className="hover:text-[#ef4444] transition-colors">{l}</Link>)}
+          <div className="hidden lg:flex gap-10 text-[10px] font-bold uppercase tracking-[0.3em] text-white/40">
+            {["Engine", "Infrastructure", "Pricing", "Docs"].map(l => (
+              <Link key={l} href="#" className="hover:text-blue-400 transition-colors">{l}</Link>
+            ))}
           </div>
-          <div className="flex items-center gap-6">
-            <MagneticBtn className="px-6 py-2.5 bg-[#ef4444] text-white text-[10px] font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all">Free_Trial</MagneticBtn>
-            <button onClick={() => setMenuOpen(true)} className="lg:hidden text-white/60"><Menu className="w-6 h-6" /></button>
+          <div className="flex items-center gap-4">
+            <button className="hidden md:block px-6 py-2.5 text-white/60 text-[10px] font-bold uppercase tracking-widest hover:text-white transition-colors">Log In</button>
+            <button className="hidden md:block px-6 py-2.5 bg-blue-600 text-white text-[10px] font-bold uppercase tracking-widest rounded-lg hover:bg-blue-500 transition-all shadow-[0_0_20px_rgba(37,99,235,0.3)]">Get Started</button>
+            <Sheet>
+              <SheetTrigger asChild><button className="lg:hidden"><Menu className="w-6 h-6 text-white" /></button></SheetTrigger>
+              <SheetContent side="right" className="bg-[#020617] border-blue-500/10 p-12">
+                <div className="flex flex-col gap-8 mt-16">
+                  {["Engine", "Infrastructure", "Pricing", "Docs"].map(l => (
+                    <Link key={l} href="#" className="text-2xl font-light uppercase tracking-widest hover:text-blue-400 transition-colors">{l}</Link>
+                  ))}
+                </div>
+              </SheetContent>
+            </Sheet>
           </div>
         </div>
       </nav>
 
-      <AnimatePresence>{menuOpen && (
-        <motion.div initial={{ opacity: 0, x: "100%" }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: "100%" }} className="fixed inset-0 z-[100] bg-[#0a0404] p-8 flex flex-col pt-32">
-          <button onClick={() => setMenuOpen(false)} className="absolute top-10 right-8 text-white/40"><X className="w-10 h-10" /></button>
-          <div className="flex flex-col gap-10 text-5xl font-black tracking-tighter uppercase">
-            {["Programs", "Schedule", "Trainers", "Membership"].map(l => <Link key={l} href="#" onClick={() => setMenuOpen(false)}>{l}</Link>)}
+      <main>
+        {/* ── HERO ──────────────────── */}
+        <section className="relative min-h-screen flex items-center pt-32 pb-20 overflow-hidden">
+          {/* Animated Background */}
+          <div className="absolute inset-0">
+            <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-blue-600/10 blur-[120px] rounded-full animate-pulse" />
+            <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-violet-600/10 blur-[120px] rounded-full animate-pulse" style={{ animationDelay: "1s" }} />
+            <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-[0.03]" />
           </div>
-        </motion.div>
-      )}</AnimatePresence>
 
-      {/* HERO */}
-      <section className="relative h-screen flex flex-col justify-center pt-20 overflow-hidden">
-        <div className="max-w-[1500px] mx-auto px-6 md:px-12 w-full relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
-            <div className="lg:col-span-8">
-              <Reveal>
-                <div className="flex items-center gap-4 mb-8">
-                  <div className="px-3 py-1 bg-[#ef4444]/10 border border-[#ef4444]/30 text-[#ef4444] text-[9px] font-bold uppercase tracking-widest">{MANIFESTS.hero.status}</div>
-                  <div className="text-[9px] text-white/30 tracking-widest uppercase">MEMBERS: {MANIFESTS.hero.members} // CLASSES: {MANIFESTS.hero.classes}</div>
-                </div>
-                <h1 className="text-7xl md:text-9xl lg:text-[11rem] font-black leading-[0.8] tracking-tighter uppercase mb-10">
-                  No <br /> <span className="text-[#ef4444]">Limits.</span> <br /> No <br /> <span className="text-white/20">Excuses.</span>
-                </h1>
-                <p className="max-w-2xl text-xl text-white/40 leading-relaxed font-light mb-12 uppercase tracking-widest italic">
-                  Elite training facilities. World-class coaches. Data-driven programming. Transform your body and mind with performance science.
-                </p>
-                <div className="flex flex-col sm:flex-row gap-6">
-                  <button className="px-12 py-5 bg-[#ef4444] text-white text-[10px] font-black uppercase tracking-[0.4em] hover:bg-white hover:text-black transition-all shadow-[0_0_50px_rgba(239,68,68,0.3)]">Start_Training</button>
-                  <button className="px-12 py-5 border border-white/10 text-white text-[10px] font-black uppercase tracking-[0.4em] hover:bg-white hover:text-black transition-all">View_Schedule</button>
-                </div>
-              </Reveal>
-            </div>
-            <div className="lg:col-span-4 relative hidden lg:block">
-              <Reveal delay={0.2}>
-                <div className="relative aspect-square bg-[#120606] border border-white/5 p-12 rounded-3xl overflow-hidden shadow-2xl">
-                  <div className="absolute inset-0 bg-gradient-to-br from-[#ef4444]/5 to-transparent" />
-                  <div className="relative h-full flex flex-col justify-between">
-                    <div className="flex justify-between items-start">
-                      <div><div className="text-[8px] font-bold text-white/20 uppercase tracking-widest">ACTIVE_TRAINERS</div><div className="text-xl font-black text-[#ef4444]">{MANIFESTS.hero.trainers}</div></div>
-                      <div className="w-10 h-10 border border-white/5 rounded-full flex items-center justify-center"><Activity className="w-5 h-5 text-[#ef4444] animate-pulse" /></div>
-                    </div>
-                    <div className="space-y-10 my-10">
-                      {MANIFESTS.telemetry.map((s, i) => (
-                        <div key={i}>
-                          <div className="flex justify-between text-[8px] font-bold uppercase tracking-widest mb-3"><span className="text-white/40">{s.label}</span><span style={{ color: s.color }}>{s.val}%</span></div>
-                          <div className="w-full h-1 bg-white/5 rounded-full overflow-hidden"><motion.div initial={{ width: 0 }} animate={{ width: `${s.val}%` }} transition={{ duration: 2, delay: 0.5 + i * 0.1 }} className="h-full" style={{ backgroundColor: s.color }} /></div>
-                        </div>
-                      ))}
-                    </div>
-                    <div className="pt-6 border-t border-white/5 flex justify-between items-center text-[8px] font-bold text-white/20 uppercase tracking-widest">
-                      <span>PERFORMANCE_LAB</span>
-                      <div className="flex items-center gap-2 text-[#ef4444]"><div className="w-1.5 h-1.5 bg-[#ef4444] rounded-full animate-ping" /><span>LIVE</span></div>
-                    </div>
+          <div className="relative z-10 max-w-[1200px] mx-auto px-6 md:px-12 w-full">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+              <div>
+                <Reveal>
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-blue-500/20 bg-blue-500/10 text-blue-400 text-[10px] font-bold uppercase tracking-widest mb-8">
+                    <Zap className="w-3 h-3" /> Next-Gen Cloud Platform
                   </div>
-                </div>
-              </Reveal>
-            </div>
-          </div>
-        </div>
-      </section>
+                </Reveal>
+                <Reveal delay={0.1} y={60}>
+                  <h1 className="text-6xl md:text-8xl font-black tracking-tighter leading-[0.9] mb-8">
+                    Deploy<br/>Without<br/><span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-violet-400 to-blue-500">Limits.</span>
+                  </h1>
+                </Reveal>
+                <Reveal delay={0.2}>
+                  <p className="text-xl text-slate-400 font-light max-w-lg leading-relaxed mb-10">
+                    High-performance cloud infrastructure designed for modern engineering teams. Bare metal performance with serverless ease.
+                  </p>
+                </Reveal>
+                <Reveal delay={0.3}>
+                  <div className="flex flex-wrap gap-4">
+                    <button className="px-10 py-4 bg-white text-slate-950 font-bold rounded-lg hover:bg-blue-600 hover:text-white transition-all duration-500 shadow-xl">
+                      Deploy Your First Node
+                    </button>
+                    <button className="px-10 py-4 border border-white/10 text-white font-bold rounded-lg hover:bg-white/5 transition-all flex items-center gap-2">
+                      <Terminal className="w-4 h-4" /> View CLI Docs
+                    </button>
+                  </div>
+                </Reveal>
+              </div>
 
-      {/* PROGRAMS */}
-      <section className="py-40 bg-[#120606] border-y border-white/5">
-        <div className="max-w-[1500px] mx-auto px-6 md:px-12">
-          <div className="flex flex-col md:flex-row justify-between items-end mb-24 gap-12">
-            <Reveal><h2 className="text-6xl md:text-8xl font-black tracking-tighter uppercase leading-[0.85]">Training <br /> <span className="text-[#ef4444]">Programs.</span></h2></Reveal>
-            <p className="max-w-md text-sm text-white/30 leading-relaxed uppercase tracking-widest font-light italic">Scientifically designed protocols for strength, conditioning, and combat athleticism.</p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-            {MANIFESTS.programs.map((p, i) => (
-              <Reveal key={p.id} delay={i * 0.1}>
-                <div className="group p-12 bg-[#120606] border border-white/5 hover:border-[#ef4444]/30 transition-all flex flex-col h-full rounded-3xl relative overflow-hidden">
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-[#ef4444]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                  <div className="w-16 h-16 bg-white/5 border border-white/5 rounded-2xl flex items-center justify-center text-[#ef4444] mb-12 group-hover:bg-[#ef4444] group-hover:text-white transition-all">{p.icon}</div>
-                  <h3 className="text-3xl font-black uppercase mb-6 tracking-tighter group-hover:text-[#ef4444] transition-colors">{p.name}</h3>
-                  <p className="text-sm text-white/40 leading-relaxed mb-12 flex-1 italic">"{p.desc}"</p>
-                  <div className="space-y-5 pt-10 border-t border-white/5">
-                    {p.specs.map((s, j) => <div key={j} className="flex items-center gap-4 text-[9px] font-bold text-white/20 uppercase tracking-widest"><div className="w-1.5 h-1.5 bg-[#ef4444] rotate-45" />{s}</div>)}
-                  </div>
-                </div>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* LEADERBOARD */}
-      <section className="py-40 bg-[#0a0404]">
-        <div className="max-w-[1500px] mx-auto px-6 md:px-12">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 md:gap-32 items-center">
-            <div className="lg:col-span-6">
-              <Reveal>
-                <div className="relative aspect-video bg-[#120606] border border-white/5 rounded-2xl overflow-hidden p-8 flex items-center justify-center">
-                  <div className="absolute top-6 left-6 text-[8px] font-bold text-white/20 tracking-widest uppercase">HEART_RATE_ZONE</div>
-                  {/* Heart rate visualization */}
-                  <svg viewBox="0 0 300 100" className="w-full h-24 opacity-60">
-                    <motion.path d="M0,50 L30,50 L40,50 L50,20 L60,80 L70,10 L80,90 L90,50 L100,50 L130,50 L140,50 L150,25 L160,75 L170,15 L180,85 L190,50 L200,50 L230,50 L240,50 L250,30 L260,70 L270,20 L280,80 L290,50 L300,50"
-                      fill="none" stroke="#ef4444" strokeWidth="2"
-                      initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 3, repeat: Infinity }} />
-                  </svg>
-                  <div className="absolute bottom-6 left-6 right-6 flex justify-between items-center text-[8px] font-bold text-white/20 tracking-widest uppercase">
-                    <span>BPM: 142</span><div className="text-[#ef4444]">ZONE_4_THRESHOLD</div>
-                  </div>
-                </div>
-              </Reveal>
-            </div>
-            <div className="lg:col-span-6">
-              <Reveal>
-                <span className="text-[10px] uppercase tracking-[0.4em] font-bold text-[#ef4444] mb-6 block">Weekly_Rankings</span>
-                <h2 className="text-6xl md:text-8xl font-black tracking-tighter leading-[0.85] mb-12 uppercase">Leader <br /> <span className="text-white/20">Board.</span></h2>
-                <div className="space-y-8">
-                  {MANIFESTS.leaderboard.map((l, i) => (
-                    <div key={i} className="group flex flex-col md:flex-row justify-between items-center p-8 bg-white/2 border border-white/5 hover:border-[#ef4444]/30 transition-all">
-                      <div className="flex items-center gap-10 mb-6 md:mb-0">
-                        <div className="text-3xl font-black text-[#ef4444] tabular-nums">#{l.rank}</div>
-                        <div className="text-2xl font-black uppercase tracking-tighter">{l.name}</div>
+              <Reveal delay={0.4} y={30}>
+                <div className="relative">
+                  <div className="absolute -inset-4 bg-blue-500/20 blur-2xl rounded-3xl" />
+                  <div className="relative p-1 bg-gradient-to-br from-blue-500/20 to-violet-500/20 rounded-3xl border border-white/10 backdrop-blur-sm">
+                    <div className="bg-slate-900/90 rounded-2xl p-6 border border-white/5 overflow-hidden font-mono text-sm leading-relaxed text-blue-300">
+                      <div className="flex gap-1.5 mb-6">
+                        <div className="w-3 h-3 rounded-full bg-red-500/50" />
+                        <div className="w-3 h-3 rounded-full bg-yellow-500/50" />
+                        <div className="w-3 h-3 rounded-full bg-green-500/50" />
                       </div>
-                      <div className="flex items-center gap-8 text-[10px] font-bold uppercase tracking-widest">
-                        <span className="text-white/60 text-lg font-black">{l.metric}</span>
-                        <span className="text-white/20">{l.category}</span>
+                      <div className="space-y-1">
+                        <p className="text-slate-500">$ nebula deploy --env production</p>
+                        <p className="text-green-400">✔ Resolving dependencies...</p>
+                        <p className="text-green-400">✔ Bundling assets (1.2MB)...</p>
+                        <p className="text-green-400">✔ Provisioning edge nodes [FRA, SGP, NYC, SFO]...</p>
+                        <p className="text-blue-400">⚡ Deployment active at nebula-prod-v2.edge</p>
+                        <p className="text-slate-500 mt-4">Stats:</p>
+                        <p className="text-slate-300">  Latency: 12ms</p>
+                        <p className="text-slate-300">  Cold Start: 0.8ms</p>
+                        <p className="text-slate-300">  Availability: 100%</p>
                       </div>
                     </div>
-                  ))}
+                  </div>
                 </div>
               </Reveal>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* METRICS */}
-      <section className="py-40 bg-[#120606] border-y border-white/5 text-center overflow-hidden">
-        <div className="max-w-[1500px] mx-auto px-6 md:px-12">
-          <Reveal>
-            <h2 className="text-7xl md:text-[12rem] font-black tracking-tighter uppercase leading-[0.85] mb-12 text-white/5">Beast <br /> Mode.</h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-16 mt-24">
-              {[{ label: "ACTIVE_MEMBERS", val: "18,400" }, { label: "CLASSES_WEEKLY", val: "120" }, { label: "ELITE_TRAINERS", val: "85" }, { label: "TRANSFORMATIONS", val: "4,200+" }].map((s, i) => (
-                <div key={i} className="group"><div className="text-5xl font-black text-white mb-4 group-hover:text-[#ef4444] transition-colors">{s.val}</div><div className="text-[10px] font-black text-white/20 uppercase tracking-widest">{s.label}</div></div>
+        {/* ── STATS ─────────────────── */}
+        <section className="py-20 border-y border-white/5 bg-slate-950/50">
+          <div className="max-w-[1200px] mx-auto px-6 md:px-12">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-12 text-center">
+              {STATS.map((s, i) => (
+                <Reveal key={i} delay={i * 0.1}>
+                  <div className="text-3xl md:text-4xl font-black text-blue-500 mb-1">{s.value}</div>
+                  <div className="text-[10px] font-bold uppercase tracking-widest text-slate-500">{s.label}</div>
+                </Reveal>
               ))}
             </div>
-          </Reveal>
-        </div>
-      </section>
+          </div>
+        </section>
 
-      {/* CTA */}
-      <section className="py-40 bg-[#0a0404]">
-        <div className="max-w-[1500px] mx-auto px-6 md:px-12 text-center">
-          <Reveal>
-            <h2 className="text-6xl md:text-9xl font-black tracking-tighter uppercase mb-12">Become <br /> <span className="text-[#ef4444]">Iron.</span></h2>
-            <p className="max-w-2xl mx-auto text-sm text-white/40 leading-relaxed font-light mb-16 uppercase tracking-widest italic">Your transformation starts with one decision. Join the community that holds you accountable and pushes you beyond limits.</p>
-            <MagneticBtn className="px-16 py-6 bg-[#ef4444] text-white text-[12px] font-black uppercase tracking-[0.4em] hover:bg-white hover:text-black transition-all shadow-[0_0_60px_rgba(239,68,68,0.2)]">Claim_Free_Week</MagneticBtn>
-          </Reveal>
-        </div>
-      </section>
+        {/* ── INFRASTRUCTURE ────────── */}
+        <section className="py-32 relative overflow-hidden">
+          <div className="max-w-[1200px] mx-auto px-6 md:px-12">
+            <Reveal>
+              <div className="text-center mb-24">
+                <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-blue-400 block mb-4">Infrastructure</span>
+                <h2 className="text-5xl md:text-7xl font-black tracking-tighter">Global <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-violet-400">Backbone.</span></h2>
+              </div>
+            </Reveal>
 
-      <footer className="bg-[#0a0404] border-t border-white/5 py-32 px-6 md:px-12">
-        <div className="max-w-[1500px] mx-auto grid grid-cols-1 md:grid-cols-4 gap-24">
-          <div className="col-span-1 md:col-span-2">
-            <Link href="/" className="flex items-center gap-3 text-xl font-black tracking-tighter mb-10"><div className="w-8 h-8 bg-[#ef4444] text-white rounded-sm flex items-center justify-center"><Flame className="w-5 h-5" /></div><span>IRON // X</span></Link>
-            <p className="text-[11px] text-white/20 uppercase tracking-[0.2em] max-w-sm leading-relaxed mb-16 italic">Elite performance training for athletes and ambitious individuals.</p>
-            <div className="flex gap-8">{[Dumbbell, Trophy, Heart].map((Icon, i) => <button key={i} className="text-white/20 hover:text-[#ef4444] transition-colors"><Icon className="w-5 h-5" /></button>)}</div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {NODES.map((n, i) => (
+                <Reveal key={i} delay={i * 0.1}>
+                  <div className="group p-10 bg-slate-900/40 border border-white/5 rounded-3xl hover:bg-slate-900/60 hover:border-blue-500/30 transition-all duration-500 h-full relative overflow-hidden">
+                    <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity">
+                      <n.icon className="w-32 h-32" />
+                    </div>
+                    <div className="w-14 h-14 rounded-2xl bg-slate-800 flex items-center justify-center mb-8 border border-white/5 group-hover:scale-110 transition-transform duration-500">
+                      <n.icon className="w-6 h-6 text-blue-400" />
+                    </div>
+                    <h3 className="text-2xl font-bold mb-4">{n.title}</h3>
+                    <p className="text-slate-400 leading-relaxed text-sm mb-8">{n.desc}</p>
+                    <Link href="#" className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-blue-400 group-hover:gap-4 transition-all">
+                      Learn More <ArrowRight className="w-4 h-4" />
+                    </Link>
+                  </div>
+                </Reveal>
+              ))}
+            </div>
           </div>
-          <div>
-            <h4 className="text-[10px] font-black uppercase tracking-widest mb-10 text-[#ef4444]">Train</h4>
-            <ul className="space-y-5 text-[10px] font-bold text-white/30 uppercase tracking-widest">
-              {["FORGE_HIIT", "IRON_Strength", "APEX_Combat", "Yoga_Flow"].map(l => <li key={l} className="hover:text-white transition-colors"><Link href="#">{l}</Link></li>)}
-            </ul>
+        </section>
+
+        {/* ── SECURITY ──────────────── */}
+        <section className="py-32 bg-gradient-to-b from-slate-950 to-[#020617]">
+          <div className="max-w-[1200px] mx-auto px-6 md:px-12">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+              <Reveal>
+                <div className="relative aspect-square">
+                  <div className="absolute inset-0 bg-blue-600/20 blur-[100px] rounded-full animate-pulse" />
+                  <div className="relative h-full flex items-center justify-center">
+                    <div className="w-64 h-64 border border-blue-500/20 rounded-full flex items-center justify-center animate-[spin_20s_linear_infinite]">
+                      <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center"><Shield className="w-4 h-4" /></div>
+                    </div>
+                    <div className="absolute w-40 h-40 border border-violet-500/20 rounded-full flex items-center justify-center animate-[spin_15s_linear_infinite_reverse]">
+                      <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 rounded-lg bg-violet-600 flex items-center justify-center"><Lock className="w-4 h-4" /></div>
+                    </div>
+                    <Globe className="w-16 h-16 text-blue-400" />
+                  </div>
+                </div>
+              </Reveal>
+              <div>
+                <Reveal>
+                  <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-blue-400 block mb-4">Compliance</span>
+                  <h2 className="text-5xl font-black tracking-tighter mb-8">Hardened by <span className="text-blue-500 italic">Default.</span></h2>
+                  <div className="space-y-6">
+                    {[
+                      { t: "Isolation", d: "Firecracker microVM isolation for every function and node." },
+                      { t: "Certifications", d: "SOC2 Type II, ISO 27001, and HIPAA compliant environments." },
+                      { t: "Encryption", d: "AES-256 at rest and TLS 1.3 in transit with mTLS between services." }
+                    ].map((item, i) => (
+                      <div key={i} className="flex gap-4 p-6 rounded-2xl bg-white/[0.02] border border-white/5">
+                        <div className="w-1.5 h-1.5 rounded-full bg-blue-500 mt-2 shrink-0" />
+                        <div>
+                          <h4 className="font-bold mb-1">{item.t}</h4>
+                          <p className="text-sm text-slate-500 leading-relaxed">{item.d}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </Reveal>
+              </div>
+            </div>
           </div>
-          <div>
-            <h4 className="text-[10px] font-black uppercase tracking-widest mb-10 text-[#ef4444]">Join</h4>
-            <ul className="space-y-5 text-[10px] font-bold text-white/30 uppercase tracking-widest">
-              {["Membership", "Free_Trial", "Trainers", "Locations"].map(l => <li key={l} className="hover:text-white transition-colors"><Link href="#">{l}</Link></li>)}
-            </ul>
+        </section>
+
+        {/* ── CTA ───────────────────── */}
+        <section className="py-32 relative overflow-hidden">
+          <div className="absolute inset-0 bg-blue-600/5" />
+          <div className="relative z-10 max-w-[800px] mx-auto px-6 text-center">
+            <Reveal>
+              <h2 className="text-5xl md:text-7xl font-black tracking-tighter mb-8">Ready to Scale<br/>Beyond <span className="text-blue-500">Borders?</span></h2>
+              <p className="text-xl text-slate-400 font-light mb-12">Start today with $200 in free credits. No credit card required to explore our ecosystem.</p>
+              <div className="flex flex-wrap justify-center gap-4">
+                <button className="px-12 py-5 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-500 transition-all shadow-2xl shadow-blue-500/20">
+                  Create Free Account
+                </button>
+                <button className="px-12 py-5 border border-white/10 text-white font-bold rounded-xl hover:bg-white/5 transition-all">
+                  Contact Enterprise
+                </button>
+              </div>
+            </Reveal>
           </div>
+        </section>
+      </main>
+
+      {/* ── FOOTER ────────────────── */}
+      <footer className="bg-slate-950 pt-24 pb-12 px-6">
+        <div className="max-w-[1400px] mx-auto grid grid-cols-1 md:grid-cols-5 gap-16 mb-20">
+          <div className="md:col-span-2">
+            <Link href="/" className="flex items-center gap-3 mb-8">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-violet-600 flex items-center justify-center">
+                <Cloud className="w-4 h-4 text-white" />
+              </div>
+              <span className="text-xl font-bold tracking-tighter">Nebula<span className="text-blue-500">Cloud</span></span>
+            </Link>
+            <p className="text-slate-500 max-w-sm leading-relaxed mb-8">
+              The world's fastest cloud platform for building and scaling high-performance applications at the edge.
+            </p>
+            <div className="flex gap-4">
+              {["github", "twitter", "discord"].map(s => (
+                <div key={s} className="w-10 h-10 rounded-lg bg-slate-900 border border-white/5 flex items-center justify-center hover:bg-slate-800 transition-colors cursor-pointer text-slate-400 hover:text-white uppercase text-[8px] font-bold tracking-widest">{s}</div>
+              ))}
+            </div>
+          </div>
+          {[
+            { t: "Platform", l: ["Compute", "Storage", "Network", "Databases"] },
+            { t: "Resources", l: ["Documentation", "API Ref", "Status", "Changelog"] },
+            { t: "Company", l: ["About", "Blog", "Careers", "Security"] },
+          ].map((col, i) => (
+            <div key={i}>
+              <h4 className="text-[10px] font-bold uppercase tracking-[0.3em] text-blue-500 mb-8">{col.t}</h4>
+              <ul className="space-y-4">
+                {col.l.map(link => <li key={link}><Link href="#" className="text-sm text-slate-500 hover:text-white transition-colors">{link}</Link></li>)}
+              </ul>
+            </div>
+          ))}
         </div>
-        <div className="max-w-[1500px] mx-auto mt-32 pt-16 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-12 text-[9px] font-bold text-white/10 uppercase tracking-widest">
-          <span>&copy; 2026 IRONX FITNESS. ALL RIGHTS RESERVED.</span>
-          <div className="flex gap-10 font-mono"><span>NASM_CERTIFIED</span><span>24/7_ACCESS</span></div>
+        <div className="max-w-[1400px] mx-auto pt-12 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6 text-[10px] font-bold uppercase tracking-widest text-slate-600">
+          <span>© 2026 NEBULA CLOUD TECHNOLOGIES INC.</span>
+          <div className="flex gap-8">
+            <Link href="#" className="hover:text-white transition-colors">Privacy Policy</Link>
+            <Link href="#" className="hover:text-white transition-colors">Terms of Service</Link>
+            <Link href="#" className="hover:text-white transition-colors">SLA Status</Link>
+          </div>
         </div>
       </footer>
     </div>
-  );
+  )
+}
+
+function Lock({ className }: { className?: string }) {
+  return (
+    <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+  )
 }
