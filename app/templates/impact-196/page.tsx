@@ -1,241 +1,251 @@
-"use client";
+"use client"
+import { motion, useScroll, useTransform, useInView, AnimatePresence } from "framer-motion"
+import { useState, useRef, useEffect } from "react"
+import Image from "next/image"
+import Link from "next/link"
+import { Menu, ArrowRight, Gauge, ShieldAlert, Cpu, Activity, MoveRight, ChevronRight, Zap } from "lucide-react"
 
-import { motion, useScroll, useTransform, useSpring, useMotionValue } from "framer-motion";
-import { useRef, useEffect, useState } from "react";
-import Image from "next/image";
-import Link from "next/link";
-import { Sparkles, Activity, Zap, Layers, Menu, Search, ArrowRight, Compass, Shield } from "lucide-react";
-import "../premium.css";
-
-const SHOWCASE = [
-  { icon: <Sparkles className="w-8 h-8" />, title: "FINALE_CORE", cat: "Portfolio", value: "Verified", img: "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=1500" },
-  { icon: <Activity className="w-8 h-8" />, title: "ULTIMATE_SYNC", cat: "Showcase", value: "Active", img: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=1500" },
-  { icon: <Zap className="w-8 h-8" />, title: "GRAND_ATELIER", cat: "Studio", value: "Locked", img: "https://images.unsplash.com/photo-1511818966892-d7d671e672a2?auto=format&fit=crop&q=80&w=1500" },
-];
-
-function TextScramble({ text }: { text: string }) {
-  const [display, setDisplay] = useState(text);
-  const chars = "!<>-_\\/[]{}—=+*^?#________";
-  
-  useEffect(() => {
-    let iteration = 0;
-    const interval = setInterval(() => {
-      setDisplay(prev => 
-        text.split("").map((char, index) => {
-          if (index < iteration) return text[index];
-          return chars[Math.floor(Math.random() * chars.length)];
-        }).join("")
-      );
-      if (iteration >= text.length) clearInterval(interval);
-      iteration += 1/3;
-    }, 30);
-    return () => clearInterval(interval);
-  }, [text]);
-
-  return <span>{display}</span>;
+function Reveal({ children, delay = 0, y = 40 }: { children: React.ReactNode; delay?: number; y?: number }) {
+  const ref = useRef(null)
+  const isInView = useInView(ref, { once: true, margin: "-100px" })
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y }}
+      animate={isInView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 1.2, delay, ease: [0.16, 1, 0.3, 1] }}
+    >
+      {children}
+    </motion.div>
+  )
 }
 
-export default function GrandFinaleSPA() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({ target: containerRef });
+function ParallaxImg({ src, alt, speed = 0.5 }: { src: string; alt: string; speed?: number }) {
+  const ref = useRef(null)
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] })
+  const y = useTransform(scrollYProgress, [0, 1], ["-15%", "15%"])
+  return (
+    <div ref={ref} className="relative w-full h-full overflow-hidden">
+      <motion.div style={{ y }} className="absolute inset-[-15%] w-[130%] h-[130%]">
+        <Image src={src} alt={alt} fill className="object-cover" />
+      </motion.div>
+    </div>
+  )
+}
+
+const CARS = [
+  { name: "V12 OMEGA", type: "Hypercar", img: "https://images.unsplash.com/photo-1614200187524-dc4b892acf16?auto=format&fit=crop&q=80&w=1200", hp: "1080", aero: "0.24", accel: "2.1s" },
+  { name: "APEX R", type: "Track Focus", img: "https://images.unsplash.com/photo-1603584173870-7f23fdae1b7a?auto=format&fit=crop&q=80&w=1200", hp: "950", aero: "0.21", accel: "1.9s" },
+  { name: "ECHO GT", type: "Grand Tourer", img: "https://images.unsplash.com/photo-1544829099-b9a0c07fad1a?auto=format&fit=crop&q=80&w=1200", hp: "720", aero: "0.26", accel: "2.8s" },
+]
+
+export default function VulcanAtelier() {
+  const [scrolled, setScrolled] = useState(false)
+  const heroRef = useRef(null)
   
-  const yHero = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
-  const heroScale = useTransform(scrollYProgress, [0, 0.5], [1, 1.1]);
-  
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
-  const springX = useSpring(mouseX, { stiffness: 40, damping: 20 });
-  const springY = useSpring(mouseY, { stiffness: 40, damping: 20 });
+  const { scrollYProgress } = useScroll()
+  const heroY = useTransform(scrollYProgress, [0, 0.2], ["0%", "50%"])
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.15], [1, 0])
+  const heroScale = useTransform(scrollYProgress, [0, 0.2], [1, 1.1])
 
   useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      mouseX.set(e.clientX - window.innerWidth / 2);
-      mouseY.set(e.clientY - window.innerHeight / 2);
-    };
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, [mouseX, mouseY]);
+    const handleScroll = () => setScrolled(window.scrollY > 50)
+    window.addEventListener("scroll", handleScroll)
+    return () => window.removeEventListener("scroll", handleScroll)
+  }, [])
 
   return (
-    <div ref={containerRef} className="premium-theme bg-[#000] text-[#FFF] min-h-screen font-sans selection:bg-[#FFF] selection:text-[#000] overflow-hidden relative uppercase">
+    <div className="bg-[#050505] text-white font-sans min-h-screen selection:bg-red-600 selection:text-white overflow-x-hidden">
       
-      {/* FINALE GRID & NOISE */}
-      <div className="fixed inset-0 z-0 pointer-events-none">
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[size:10rem_10rem] [mask-image:radial-gradient(ellipse_60%_60%_at_50%_50%,#000_70%,transparent_100%)]" />
-        <motion.div 
-           style={{ x: springX, y: springY }}
-           className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[70vw] h-[70vw] bg-[#FFF] opacity-[0.03] blur-[150px] rounded-full mix-blend-screen" 
-        />
-        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.1] mix-blend-screen" />
-      </div>
-
-      {/* HEADER */}
-      <header className="fixed top-0 left-0 w-full px-6 md:px-12 py-10 flex justify-between items-center z-50 bg-black/50 backdrop-blur-3xl border-b border-white/5">
-        <Link href="/" className="font-black text-2xl tracking-[0.3em] text-white flex items-center gap-4 italic uppercase text-center md:text-left">
-           GRAND<span className="text-white/30">_FINALE</span>
-        </Link>
-        
-        <nav className="hidden lg:flex gap-16 font-black text-[10px] uppercase tracking-[0.6em] text-white/30 text-center">
-            <Link href="#" className="hover:text-white transition-colors group">
-               Library<span className="inline-block w-0 group-hover:w-3 transition-all overflow-hidden text-white italic">.</span>
-            </Link>
-            <Link href="#" className="hover:text-white transition-colors group">
-               Vision<span className="inline-block w-0 group-hover:w-3 transition-all overflow-hidden text-white italic">.</span>
-            </Link>
-            <Link href="#" className="hover:text-white transition-colors group">
-               Atelier<span className="inline-block w-0 group-hover:w-3 transition-all overflow-hidden text-white italic">.</span>
-            </Link>
-        </nav>
-        
-        <div className="flex items-center gap-10">
-           <button className="bg-white text-black px-12 py-4 font-black text-[10px] uppercase tracking-[0.4em] hover:bg-white/80 transition-all shadow-xl">
-              View_System
-           </button>
-           <Menu className="w-6 h-6 text-white cursor-pointer" />
-        </div>
-      </header>
-
-      {/* HERO SECTION */}
-      <section className="relative h-screen flex flex-col justify-center items-center px-6 text-center z-10 pt-20 overflow-hidden text-center">
-         <motion.div style={{ scale: heroScale, y: yHero }} className="absolute inset-0 z-0">
-            <Image src="https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=2500" alt="Grand Finale" fill className="object-cover opacity-20 grayscale contrast-125" priority />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#000] via-transparent to-[#000]/40" />
-         </motion.div>
-         
-         <div className="relative z-10 max-w-7xl w-full text-center">
-            <motion.div 
-               initial={{ opacity: 0, scale: 0.95 }}
-               animate={{ opacity: 1, scale: 1 }}
-               transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
-            >
-               <div className="inline-flex items-center gap-4 font-black text-[10px] uppercase tracking-[1em] text-white mb-16 border-l-2 border-white pl-10 italic font-mono text-center">
-                  System_Capture // 0196_Omega
-               </div>
-               
-               <h1 className="text-7xl md:text-[14vw] font-black italic uppercase leading-[0.75] tracking-tighter mb-20 text-white text-center">
-                  <TextScramble text="GRAND." /><br/>
-                  <span className="text-transparent" style={{ WebkitTextStroke: "2px #FFF" }}>FINALE.</span>
-               </h1>
-               
-               <p className="text-xl md:text-3xl font-light italic text-white/40 max-w-3xl mx-auto mb-24 leading-relaxed uppercase tracking-widest text-center">
-                  Structural allocation for aesthetic intent. Completing the future of design with tectonic precision.
-               </p>
-               
-               <div className="flex flex-col md:flex-row gap-16 justify-center items-center font-mono text-center text-white">
-                  <div className="flex items-center gap-8 group cursor-pointer text-center">
-                     <div className="w-20 h-px bg-white/30 group-hover:w-32 transition-all" />
-                     <span className="text-[10px] font-black uppercase tracking-[0.8em]">Explore_Archive</span>
-                  </div>
-                  <div className="hidden md:block w-px h-16 bg-white/5" />
-                  <div className="font-black text-[9px] uppercase tracking-[0.6em] text-white/10 italic text-center">
-                     Library Complete // 196 Templates // Ultra Premium
-                  </div>
-               </div>
-            </motion.div>
-         </div>
-
-         {/* Omega HUD */}
-         <div className="absolute right-12 bottom-12 flex flex-col items-end gap-4 font-black text-[8px] uppercase tracking-[1em] text-white/20 hidden md:flex italic font-mono text-center">
-            <span>OMEGA_SYNC: ACTIVE</span>
-            <div className="flex gap-1 h-12 items-end">
-               {[1, 2, 3, 4, 5].map(i => <motion.div key={i} animate={{ height: ['20%', '100%', '40%'] }} transition={{ duration: 2, repeat: Infinity, delay: i * 0.2 }} className="w-[1px] bg-white" />)}
+      {/* ── NAVBAR ── */}
+      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-700 ${scrolled ? "bg-[#050505]/90 backdrop-blur-xl border-b border-red-600/20 py-4" : "bg-transparent py-8"}`}>
+        <div className="max-w-[1800px] mx-auto px-6 md:px-12 flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-4">
+            <div className="w-8 h-8 bg-red-600 flex items-center justify-center transform -skew-x-12">
+              <Zap className="w-4 h-4 text-black" />
             </div>
-         </div>
-         
-         <div className="absolute left-12 bottom-12 hidden md:block text-center">
-            <div className="flex flex-col gap-2 text-[8px] font-black uppercase tracking-[0.4em] text-white/10 italic font-mono text-center">
-               <span>NODES: 2048</span>
-               <span>STATE: FINALIZED</span>
-               <span>STATUS: LEGACY</span>
-            </div>
-         </div>
-      </section>
-
-      {/* SHOWCASE GRID */}
-      <section className="py-48 px-6 md:px-12 max-w-[1800px] mx-auto relative z-10 bg-[#000]">
-         <div className="flex flex-col md:flex-row justify-between items-end mb-40 border-b border-white/10 pb-20 gap-16 text-center md:text-left">
-            <div>
-               <span className="text-[10px] font-black uppercase tracking-[2em] text-white mb-8 block italic font-mono text-center md:text-left">System_Manifest</span>
-               <h2 className="text-6xl md:text-[10vw] font-black italic uppercase tracking-tighter text-white leading-none text-center md:text-left">The <span className="text-white/20">Archive_</span></h2>
-            </div>
-            <div className="flex gap-16 text-[10px] font-black uppercase tracking-[0.6em] text-white/20 italic font-mono text-center md:text-left">
-               <span>Records: [03]</span>
-               <span>Status: [Verified]</span>
-            </div>
-         </div>
-
-         <div className="grid grid-cols-1 md:grid-cols-3 gap-16 text-center">
-            {SHOWCASE.map((p, i) => (
-                <motion.div 
-                   key={i} 
-                   initial={{ opacity: 0, y: 80 }}
-                   whileInView={{ opacity: 1, y: 0 }}
-                   viewport={{ once: true, margin: "-100px" }}
-                   transition={{ duration: 1.2, delay: i * 0.1, ease: [0.16, 1, 0.3, 1] }}
-                   className="group relative h-[85vh] bg-stone-900 border border-white/5 overflow-hidden cursor-pointer hover:border-white/30 transition-all shadow-2xl text-center"
-                >
-                    <Image src={p.img} alt={p.title} fill className="object-cover opacity-30 grayscale group-hover:grayscale-0 group-hover:scale-110 transition-all duration-1000 text-center" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#000] via-transparent to-transparent opacity-95 text-center" />
-                    <div className="absolute inset-0 bg-white/5 group-hover:bg-transparent transition-colors duration-700 text-center" />
-                    
-                    <div className="absolute inset-16 flex flex-col justify-between z-10 font-mono text-white text-center">
-                        <div className="flex justify-between items-start text-center">
-                           <div className="p-5 bg-white/5 border border-white/10 rounded-none group-hover:bg-white group-hover:text-black transition-all shadow-xl text-center">
-                              {p.icon}
-                           </div>
-                           <div className="text-[10px] font-black uppercase tracking-[0.8em] text-white italic font-mono text-center">Ref_0x{i+196}</div>
-                        </div>
-                        
-                        <div className="text-center">
-                           <span className="text-[10px] uppercase tracking-[0.8em] text-white mb-8 block italic font-black text-center">{p.cat} // Verified</span>
-                           <h3 className="text-5xl md:text-6xl font-black italic uppercase tracking-tighter mb-16 text-white group-hover:tracking-widest transition-all leading-[0.8] text-center">{p.title}</h3>
-                           <div className="flex items-center gap-8 text-[10px] font-black uppercase tracking-[0.6em] opacity-0 group-hover:opacity-100 transition-all translate-y-10 group-hover:translate-y-0 text-white text-center justify-center">
-                              View_System <ArrowRight className="w-6 h-6 text-center" />
-                           </div>
-                        </div>
-                    </div>
-                </motion.div>
+            <span className="text-xl font-bold tracking-[0.3em] uppercase">Vulcan<span className="text-red-600">.</span></span>
+          </Link>
+          <div className="hidden lg:flex items-center gap-12 text-[10px] font-bold tracking-[0.3em] uppercase">
+            {["Models", "Engineering", "Motorsport", "Atelier"].map((link) => (
+              <Link key={link} href="#" className="hover:text-red-600 transition-colors">{link}</Link>
             ))}
-         </div>
-      </section>
+          </div>
+          <button className="hidden md:flex items-center gap-2 px-8 py-3 bg-white text-black text-[10px] font-bold tracking-[0.2em] uppercase hover:bg-red-600 hover:text-white transition-colors duration-500 transform -skew-x-12">
+            Configure
+          </button>
+        </div>
+      </nav>
 
-      {/* FOOTER */}
-      <footer className="py-48 px-6 md:px-12 border-t border-white/5 relative z-10 bg-[#000]">
-         <div className="max-w-[1800px] mx-auto grid grid-cols-1 md:grid-cols-2 gap-40 text-center md:text-left">
-            <div className="max-w-2xl text-center md:text-left">
-               <div className="text-white mb-16 flex items-center gap-6 font-black text-2xl italic uppercase tracking-widest font-mono justify-center md:justify-start text-center md:text-left">
-                  <Activity className="w-10 h-10 text-center md:text-left" /> Final_Logs
-               </div>
-               <p className="text-4xl md:text-6xl font-light italic leading-[0.9] text-white/20 uppercase tracking-tighter mb-20 text-center md:text-left">
-                  WE TREAT SYSTEMS AS ARCHITECTURE. EVERY PIXEL A FUNCTION.
-               </p>
-               <div className="flex gap-20 font-black text-[10px] uppercase tracking-[0.8em] text-white/40 italic font-mono justify-center md:justify-start text-center md:text-left">
-                  <span>Berlin</span>
-                  <span>London</span>
-                  <span>NYC</span>
-               </div>
+      <main>
+        {/* ── HERO ── */}
+        <section className="relative h-[120vh] min-h-[900px] flex items-center justify-center overflow-hidden" ref={heroRef}>
+          <motion.div style={{ y: heroY, scale: heroScale }} className="absolute inset-0">
+            <Image src="https://images.unsplash.com/photo-1614200187524-dc4b892acf16?auto=format&fit=crop&q=80&w=2400" alt="Hypercar" fill className="object-cover opacity-60" priority />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-transparent" />
+          </motion.div>
+          
+          <motion.div style={{ opacity: heroOpacity }} className="relative z-10 w-full max-w-[1800px] px-6 md:px-12 pt-32">
+            <Reveal y={50}>
+              <div className="flex items-center gap-4 mb-6">
+                <div className="w-12 h-1 bg-red-600" />
+                <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-red-600">Engineering Beyond Limits</span>
+              </div>
+            </Reveal>
+            <Reveal delay={0.2} y={80}>
+              <h1 className="text-[5rem] md:text-[8rem] lg:text-[12rem] font-black uppercase tracking-tighter leading-[0.8] mb-12">
+                Apex<br/><span className="text-transparent" style={{ WebkitTextStroke: "2px white" }}>Predator.</span>
+              </h1>
+            </Reveal>
+            <Reveal delay={0.4} y={40}>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-3xl border-l border-red-600/30 pl-8">
+                <div>
+                  <div className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-1">Power Output</div>
+                  <div className="text-3xl font-light">1,080 <span className="text-red-600 text-lg">HP</span></div>
+                </div>
+                <div>
+                  <div className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-1">Top Speed</div>
+                  <div className="text-3xl font-light">236 <span className="text-red-600 text-lg">MPH</span></div>
+                </div>
+              </div>
+            </Reveal>
+          </motion.div>
+        </section>
+
+        {/* ── ENGINEERING SPLIT ── */}
+        <section className="py-32 relative bg-[#050505]">
+          <div className="max-w-[1800px] mx-auto px-6 md:px-12 grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+            <div>
+              <Reveal>
+                <h2 className="text-5xl md:text-7xl font-bold uppercase tracking-tighter leading-none mb-10">
+                  Aerodynamic<br/>Supremacy.
+                </h2>
+                <p className="text-lg text-white/50 font-light leading-relaxed mb-12 max-w-lg">
+                  Every curve, every vent, and every plane is dictated by the laws of physics. We don't design cars; we sculpt the air around them.
+                </p>
+                <div className="space-y-6">
+                  {[
+                    { icon: Gauge, t: "Active Aero System", d: "Adjusts downforce dynamically in 10ms." },
+                    { icon: Cpu, t: "Carbon Monocoque", d: "F1-grade composite structure weighing only 85kg." },
+                    { icon: Activity, t: "Telemetry Link", d: "Real-time track data streamed to your engineer." }
+                  ].map((f, i) => (
+                    <div key={i} className="flex gap-6 items-start">
+                      <div className="w-12 h-12 bg-red-600/10 border border-red-600/20 flex items-center justify-center shrink-0">
+                        <f.icon className="w-5 h-5 text-red-600" />
+                      </div>
+                      <div>
+                        <h4 className="text-lg font-bold uppercase tracking-widest mb-1">{f.t}</h4>
+                        <p className="text-sm text-white/40">{f.d}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </Reveal>
             </div>
-            <div className="flex flex-col justify-between items-end text-right font-mono text-center md:text-right text-white">
-               <div className="w-full text-center md:text-right">
-                  <h4 className="text-[12vw] font-black italic uppercase tracking-tighter opacity-[0.02] leading-none mb-20 text-white text-center md:text-right">GRAND</h4>
-                  <nav className="flex flex-col gap-10 font-black text-[10px] uppercase tracking-[0.8em] text-white/10 text-center md:text-right">
-                     <Link href="#" className="hover:text-white transition-colors group">
-                        Globe<span className="text-white/0 group-hover:text-white transition-all">_</span>
-                     </Link>
-                     <Link href="#" className="hover:text-white transition-colors group">
-                        Archive<span className="text-white/0 group-hover:text-white transition-all">_</span>
-                     </Link>
-                     <Link href="#" className="hover:text-white transition-colors group">
-                        Legal<span className="text-white/0 group-hover:text-white transition-all">_</span>
-                     </Link>
-                  </nav>
-               </div>
-               <div className="font-black text-[9px] uppercase tracking-[1.5em] text-white/5 mt-32 italic text-center md:text-right">
-                  &copy; 2026 // GRAND_FINALE_GROUP&trade;
-               </div>
+            <div className="h-[80vh] relative">
+              <Reveal delay={0.2}>
+                <ParallaxImg src="https://images.unsplash.com/photo-1544636331-e26879cd3d92?auto=format&fit=crop&q=80&w=1200" alt="Engineering" />
+                <div className="absolute top-10 left-10 p-4 bg-black/50 backdrop-blur-md border border-white/10 font-mono text-xs">
+                  <div className="text-red-600 font-bold mb-2">WIND TUNNEL DATA</div>
+                  <div>DRAG COEF: 0.24</div>
+                  <div>DOWNFORCE: 1200KG @ 200MPH</div>
+                </div>
+              </Reveal>
             </div>
-         </div>
+          </div>
+        </section>
+
+        {/* ── HORIZONTAL GARAGE ── */}
+        <section className="py-32 bg-[#0a0a0a] border-y border-white/5">
+          <div className="max-w-[1800px] mx-auto px-6 md:px-12 mb-20 flex justify-between items-end">
+            <Reveal>
+              <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-red-600 block mb-4">The Bloodline</span>
+              <h2 className="text-6xl font-black uppercase tracking-tighter">Current Models</h2>
+            </Reveal>
+          </div>
+          
+          <div className="flex gap-12 px-6 md:px-12 overflow-x-auto pb-12 snap-x snap-mandatory hide-scrollbar">
+            {CARS.map((car, i) => (
+              <div key={i} className="w-[85vw] md:w-[40vw] shrink-0 snap-center group cursor-pointer">
+                <Reveal delay={i * 0.1}>
+                  <div className="relative aspect-[16/9] overflow-hidden mb-6">
+                    <Image src={car.img} alt={car.name} fill className="object-cover group-hover:scale-105 transition-transform duration-1000 ease-out" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-transparent to-transparent opacity-80" />
+                    <div className="absolute bottom-6 left-6 flex gap-4">
+                      <div className="bg-white/10 backdrop-blur-md px-4 py-2 text-[10px] font-bold uppercase tracking-widest">{car.hp} HP</div>
+                      <div className="bg-white/10 backdrop-blur-md px-4 py-2 text-[10px] font-bold uppercase tracking-widest">{car.accel}</div>
+                    </div>
+                  </div>
+                  <div className="flex justify-between items-end">
+                    <div>
+                      <h3 className="text-3xl font-bold uppercase tracking-widest mb-1">{car.name}</h3>
+                      <div className="text-red-600 text-xs font-bold uppercase tracking-[0.2em]">{car.type}</div>
+                    </div>
+                    <div className="w-12 h-12 bg-red-600 flex items-center justify-center transform -skew-x-12 group-hover:bg-white transition-colors duration-300">
+                      <ChevronRight className="w-6 h-6 text-black" />
+                    </div>
+                  </div>
+                </Reveal>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* ── BIG CTA ── */}
+        <section className="h-screen relative flex items-center justify-center overflow-hidden">
+          <div className="absolute inset-0">
+            <Image src="https://images.unsplash.com/photo-1603584173870-7f23fdae1b7a?auto=format&fit=crop&q=80&w=2400" alt="CTA" fill className="object-cover grayscale" />
+            <div className="absolute inset-0 bg-red-600/80 mix-blend-multiply" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#050505] to-transparent" />
+          </div>
+          
+          <div className="relative z-10 text-center">
+            <Reveal>
+              <h2 className="text-[5rem] md:text-[8rem] font-black uppercase tracking-tighter leading-none mb-10">
+                Command<br/>The Track.
+              </h2>
+              <button className="px-12 py-5 bg-white text-black text-xs font-bold uppercase tracking-[0.3em] transform -skew-x-12 hover:bg-black hover:text-white transition-colors duration-500 border border-transparent hover:border-white">
+                Build Your Vulcan
+              </button>
+            </Reveal>
+          </div>
+        </section>
+
+      </main>
+
+      {/* ── FOOTER ── */}
+      <footer className="bg-[#050505] pt-32 pb-12 px-6 border-t border-white/10 relative z-20">
+        <div className="max-w-[1800px] mx-auto grid grid-cols-1 md:grid-cols-4 gap-16 mb-24">
+          <div className="md:col-span-2">
+            <div className="text-3xl font-black tracking-[0.3em] uppercase mb-8">Vulcan<span className="text-red-600">.</span></div>
+            <p className="max-w-sm text-sm text-white/40 leading-relaxed mb-8">
+              Pushing the boundaries of automotive engineering. Built for the track, unleashed on the road.
+            </p>
+          </div>
+          <div>
+            <h4 className="text-[10px] font-bold uppercase tracking-[0.3em] text-white mb-8">Vehicles</h4>
+            <ul className="space-y-4 text-xs uppercase tracking-widest text-white/50">
+              <li><Link href="#" className="hover:text-red-600 transition-colors">V12 Omega</Link></li>
+              <li><Link href="#" className="hover:text-red-600 transition-colors">Apex R</Link></li>
+              <li><Link href="#" className="hover:text-red-600 transition-colors">Echo GT</Link></li>
+              <li><Link href="#" className="hover:text-red-600 transition-colors">Concept Lab</Link></li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="text-[10px] font-bold uppercase tracking-[0.3em] text-white mb-8">Company</h4>
+            <ul className="space-y-4 text-xs uppercase tracking-widest text-white/50">
+              <li><Link href="#" className="hover:text-red-600 transition-colors">Engineering</Link></li>
+              <li><Link href="#" className="hover:text-red-600 transition-colors">Motorsport</Link></li>
+              <li><Link href="#" className="hover:text-red-600 transition-colors">Careers</Link></li>
+              <li><Link href="#" className="hover:text-red-600 transition-colors">Press</Link></li>
+            </ul>
+          </div>
+        </div>
+        <div className="max-w-[1800px] mx-auto pt-8 border-t border-white/10 text-[10px] font-bold uppercase tracking-[0.3em] text-white/30 flex justify-between">
+          <span>© 2026 VULCAN AUTOMOTIVE.</span>
+          <span>SYSTEM OF APEX PERFORMANCE.</span>
+        </div>
       </footer>
     </div>
-  );
+  )
 }

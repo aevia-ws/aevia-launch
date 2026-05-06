@@ -115,10 +115,10 @@ function Reveal({
 }
 
 // Simulated Audio Activity
-function Activity({ isPlaying }: { isPlaying: boolean }) {
+function AudioBars({ isPlaying }: { isPlaying: boolean }) {
   return (
     <div className="flex items-center gap-[2px] h-8 w-24">
-      {[...Array(15)].map((_, i) => (
+      {Array.from({ length: 15 }).map((_, i) => (
         <motion.div
           key={i}
           className="w-1 bg-yellow-400 rounded-full"
@@ -504,7 +504,7 @@ export default function DeepcastPage() {
 
                         <div className="flex items-center gap-6 pt-6 border-t border-slate-800">
                           {activeEpisode === ep.id && (
-                            <Activity isPlaying={isPlaying} />
+                            <AudioBars isPlaying={isPlaying} />
                           )}
                           <div className="flex items-center gap-4 ml-auto">
                             <button className="text-slate-500 hover:text-white transition-colors flex items-center gap-2 text-xs font-bold uppercase tracking-widest">

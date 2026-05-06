@@ -13,7 +13,6 @@ import { TEMPLATES_REGISTRY } from "@/lib/templates/registry";
 const HIDDEN_IMPACT = new Set([
   // ── Stubs / incomplete (< 400 lines) ────────────────────────────────────
   "impact-177",
-  "impact-196",
   // ── Below quality bar (400–549 lines, pending elevation) ────────────────
 
   
@@ -44,6 +43,7 @@ const FEATURED = new Set([
   "impact-152","impact-153","impact-154","impact-155","impact-156",
   "impact-178","impact-179","impact-180","impact-181","impact-182","impact-183","impact-184","impact-185","impact-186",
   "impact-187","impact-188","impact-189","impact-190","impact-191","impact-192","impact-193","impact-194","impact-195",
+  "impact-196","impact-197",
   "luxury","aurora","3d-tech","minimal-pro","saas",
 ]);
 
@@ -124,30 +124,18 @@ function ThumbCard({ item, index }: { item: ThemeItem; index: number }) {
   const [hovered, setHovered] = useState(false);
   const [showIframe, setShowIframe] = useState(false);
 
-  // Only load iframe if static thumb failed (or on hover for live preview)
-  useEffect(() => {
-    if (!thumbFailed) return;
-    const el = ref.current;
-    if (!el) return;
-    const obs = new IntersectionObserver(
-      ([e]) => { if (e.isIntersecting) { setEntered(true); obs.disconnect(); } },
-      { rootMargin: "400px" }
-    );
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, [thumbFailed]);
-
-  // Show live iframe on hover (even when static thumb is present)
+  // Remove IntersectionObserver that automatically loaded iframes for failed thumbnails
+  // We only load iframe on hover to prevent crashing the browser/server with 200 iframes.
   useEffect(() => {
     let t: NodeJS.Timeout;
     if (hovered) {
-      if (!entered) setEntered(true);
-      t = setTimeout(() => setShowIframe(true), 180);
+      setEntered(true);
+      t = setTimeout(() => setShowIframe(true), 300); // Slight delay before loading iframe
     } else {
       setShowIframe(false);
     }
     return () => clearTimeout(t);
-  }, [hovered, entered]);
+  }, [hovered]);
 
   const thumbSrc = `/thumbnails/${item.id}.webp`;
 
@@ -187,10 +175,10 @@ function ThumbCard({ item, index }: { item: ThemeItem; index: number }) {
               />
             )}
 
-            {/* Live iframe — overlaid on hover, or as fallback when no thumbnail */}
-            {entered && (thumbFailed || showIframe) && (
+            {/* Live iframe — overlaid on hover ONLY */}
+            {entered && showIframe && (
               <div
-                className={`absolute inset-0 transition-opacity duration-300 ${showIframe ? "opacity-100" : thumbFailed ? "opacity-100" : "opacity-0"}`}
+                className={`absolute inset-0 transition-opacity duration-300 ${showIframe ? "opacity-100" : "opacity-0"}`}
               >
                 <iframe
                   src={item.href}
@@ -203,13 +191,25 @@ function ThumbCard({ item, index }: { item: ThemeItem; index: number }) {
               </div>
             )}
 
-            {/* Placeholder while loading */}
-            {!thumbLoaded && !iframeLoaded && (
+            {/* Placeholder while loading or if failed */}
+            {((!thumbLoaded && !thumbFailed) && !iframeLoaded) && (
               <div
                 className="absolute inset-0 flex items-center justify-center"
                 style={{ background: `radial-gradient(ellipse at center, ${accent}12 0%, transparent 70%)` }}
               >
                 <div className="w-4 h-4 border-2 border-white/10 border-t-white/40 rounded-full animate-spin" />
+              </div>
+            )}
+            
+            {/* Fallback graphic when thumbnail is missing and not hovered */}
+            {thumbFailed && !showIframe && (
+              <div
+                className="absolute inset-0 flex flex-col items-center justify-center gap-2"
+                style={{ background: `radial-gradient(ellipse at center, ${accent}15 0%, transparent 70%)` }}
+              >
+                <div className="text-white/20 font-bold tracking-widest uppercase text-[10px]">
+                  Preview
+                </div>
               </div>
             )}
 
