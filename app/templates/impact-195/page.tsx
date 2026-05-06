@@ -12,7 +12,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel"
-import { Play, Menu, ArrowRight, Star, CheckCircle2, Video, BookOpen, Users, Trophy, Download, Clock } from "lucide-react"
+import { Play, Menu, ArrowRight, Star, CheckCircle2, Video, BookOpen, Users, Trophy, Download, Clock, ShieldCheck } from "lucide-react"
 
 // ─── REVEAL COMPONENT ────────────────────────────────────────────────────────
 function Reveal({ children, delay = 0, className = "" }: { children: React.ReactNode; delay?: number, className?: string }) {

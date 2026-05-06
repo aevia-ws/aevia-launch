@@ -38,7 +38,7 @@ import {
 } from "@/components/ui/carousel";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
-import { Sparkles, Heart, Star, Check, Menu, X, Globe, Clock, Quote, Search, ShoppingBag, Leaf, Wind, Droplets, Sun, Moon, Activity, Mail, MapPin, Phone, Plus, ArrowRight, ArrowUpRight, ChevronRight, Camera, Scissors, Gift } from "lucide-react";
+import { Sparkles, Heart, Star, Check, Menu, X, Globe, Clock, Quote, Search, ShoppingBag, Leaf, Wind, Droplets, Sun, Moon, Activity, Mail, MapPin, Phone, Plus, ArrowRight, ArrowUpRight, ChevronRight, Camera, Scissors, Gift, ShieldCheck } from "lucide-react";
 
 import "../premium.css";
 

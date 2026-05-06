@@ -14,7 +14,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel"
 import { Progress } from "@/components/ui/progress"
 import { Separator } from "@/components/ui/separator"
-import { ArrowRight, Menu, X, Star, Clock, Shield, Award, ChevronRight, Play, MapPin, Phone, Mail, Camera, Grape, Map, Droplets, Sun, Wind, CheckCircle2 } from "lucide-react"
+import { ArrowRight, Menu, X, Star, Clock, Shield, Award, ChevronRight, Play, MapPin, Phone, Mail, Camera, Grape, Map, Droplets, Sun, Wind, CheckCircle2, Globe } from "lucide-react"
 
 // ─── REVEAL COMPONENT ────────────────────────────────────────────────────────
 function Reveal({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {

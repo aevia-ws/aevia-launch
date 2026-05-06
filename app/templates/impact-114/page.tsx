@@ -11,7 +11,7 @@ import {
 } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, ArrowLeft, Menu, X, MapPin, Camera, ExternalLink, Globe, ChevronDown, Compass, Calendar, Info } from "lucide-react";
+import { ArrowRight, ArrowLeft, Menu, X, MapPin, Camera, ExternalLink, Globe, ChevronDown, Compass, Calendar, Info, ArrowUpRight } from "lucide-react";
 
 import "../premium.css";
 

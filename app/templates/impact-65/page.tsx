@@ -38,7 +38,7 @@ import {
 } from "@/components/ui/carousel";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
-import { ArrowRight, ArrowUpRight, Star, Check, Menu, X, Globe, Clock, Quote, Search, ShoppingBag, Activity, Mic2, Headphones, Speaker, Music, Volume2, Zap, Shield, Cpu, Bluetooth, Battery, Mail, MapPin, Phone } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Star, Check, Menu, X, Globe, Clock, Quote, Search, ShoppingBag, Activity, Mic2, Headphones, Speaker, Music, Volume2, Zap, Shield, Cpu, Bluetooth, Battery, Mail, MapPin, Phone, Plus } from "lucide-react";
 
 import "../premium.css";
 

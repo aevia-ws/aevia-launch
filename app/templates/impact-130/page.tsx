@@ -10,7 +10,7 @@ import {
 } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, ArrowLeft, Globe, Mail, ArrowUpRight, Compass, Maximize2, Play, Pause, Camera, Award, Star, ChevronDown, ChevronRight, Minimize2, MapPin } from "lucide-react";
+import { ArrowRight, ArrowLeft, Globe, Mail, ArrowUpRight, Compass, Maximize2, Play, Pause, Camera, Award, Star, ChevronDown, ChevronRight, Minimize2, MapPin, X } from "lucide-react";
 
 import "../premium.css";
 

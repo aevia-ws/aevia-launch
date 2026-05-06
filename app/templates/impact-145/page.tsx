@@ -10,7 +10,7 @@ import {
 } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
-import { Play, Pause, FastForward, Rewind, Volume2, Mic2, Headphones, Star, ArrowRight, Rss, Share2, Download, Clock, Calendar, CheckCircle2, Menu, X, ChevronRight } from "lucide-react";
+import { Play, Pause, FastForward, Rewind, Volume2, Mic2, Headphones, Star, ArrowRight, Rss, Share2, Download, Clock, Calendar, CheckCircle2, Menu, X, ChevronRight, Activity } from "lucide-react";
 
 import "../premium.css";
 

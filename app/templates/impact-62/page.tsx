@@ -38,7 +38,7 @@ import {
 } from "@/components/ui/carousel";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
-import { ArrowRight, ArrowUpRight, Star, Check, Menu, X, Clock, MapPin, Phone, Mail, ChevronDown, ChevronRight, ShieldCheck, Globe, Quote, Search, ShoppingBag, Zap, BookOpen, Utensils, Wine, Coffee, Flame, Camera, Palette, Ruler, Layers, Activity } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Star, Check, Menu, X, Clock, MapPin, Phone, Mail, ChevronDown, ChevronRight, ShieldCheck, Globe, Quote, Search, ShoppingBag, Zap, BookOpen, Utensils, Wine, Coffee, Flame, Camera, Palette, Ruler, Layers, Activity, FlaskConical } from "lucide-react";
 
 import "../premium.css";
 

@@ -14,7 +14,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel"
 import { Progress } from "@/components/ui/progress"
 import { Separator } from "@/components/ui/separator"
-import { ArrowRight, Menu, X, Star, ChevronRight, Play, Terminal, Cpu, Database, Network, Key, Layers, Globe, Zap, TerminalSquare, Lock, Server, CheckCircle2,  MessageCircle, MessageSquare, Brain, LineChart, Cpu as Chip } from "lucide-react"
+import { ArrowRight, Menu, X, Star, ChevronRight, Play, Terminal, Cpu, Database, Network, Key, Layers, Globe, Zap, TerminalSquare, Lock, Server, CheckCircle2,  MessageCircle, MessageSquare, Brain, LineChart, Cpu as Chip, Sparkles } from "lucide-react"
 
 // ─── REVEAL COMPONENT ────────────────────────────────────────────────────────
 function Reveal({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {

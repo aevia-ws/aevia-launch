@@ -38,7 +38,7 @@ import {
 } from "@/components/ui/carousel";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
-import { Satellite, Globe, Menu, ArrowRight, ChevronDown, Rocket, Radio, Shield, Star, Check, Zap, Activity, Database, Plus, Terminal, Cpu, Box, Share2, Layers, Maximize, Monitor, MousePointer2, Navigation, Smartphone, MapPin, Wifi, Mail, Phone } from "lucide-react";
+import { Satellite, Globe, Menu, ArrowRight, ChevronDown, Rocket, Radio, Shield, Star, Check, Zap, Activity, Database, Plus, Terminal, Cpu, Box, Share2, Layers, Maximize, Monitor, MousePointer2, Navigation, Smartphone, MapPin, Wifi, Mail, Phone, X } from "lucide-react";
 
 import "../premium.css";
 

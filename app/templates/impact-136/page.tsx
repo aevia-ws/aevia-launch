@@ -11,7 +11,7 @@ import {
 } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, ArrowUpRight, Play, Maximize, X, Globe, ArrowDown, Sparkles, Command, Eye } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Play, Maximize, X, Globe, ArrowDown, Sparkles, Command, Eye, Code } from "lucide-react";
 
 import "../premium.css";
 

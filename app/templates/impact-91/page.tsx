@@ -22,7 +22,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
-import { Diamond, Sparkles, Heart, Star, Check, Globe, Mail, Phone, ChevronRight, ArrowRight, X, Menu, ShoppingBag, Award, Clock, MapPin, PenTool, Scissors, Zap, Search } from "lucide-react";
+import { Diamond, Sparkles, Heart, Star, Check, Globe, Mail, Phone, ChevronRight, ArrowRight, X, Menu, ShoppingBag, Award, Clock, MapPin, PenTool, Scissors, Zap, Search, Plus } from "lucide-react";
 
 import "../premium.css";
 
