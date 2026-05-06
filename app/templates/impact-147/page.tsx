@@ -1,700 +1,306 @@
-"use client";
+"use client"
+import { motion, useScroll, useTransform, useInView } from "framer-motion"
+import { useRef, useState, useEffect } from "react"
+import Link from "next/link"
+import { Shield, ArrowRight, Menu, Lock, Zap, Activity, Cpu, Globe, Terminal, ChevronRight, Eye, Radar } from "lucide-react"
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 
-import React, { useState, useEffect, useRef } from "react";
-import {
-  motion,
-  useScroll,
-  useTransform,
-  AnimatePresence,
-  useInView,
-} from "framer-motion";
-import Image from "next/image";
-import Link from "next/link";
-import { ArrowRight, ArrowDown, MapPin, AlignRight, X, ChevronRight, Ruler, Hexagon, Layers, PenTool } from "lucide-react";
-
-import "../premium.css";
-
-/* ==========================================================================
-   DATA STRUCTURES
-   ========================================================================== */
-
-const PROJECTS = [
-  {
-    id: "01",
-    title: "The Monolith",
-    location: "Oslo, Norway",
-    type: "Cultural Center",
-    year: "2024",
-    desc: "A monolithic structure of exposed concrete and black basalt, designed to weather harmoniously with the harsh Nordic elements. It houses the national gallery of brutalist art.",
-    image:
-      "https://images.unsplash.com/photo-1541888081622-48df9202a6ce?q=80&w=1600&auto=format&fit=crop",
-  },
-  {
-    id: "02",
-    title: "Void Residence",
-    location: "Kyoto, Japan",
-    type: "Private Home",
-    year: "2023",
-    desc: "An exploration of negative space. The residence wraps around an internal courtyard of black sand, providing complete visual isolation from the dense urban surroundings.",
-    image:
-      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1600&auto=format&fit=crop",
-  },
-  {
-    id: "03",
-    title: "Aether Tower",
-    location: "New York, USA",
-    type: "Commercial",
-    year: "2025",
-    desc: "A 40-story commercial tower challenging the glass-box paradigm. Deep set windows and brutalist concrete fins reduce solar gain while creating dramatic shadow play.",
-    image:
-      "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1600&auto=format&fit=crop",
-  },
-  {
-    id: "04",
-    title: "Silent Pavilion",
-    location: "Swiss Alps",
-    type: "Retreat",
-    year: "2022",
-    desc: "A meditation retreat carved directly into the mountainside. The boundary between the raw geology and the engineered structure is intentionally blurred.",
-    image:
-      "https://images.unsplash.com/photo-1518005020951-eccb494ad742?q=80&w=1600&auto=format&fit=crop",
-  },
-];
-
-const EXPERTISE = [
-  {
-    title: "Spatial Planning",
-    icon: <Ruler className="w-5 h-5" />,
-    desc: "Rigorous optimization of volume and flow.",
-  },
-  {
-    title: "Material Science",
-    icon: <Hexagon className="w-5 h-5" />,
-    desc: "Pioneering use of ultra-high performance concrete.",
-  },
-  {
-    title: "Urban Integration",
-    icon: <Layers className="w-5 h-5" />,
-    desc: "Structures that command presence yet respect context.",
-  },
-  {
-    title: "Bespoke Details",
-    icon: <PenTool className="w-5 h-5" />,
-    desc: "Custom hardware and joinery designed in-house.",
-  },
-];
-
-/* ==========================================================================
-   UTILITY COMPONENTS
-   ========================================================================== */
-
-function Reveal({
-  children,
-  delay = 0,
-  y = 30,
-}: {
-  children: React.ReactNode;
-  delay?: number;
-  y?: number;
-}) {
-  const ref = useRef(null);
-  const inView = useInView(ref, { once: true, margin: "-50px" });
+function Reveal({ children, delay = 0, y = 30 }: { children: React.ReactNode; delay?: number; y?: number }) {
+  const ref = useRef(null)
+  const isInView = useInView(ref, { once: true, margin: "-80px" })
   return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, y }}
-      animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.8, delay, ease: [0.25, 0.1, 0.25, 1] }}
-    >
+    <motion.div ref={ref} initial={{ opacity: 0, y }} animate={isInView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 1, delay, ease: [0.16, 1, 0.3, 1] }}>
       {children}
     </motion.div>
-  );
+  )
 }
 
-// Custom cursor component for B&W theme
-function CustomCursor() {
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const [isHovering, setIsHovering] = useState(false);
-
-  useEffect(() => {
-    const updateMousePosition = (e: MouseEvent) => {
-      setMousePosition({ x: e.clientX, y: e.clientY });
-    };
-
-    const handleMouseOver = (e: MouseEvent) => {
-      if ((e.target as HTMLElement).closest("a, button, .hover-target")) {
-        setIsHovering(true);
-      } else {
-        setIsHovering(false);
-      }
-    };
-
-    window.addEventListener("mousemove", updateMousePosition);
-    window.addEventListener("mouseover", handleMouseOver);
-
-    return () => {
-      window.removeEventListener("mousemove", updateMousePosition);
-      window.removeEventListener("mouseover", handleMouseOver);
-    };
-  }, []);
-
+function GridBackground() {
   return (
-    <motion.div
-      className="fixed top-0 left-0 w-8 h-8 rounded-full border border-black pointer-events-none z-[100] mix-blend-difference hidden md:flex items-center justify-center bg-white"
-      animate={{
-        x: mousePosition.x - 16,
-        y: mousePosition.y - 16,
-        scale: isHovering ? 2 : 1,
-      }}
-      transition={{ type: "spring", stiffness: 500, damping: 28, mass: 0.5 }}
-    >
-      {isHovering && <div className="w-1 h-1 bg-black rounded-full" />}
-    </motion.div>
-  );
+    <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-[0.03]">
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:40px_40px]" />
+    </div>
+  )
 }
 
-/* ==========================================================================
-   MAIN PAGE COMPONENT
-   ========================================================================== */
-
-export default function VoidArchPage() {
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
-  const [hoveredProject, setHoveredProject] = useState<string | null>(null);
+export default function VanguardLegalPage() {
+  const [scrolled, setScrolled] = useState(false)
 
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 50);
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+    const h = () => setScrolled(window.scrollY > 60)
+    window.addEventListener("scroll", h)
+    return () => window.removeEventListener("scroll", h)
+  }, [])
 
   return (
-    <div className="premium-theme min-h-screen bg-white text-black font-sans selection:bg-black selection:text-white cursor-none">
-      <CustomCursor />
-
-      {/* ==========================================
-          NAVIGATION
-          ========================================== */}
-      <nav
-        className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ${scrolled ? "bg-white/90 backdrop-blur-md py-4" : "bg-transparent py-8"}`}
-      >
-        <div className="max-w-[1600px] mx-auto px-6 md:px-12 flex items-center justify-between mix-blend-difference text-white">
-          <Link
-            href="/"
-            className="text-xl md:text-2xl font-bold tracking-tighter uppercase hover-target"
-          >
-            VOID<span className="font-light">ARCH</span>
+    <div className="bg-[#02040a] text-white font-mono min-h-screen selection:bg-[#00ff41] selection:text-black overflow-x-hidden">
+      
+      {/* ── NAVBAR ────────────────── */}
+      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-700 ${scrolled ? "bg-[#02040a]/95 backdrop-blur-xl border-b border-white/5 py-4" : "bg-transparent py-10"}`}>
+        <div className="max-w-[1400px] mx-auto px-6 md:px-12 flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-3 group">
+            <div className="w-10 h-10 border border-[#00ff41]/30 flex items-center justify-center group-hover:border-[#00ff41] transition-all duration-500">
+              <Shield className="w-5 h-5 text-[#00ff41]" />
+            </div>
+            <span className="text-xl font-bold tracking-tighter uppercase">Vanguard <span className="text-[#00ff41]">Legal</span></span>
           </Link>
-
-          <div className="hidden lg:flex items-center gap-12 text-[10px] font-bold uppercase tracking-widest">
-            <Link
-              href="#"
-              className="hover-target hover:opacity-50 transition-opacity"
-            >
-              Projects
-            </Link>
-            <Link
-              href="#"
-              className="hover-target hover:opacity-50 transition-opacity"
-            >
-              Practice
-            </Link>
-            <Link
-              href="#"
-              className="hover-target hover:opacity-50 transition-opacity"
-            >
-              Publications
-            </Link>
-            <Link
-              href="#"
-              className="hover-target hover:opacity-50 transition-opacity"
-            >
-              Contact
-            </Link>
+          <div className="hidden lg:flex gap-10 text-[10px] font-bold uppercase tracking-[0.3em] text-white/30">
+            {["Offense", "Intelligence", "Global Nodes", "Archive"].map(l => (
+              <Link key={l} href="#" className="hover:text-[#00ff41] transition-colors">{l}</Link>
+            ))}
           </div>
-
-          <button
-            onClick={() => setMenuOpen(true)}
-            className="lg:hidden hover-target"
-          >
-            <AlignRight className="w-6 h-6" />
-          </button>
+          <div className="flex items-center gap-6">
+            <button className="hidden md:block text-[10px] font-bold uppercase tracking-widest text-white/30 hover:text-white transition-colors underline underline-offset-8 decoration-[#00ff41]/20">Secure Portal</button>
+            <button className="px-8 py-3 bg-[#00ff41] text-black text-[10px] font-bold uppercase tracking-[0.2em] hover:bg-white transition-all duration-500 shadow-[0_0_20px_rgba(0,255,65,0.2)]">Enlist</button>
+            <Sheet>
+              <SheetTrigger asChild><button className="lg:hidden p-2"><Menu className="w-6 h-6 text-white" /></button></SheetTrigger>
+              <SheetContent side="right" className="bg-[#02040a] border-white/5 p-12 text-white font-mono">
+                <div className="flex flex-col gap-8 mt-16 text-left">
+                  {["Offense", "Network", "Protocol", "Contact"].map(l => (
+                    <Link key={l} href="#" className="text-3xl font-bold uppercase tracking-tighter hover:text-[#00ff41] transition-all italic">{l}</Link>
+                  ))}
+                </div>
+              </SheetContent>
+            </Sheet>
+          </div>
         </div>
       </nav>
 
-      {/* MOBILE MENU */}
-      <AnimatePresence>
-        {menuOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] bg-black text-white p-6 pt-24 flex flex-col"
-          >
-            <button
-              onClick={() => setMenuOpen(false)}
-              className="absolute top-8 right-6 hover-target text-white/50 hover:text-white transition-colors"
-            >
-              <X className="w-8 h-8" />
-            </button>
-            <div className="flex flex-col gap-8 text-4xl font-light uppercase tracking-tighter">
-              <Link
-                href="#"
-                onClick={() => setMenuOpen(false)}
-                className="hover-target"
-              >
-                Projects
-              </Link>
-              <Link
-                href="#"
-                onClick={() => setMenuOpen(false)}
-                className="hover-target"
-              >
-                Practice
-              </Link>
-              <Link
-                href="#"
-                onClick={() => setMenuOpen(false)}
-                className="hover-target"
-              >
-                Publications
-              </Link>
-              <Link
-                href="#"
-                onClick={() => setMenuOpen(false)}
-                className="hover-target"
-              >
-                Contact
-              </Link>
-            </div>
-            <div className="mt-auto mb-8 font-mono text-sm text-white/50">
-              hello@voidarch.studio <br />
-              +47 400 500 600
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* ==========================================
-          1. HERO TYPOGRAPHY
-          ========================================== */}
-      <section className="relative w-full min-h-[90svh] flex flex-col justify-between pt-32 pb-12 px-6 md:px-12 bg-white">
-        <div className="max-w-[1600px] mx-auto w-full flex-1 flex flex-col justify-center">
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, ease: [0.25, 0.1, 0.25, 1] }}
-          >
-            <h1 className="text-[12vw] leading-[0.85] font-bold tracking-tighter uppercase mb-8">
-              Absolute <br />
-              <span className="font-light italic text-black/30">Form.</span>
-            </h1>
-          </motion.div>
-
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-8 mt-12">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 1, delay: 0.5 }}
-              className="md:col-start-7 md:col-span-5 text-xl md:text-2xl font-light leading-relaxed text-black/70"
-            >
-              We design uncompromising structures through the radical
-              elimination of the unessential. Architecture reduced to its purest
-              geometric essence.
-            </motion.div>
-          </div>
-        </div>
-
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1, delay: 1 }}
-          className="max-w-[1600px] mx-auto w-full flex justify-between items-end border-t border-black/10 pt-8"
-        >
-          <div className="text-[10px] font-bold uppercase tracking-widest text-black/50">
-            Oslo &mdash; Tokyo &mdash; New York
-          </div>
-          <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest">
-            <ArrowDown className="w-4 h-4 animate-bounce" /> Scroll to explore
-          </div>
-        </motion.div>
-      </section>
-
-      {/* ==========================================
-          2. PROJECT ARCHIVE (Grayscale to Color Reveal)
-          ========================================== */}
-      <section className="py-24 bg-[#050505] text-white rounded-t-[40px] md:rounded-t-[80px] -mt-10 relative z-20">
-        <div className="max-w-[1400px] mx-auto px-6 md:px-12 pt-12">
-          <Reveal className="mb-24 md:mb-32">
-            <h2 className="text-4xl md:text-6xl font-bold tracking-tighter uppercase">
-              Selected Works
-            </h2>
-          </Reveal>
-
-          <div className="flex flex-col gap-32 md:gap-48">
-            {PROJECTS.map((project, i) => (
-              <div
-                key={project.id}
-                className={`flex flex-col ${i % 2 === 0 ? "md:flex-row" : "md:flex-row-reverse"} gap-8 md:gap-16 items-center`}
-                onMouseEnter={() => setHoveredProject(project.id)}
-                onMouseLeave={() => setHoveredProject(null)}
-              >
-                {/* Image Area */}
-                <Reveal delay={0.1} className="w-full md:w-3/5 hover-target">
-                  <div className="relative aspect-[4/3] w-full overflow-hidden bg-black group">
-                    {/* The image is grayscale by default, reveals color on hover */}
-                    <Image
-                      src={project.image}
-                      alt={project.title}
-                      fill
-                      className={`object-cover transition-all duration-[1.5s] ease-out group-hover:scale-105 ${hoveredProject === project.id ? "grayscale-0" : "grayscale opacity-70"}`}
-                    />
-                    {/* Hover overlay text */}
-                    <div
-                      className={`absolute inset-0 bg-black/40 flex items-center justify-center transition-opacity duration-500 ${hoveredProject === project.id ? "opacity-100" : "opacity-0"}`}
-                    >
-                      <span className="px-6 py-3 border border-white text-xs font-bold uppercase tracking-widest">
-                        View Project
-                      </span>
+      <main className="relative">
+        <GridBackground />
+        
+        {/* ── HERO ──────────────────── */}
+        <section className="relative min-h-screen flex items-center pt-32 pb-20">
+          <div className="max-w-[1400px] mx-auto px-6 md:px-12 w-full">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-24 items-center">
+              <div>
+                <Reveal>
+                  <div className="inline-flex items-center gap-4 mb-12 px-4 py-1.5 bg-[#00ff41]/5 border border-[#00ff41]/20 text-[#00ff41] text-[10px] font-bold uppercase tracking-[0.4em]">
+                    <Activity className="w-4 h-4 animate-pulse" /> Active Defense Grid v8.0
+                  </div>
+                </Reveal>
+                <Reveal delay={0.1} y={100}>
+                  <h1 className="text-6xl md:text-[10vw] font-black tracking-tighter leading-[0.8] uppercase mb-12 italic">
+                    Silent <br/> <span className="text-white/20 not-italic">Justice.</span>
+                  </h1>
+                </Reveal>
+                <Reveal delay={0.3}>
+                  <p className="text-xl text-white/40 font-light max-w-lg leading-relaxed mb-12 uppercase italic">
+                    Specializing in global asset recovery and cyber-legal defense for the ultra-high-net-worth. We don't just protect; we neutralize.
+                  </p>
+                </Reveal>
+                <Reveal delay={0.4}>
+                  <div className="flex flex-col sm:flex-row gap-8">
+                    <button className="px-12 py-5 bg-white text-black font-black uppercase tracking-widest text-[10px] hover:bg-[#00ff41] transition-all duration-700">
+                       Request Strategy Brief
+                    </button>
+                    <div className="text-[10px] font-bold uppercase tracking-widest text-white/40 flex items-center gap-4 group cursor-pointer">
+                       <Radar className="w-5 h-5 text-[#00ff41]" /> View Threat Map <ArrowRight className="w-4 h-4 group-hover:translate-x-2 transition-all" />
                     </div>
                   </div>
                 </Reveal>
-
-                {/* Text Area */}
-                <div className="w-full md:w-2/5 flex flex-col">
-                  <Reveal delay={0.2}>
-                    <div className="font-mono text-sm text-white/50 mb-6">
-                      {project.id} &mdash; {project.year}
+              </div>
+              
+              <Reveal delay={0.5} y={0}>
+                 <div className="relative p-1 bg-gradient-to-br from-[#00ff41]/20 to-transparent rounded-sm">
+                    <div className="bg-black/80 backdrop-blur-xl rounded-sm p-12 border border-white/5 relative overflow-hidden">
+                       <div className="flex justify-between mb-12 opacity-30 text-[10px]">
+                          <span>TERMINAL_SESSION: VANGUARD_001</span>
+                          <span className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-[#00ff41] animate-pulse" /> ONLINE</span>
+                       </div>
+                       <div className="space-y-6 mb-12 font-mono text-xs leading-relaxed text-[#00ff41]/60">
+                          <p>&gt; scan initialized...</p>
+                          <p>&gt; identifying leak vectors...</p>
+                          <p className="text-white">&gt; 12 global nodes synchronized.</p>
+                          <p>&gt; defense protocol: ALPHA_ZERO active.</p>
+                       </div>
+                       <div className="h-40 border border-[#00ff41]/10 flex items-center justify-center relative group">
+                          <div className="absolute inset-0 flex items-center justify-center opacity-[0.05]">
+                             <Shield className="w-32 h-32" />
+                          </div>
+                          <div className="text-[10px] font-bold uppercase tracking-[0.5em] text-white/60 animate-pulse">Monitoring...</div>
+                       </div>
                     </div>
-                    <h3 className="text-4xl md:text-5xl font-bold tracking-tighter uppercase mb-6">
-                      {project.title}
-                    </h3>
+                 </div>
+              </Reveal>
+            </div>
+          </div>
+        </section>
 
-                    <div className="flex flex-wrap gap-4 mb-8">
-                      <span className="px-3 py-1 border border-white/20 text-[10px] font-bold uppercase tracking-widest rounded-full">
-                        {project.type}
-                      </span>
-                      <span className="px-3 py-1 border border-white/20 text-[10px] font-bold uppercase tracking-widest rounded-full flex items-center gap-1">
-                        <MapPin className="w-3 h-3" /> {project.location}
-                      </span>
-                    </div>
-
-                    <p className="text-white/60 text-lg leading-relaxed font-light mb-8">
-                      {project.desc}
-                    </p>
-
-                    <button className="self-start pb-1 border-b border-white/30 text-[10px] font-bold uppercase tracking-widest hover:border-white transition-colors hover-target flex items-center gap-2">
-                      Case Study <ArrowRight className="w-3 h-3" />
-                    </button>
-                  </Reveal>
+        {/* ── STATS TICKER ──────────── */}
+        <section className="py-8 bg-[#00ff41] text-black overflow-hidden flex items-center">
+           <motion.div 
+             animate={{ x: ["0%", "-50%"] }} 
+             transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+             className="flex gap-20 whitespace-nowrap text-3xl font-black uppercase italic"
+           >
+              {Array.from({ length: 8 }).map((_, i) => (
+                <div key={i} className="flex items-center gap-10">
+                   <span>Asset Recovery</span>
+                   <Lock className="w-8 h-8" />
+                   <span>Cyber Defense</span>
+                   <Lock className="w-8 h-8" />
+                   <span>Global Surveillance</span>
+                   <Lock className="w-8 h-8" />
                 </div>
+              ))}
+           </motion.div>
+        </section>
+
+        {/* ── THE OFFENSE ────────────── */}
+        <section className="py-40 bg-[#02040a]">
+          <div className="max-w-[1400px] mx-auto px-6 md:px-12">
+            <Reveal>
+              <div className="flex flex-col md:flex-row items-end justify-between mb-32 gap-8 border-b border-white/5 pb-16">
+                <div className="max-w-2xl">
+                  <span className="text-[10px] font-bold uppercase tracking-[0.5em] text-[#00ff41] block mb-6">Offensive Protocol</span>
+                  <h2 className="text-6xl md:text-[8vw] font-black uppercase tracking-tighter text-white leading-none italic">Neutralize <br/> <span className="font-light not-italic opacity-20">The Risk.</span></h2>
+                </div>
+                <div className="text-[10px] font-bold uppercase tracking-widest text-white/20 mb-4">Total Recovered: $2.4B — 2025</div>
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
+            </Reveal>
 
-      {/* ==========================================
-          3. THE FIRM & EXPERTISE
-          ========================================== */}
-      <section className="py-32 bg-white text-black border-t border-black/10">
-        <div className="max-w-[1400px] mx-auto px-6 md:px-12">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
-            <div className="lg:col-span-5">
-              <Reveal>
-                <h2 className="text-5xl md:text-6xl font-bold tracking-tighter uppercase mb-8">
-                  The Practice
-                </h2>
-                <p className="text-xl text-black/60 font-light leading-relaxed mb-12">
-                  Founded in 2012, VOID ARCH operates at the intersection of
-                  brutalist heritage and contemporary parametric design. We
-                  believe that architecture should be imposing, permanent, and
-                  fiercely honest in its materiality.
-                </p>
-                <button className="px-8 py-4 bg-black text-white text-[10px] font-bold uppercase tracking-widest hover:bg-black/80 transition-colors hover-target">
-                  About the Studio
-                </button>
-              </Reveal>
-            </div>
-
-            <div className="lg:col-span-6 lg:col-start-7">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-12 border-t border-black/10 pt-8">
-                {EXPERTISE.map((exp, i) => (
-                  <Reveal key={i} delay={i * 0.1}>
-                    <div className="w-12 h-12 bg-black text-white flex items-center justify-center mb-6">
-                      {exp.icon}
-                    </div>
-                    <h4 className="text-xl font-bold uppercase tracking-tight mb-3">
-                      {exp.title}
-                    </h4>
-                    <p className="text-black/60 text-sm leading-relaxed">
-                      {exp.desc}
-                    </p>
-                  </Reveal>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ==========================================
-          3.5 THE PROCESS & METHODOLOGY
-          ========================================== */}
-      <section className="py-32 bg-[#050505] text-white border-y border-white/5 relative overflow-hidden">
-        <div className="max-w-[1400px] mx-auto px-6 md:px-12 relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
-            <div className="lg:col-span-4">
-              <Reveal>
-                <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/40 block mb-6">
-                  Workflow
-                </span>
-                <h2 className="text-4xl font-bold tracking-tighter uppercase mb-8">
-                  From Concept to Permanence.
-                </h2>
-                <p className="text-white/50 font-light leading-relaxed mb-12">
-                  Our process is a rigorous cycle of reduction and refinement.
-                  We do not stop when there is nothing left to add, but when
-                  there is nothing left to take away.
-                </p>
-                <button className="flex items-center gap-3 text-[10px] font-bold uppercase tracking-widest text-white hover:text-white/60 transition-colors hover-target">
-                  Download Protocol <ArrowRight className="w-4 h-4" />
-                </button>
-              </Reveal>
-            </div>
-
-            <div className="lg:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-16">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-0 border border-white/5">
               {[
-                {
-                  step: "01",
-                  title: "Site Analysis",
-                  desc: "Understanding the raw geology, light patterns, and cultural context of the location.",
-                },
-                {
-                  step: "02",
-                  title: "Volumetric Study",
-                  desc: "Exploring the interaction of mass and void through physical scale models.",
-                },
-                {
-                  step: "03",
-                  title: "Technical Drafting",
-                  desc: "Precision engineering of monolithic structures and custom material compositions.",
-                },
-                {
-                  step: "04",
-                  title: "Execution",
-                  desc: "On-site oversight to ensure the purity of form is maintained during construction.",
-                },
+                { icon: Radar, t: "Asset Intelligence", d: "Deep-web tracing and forensic accounting to locate misappropriated holdings globally." },
+                { icon: Lock, t: "Extraction Strategy", d: "Surgical legal maneuvers to freeze and extract assets across complex jurisdictions." },
+                { icon: Eye, t: "Privacy Cloaking", d: "Digital erasure and physical security protocols to ensure your movements remain invisible." }
               ].map((item, i) => (
                 <Reveal key={i} delay={i * 0.1}>
-                  <div className="border-l border-white/10 pl-8">
-                    <span className="font-mono text-xs text-white/30 block mb-4">
-                      {item.step} //
-                    </span>
-                    <h4 className="text-xl font-bold uppercase mb-4">
-                      {item.title}
-                    </h4>
-                    <p className="text-white/40 text-sm leading-relaxed">
-                      {item.desc}
-                    </p>
+                  <div className={`p-16 flex flex-col h-full border-white/5 group ${i < 2 ? "md:border-r" : ""}`}>
+                    <div className="w-16 h-16 border border-[#00ff41]/20 flex items-center justify-center mb-12 group-hover:bg-[#00ff41] group-hover:text-black transition-all duration-700">
+                      <item.icon className="w-6 h-6" />
+                    </div>
+                    <div className="text-[9px] font-bold uppercase tracking-widest text-[#00ff41]/40 mb-4 italic">Protocol: 0{i+1}</div>
+                    <h3 className="text-3xl font-black uppercase mb-8 tracking-tighter italic">{item.t}</h3>
+                    <p className="text-white/30 leading-relaxed text-sm font-light mb-12 italic">{item.d}</p>
+                    <Link href="#" className="mt-auto flex items-center gap-4 text-[10px] font-bold uppercase tracking-widest group-hover:gap-8 transition-all">
+                       Initialize Protocol <ChevronRight className="w-4 h-4" />
+                    </Link>
                   </div>
                 </Reveal>
               ))}
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* ==========================================
-          4. MANIFESTO QUOTE
-          ========================================== */}
-      <section className="py-32 md:py-48 bg-[#f5f5f5] text-black border-y border-black/5">
-        <div className="max-w-[1000px] mx-auto px-6 md:px-12 text-center">
-          <Reveal>
-            <h2 className="text-3xl md:text-5xl lg:text-6xl font-light leading-[1.2] tracking-tight">
-              "We do not design buildings to blend in. We design interventions
-              that force a dialogue between the observer and the environment."
-            </h2>
-            <div className="mt-12 text-[10px] font-bold uppercase tracking-widest text-black/40">
-              — Manifesto, 2024
-            </div>
-          </Reveal>
-        </div>
-      </section>
-
-      {/* ==========================================
-          4.5 LEADERSHIP / PARTNERS
-          ========================================== */}
-      <section className="py-32 bg-white text-black">
-        <div className="max-w-[1400px] mx-auto px-6 md:px-12">
-          <Reveal className="mb-20">
-            <h2 className="text-4xl md:text-5xl font-bold tracking-tighter uppercase">
-              The Directors
-            </h2>
-          </Reveal>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-24">
-            <Reveal delay={0.1}>
-              <div className="group hover-target">
-                <div className="relative aspect-[3/4] w-full overflow-hidden mb-8">
-                  <Image
-                    src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=800&auto=format&fit=crop"
-                    alt="Partner"
-                    fill
-                    className="object-cover grayscale group-hover:grayscale-0 transition-all duration-700"
-                  />
-                </div>
-                <h4 className="text-2xl font-bold uppercase mb-2">
-                  Erik Vance
-                </h4>
-                <span className="text-[10px] font-bold uppercase tracking-widest text-black/40">
-                  Founding Partner / Oslo
-                </span>
+        {/* ── INTELLIGENCE ──────────── */}
+        <section className="py-40 bg-black relative">
+           <div className="max-w-[1400px] mx-auto px-6 md:px-12">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-32 items-center">
+                 <div>
+                    <Reveal>
+                       <h2 className="text-5xl md:text-8xl font-black uppercase mb-12 italic leading-none">Global <br/> <span className="not-italic font-light opacity-30">Watch.</span></h2>
+                       <p className="text-xl text-white/40 font-light leading-relaxed mb-20 uppercase italic">
+                          Our proprietary monitoring grid ensures that no movement goes unnoticed. We operate 24/7/365 across all time zones to ensure perpetual readiness.
+                       </p>
+                       <div className="space-y-12">
+                          {[
+                            { t: "REAL-TIME TELEMETRY", d: "Instant alerts on asset movement across digital and physical borders." },
+                            { v: "14", l: "SECURE OPERATIONAL HUBS", d: "Strategic locations in London, Zug, Singapore, and Grand Cayman." }
+                          ].map((item, i) => (
+                            <div key={i} className="flex gap-10 group">
+                               <div className="text-4xl font-black italic text-[#00ff41] shrink-0 w-24">0{i+1}</div>
+                               <div>
+                                  <h4 className="text-lg font-bold uppercase tracking-widest mb-2 italic">{(item as any).t || (item as any).l}</h4>
+                                  <p className="text-xs text-white/20 font-light italic leading-relaxed">{(item as any).d}</p>
+                               </div>
+                            </div>
+                          ))}
+                       </div>
+                    </Reveal>
+                 </div>
+                 <Reveal delay={0.3}>
+                    <div className="aspect-square relative border border-white/5 bg-[#050505] p-12 overflow-hidden flex items-center justify-center">
+                       <div className="relative w-full h-full border border-[#00ff41]/5 rounded-full flex items-center justify-center">
+                          <div className="w-full h-full border border-[#00ff41]/10 rounded-full animate-[ping_4s_linear_infinite] opacity-20" />
+                          <div className="absolute inset-0 flex items-center justify-center">
+                             <Globe className="w-32 h-32 text-[#00ff41]/10" />
+                          </div>
+                          {/* Node markers */}
+                          <div className="absolute top-1/4 right-1/4 w-3 h-3 bg-[#00ff41] rounded-full shadow-[0_0_15px_#00ff41]" />
+                          <div className="absolute bottom-1/3 left-1/4 w-2 h-2 bg-[#00ff41] rounded-full shadow-[0_0_10px_#00ff41] opacity-50" />
+                       </div>
+                       <div className="absolute bottom-10 left-10 text-[8px] font-mono text-[#00ff41]/40 space-y-1">
+                          <p>SCANNING_NODE: ZUG_ALPHA</p>
+                          <p>STATUS: ACTIVE</p>
+                          <p>SIGNAL_STRENGTH: 100%</p>
+                       </div>
+                    </div>
+                 </Reveal>
               </div>
-            </Reveal>
-            <Reveal delay={0.3}>
-              <div className="group hover-target">
-                <div className="relative aspect-[3/4] w-full overflow-hidden mb-8">
-                  <Image
-                    src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=800&auto=format&fit=crop"
-                    alt="Partner"
-                    fill
-                    className="object-cover grayscale group-hover:grayscale-0 transition-all duration-700"
-                  />
-                </div>
-                <h4 className="text-2xl font-bold uppercase mb-2">
-                  Dr. Sarah Tanaka
-                </h4>
-                <span className="text-[10px] font-bold uppercase tracking-widest text-black/40">
-                  Design Director / Tokyo
-                </span>
+           </div>
+        </section>
+
+        {/* ── CTA ───────────────────── */}
+        <section className="py-60 bg-[#00ff41] text-black text-center relative overflow-hidden">
+          <div className="absolute inset-0 opacity-[0.02]">
+             <div className="w-[150%] h-[150%] border-2 border-dashed border-black rounded-full -translate-x-1/4 -translate-y-1/4 animate-[spin_60s_linear_infinite]" />
+          </div>
+          <div className="max-w-4xl mx-auto px-6 relative z-10">
+            <Reveal>
+              <h2 className="text-7xl md:text-[14vw] font-black uppercase tracking-tighter leading-[0.75] mb-16 italic">
+                Secure <br/> <span className="font-light not-italic opacity-30">Your Legacy.</span>
+              </h2>
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-10">
+                <button className="px-16 py-8 bg-black text-white font-black uppercase tracking-[0.2em] text-xs hover:px-24 transition-all duration-700 italic">
+                   Initiate Strategy Session
+                </button>
+                <button className="px-16 py-8 border-2 border-black text-black font-black uppercase tracking-[0.2em] text-xs hover:bg-black hover:text-white transition-all duration-700 italic">
+                   Request Private Audit
+                </button>
               </div>
             </Reveal>
           </div>
-        </div>
-      </section>
+        </section>
+      </main>
 
-      {/* ==========================================
-          5. MEGA FOOTER
-          ========================================== */}
-      <footer className="bg-black text-white pt-32 pb-12 px-6 md:px-12 rounded-t-[40px] md:rounded-t-[80px] -mt-10 relative z-20">
-        <div className="max-w-[1600px] mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-16 mb-24">
-            <div className="lg:col-span-5">
-              <Reveal>
-                <h2 className="text-5xl md:text-7xl font-bold tracking-tighter uppercase mb-8">
-                  Initiate <br />
-                  <span className="font-light text-white/50">Dialogue.</span>
-                </h2>
-                <a
-                  href="mailto:inquiries@voidarch.studio"
-                  className="text-xl md:text-2xl font-light hover:text-white/60 transition-colors border-b border-white/20 pb-2 hover-target"
-                >
-                  inquiries@voidarch.studio
-                </a>
-              </Reveal>
-            </div>
-
-            <div className="lg:col-span-2 lg:col-start-7">
-              <h4 className="text-[10px] font-bold uppercase tracking-widest text-white/40 mb-6">
-                Oslo HQ
-              </h4>
-              <p className="text-sm text-white/70 leading-relaxed">
-                Aker Brygge 12
-                <br />
-                0250 Oslo
-                <br />
-                Norway
-                <br />
-                +47 400 500 600
+      {/* ── FOOTER ────────────────── */}
+      <footer className="bg-[#02040a] pt-32 pb-12 px-6 border-t border-white/5 font-mono">
+        <div className="max-w-[1400px] mx-auto grid grid-cols-1 md:grid-cols-5 gap-20 mb-40">
+           <div className="md:col-span-2">
+              <Link href="/" className="flex items-center gap-4 mb-10 group">
+                <div className="w-10 h-10 border border-[#00ff41]/30 flex items-center justify-center">
+                  <Shield className="w-5 h-5 text-[#00ff41]" />
+                </div>
+                <span className="text-xl font-bold tracking-tighter uppercase text-white italic">Vanguard <span className="text-[#00ff41]">Legal</span></span>
+              </Link>
+              <p className="text-white/20 max-w-sm leading-relaxed mb-12 text-[10px] font-bold uppercase italic">
+                 "Conflict is inevitable. Neutralization is an choice. We are the choice of the prepared."
               </p>
-            </div>
-
-            <div className="lg:col-span-2">
-              <h4 className="text-[10px] font-bold uppercase tracking-widest text-white/40 mb-6">
-                Network
-              </h4>
-              <ul className="space-y-4 text-sm text-white/70">
-                <li>
-                  <Link
-                    href="#"
-                    className="hover:text-white transition-colors hover-target"
-                  >
-                    Globe
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="#"
-                    className="hover:text-white transition-colors hover-target"
-                  >
-                    LinkedIn
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="#"
-                    className="hover:text-white transition-colors hover-target"
-                  >
-                    ArchDaily
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="#"
-                    className="hover:text-white transition-colors hover-target"
-                  >
-                    Dezeen
-                  </Link>
-                </li>
-              </ul>
-            </div>
-
-            <div className="lg:col-span-2">
-              <h4 className="text-[10px] font-bold uppercase tracking-widest text-white/40 mb-6">
-                Legal
-              </h4>
-              <ul className="space-y-4 text-sm text-white/70">
-                <li>
-                  <Link
-                    href="#"
-                    className="hover:text-white transition-colors hover-target"
-                  >
-                    Privacy Policy
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="#"
-                    className="hover:text-white transition-colors hover-target"
-                  >
-                    Terms of Use
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="#"
-                    className="hover:text-white transition-colors hover-target"
-                  >
-                    Cookies
-                  </Link>
-                </li>
-              </ul>
-            </div>
-          </div>
-
-          <div className="flex flex-col md:flex-row justify-between items-center gap-6 pt-8 border-t border-white/10 text-[10px] font-bold uppercase tracking-widest text-white/30">
-            <span>
-              &copy; {new Date().getFullYear()} VOID ARCHITECTURE. All rights
-              reserved.
-            </span>
-            <div className="flex items-center gap-2">
-              Designed in Oslo{" "}
-              <div className="w-1.5 h-1.5 bg-white rounded-full ml-1" />
-            </div>
-          </div>
+              <div className="flex gap-10">
+                 {["GitHub", "Archive", "Signal", "Contact"].map(s => (
+                   <Link key={s} href="#" className="text-[10px] font-bold uppercase tracking-widest text-white/20 hover:text-[#00ff41] transition-colors underline underline-offset-8 decoration-[#00ff41]/10">{s}</Link>
+                 ))}
+              </div>
+           </div>
+           
+           {[
+             { t: "PROTOCOLS", l: ["Asset Recovery", "Intelligence", "Defense", "Surveillance"] },
+             { t: "NODES", l: ["London Hub", "Zug Office", "Cayman Base", "Singapore"] },
+             { t: "RESOURCES", l: ["Portal", "Status", "Manual", "Press"] }
+           ].map((col, i) => (
+             <div key={i} className="space-y-12">
+                <h4 className="text-[10px] font-bold uppercase tracking-[0.5em] text-[#00ff41]/40">{col.t}</h4>
+                <ul className="space-y-6">
+                   {col.l.map(link => (
+                     <li key={link} className="text-xs font-bold uppercase tracking-widest text-white/20 hover:text-white transition-colors italic">
+                        <Link href="#">{link}</Link>
+                     </li>
+                   ))}
+                </ul>
+             </div>
+           ))}
+        </div>
+        <div className="max-w-[1400px] mx-auto flex flex-col md:row justify-between items-center gap-8 border-t border-white/5 pt-12 text-[10px] font-bold uppercase tracking-[0.4em] text-white/10 italic">
+           <span>© 2026 VANGUARD STRATEGIC LEGAL DEFENSE. CONNECTION ENCRYPTED.</span>
+           <div className="flex gap-12">
+              <Link href="#" className="hover:text-[#00ff41] transition-all">SYSTEM_STATUS: NOMINAL</Link>
+              <Link href="#" className="hover:text-[#00ff41] transition-all">PRIVACY_PROTOCOL_ENABLED</Link>
+           </div>
         </div>
       </footer>
     </div>
-  );
+  )
 }
