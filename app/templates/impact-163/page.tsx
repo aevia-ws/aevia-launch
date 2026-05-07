@@ -1,289 +1,509 @@
 "use client"
-import { motion, useScroll, useTransform, useInView } from "framer-motion"
-import { useRef, useState, useEffect } from "react"
+
+import React, { useState, useEffect, useRef } from "react"
+import { 
+  motion, 
+  AnimatePresence, 
+  useScroll, 
+  useTransform, 
+  useInView, 
+  useSpring 
+} from "framer-motion"
 import Image from "next/image"
 import Link from "next/link"
-import { Wind, ArrowRight, Menu, Star, Flower2, Droplets, Leaf, Compass, ChevronRight, Play, ShoppingBag } from "lucide-react"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { 
+  Shield, Lock, Key, Eye, 
+  BarChart3, PieChart, TrendingUp, Globe, 
+  Zap, Database, Activity, Landmark, 
+  ShieldCheck, ShieldAlert, Award, Briefcase, 
+  Terminal, Settings, Power, Info, 
+  AlertTriangle, ChevronRight, ArrowRight, 
+  Share2, Maximize2, Download, ExternalLink, 
+  Archive, Hash, Wifi, Microscope, 
+  Fingerprint, Scan, Brain, Layers, 
+  Frame, Box, Target, Orbit, 
+  Atom, Satellite, Milestone, Gauge, 
+  Timer, Cloud, Signal, Search,
+  Navigation, Code, Command, Grid,
+  Radar, Lightbulb, User, Heart,
+  Dna, Smartphone, Bluetooth, Watch,
+  CreditCard, Coins, DollarSign, Euro
+} from "lucide-react"
 
-function Reveal({ children, delay = 0, y = 30 }: { children: React.ReactNode; delay?: number; y?: number }) {
+/* ==========================================================================
+   THE AEGIS VAULT DATASET (ULTRA DENSITY)
+   ========================================================================== */
+
+const ASSET_CLASSES = [
+  {
+    id: "asset-re-01",
+    name: "Prime Real Estate",
+    allocation: "35%",
+    yield: "4.2%",
+    risk: "Low",
+    regions: "London, NYC, Singapore",
+    desc: "Acquisition de biens immobiliers trophées dans les juridictions les plus stables au monde.",
+    status: "Stable"
+  },
+  {
+    id: "asset-pe-04",
+    name: "Private Equity",
+    allocation: "25%",
+    yield: "14.8%",
+    risk: "High",
+    regions: "Silicon Valley, Tel Aviv",
+    desc: "Investissements directs dans des licornes technologiques et des infrastructures de nouvelle génération.",
+    status: "Growth"
+  },
+  {
+    id: "asset-art-09",
+    name: "Rare Collectibles",
+    allocation: "15%",
+    yield: "6.5%",
+    risk: "Medium",
+    regions: "Geneva Free Ports",
+    desc: "Curateur de chefs-d'œuvre de l'art moderne et de manuscrits historiques à haute valeur de conservation.",
+    status: "Curated"
+  }
+]
+
+const PERFORMANCE_METRICS = [
+  { label: "Intergenerational Growth", value: "+124%", trend: "Stable" },
+  { label: "Liquidity Ratio", value: "18.4%", trend: "Nominal" },
+  { label: "Tax Optimization", value: "94.2%", trend: "Maximum" },
+  { label: "Security Health", value: "100%", trend: "Fortified" }
+]
+
+const SECURITY_LOGS = [
+  { timestamp: "14:12:42", event: "Biometric Handshake: Level 5", status: "VERIFIED" },
+  { timestamp: "14:12:45", event: "Quantum Encryption Sync", status: "ACTIVE" },
+  { timestamp: "14:12:48", event: "Physical Vault Status: Zurich", status: "SECURE" }
+]
+
+/* ==========================================================================
+   TECHNICAL COMPONENTS
+   ========================================================================== */
+
+function Reveal({ children, delay = 0, y = 40, x = 0 }: { children: React.ReactNode, delay?: number, y?: number, x?: number }) {
   const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, margin: "-80px" })
+  const isInView = useInView(ref, { once: true, margin: "-100px" })
   return (
-    <motion.div ref={ref} initial={{ opacity: 0, y }} animate={isInView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 1.5, delay, ease: [0.16, 1, 0.3, 1] }}>
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y, x }}
+      animate={isInView ? { opacity: 1, y: 0, x: 0 } : {}}
+      transition={{ duration: 1.2, delay, ease: [0.16, 1, 0.3, 1] }}
+    >
       {children}
     </motion.div>
   )
 }
 
-function ParallaxImg({ src, alt }: { src: string; alt: string }) {
-  const ref = useRef(null)
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] })
-  const y = useTransform(scrollYProgress, [0, 1], ["-12%", "12%"])
+function VaultDoorSVG({ progress }: { progress: any }) {
+  const rotate = useTransform(progress, [0, 0.5], [0, 360])
+  const scale = useTransform(progress, [0, 0.5], [1, 2.5])
+  const opacity = useTransform(progress, [0, 0.3, 0.5], [1, 1, 0])
+
   return (
-    <div ref={ref} className="relative w-full h-full overflow-hidden rounded-[2rem]">
-      <motion.div style={{ y }} className="absolute inset-[-15%] w-[130%] h-[130%]">
-        <Image src={src} alt={alt} fill className="object-cover" />
-      </motion.div>
+    <motion.div style={{ rotate, scale, opacity }} className="w-[600px] h-[600px] relative pointer-events-none opacity-20">
+       <svg viewBox="0 0 100 100" className="w-full h-full fill-none stroke-gold-500/20 stroke-[0.5]">
+          <circle cx="50" cy="50" r="45" />
+          <circle cx="50" cy="50" r="35" />
+          {[...Array(12)].map((_, i) => (
+            <line 
+              key={i} 
+              x1="50" y1="10" x2="50" y2="20" 
+              transform={`rotate(${i * 30} 50 50)`} 
+              stroke="white" 
+              strokeWidth="0.2"
+            />
+          ))}
+          <motion.path 
+            d="M50 20 L50 30 M50 70 L50 80 M20 50 L30 50 M70 50 L80 50" 
+            stroke="gold" 
+            strokeWidth="0.5" 
+          />
+       </svg>
+    </motion.div>
+  )
+}
+
+function SectionTitle({ subtitle, title, alignment = "left" }: { subtitle: string, title: string, alignment?: "center" | "left" }) {
+  return (
+    <div className={`mb-32 ${alignment === "center" ? "text-center" : "text-left"}`}>
+       <Reveal>
+          <span className="text-[10px] font-black uppercase tracking-[0.6em] text-gold-500/60 mb-8 block italic underline underline-offset-8 decoration-gold-500/20 font-serif">
+             {subtitle}
+          </span>
+          <h2 className="text-6xl md:text-[8vw] font-light tracking-tighter uppercase text-white italic font-serif leading-none">
+             {title}
+          </h2>
+       </Reveal>
     </div>
   )
 }
 
-const TEAS = [
-  { name: "Matcha Ceremonial", note: "Uji, Kyoto — Umami, Creamy, Vibrant", price: "€45", img: "https://images.unsplash.com/photo-1582793988951-9aed55099991?auto=format&fit=crop&q=80&w=1200" },
-  { name: "Gyokuro Master", note: "Yame, Fukuoka — Sweet, Oceanic, Rich", price: "€65", img: "https://images.unsplash.com/photo-1563911191283-d48e0e7150ba?auto=format&fit=crop&q=80&w=1200" },
-  { name: "Ancient Sencha", note: "Wazuka, Kyoto — Grassy, Nutty, Bright", price: "€35", img: "https://images.unsplash.com/photo-1544787210-229ef54582f3?auto=format&fit=crop&q=80&w=1200" },
-]
+/* ==========================================
+   THE AEGIS VAULT - MAIN INTERFACE
+   ========================================== */
 
-export default function KyotoTeaPage() {
-  const [scrolled, setScrolled] = useState(false)
-
-  useEffect(() => {
-    const h = () => setScrolled(window.scrollY > 60)
-    window.addEventListener("scroll", h)
-    return () => window.removeEventListener("scroll", h)
-  }, [])
+export default function AegisVaultPremium() {
+  const [activeAsset, setActiveAsset] = useState(0)
+  const [isVaultLocked, setIsVaultLocked] = useState(true)
+  const containerRef = useRef(null)
+  const { scrollYProgress } = useScroll({ target: containerRef })
 
   return (
-    <div className="bg-[#f7f5f2] text-[#4a4a4a] font-sans min-h-screen selection:bg-[#e0e4d9] selection:text-[#4a4a4a] overflow-x-hidden">
+    <div ref={containerRef} className="bg-[#050505] text-[#e0e2e5] font-serif selection:bg-gold-500/30 selection:text-white min-h-screen overflow-x-hidden transition-colors duration-1000">
       
-      {/* ── WASHI OVERLAY ────────── */}
-      <div className="fixed inset-0 pointer-events-none opacity-[0.05] z-0" 
-           style={{ backgroundImage: `url('https://www.transparenttextures.com/patterns/natural-paper.png')` }} />
-
-      {/* ── NAVBAR ────────────────── */}
-      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-1000 ${scrolled ? "bg-[#f7f5f2]/80 backdrop-blur-xl border-b border-black/5 py-4" : "bg-transparent py-10"}`}>
-        <div className="max-w-[1400px] mx-auto px-6 md:px-12 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-4 group">
-            <div className="w-10 h-10 rounded-full border border-black/10 flex items-center justify-center group-hover:bg-[#e0e4d9] transition-all duration-700">
-              <Leaf className="w-5 h-5 text-[#8b9d83]" />
-            </div>
-            <span className="text-xl font-light tracking-[0.3em] uppercase">Kyoto <span className="font-bold">Tea</span></span>
-          </Link>
-          <div className="hidden lg:flex gap-12 text-[10px] font-bold uppercase tracking-[0.4em] text-black/30">
-            {["The Atelier", "Ceremony", "Origins", "Journal"].map(l => (
-              <Link key={l} href="#" className="hover:text-black transition-colors">{l}</Link>
-            ))}
-          </div>
-          <div className="flex items-center gap-8">
-            <button className="hidden md:block text-[10px] font-bold uppercase tracking-widest text-black/40 hover:text-black transition-colors underline underline-offset-8 decoration-black/5">The Maison</button>
-            <button className="px-10 py-4 bg-[#4a4a4a] text-white text-[10px] font-bold uppercase tracking-[0.3em] rounded-full hover:bg-transparent hover:text-black border border-transparent hover:border-black/20 transition-all duration-700">Explore Tea</button>
-            <Sheet>
-              <SheetTrigger asChild><button className="lg:hidden p-2"><Menu className="w-6 h-6 text-black" /></button></SheetTrigger>
-              <SheetContent side="right" className="bg-[#f7f5f2] border-none p-12 text-black">
-                <div className="flex flex-col gap-10 mt-16 text-left">
-                  {["Experience", "Collection", "Philosophy", "Shop"].map(l => (
-                    <Link key={l} href="#" className="text-4xl font-light uppercase tracking-widest hover:italic transition-all">{l}</Link>
-                  ))}
-                </div>
-              </SheetContent>
-            </Sheet>
-          </div>
-        </div>
-      </nav>
+      {/* GLOBAL HUD OVERLAY */}
+      <HUD_Overlay isVaultLocked={isVaultLocked} />
 
       <main>
-        {/* ── HERO ──────────────────── */}
-        <section className="relative h-screen flex items-center justify-center overflow-hidden">
-          <div className="absolute inset-0">
-             <Image src="https://images.unsplash.com/photo-1544787210-229ef54582f3?auto=format&fit=crop&q=80&w=2400" alt="Tea Ceremony" fill className="object-cover opacity-10 scale-105" priority />
-             <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#f7f5f2]/20 to-[#f7f5f2]" />
-          </div>
-
-          <div className="relative z-10 max-w-[1200px] mx-auto px-6 text-center">
-            <Reveal>
-              <div className="flex items-center justify-center gap-6 mb-12 opacity-30">
-                 <div className="w-12 h-[1px] bg-black" />
-                 <span className="text-[10px] font-bold uppercase tracking-[0.6em] text-black">Mindfulness In Every Steep</span>
-                 <div className="w-12 h-[1px] bg-black" />
-              </div>
-            </Reveal>
-            <Reveal delay={0.2} y={70}>
-              <h1 className="text-7xl md:text-[11vw] font-light tracking-tighter leading-[0.8] text-[#1a1a1a] mb-12 uppercase italic" style={{ fontFamily: "serif" }}>
-                Pure <br/> <span className="font-bold not-italic">Silence.</span>
-              </h1>
-            </Reveal>
-            <Reveal delay={0.4}>
-              <div className="flex flex-col items-center justify-center gap-12">
-                <p className="text-2xl text-black/40 font-light max-w-xl leading-relaxed italic">
-                  Sourcing the rarest ceremonial grade teas from the untouched hills of Uji. A ritual of absolute presence.
-                </p>
-                <div className="flex flex-wrap justify-center gap-10">
-                  <button className="px-16 py-6 bg-[#4a4a4a] text-white font-bold uppercase tracking-widest text-[10px] rounded-full hover:px-20 transition-all duration-700">
-                    Discover The Collection
-                  </button>
-                  <button className="px-16 py-6 border border-black/10 text-black/60 font-bold uppercase tracking-widest text-[10px] hover:bg-black/5 transition-all flex items-center gap-4 rounded-full">
-                    <Play className="w-3 h-3 fill-current" /> The Tea Way
-                  </button>
-                </div>
-              </div>
-            </Reveal>
-          </div>
+        {/* ==========================================
+            1. VAULT IGNITION (HERO)
+            ========================================== */}
+        <section className="relative h-screen flex flex-col justify-center items-center px-8 md:px-24 overflow-hidden pt-20">
+          <div className="absolute inset-0 z-0 bg-[radial-gradient(circle_at_center,#d4af3710_1px,transparent_1px)] bg-[size:60px_60px]" />
           
-          <div className="absolute bottom-12 left-12 right-12 flex justify-between items-end text-[9px] font-bold uppercase tracking-[0.4em] text-black/20 italic">
-            <span>KYOTO / UJI / WAZUKA / YAME</span>
-            <div className="flex gap-4">
-               <Flower2 className="w-4 h-4" />
-               <Wind className="w-4 h-4" />
-            </div>
+          <div className="absolute z-0 flex items-center justify-center">
+             <VaultDoorSVG progress={scrollYProgress} />
           </div>
-        </section>
 
-        {/* ── PHILOSOPHY ────────────── */}
-        <section className="py-40 bg-white relative overflow-hidden">
-          <div className="max-w-[1400px] mx-auto px-6 md:px-12">
-             <div className="grid grid-cols-1 lg:grid-cols-2 gap-32 items-center">
-                <Reveal>
-                   <div className="relative aspect-square p-2 bg-[#f7f5f2] border border-black/5 rounded-full group overflow-hidden">
-                      <ParallaxImg src="https://images.unsplash.com/photo-1582793988951-9aed55099991?auto=format&fit=crop&q=80&w=1200" alt="Matcha Bowl" />
-                      <div className="absolute inset-0 bg-[#8b9d83]/10 group-hover:bg-transparent transition-all duration-1000" />
-                   </div>
-                </Reveal>
-                <div>
-                   <Reveal>
-                      <span className="text-[10px] font-bold uppercase tracking-[0.5em] text-[#8b9d83] block mb-12 italic">The Way of Tea</span>
-                      <h2 className="text-6xl md:text-8xl font-light uppercase tracking-tighter text-[#1a1a1a] leading-none mb-16 italic" style={{ fontFamily: "serif" }}>Savor <br/> <span className="not-italic font-bold opacity-10">Stillness.</span></h2>
-                      <p className="text-2xl font-light text-black/40 leading-relaxed mb-20 italic">
-                         We don't sell tea. We offer a pause. Every harvest is hand-selected and shade-grown to ensure the highest umami profile and ceremonial fidelity.
-                      </p>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
-                         {[
-                           { icon: Leaf, t: "ORIGIN FOCUS", d: "Sourced exclusively from family-run estates in Uji and Yame." },
-                           { icon: Droplets, t: "COLD PRESS", d: "Cold-distilled and shade-dried to preserve absolute nutrient density." }
-                         ].map((p, i) => (
-                           <div key={i} className="group">
-                              <div className="w-12 h-12 rounded-full border border-black/10 flex items-center justify-center mb-6 group-hover:bg-[#e0e4d9] transition-all">
-                                 <p.icon className="w-5 h-5 opacity-40 group-hover:opacity-100" />
-                              </div>
-                              <h4 className="text-xs font-black uppercase tracking-widest mb-4 text-[#1a1a1a] italic">{p.t}</h4>
-                              <p className="text-sm font-light leading-relaxed text-black/30 italic">{p.d}</p>
-                           </div>
-                         ))}
-                      </div>
-                   </Reveal>
+          <div className="relative z-10 text-center max-w-7xl">
+             <Reveal>
+                <div className="inline-flex items-center gap-4 px-6 py-2 border border-gold-500/30 bg-gold-500/5 text-[10px] font-black uppercase tracking-[0.5em] text-gold-500 mb-12 italic font-sans">
+                   <ShieldCheck className="w-4 h-4" /> Security_Status: Multi_Layer_Fortified // v4.2.0
+                </div>
+                <h1 className="text-7xl md:text-[14vw] font-light tracking-tighter uppercase mb-16 leading-[0.75] italic">
+                   Aegis <br/> <span className="text-white/5 italic">Vault.</span>
+                </h1>
+                <p className="max-w-3xl mx-auto text-sm md:text-lg text-white/30 leading-relaxed uppercase tracking-widest font-light mb-16 italic font-sans">
+                   L'épicentre mondial de la préservation de fortune. Nous forgeons les structures de demain pour protéger le patrimoine des générations futures.
+                </p>
+                
+                <div className="flex flex-col sm:flex-row gap-8 justify-center items-center font-sans">
+                   <button className="px-12 py-6 bg-gold-600 text-black text-[10px] font-black uppercase tracking-widest hover:bg-white transition-all shadow-[0_0_40px_rgba(212,175,55,0.2)] flex items-center gap-4 italic">
+                      <Lock className="w-5 h-5" /> Access Portfolio
+                   </button>
+                   <button className="px-12 py-6 border border-white/10 text-white text-[10px] font-black uppercase tracking-widest hover:bg-white/5 transition-all flex items-center gap-4 italic">
+                      <Globe className="w-5 h-5" /> Global Jurisdictions
+                   </button>
+                </div>
+             </Reveal>
+          </div>
+
+          <div className="absolute bottom-12 left-12 right-12 flex justify-between items-end border-t border-white/5 pt-12 font-sans">
+             <div className="flex flex-col gap-6">
+                <div className="flex items-center gap-4 text-[9px] font-bold text-white/20 uppercase tracking-widest italic">
+                   <div className="w-16 h-px bg-white/10" />
+                   Vault_ID: AEGIS-77-ZRH
+                </div>
+                <div className="flex items-center gap-4 text-[9px] font-bold text-white/20 uppercase tracking-widest italic">
+                   <div className="w-16 h-px bg-white/10" />
+                   Legacy_Status: Generational
+                </div>
+             </div>
+             <div className="text-right flex flex-col items-end gap-4">
+                <span className="text-[8px] font-black uppercase tracking-[0.5em] text-gold-500/60">Asset_Flux_Monitor</span>
+                <div className="flex gap-2 h-12 items-end">
+                   {[...Array(16)].map((_, i) => (
+                     <motion.div 
+                        key={i}
+                        animate={{ height: ["20%", "100%", "40%", "90%", "20%"] }}
+                        transition={{ duration: 2, repeat: Infinity, delay: i * 0.1 }}
+                        className="w-2 bg-gold-500/10"
+                     />
+                   ))}
                 </div>
              </div>
           </div>
         </section>
 
-        {/* ── COLLECTION ─────────────── */}
-        <section className="py-60 bg-[#f7f5f2]">
-           <div className="max-w-[1400px] mx-auto px-6 md:px-12">
-              <Reveal>
-                 <div className="flex flex-col md:flex-row items-end justify-between mb-32 gap-8 border-b border-black/5 pb-16">
-                    <div className="max-w-2xl">
-                       <span className="text-[10px] font-bold uppercase tracking-[0.5em] text-[#8b9d83] block mb-6">Seasonal Harvest</span>
-                       <h2 className="text-7xl md:text-[9vw] font-black uppercase tracking-tighter text-[#1a1a1a] leading-none italic" style={{ fontFamily: "serif" }}>The <span className="font-light not-italic opacity-10 text-black">Garden.</span></h2>
-                    </div>
-                    <Link href="#" className="flex items-center gap-4 text-[10px] font-bold uppercase tracking-widest hover:text-black text-black/40 transition-colors group italic">
-                       View All Teas <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
-                    </Link>
+        {/* ==========================================
+            2. ASSET ALLOCATION (DENSE GRID)
+            ========================================== */}
+        <section className="py-60 bg-[#080808] relative border-y border-white/5 overflow-hidden font-sans">
+           <div className="max-w-[1600px] mx-auto px-8 md:px-24">
+              <div className="flex flex-col md:flex-row items-end justify-between mb-40 gap-12">
+                 <Reveal>
+                    <span className="text-[10px] font-black uppercase tracking-[0.6em] text-gold-500/60 block mb-6 italic underline underline-offset-8 decoration-gold-500/20">Portfolio // Matrix</span>
+                    <h2 className="text-6xl md:text-[10vw] font-light uppercase tracking-tighter italic leading-none text-white font-serif">Allocations.</h2>
+                 </Reveal>
+                 <div className="text-right">
+                    <span className="text-[10px] font-black uppercase tracking-[0.5em] text-white/20 block mb-4 italic">Registry // Wealth_Audit</span>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-gold-500/60">L'Architecture de la Préservation</p>
                  </div>
-              </Reveal>
+              </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-16">
-                 {TEAS.map((item, i) => (
-                   <Reveal key={i} delay={i * 0.15}>
-                      <div className="group cursor-pointer">
-                         <div className="aspect-[3/4] relative mb-12 overflow-hidden rounded-[3rem] border border-black/5 p-10 bg-white">
-                            <Image src={item.img} alt={item.name} fill className="object-cover scale-110 group-hover:scale-100 transition-all duration-[3000ms]" />
-                            <div className="absolute inset-0 bg-[#8b9d83]/5 group-hover:bg-transparent transition-all duration-1000" />
-                            <div className="absolute top-10 right-10">
-                               <div className="w-12 h-12 rounded-full bg-white/80 backdrop-blur-md flex items-center justify-center border border-black/5 opacity-0 group-hover:opacity-100 transition-all duration-500 translate-y-4 group-hover:translate-y-0 shadow-sm">
-                                  <ShoppingBag className="w-5 h-5 text-[#4a4a4a]" />
+              <div className="grid md:grid-cols-3 gap-px bg-white/5 border border-white/5 shadow-2xl">
+                 {ASSET_CLASSES.map((asset, i) => (
+                   <Reveal key={asset.id} delay={i * 0.1}>
+                      <div className="bg-[#050505] p-20 flex flex-col h-full hover:bg-white/[0.02] transition-all group cursor-crosshair border-white/5 border-r last:border-r-0">
+                         <div className="flex justify-between items-start mb-16">
+                            <div className="w-16 h-16 bg-white/5 border border-white/10 flex items-center justify-center group-hover:bg-gold-600 group-hover:text-black transition-all duration-500">
+                               <Briefcase className="w-8 h-8" />
+                            </div>
+                            <span className={`px-4 py-2 bg-white/5 text-[9px] font-black uppercase tracking-[0.3em] ${asset.status === "Growth" ? "text-gold-500" : "text-white/40"}`}>{asset.status}</span>
+                         </div>
+                         
+                         <h3 className="text-5xl font-light uppercase tracking-tighter mb-8 italic text-white group-hover:translate-x-4 transition-transform font-serif">{asset.name}</h3>
+                         <div className="text-[10px] font-black text-white/20 uppercase tracking-[0.5em] mb-12">{asset.regions}</div>
+                         
+                         <div className="space-y-8 mb-20 border-l border-gold-500/20 pl-8">
+                            <div className="flex justify-between items-center text-[11px] font-bold uppercase tracking-widest">
+                               <span className="text-white/20">Allocation</span>
+                               <span className="text-white group-hover:text-gold-500 transition-colors">{asset.allocation}</span>
+                            </div>
+                            <div className="flex justify-between items-center text-[11px] font-bold uppercase tracking-widest">
+                               <span className="text-white/20">Yield (Ann.)</span>
+                               <span className="text-white group-hover:text-gold-500 transition-colors">{asset.yield}</span>
+                            </div>
+                            <div className="flex justify-between items-center text-[11px] font-bold uppercase tracking-widest">
+                               <span className="text-white/20">Risk Factor</span>
+                               <span className="text-white group-hover:text-gold-500 transition-colors">{asset.risk}</span>
+                            </div>
+                         </div>
+
+                         <p className="text-[12px] text-white/30 leading-loose uppercase tracking-[0.2em] font-bold italic mb-16">
+                            {asset.desc}
+                         </p>
+
+                         <div className="mt-auto pt-10 border-t border-white/5 flex justify-between items-center">
+                            <span className="text-[10px] font-black text-white/10 uppercase tracking-widest">Ref: {asset.id}</span>
+                            <button className="text-[10px] font-black uppercase text-white/40 flex items-center gap-4 group-hover:text-gold-500 transition-all">
+                               View Position <ChevronRight className="w-5 h-5" />
+                            </button>
+                         </div>
+                      </div>
+                   </Reveal>
+                 ))}
+              </div>
+           </div>
+        </section>
+
+        {/* ==========================================
+            3. PERFORMANCE TRACKER (INTERACTIVE DATA)
+            ========================================== */}
+        <section className="py-60 bg-black relative border-y border-white/5 overflow-hidden">
+           <div className="max-w-[1400px] mx-auto px-8 md:px-24">
+              <div className="grid lg:grid-cols-2 gap-40 items-center">
+                 <div>
+                    <Reveal>
+                       <span className="text-[10px] font-black uppercase tracking-[0.5em] text-gold-500/60 block mb-12 italic underline underline-offset-8 decoration-gold-500/20 font-sans">Legacy // Performance</span>
+                       <h2 className="text-7xl md:text-[9vw] font-light italic leading-none text-white mb-16 uppercase tracking-tighter font-serif">
+                          The <br/> <span className="not-italic font-black text-white/5 italic">Growth_Curve.</span>
+                       </h2>
+                       <p className="text-2xl font-light text-white/20 leading-relaxed mb-24 italic uppercase tracking-[0.2em] max-w-xl font-sans">
+                          Visualisation de la croissance intergénérationnelle. Nos algorithmes de gestion de risque anticipent les cycles de marché pour garantir une stabilité perpétuelle du capital.
+                       </p>
+                       <div className="grid grid-cols-2 gap-px bg-white/5 border border-white/5 mb-24 shadow-2xl font-sans">
+                          {PERFORMANCE_METRICS.map((metric, i) => (
+                            <div key={i} className="p-16 bg-[#0a0a0c] group hover:bg-white/[0.02] transition-all border-r border-b last:border-r-0 border-white/5">
+                               <div className="text-[10px] font-black uppercase text-gold-500/40 mb-6 tracking-[0.4em]">{metric.label}</div>
+                               <div className="text-5xl font-black text-white italic mb-6 tracking-tighter group-hover:translate-x-4 transition-transform">{metric.value}</div>
+                               <div className="flex items-center gap-3 text-[9px] font-bold uppercase tracking-[0.3em] text-white/10 italic">
+                                  <Activity className="w-4 h-4 text-gold-500/60" /> {metric.trend}
                                </div>
                             </div>
-                            <div className="absolute bottom-12 left-12 right-12">
-                               <div className="text-[10px] font-bold uppercase tracking-widest text-[#8b9d83] mb-3 italic">Uji Series</div>
-                               <h3 className="text-4xl font-bold uppercase tracking-widest text-[#1a1a1a] leading-tight mb-2" style={{ fontFamily: "serif" }}>{item.name}</h3>
-                               <p className="text-[10px] font-bold text-black/30 tracking-widest uppercase italic">{item.note}</p>
-                            </div>
-                         </div>
-                         <div className="flex justify-between items-center px-6">
-                            <button className="text-[10px] font-bold uppercase tracking-widest text-black/20 hover:text-black transition-colors underline underline-offset-4">Add to Ceremony</button>
-                            <span className="text-2xl font-bold text-[#1a1a1a] tracking-tighter italic">{item.price}</span>
-                         </div>
-                      </div>
-                   </Reveal>
-                 ))}
-              </div>
-           </div>
-        </section>
-
-        {/* ── CTA ───────────────────── */}
-        <section className="py-60 bg-[#4a4a4a] text-white text-center px-6 relative overflow-hidden">
-           <div className="absolute inset-0 opacity-[0.05] pointer-events-none flex items-center justify-center">
-              <Leaf className="w-[800px] h-[800px]" />
-           </div>
-           <div className="max-w-4xl mx-auto relative z-10">
-              <Reveal>
-                 <div className="w-16 h-16 border border-[#8b9d83]/40 rounded-full mx-auto mb-20 flex items-center justify-center text-[#8b9d83] italic font-bold">K</div>
-                 <h2 className="text-8xl md:text-[14vw] font-light uppercase tracking-tighter leading-[0.8] mb-16 italic" style={{ fontFamily: "serif" }}>
-                    Find The <br/> <span className="font-bold not-italic opacity-10 text-white">Quiet.</span>
-                 </h2>
-                 <p className="text-2xl text-white/40 font-light mb-20 leading-relaxed italic max-w-2xl mx-auto">
-                    Limited edition harvest releases. Experience the evolution of the garden with our seasonal subscription.
-                 </p>
-                 <div className="flex flex-col sm:flex-row items-center justify-center gap-12">
-                    <button className="px-20 py-10 bg-white text-[#4a4a4a] font-bold uppercase text-[10px] tracking-[0.3em] rounded-full hover:px-24 transition-all duration-700 italic shadow-2xl">
-                       Join The Garden
-                    </button>
-                    <button className="px-20 py-10 border border-white/10 text-white/40 font-bold uppercase text-[10px] tracking-[0.3em] rounded-full hover:bg-white/5 transition-all duration-700 italic">
-                       The Brewing Way
-                    </button>
+                          ))}
+                       </div>
+                       <button 
+                         onClick={() => setIsVaultLocked(!isVaultLocked)}
+                         className="w-full py-8 bg-gold-600 text-black text-[11px] font-black uppercase tracking-widest hover:bg-white transition-all shadow-2xl flex items-center justify-center gap-6 italic font-sans"
+                       >
+                          <Settings className="w-5 h-5" /> Simulate Legacy Scenario
+                       </button>
+                    </Reveal>
                  </div>
-              </Reveal>
-           </div>
-        </section>
-      </main>
+                 
+                 <div className="relative">
+                    <Reveal delay={0.3} x={40}>
+                       <div className="aspect-square bg-[#0a0a0c] border border-white/10 p-20 flex flex-col justify-between relative group overflow-hidden shadow-2xl font-sans">
+                          <div className="absolute top-0 right-0 p-80 bg-gold-500 opacity-[0.02] blur-[150px] rounded-full group-hover:opacity-[0.05] transition-opacity" />
+                          
+                          <div className="flex justify-between items-start z-10">
+                             <div className="flex flex-col gap-3">
+                                <span className="text-[10px] font-black text-white/10 uppercase tracking-[0.5em]">Vault_Link // AEGIS-SYNC-v4</span>
+                                <span className="text-[12px] font-black text-white/40 uppercase tracking-[0.6em]">Capital_Density_Map</span>
+                             </div>
+                             <Wifi className="w-6 h-6 text-gold-500/60" />
+                          </div>
+                          
+                          {/* VAULT VISUALIZER (SVG) */}
+                          <div className="relative z-10 flex flex-col items-center justify-center h-full">
+                             <div className="w-64 h-64 border border-gold-500/5 rounded-full flex items-center justify-center relative">
+                                <motion.div 
+                                  animate={{ rotate: 360 }}
+                                  transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                                  className="absolute inset-0 border-t-2 border-gold-500/20 rounded-full" 
+                                />
+                                <motion.div 
+                                  animate={{ rotate: -360 }}
+                                  transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+                                  className="absolute inset-8 border-b-2 border-gold-500/10 rounded-full" 
+                                />
+                                <Shield className={`w-24 h-24 transition-colors duration-1000 ${!isVaultLocked ? "text-gold-500 animate-pulse" : "text-white/5"}`} />
+                             </div>
+                             <div className="mt-16 text-center space-y-6">
+                                <div className={`text-4xl font-black italic tracking-tighter ${!isVaultLocked ? "text-white" : "text-white/20"}`}>
+                                   {!isVaultLocked ? "VAULT_ACCESSED" : "VAULT_LOCKED"}
+                                </div>
+                                <span className="text-[11px] font-bold text-white/10 uppercase tracking-[0.6em] block">Auth_Node: ZURICH_HEAD_01</span>
+                             </div>
+                          </div>
 
-      {/* ── FOOTER ────────────────── */}
-      <footer className="bg-[#f7f5f2] pt-40 pb-12 px-6 border-t border-black/5">
-        <div className="max-w-[1400px] mx-auto grid grid-cols-1 md:grid-cols-5 gap-20 mb-40">
-           <div className="md:col-span-2">
-              <Link href="/" className="flex items-center gap-4 mb-10 group">
-                <div className="w-10 h-10 rounded-full border border-black/10 flex items-center justify-center">
-                  <Leaf className="w-5 h-5 text-[#8b9d83]" />
-                </div>
-                <span className="text-xl font-light tracking-[0.3em] uppercase text-black">Kyoto Tea</span>
-              </Link>
-              <p className="text-black/30 max-w-sm leading-relaxed mb-12 text-sm font-light italic" style={{ fontFamily: "serif" }}>
-                 "In a cup of tea, we find the entire universe. Hand-picked with absolute presence in Kyoto."
-              </p>
-              <div className="flex gap-10">
-                 {["Instagram", "Journal", "Kyoto Hub", "Atelier"].map(s => (
-                   <Link key={s} href="#" className="text-[10px] font-bold uppercase tracking-widest text-black/30 hover:text-black transition-colors italic">{s}</Link>
-                 ))}
+                          <div className="relative z-10 flex gap-6">
+                             <div className="flex-1 h-1 bg-white/5 overflow-hidden">
+                                <motion.div 
+                                   animate={!isVaultLocked ? { x: ["-100%", "100%"] } : {}}
+                                   transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+                                   className="w-1/2 h-full bg-gold-600"
+                                />
+                             </div>
+                          </div>
+                       </div>
+                    </Reveal>
+                 </div>
               </div>
            </div>
-           
-           {[
-             { t: "TEA SERIES", l: ["Ceremonial Matcha", "Ancient Sencha", "Gyokuro Master", "Hojicha Dark"] },
-             { t: "ATELIER", l: ["The Ceremony", "Uji Garden", "Our Sourcing", "Brewing Guide"] },
-             { t: "SERVICE", l: ["Subscription", "Shipping", "Contact", "Legal"] }
-           ].map((col, i) => (
-             <div key={i} className="space-y-12">
-                <h4 className="text-[10px] font-bold uppercase tracking-[0.6em] text-black/20">{col.t}</h4>
-                <ul className="space-y-6">
-                   {col.l.map(link => (
-                     <li key={link} className="text-xs font-bold uppercase tracking-widest text-black/30 hover:text-black transition-colors italic">
-                        <Link href="#">{link}</Link>
-                     </li>
-                   ))}
-                </ul>
-             </div>
-           ))}
-        </div>
-        <div className="max-w-[1400px] mx-auto flex flex-col md:row justify-between items-center gap-8 border-t border-black/5 pt-12 text-[10px] font-bold uppercase tracking-[0.4em] text-black/10 italic">
-           <span>© 2026 KYOTO TEA ATELIER AG. THE GARDEN IS ETERNAL.</span>
-           <div className="flex gap-12">
-              <Link href="#" className="hover:text-black transition-all">KYOTO</Link>
-              <Link href="#" className="hover:text-black transition-all">TOKYO</Link>
-              <Link href="#" className="hover:text-black transition-all">NEW YORK</Link>
+        </section>
+
+        {/* ==========================================
+            4. LEGACY STORY (TECH STORYTELLING)
+            ========================================== */}
+        <section className="py-60 bg-[#050505] relative overflow-hidden border-t border-white/5 font-sans">
+           <div className="max-w-[1400px] mx-auto px-8 md:px-24">
+              <div className="grid lg:grid-cols-2 gap-40 items-center">
+                 <div className="relative aspect-[3/4] overflow-hidden group border border-white/5 shadow-2xl">
+                    <Image 
+                       src="https://images.unsplash.com/photo-1579621970795-87f9ac756557?q=80&w=1200&auto=format&fit=crop" 
+                       alt="Golden Architecture" 
+                       fill 
+                       className="object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-[2000ms]"
+                    />
+                    <div className="absolute inset-0 bg-gold-900/10 mix-blend-color group-hover:opacity-0 transition-opacity" />
+                    <div className="absolute inset-0 p-20 flex flex-col justify-end bg-gradient-to-t from-black via-black/40 to-transparent">
+                       <div className="text-white">
+                          <span className="text-[11px] font-black uppercase tracking-[0.6em] text-gold-500/60 mb-8 block italic underline underline-offset-8 decoration-gold-500/20">Family // Office // Unit</span>
+                          <h4 className="text-6xl font-black tracking-tighter uppercase italic mb-12 mix-blend-difference font-serif text-white">Generational <br/> Trust.</h4>
+                          <button className="flex items-center gap-6 text-[11px] font-black uppercase tracking-[0.4em] border-b border-white/20 pb-4 hover:border-gold-500 transition-all group">
+                             Governance Protocols <ExternalLink className="w-5 h-5 group-hover:translate-x-2 group-hover:-translate-y-2 transition-transform" />
+                          </button>
+                       </div>
+                    </div>
+                 </div>
+
+                 <div>
+                    <Reveal>
+                       <div className="mb-24 text-left">
+                          <span className="text-[10px] font-black uppercase tracking-[0.5em] text-gold-500/60 mb-8 block italic font-serif">Chapitre III // Legacy</span>
+                          <h2 className="text-7xl md:text-[10vw] font-black tracking-tighter uppercase text-white italic leading-none font-serif text-white">Gold_Net.</h2>
+                       </div>
+                       <p className="text-2xl font-light text-white/20 leading-relaxed italic mb-20 uppercase tracking-[0.2em]">
+                          La gestion de fortune est un art de la discrétion et de la solidité. Nous ne gérons pas des chiffres, nous gérons des destins et des héritages historiques.
+                       </p>
+                       <div className="space-y-20">
+                          {[
+                            { t: "Asset Shielding", d: "Structures juridiques sophistiquées garantissant une protection absolue contre les aléas géopolitiques." },
+                            { t: "Dynastic Transfer", d: "Protocoles de transition fluide pour assurer la continuité de la vision familiale à travers les siècles." },
+                            { t: "Strategic Philanthropy", d: "Optimisation de l'impact social et caritatif pour un héritage qui transcende le simple capital financier." }
+                          ].map((step, i) => (
+                            <div key={i} className="group flex gap-12 border-b border-white/5 pb-16 hover:border-gold-500/20 transition-all cursor-default">
+                               <div className="text-6xl font-black text-white/5 group-hover:text-gold-500/20 transition-colors italic leading-none font-serif">0{i+1}</div>
+                               <div>
+                                  <h5 className="text-3xl font-black uppercase tracking-tight text-white mb-6 italic group-hover:translate-x-4 transition-transform font-serif text-white">{step.t}</h5>
+                                  <p className="text-[12px] text-white/20 uppercase tracking-[0.3em] font-bold leading-loose italic">{step.d}</p>
+                               </div>
+                            </div>
+                          ))}
+                       </div>
+                    </Reveal>
+                 </div>
+              </div>
            </div>
-        </div>
-      </footer>
+        </section>
+
+        {/* MEGA FOOTER */}
+        <footer className="bg-black pt-60 pb-12 px-8 md:px-24 relative z-50 font-sans">
+           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-32 mb-60 text-white">
+              <div className="lg:col-span-2">
+                 <div className="flex items-center gap-6 mb-16">
+                    <div className="w-16 h-16 bg-gold-600 flex items-center justify-center">
+                      <Landmark className="w-10 h-10 text-black" />
+                    </div>
+                    <span className="text-4xl font-black uppercase tracking-tighter italic font-serif">AEGIS<span className="text-white/20">_VAULT.</span></span>
+                 </div>
+                 <p className="text-white/20 text-[11px] font-black uppercase tracking-[0.5em] leading-loose max-w-sm mb-20 italic">
+                    "La richesse est une responsabilité, le temps est le seul actif réel." — Archive Aegis V.4
+                 </p>
+                 <div className="flex gap-16">
+                    {["VaultLog", "AssetRegistry", "GitHub", "X_Protocol"].map(s => (
+                      <Link key={s} href="#" className="text-[11px] font-black uppercase tracking-widest text-white/20 hover:text-gold-500 transition-colors italic underline underline-offset-8 decoration-white/5">{s}</Link>
+                    ))}
+                 </div>
+              </div>
+
+              {[
+                { t: "ALLOCATIONS", l: ["Prime Real Estate", "Private Equity", "Rare Art", "Digital Assets"] },
+                { t: "SECURITY", l: ["Quantum Shield", "Swiss Vaults", "Legal Firewall", "Risk Matrix"] },
+                { t: "MAISON", l: ["Our Legacy", "Advisory Council", "Locations", "Support"] }
+              ].map((col, i) => (
+                <div key={i} className="flex flex-col gap-12">
+                  <h4 className="text-[11px] font-black text-gold-500/40 uppercase tracking-[0.6em] italic">{col.t}</h4>
+                  <ul className="flex flex-col gap-8">
+                    {col.l.map(link => (
+                      <li key={link} className="text-[11px] font-bold text-white/20 hover:text-white transition-colors cursor-pointer uppercase tracking-[0.4em] italic">{link}</li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+           </div>
+
+           <div className="max-w-[1600px] mx-auto border-t border-white/5 pt-16 flex flex-col md:flex-row justify-between items-center gap-16 text-[10px] font-black text-white/10 uppercase tracking-[0.6em] italic">
+              <span>© 2026 AEGIS VAULT PRIVATE FAMILY OFFICE AG. // ALL_RIGHTS_RESERVED</span>
+              <div className="flex gap-16">
+                 <span>STATUS: FORTIFIED</span>
+                 <span>UPTIME: 100% (AVG)</span>
+                 <span>v4.4.2-STABLE</span>
+              </div>
+           </div>
+        </footer>
+      </main>
+    </div>
+  )
+}
+
+/* ==========================================
+   TECHNICAL SUB-COMPONENTS
+   ========================================== */
+
+function HUD_Overlay({ isVaultLocked }: { isVaultLocked: boolean }) {
+  return (
+    <div className="fixed inset-0 pointer-events-none z-[100] font-sans">
+       {/* Corner Brackets */}
+       <div className={`absolute top-12 left-12 w-20 h-20 border-t-2 border-l-2 transition-colors duration-1000 ${!isVaultLocked ? "border-gold-500" : "border-white/10"}`} />
+       <div className={`absolute top-12 right-12 w-20 h-20 border-t-2 border-r-2 transition-colors duration-1000 ${!isVaultLocked ? "border-gold-500" : "border-white/10"}`} />
+       <div className={`absolute bottom-12 left-12 w-20 h-20 border-b-2 border-l-2 transition-colors duration-1000 ${!isVaultLocked ? "border-gold-500" : "border-white/10"}`} />
+       <div className={`absolute bottom-12 right-12 w-20 h-20 border-b-2 border-r-2 transition-colors duration-1000 ${!isVaultLocked ? "border-gold-500" : "border-white/10"}`} />
+
+       {/* Top Status Bar */}
+       <div className="absolute top-12 left-1/2 -translate-x-1/2 flex items-center gap-20 bg-black/60 backdrop-blur-2xl px-12 py-4 border border-white/10 rounded-none">
+          <div className="flex items-center gap-6 text-white">
+             <div className={`w-3 h-3 transition-colors duration-500 ${!isVaultLocked ? "bg-gold-500 animate-pulse" : "bg-white/20"}`} />
+             <span className="text-[10px] font-black uppercase tracking-[0.4em] italic leading-none">Security_Link: {!isVaultLocked ? "OPEN" : "FORTIFIED"} // Status: NOMINAL</span>
+          </div>
+          <div className="h-4 w-px bg-white/20" />
+          <div className="flex items-center gap-6 text-white/20">
+             <Wifi className="w-4 h-4" /> 
+             <span className="text-[10px] font-black uppercase tracking-[0.4em] italic leading-none">Global_Grid: SECURE</span>
+          </div>
+       </div>
+
+       {/* Right Rotation Info */}
+       <div className="absolute right-12 top-1/2 -translate-y-1/2 rotate-90 origin-right hidden lg:block">
+          <span className="text-[10px] font-black uppercase tracking-[0.8em] text-white/5 italic">Unauthorized_Duplication_Of_Legacy_Patterns_Is_Strictly_Monitored_By_Global_Wealth_Security_Council</span>
+       </div>
     </div>
   )
 }

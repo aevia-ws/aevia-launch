@@ -1,170 +1,295 @@
 "use client"
-import { motion, useScroll, useTransform, useInView } from "framer-motion"
-import { useRef, useState, useEffect } from "react"
+
+import React, { useState, useEffect, useRef } from "react"
+import { 
+  motion, 
+  AnimatePresence, 
+  useScroll, 
+  useTransform, 
+  useInView, 
+  useSpring 
+} from "framer-motion"
 import Image from "next/image"
 import Link from "next/link"
-import { Zap, ArrowRight, Menu, Star, Activity, Cpu, Globe, Share2, ChevronRight, Layout, Box, Sparkles, Megaphone } from "lucide-react"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { 
+  Cpu, Zap, Activity, Microscope, 
+  Zap as ZapIcon, Terminal, Settings, 
+  Power, Info, AlertTriangle, ChevronRight, 
+  ArrowRight, Share2, Maximize2, 
+  Download, ExternalLink, Archive, 
+  Hash, Wifi, BarChart3, Fingerprint, 
+  Scan, Layers, Frame, Box, 
+  Target, Orbit, Atom, Satellite, 
+  Milestone, Gauge, Timer, Cloud, 
+  Signal, Search, Navigation, Code, 
+  Command, Grid, Radar, Lightbulb, 
+  Layers as LayersIcon, Hexagon, Database,
+  ShieldCheck, Brain, Server, Shield
+} from "lucide-react"
 
-function Reveal({ children, delay = 0, y = 30 }: { children: React.ReactNode; delay?: number; y?: number }) {
+/* ==========================================================================
+   THE NEURAL FOUNDRY DATASET (ULTRA DENSITY)
+   ========================================================================== */
+
+const CHIP_ARCHITECTURES = [
+  {
+    id: "chip-neural-12",
+    name: "Neural-Core v12",
+    lithography: "2nm EUV",
+    transistors: "142 Billion",
+    clock: "5.4 GHz",
+    efficiency: "98.2%",
+    desc: "Architecture optimisée pour le traitement massif de réseaux neuronaux en temps réel, intégrant des unités de calcul quantique.",
+    status: "Production"
+  },
+  {
+    id: "chip-qsync-08",
+    name: "Quantum-Sync 08",
+    lithography: "Hybrid Optical",
+    transistors: "85 Billion",
+    clock: "N/A (Photonic)",
+    efficiency: "99.8%",
+    desc: "Processeur photonique hybride utilisant des impulsions lumineuses pour une latence proche de zéro dans les environnements de cloud distribué.",
+    status: "R&D"
+  },
+  {
+    id: "chip-biolink-04",
+    name: "Bio-Link 04",
+    lithography: "Synthetic Bio",
+    transistors: "12 Billion",
+    clock: "2.8 GHz",
+    efficiency: "94.5%",
+    desc: "Interface bionique conçue pour l'intégration directe avec les systèmes neuronaux biologiques, biocompatibilité de classe S.",
+    status: "Testing"
+  }
+]
+
+const FABRICATION_STEPS = [
+  {
+    step: "EUV Lithography",
+    precision: "0.5nm",
+    purity: "99.99999%",
+    desc: "Utilisation de lumière ultraviolette extrême pour graver des circuits à l'échelle atomique sur le wafer de silicium."
+  },
+  {
+    step: "Ion Implantation",
+    precision: "10.2 eV",
+    purity: "99.99995%",
+    desc: "Bombardement contrôlé du wafer avec des ions pour modifier les propriétés électriques du silicium."
+  },
+  {
+    step: "Plasma Etching",
+    precision: "0.2nm Depth",
+    purity: "99.99999%",
+    desc: "Retrait sélectif de couches de matériaux à l'aide d'un plasma haute énergie pour définir la structure 3D du transistor."
+  }
+]
+
+const FOUNDRY_METRICS = [
+  { label: "Yield Rate", value: "94.2%", trend: "Stable" },
+  { label: "Cleanroom Purity", value: "ISO 1", trend: "Nominal" },
+  { label: "Daily Wafer Output", value: "1,240", trend: "High" },
+  { label: "Energy Efficiency", value: "A+++", trend: "Optimal" }
+]
+
+const SENSOR_LOGS = [
+  { timestamp: "18:04:42", sensor: "Litho-01", status: "STABLE", value: "0.52nm" },
+  { timestamp: "18:04:45", sensor: "Vacuum-04", status: "NOMINAL", value: "10^-8 Pa" },
+  { timestamp: "18:04:48", sensor: "Etch-09", status: "ACTIVE", value: "3.4 eV" }
+]
+
+/* ==========================================================================
+   TECHNICAL COMPONENTS
+   ========================================================================== */
+
+function Reveal({ children, delay = 0, y = 40, x = 0 }: { children: React.ReactNode, delay?: number, y?: number, x?: number }) {
   const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, margin: "-80px" })
+  const isInView = useInView(ref, { once: true, margin: "-100px" })
   return (
-    <motion.div ref={ref} initial={{ opacity: 0, y }} animate={isInView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.8, delay, ease: [0.16, 1, 0.3, 1] }}>
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y, x }}
+      animate={isInView ? { opacity: 1, y: 0, x: 0 } : {}}
+      transition={{ duration: 1.2, delay, ease: [0.16, 1, 0.3, 1] }}
+    >
       {children}
     </motion.div>
   )
 }
 
-const SERVICES = [
-  { id: "01", name: "Social Surge", cat: "Growth", d: "Hyper-localized content strategies that dominate the feed algorithm." },
-  { id: "02", name: "Visual Pulse", cat: "Content", d: "High-octane video production and motion design for a digital-first world." },
-  { id: "03", name: "Paid Alpha", cat: "Ads", d: "Data-driven performance marketing focused on absolute ROI and scale." },
-]
+function CircuitLines() {
+  return (
+    <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden opacity-5">
+       <svg width="100%" height="100%" className="w-full h-full">
+          <pattern id="circuit" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse">
+             <path d="M10 10 L90 10 L90 90 L10 90 Z" stroke="white" strokeWidth="0.5" fill="none" />
+             <path d="M50 10 L50 90 M10 50 L90 50" stroke="white" strokeWidth="0.2" fill="none" />
+             <circle cx="10" cy="10" r="1.5" fill="white" />
+             <circle cx="90" cy="10" r="1.5" fill="white" />
+             <circle cx="90" cy="90" r="1.5" fill="white" />
+             <circle cx="10" cy="90" r="1.5" fill="white" />
+          </pattern>
+          <rect width="100%" height="100%" fill="url(#circuit)" />
+       </svg>
+    </div>
+  )
+}
 
-export default function PulseAgencyPage() {
-  const [scrolled, setScrolled] = useState(false)
-
-  useEffect(() => {
-    const h = () => setScrolled(window.scrollY > 60)
-    window.addEventListener("scroll", h)
-    return () => window.removeEventListener("scroll", h)
-  }, [])
+function WaferVisualizer({ progress }: { progress: any }) {
+  const rotate = useTransform(progress, [0, 1], [0, 360])
+  const scale = useTransform(progress, [0, 0.5, 1], [1, 1.2, 1])
 
   return (
-    <div className="bg-[#0a0015] text-[#d1d1d1] font-sans min-h-screen selection:bg-[#ccff00] selection:text-black overflow-x-hidden">
-      
-      {/* ── AMBIENT GLOWS ────────── */}
-      <div className="fixed top-[-10%] right-[-10%] w-[60%] h-[60%] bg-[#ccff00]/5 blur-[150px] pointer-events-none z-0" />
-      <div className="fixed bottom-[-10%] left-[-10%] w-[60%] h-[60%] bg-[#ccff00]/5 blur-[150px] pointer-events-none z-0" />
+    <motion.div style={{ rotate, scale }} className="relative w-96 h-96 flex items-center justify-center">
+       <div className="absolute inset-0 border-[8px] border-cyan-400/10 rounded-full" />
+       <div className="absolute inset-8 border-[1px] border-cyan-400/20 rounded-full" />
+       <div className="absolute inset-16 border-[1px] border-cyan-400/5 rounded-full" />
+       <Hexagon className="w-32 h-32 text-cyan-400/20 animate-pulse" />
+       <div className="absolute inset-0 flex items-center justify-center">
+          <div className="w-px h-full bg-cyan-400/10 rotate-45" />
+          <div className="w-px h-full bg-cyan-400/10 -rotate-45" />
+       </div>
+    </motion.div>
+  )
+}
 
-      {/* ── NAVBAR ────────────────── */}
-      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-700 ${scrolled ? "bg-[#0a0015]/90 backdrop-blur-2xl border-b border-white/5 py-4" : "bg-transparent py-10"}`}>
-        <div className="max-w-[1400px] mx-auto px-6 md:px-12 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-4 group">
-            <div className="w-10 h-10 bg-[#ccff00] flex items-center justify-center group-hover:rotate-12 transition-transform duration-500 shadow-[0_0_20px_rgba(204,255,0,0.3)]">
-              <Zap className="w-6 h-6 text-black" />
-            </div>
-            <span className="text-2xl font-black tracking-tighter uppercase text-white italic">Pulse<span className="text-[#ccff00]">.</span></span>
-          </Link>
-          <div className="hidden lg:flex gap-12 text-[10px] font-bold uppercase tracking-[0.4em] text-white/30">
-            {["The Vibe", "Services", "Alpha", "Contact"].map(l => (
-              <Link key={l} href="#" className="hover:text-[#ccff00] transition-colors">{l}</Link>
-            ))}
-          </div>
-          <div className="flex items-center gap-8">
-            <button className="hidden md:block text-[10px] font-bold uppercase tracking-widest text-white/20 hover:text-white transition-colors underline underline-offset-8 decoration-[#ccff00]/30">Client Login</button>
-            <button className="px-10 py-3.5 bg-[#ccff00] text-black text-[10px] font-bold uppercase tracking-[0.3em] hover:bg-white hover:text-black transition-all duration-500 italic shadow-lg">Scale Now</button>
-            <Sheet>
-              <SheetTrigger asChild><button className="lg:hidden p-2"><Menu className="w-6 h-6 text-white" /></button></SheetTrigger>
-              <SheetContent side="right" className="bg-[#0a0015] border-white/5 p-12 text-white font-sans">
-                <div className="flex flex-col gap-10 mt-16 text-left font-black uppercase tracking-tighter italic">
-                  {["Growth", "Creative", "Alpha", "Contact"].map(l => (
-                    <Link key={l} href="#" className="text-4xl hover:text-[#ccff00] transition-all">{l}</Link>
-                  ))}
-                </div>
-              </SheetContent>
-            </Sheet>
-          </div>
-        </div>
-      </nav>
+/* ==========================================
+   THE NEURAL FOUNDRY - MAIN INTERFACE
+   ========================================== */
+
+export default function NeuralFoundryPremium() {
+  const [activeChip, setActiveChip] = useState(0)
+  const [isLithoActive, setIsLithoActive] = useState(true)
+  const containerRef = useRef(null)
+  const { scrollYProgress } = useScroll({ target: containerRef })
+
+  // Micro-Grid Scroll Effects
+  const gridOpacity = useTransform(scrollYProgress, [0, 0.2], [1, 0.1])
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.2], [1, 0])
+  const textX = useTransform(scrollYProgress, [0, 0.5], [0, 100])
+
+  return (
+    <div ref={containerRef} className="bg-[#05080a] text-[#e0e8ed] font-mono selection:bg-cyan-500/30 selection:text-white min-h-screen overflow-x-hidden transition-colors duration-1000">
+      
+      {/* GLOBAL HUD OVERLAY */}
+      <HUD_Overlay isLithoActive={isLithoActive} />
 
       <main>
-        {/* ── HERO ──────────────────── */}
-        <section className="relative h-screen flex items-center justify-center overflow-hidden">
-          <div className="absolute inset-0">
-             <Image src="https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&q=80&w=2400" alt="Energy" fill className="object-cover opacity-20 scale-110 grayscale" priority />
-             <div className="absolute inset-0 bg-gradient-to-t from-[#0a0015] via-transparent to-transparent" />
-          </div>
+        {/* ==========================================
+            1. MICRO-GRID IGNITION (HERO)
+            ========================================== */}
+        <section className="relative h-screen flex flex-col justify-center items-center px-8 md:px-24 overflow-hidden pt-20">
+          <CircuitLines />
+          <motion.div style={{ opacity: heroOpacity }} className="absolute z-0 pointer-events-none">
+             <WaferVisualizer progress={scrollYProgress} />
+          </motion.div>
 
-          <div className="relative z-10 max-w-[1400px] mx-auto px-6 text-center">
-            <Reveal>
-              <div className="flex items-center justify-center gap-4 mb-12">
-                 <div className="w-8 h-[2px] bg-[#ccff00]" />
-                 <span className="text-[10px] font-bold uppercase tracking-[0.6em] text-white">Dominate The Attention Economy</span>
-                 <div className="w-8 h-[2px] bg-[#ccff00]" />
-              </div>
-            </Reveal>
-            <Reveal delay={0.1} y={100}>
-              <h1 className="text-8xl md:text-[16vw] font-black tracking-tighter leading-[0.75] uppercase mb-16 italic text-white">
-                PURE <br/> <span className="text-[#ccff00]">ALPHA.</span>
-              </h1>
-            </Reveal>
-            <Reveal delay={0.3}>
-              <div className="flex flex-col items-center justify-center gap-16">
-                <p className="text-2xl text-white/40 font-light max-w-2xl leading-relaxed italic uppercase">
-                  We don't follow trends. We trigger them. High-octane growth strategies for brands that demand the spotlight.
-                </p>
-                <div className="flex flex-wrap justify-center gap-10">
-                  <button className="px-20 py-8 bg-[#ccff00] text-black font-black uppercase tracking-widest text-[10px] hover:px-24 transition-all duration-700 italic shadow-[0_0_50px_rgba(204,255,0,0.2)]">
-                     Ignite My Brand
-                  </button>
-                  <button className="px-20 py-8 border border-white/10 text-white/40 font-bold uppercase tracking-widest text-[10px] hover:text-white transition-all flex items-center gap-4 italic">
-                    <Play className="w-4 h-4 fill-[#ccff00] text-[#ccff00]" /> The Showreel
-                  </button>
+          <div className="relative z-10 text-center max-w-7xl">
+             <Reveal>
+                <div className="inline-flex items-center gap-4 px-6 py-2 border border-cyan-400/30 bg-cyan-400/5 text-[10px] font-black uppercase tracking-[0.5em] text-cyan-400 mb-12 italic">
+                   <Microscope className="w-4 h-4" /> System_Status: ISO_1_NOMINAL // v12.4.0
                 </div>
-              </div>
-            </Reveal>
+                <motion.h1 style={{ x: textX }} className="text-7xl md:text-[14vw] font-black tracking-tighter uppercase mb-16 leading-[0.75] italic">
+                   Neural <br/> <span className="text-white/5 italic">Foundry.</span>
+                </motion.h1>
+                <p className="max-w-3xl mx-auto text-sm md:text-lg text-white/30 leading-relaxed uppercase tracking-widest font-light mb-16 italic">
+                   La précision à l'échelle atomique pour les architectures de demain. Nous forgeons les puces neuronales qui alimentent l'intelligence mondiale.
+                </p>
+                
+                <div className="flex flex-col sm:flex-row gap-8 justify-center items-center">
+                   <button className="px-12 py-6 bg-cyan-600 text-white text-[10px] font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all shadow-[0_0_40px_rgba(8,145,178,0.3)] flex items-center gap-4 italic">
+                      <Zap className="w-5 h-5" /> Start Fabrication
+                   </button>
+                   <button className="px-12 py-6 border border-white/10 text-white text-[10px] font-black uppercase tracking-widest hover:bg-white/5 transition-all flex items-center gap-4 italic">
+                      <Database className="w-5 h-5" /> Chip Registry
+                   </button>
+                </div>
+             </Reveal>
           </div>
-          
-          <div className="absolute bottom-12 left-12 right-12 flex justify-between items-end text-[9px] font-bold uppercase tracking-[0.4em] text-white/10 italic">
-             <div className="flex gap-10">
-                <span>REVENUE DRIVEN</span>
-                <span>DATA BACKED</span>
-                <span>ALGO DOMINANT</span>
+
+          {/* SENSOR TELEMETRY BAR */}
+          <div className="absolute bottom-12 left-12 right-12 flex justify-between items-end border-t border-white/5 pt-12">
+             <div className="flex flex-col gap-6">
+                <div className="flex items-center gap-4 text-[9px] font-bold text-white/20 uppercase tracking-widest italic">
+                   <div className="w-16 h-px bg-white/10" />
+                   Fab_ID: NF-ZRH-42
+                </div>
+                <div className="flex items-center gap-4 text-[9px] font-bold text-white/20 uppercase tracking-widest italic">
+                   <div className="w-16 h-px bg-white/10" />
+                   Cleanroom_Class: ISO_1
+                </div>
              </div>
-             <Activity className="w-6 h-6 text-[#ccff00] animate-pulse" />
+             <div className="text-right flex flex-col items-end gap-4">
+                <span className="text-[8px] font-black uppercase tracking-[0.5em] text-cyan-400">Atomic_Stability_Stream</span>
+                <div className="flex gap-2 h-12 items-end">
+                   {[...Array(16)].map((_, i) => (
+                     <motion.div 
+                        key={i}
+                        animate={{ height: ["10%", "100%", "30%", "80%", "10%"] }}
+                        transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.1 }}
+                        className="w-2 bg-cyan-400/20"
+                     />
+                   ))}
+                </div>
+             </div>
           </div>
         </section>
 
-        {/* ── METRICS ────────────────── */}
-        <section className="py-24 bg-[#ccff00] text-black border-y-4 border-black">
-           <div className="max-w-[1400px] mx-auto px-6 md:px-12 grid grid-cols-2 md:grid-cols-4 gap-20">
-              {[
-                { v: "4.2B+", l: "TOTAL VIEWS" },
-                { v: "142%", l: "AVG ROI BOOST" },
-                { v: "12M+", l: "NEW FOLLOWERS" },
-                { v: "24/7", l: "ALGO MONITOR" }
-              ].map((m, i) => (
-                <Reveal key={i} delay={i * 0.1}>
-                   <div className="text-center md:text-left">
-                      <div className="text-5xl font-black italic tracking-tighter mb-2">{m.v}</div>
-                      <div className="text-[10px] font-bold uppercase tracking-[0.4em] opacity-60">{m.l}</div>
-                   </div>
-                </Reveal>
-              ))}
-           </div>
-        </section>
-
-        {/* ── SERVICES ───────────────── */}
-        <section className="py-60 bg-[#0a0015]">
-           <div className="max-w-[1400px] mx-auto px-6 md:px-12">
-              <Reveal>
-                 <div className="flex flex-col md:flex-row items-end justify-between mb-32 gap-8 border-b-2 border-white/5 pb-16">
-                    <div className="max-w-2xl">
-                       <span className="text-[10px] font-bold uppercase tracking-[0.5em] text-[#ccff00] block mb-6">Growth Modules</span>
-                       <h2 className="text-7xl md:text-[9vw] font-black uppercase tracking-tighter text-white leading-none italic">Hard <br/> <span className="font-light not-italic opacity-10">Scale.</span></h2>
-                    </div>
-                    <button className="flex items-center gap-4 text-[10px] font-bold uppercase tracking-widest text-white/40 hover:text-[#ccff00] transition-colors group italic">
-                       Full Protocol <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
-                    </button>
+        {/* ==========================================
+            2. WAFER REGISTRY (DENSE TECHNICAL)
+            ========================================== */}
+        <section className="py-60 bg-[#080a0c] relative border-y border-white/5 overflow-hidden">
+           <div className="max-w-[1600px] mx-auto px-8 md:px-24">
+              <div className="flex flex-col md:flex-row items-end justify-between mb-40 gap-12">
+                 <Reveal>
+                    <span className="text-[10px] font-black uppercase tracking-[0.6em] text-cyan-400 block mb-6 italic underline underline-offset-8 decoration-cyan-400/20">Micro // Architectures</span>
+                    <h2 className="text-6xl md:text-[10vw] font-black uppercase tracking-tighter italic leading-none text-white">Registry.</h2>
+                 </Reveal>
+                 <div className="text-right">
+                    <span className="text-[10px] font-black uppercase tracking-[0.5em] text-white/20 block mb-4 italic">Registry // Fabrication_Audit</span>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-cyan-400">L'Architecture du Silicium</p>
                  </div>
-              </Reveal>
+              </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-                 {SERVICES.map((item, i) => (
-                   <Reveal key={i} delay={i * 0.1}>
-                      <div className="p-16 bg-white/[0.02] border border-white/5 group hover:bg-[#ccff00] hover:text-black transition-all duration-700 cursor-crosshair">
-                         <div className="w-16 h-16 bg-white/5 border border-white/10 flex items-center justify-center mb-12 group-hover:bg-black group-hover:text-white transition-all duration-700 shadow-xl">
-                            {i === 0 ? <Megaphone className="w-7 h-7" /> : i === 1 ? <Sparkles className="w-7 h-7" /> : <Activity className="w-7 h-7" />}
+              <div className="grid md:grid-cols-3 gap-px bg-white/5 border border-white/5 shadow-2xl">
+                 {CHIP_ARCHITECTURES.map((chip, i) => (
+                   <Reveal key={chip.id} delay={i * 0.1}>
+                      <div className="bg-[#05080a] p-20 flex flex-col h-full hover:bg-white/[0.02] transition-all group cursor-crosshair border-white/5 border-r last:border-r-0">
+                         <div className="flex justify-between items-start mb-16">
+                            <div className="w-16 h-16 bg-white/5 border border-white/10 flex items-center justify-center group-hover:bg-cyan-600 group-hover:text-black transition-all duration-500">
+                               <Cpu className="w-8 h-8" />
+                            </div>
+                            <span className={`px-4 py-2 bg-white/5 text-[9px] font-black uppercase tracking-[0.3em] ${chip.status === "Production" ? "text-cyan-400" : "text-yellow-500"}`}>{chip.status}</span>
                          </div>
-                         <div className="text-[10px] font-bold uppercase tracking-widest opacity-20 mb-4 group-hover:opacity-40">{item.cat} Protocol</div>
-                         <h3 className="text-3xl font-black uppercase mb-8 tracking-tighter italic">{item.name}</h3>
-                         <p className="opacity-40 leading-relaxed text-sm font-light mb-12 italic group-hover:opacity-100 transition-opacity">{item.d}</p>
-                         <Link href="#" className="flex items-center gap-4 text-[10px] font-bold uppercase tracking-widest group-hover:gap-8 transition-all">
-                            Examine Alpha <ChevronRight className="w-4 h-4" />
-                         </Link>
+                         
+                         <h3 className="text-4xl font-black uppercase tracking-tighter mb-8 italic text-white group-hover:translate-x-4 transition-transform">{chip.name}</h3>
+                         <div className="text-[10px] font-black text-white/20 uppercase tracking-[0.5em] mb-12">{chip.lithography}</div>
+                         
+                         <div className="space-y-8 mb-20 border-l border-cyan-400/20 pl-8">
+                            <div className="flex justify-between items-center text-[11px] font-bold uppercase tracking-widest">
+                               <span className="text-white/20">Transistors</span>
+                               <span className="text-white group-hover:text-cyan-400 transition-colors">{chip.transistors}</span>
+                            </div>
+                            <div className="flex justify-between items-center text-[11px] font-bold uppercase tracking-widest">
+                               <span className="text-white/20">Clock Speed</span>
+                               <span className="text-white group-hover:text-cyan-400 transition-colors">{chip.clock}</span>
+                            </div>
+                            <div className="flex justify-between items-center text-[11px] font-bold uppercase tracking-widest">
+                               <span className="text-white/20">Efficiency</span>
+                               <span className="text-white group-hover:text-cyan-400 transition-colors">{chip.efficiency}</span>
+                            </div>
+                         </div>
+
+                         <p className="text-[12px] text-white/30 leading-loose uppercase tracking-[0.2em] font-bold italic mb-16">
+                            {chip.desc}
+                         </p>
+
+                         <div className="mt-auto pt-10 border-t border-white/5 flex justify-between items-center">
+                            <span className="text-[10px] font-black text-white/10 uppercase tracking-widest">Ref: {chip.id}</span>
+                            <button className="text-[10px] font-black uppercase text-white/40 flex items-center gap-4 group-hover:text-white transition-all">
+                               Technical_Specs <ChevronRight className="w-5 h-5" />
+                            </button>
+                         </div>
                       </div>
                    </Reveal>
                  ))}
@@ -172,77 +297,230 @@ export default function PulseAgencyPage() {
            </div>
         </section>
 
-        {/* ── CTA ───────────────────── */}
-        <section className="py-60 bg-white text-black text-center relative overflow-hidden">
-           <div className="absolute inset-0 opacity-[0.05] pointer-events-none text-[20vw] font-black whitespace-nowrap italic -rotate-12 select-none">
-              PULSE PULSE PULSE PULSE PULSE
-           </div>
-           <div className="max-w-4xl mx-auto px-6 relative z-10">
-              <Reveal>
-                 <h2 className="text-8xl md:text-[15vw] font-black uppercase tracking-tighter leading-[0.8] mb-16 italic">
-                    Scale <br/> <span className="font-light not-italic opacity-20 text-black">Infinite.</span>
-                 </h2>
-                 <p className="text-2xl text-black/40 font-light mb-20 leading-relaxed italic max-w-2xl mx-auto">
-                    We only partner with 4 brands per quarter to ensure absolute dominance in their respective categories. Apply for the Q3 alpha slot.
-                 </p>
-                 <div className="flex flex-col sm:flex-row items-center justify-center gap-10">
-                    <button className="px-24 py-10 bg-[#ccff00] text-black font-black uppercase text-[10px] tracking-[0.3em] hover:px-28 transition-all duration-700 italic shadow-2xl">
-                       Apply For Alpha
-                    </button>
-                    <button className="px-24 py-10 border-4 border-black text-black font-black uppercase text-[10px] tracking-[0.3em] hover:bg-black hover:text-white transition-all duration-700 italic">
-                       View Case Files
-                    </button>
+        {/* ==========================================
+            3. FABRICATION PIPELINE (INTERACTIVE DATA)
+            ========================================== */}
+        <section className="py-60 bg-black relative border-y border-white/5 overflow-hidden">
+           <div className="max-w-[1400px] mx-auto px-8 md:px-24">
+              <div className="grid lg:grid-cols-2 gap-40 items-center">
+                 <div>
+                    <Reveal>
+                       <span className="text-[10px] font-black uppercase tracking-[0.5em] text-cyan-400 block mb-12 italic underline underline-offset-8 decoration-cyan-400/20">Fabrication // Workflow</span>
+                       <h2 className="text-7xl md:text-[9vw] font-light italic leading-none text-white mb-16 uppercase tracking-tighter">
+                          The <br/> <span className="not-italic font-black text-white/5 italic">Atomic_Flow.</span>
+                       </h2>
+                       <p className="text-2xl font-light text-white/20 leading-relaxed mb-24 italic uppercase tracking-[0.2em] max-w-xl">
+                          Surveillance du pipeline de fabrication en temps réel. Nos protocoles de lithographie EUV repoussent les limites de la physique pour créer des structures de 0.5nm.
+                       </p>
+                       <div className="grid grid-cols-1 gap-px bg-white/5 border border-white/5 mb-24 shadow-2xl">
+                          {FOUNDRY_METRICS.map((metric, i) => (
+                            <div key={i} className="p-16 bg-[#0a0c0e] group hover:bg-white/[0.02] transition-all border-b last:border-b-0 border-white/5 flex justify-between items-center">
+                               <div>
+                                  <div className="text-[10px] font-black uppercase text-cyan-400 mb-4 tracking-[0.4em]">{metric.label}</div>
+                                  <div className="text-5xl font-black text-white italic tracking-tighter group-hover:translate-x-4 transition-transform">{metric.value}</div>
+                               </div>
+                               <div className="flex items-center gap-3 text-[9px] font-bold uppercase tracking-[0.3em] text-white/10 italic">
+                                  <Activity className="w-5 h-5 text-cyan-400" /> {metric.trend}
+                               </div>
+                            </div>
+                          ))}
+                       </div>
+                       <button 
+                         onClick={() => setIsLithoActive(!isLithoActive)}
+                         className="w-full py-8 bg-cyan-600 text-white text-[11px] font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all shadow-2xl flex items-center justify-center gap-6 italic"
+                       >
+                          <Settings className="w-5 h-5" /> Re-Calibrate EUV Source
+                       </button>
+                    </Reveal>
                  </div>
-              </Reveal>
-           </div>
-        </section>
-      </main>
+                 
+                 <div className="relative">
+                    <Reveal delay={0.3} x={40}>
+                       <div className="aspect-square bg-[#0a0c0e] border border-white/10 p-20 flex flex-col justify-between relative group overflow-hidden shadow-2xl">
+                          <div className="absolute top-0 right-0 p-80 bg-cyan-400 opacity-[0.02] blur-[150px] rounded-full group-hover:opacity-[0.05] transition-opacity" />
+                          
+                          <div className="flex justify-between items-start z-10">
+                             <div className="flex flex-col gap-3">
+                                <span className="text-[10px] font-black text-white/10 uppercase tracking-[0.5em]">Fab_Node // ZRH-CENTRAL-01</span>
+                                <span className="text-[12px] font-black text-white/40 uppercase tracking-[0.6em]">Litho_Density_Map</span>
+                             </div>
+                             <Wifi className="w-6 h-6 text-cyan-400" />
+                          </div>
+                          
+                          {/* FAB VISUALIZER (SVG) */}
+                          <div className="relative z-10 flex flex-col items-center justify-center h-full">
+                             <div className="w-64 h-64 border border-cyan-400/5 rounded-full flex items-center justify-center relative">
+                                <motion.div 
+                                  animate={{ rotate: 360 }}
+                                  transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+                                  className="absolute inset-0 border-t-2 border-cyan-400/20 rounded-full" 
+                                />
+                                <motion.div 
+                                  animate={{ rotate: -360 }}
+                                  transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+                                  className="absolute inset-8 border-b-2 border-cyan-400/10 rounded-full" 
+                                />
+                                <Atom className={`w-24 h-24 transition-colors duration-1000 ${isLithoActive ? "text-cyan-400 animate-pulse" : "text-white/5"}`} />
+                             </div>
+                             <div className="mt-16 text-center space-y-6">
+                                <div className={`text-4xl font-black italic tracking-tighter ${isLithoActive ? "text-white" : "text-white/20"}`}>
+                                   {isLithoActive ? "LITHO_STABLE" : "LITHO_OFFLINE"}
+                                </div>
+                                <span className="text-[11px] font-bold text-white/10 uppercase tracking-[0.6em] block">Auth_Node: ATOMIC_SYNC_01</span>
+                             </div>
+                          </div>
 
-      {/* ── FOOTER ────────────────── */}
-      <footer className="bg-[#0a0015] pt-32 pb-12 px-6 border-t border-white/5 font-sans relative z-[60]">
-        <div className="max-w-[1400px] mx-auto grid grid-cols-1 md:grid-cols-5 gap-20 mb-40">
-           <div className="md:col-span-2">
-              <Link href="/" className="flex items-center gap-4 mb-10 group">
-                <div className="w-10 h-10 bg-[#ccff00] flex items-center justify-center">
-                  <Zap className="w-6 h-6 text-black" />
-                </div>
-                <span className="text-2xl font-black tracking-tighter uppercase text-white italic">Pulse Agency.</span>
-              </Link>
-              <p className="text-white/20 max-w-sm leading-relaxed mb-12 text-[10px] font-bold uppercase italic">
-                 "Growth is not a goal. It is a byproduct of absolute attention dominance. Master the feed."
-              </p>
-              <div className="flex gap-10">
-                 {["Instagram", "Vimeo", "X", "Lens"].map(s => (
-                   <Link key={s} href="#" className="text-[10px] font-bold uppercase tracking-widest text-white/20 hover:text-[#ccff00] transition-colors italic">{s}</Link>
-                 ))}
+                          <div className="relative z-10 flex gap-6">
+                             <div className="flex-1 h-1 bg-white/5 overflow-hidden">
+                                <motion.div 
+                                   animate={isLithoActive ? { x: ["-100%", "100%"] } : {}}
+                                   transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+                                   className="w-1/2 h-full bg-cyan-600"
+                                />
+                             </div>
+                          </div>
+                       </div>
+                    </Reveal>
+                 </div>
               </div>
            </div>
-           
-           {[
-             { t: "GROWTH", l: ["Social Surge", "Viral Creative", "Paid Performance", "Algo Audit"] },
-             { t: "ENTITY", l: ["The Alpha", "Creative Lab", "Press Kit", "Journal"] },
-             { t: "SUPPORT", l: ["Client Portal", "Status", "Manual", "Contact"] }
-           ].map((col, i) => (
-             <div key={i} className="space-y-12">
-                <h4 className="text-[10px] font-bold uppercase tracking-[0.5em] text-[#ccff00]/40">{col.t}</h4>
-                <ul className="space-y-6">
-                   {col.l.map(link => (
-                     <li key={link} className="text-xs font-bold uppercase tracking-widest text-white/20 hover:text-white transition-colors italic">
-                        <Link href="#">{link}</Link>
-                     </li>
-                   ))}
-                </ul>
-             </div>
-           ))}
-        </div>
-        <div className="max-w-[1400px] mx-auto flex flex-col md:row justify-between items-center gap-8 border-t border-white/5 pt-12 text-[10px] font-bold uppercase tracking-[0.4em] text-white/10 italic">
-           <span>© 2026 PULSE GROWTH AGENCY LTD. THE ATTENTION ECONOMY IS OURS.</span>
-           <div className="flex gap-12">
-              <Link href="#" className="hover:text-white transition-all underline decoration-[#ccff00]/30">SYSTEM_NOMINAL</Link>
-              <Link href="#" className="hover:text-white transition-all underline decoration-[#ccff00]/30">ALPHA_ENABLED</Link>
+        </section>
+
+        {/* ==========================================
+            4. CLEANROOM PROTOCOLS (TECH STORYTELLING)
+            ========================================== */}
+        <section className="py-60 bg-[#05080a] relative overflow-hidden border-t border-white/5">
+           <div className="max-w-[1400px] mx-auto px-8 md:px-24">
+              <div className="grid lg:grid-cols-2 gap-40 items-center">
+                 <div className="relative aspect-[3/4] overflow-hidden group border border-white/5 shadow-2xl">
+                    <Image 
+                       src="https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1200&auto=format&fit=crop" 
+                       alt="Wafer Detail" 
+                       fill 
+                       className="object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-[2000ms]"
+                    />
+                    <div className="absolute inset-0 bg-cyan-900/10 mix-blend-color group-hover:opacity-0 transition-opacity" />
+                    <div className="absolute inset-0 p-20 flex flex-col justify-end bg-gradient-to-t from-black via-black/40 to-transparent">
+                       <div className="text-white">
+                          <span className="text-[11px] font-black uppercase tracking-[0.6em] text-cyan-400 mb-8 block italic underline underline-offset-8 decoration-cyan-400/20">Foundry // Purity // Unit</span>
+                          <h4 className="text-6xl font-black tracking-tighter uppercase italic mb-12 mix-blend-difference text-white">Silicon <br/> Heritage.</h4>
+                          <button className="flex items-center gap-6 text-[11px] font-black uppercase tracking-[0.4em] border-b border-white/20 pb-4 hover:border-cyan-400 transition-all group">
+                             Cleanroom Protocols <ExternalLink className="w-5 h-5 group-hover:translate-x-2 group-hover:-translate-y-2 transition-transform" />
+                          </button>
+                       </div>
+                    </div>
+                 </div>
+
+                 <div>
+                    <Reveal>
+                       <div className="mb-24 text-left">
+                          <span className="text-[10px] font-black uppercase tracking-[0.5em] text-cyan-400 mb-8 block italic">Chapitre III // Precision</span>
+                          <h2 className="text-7xl md:text-[10vw] font-black tracking-tighter uppercase text-white italic leading-none text-white">Nano_State.</h2>
+                       </div>
+                       <p className="text-2xl font-light text-white/20 leading-relaxed italic mb-20 uppercase tracking-[0.2em]">
+                          La fabrication de semi-conducteurs est une danse avec les lois de la physique. Nous opérons dans un environnement où une seule particule de poussière peut ruiner un mois de travail.
+                       </p>
+                       <div className="space-y-20">
+                          {[
+                            { t: "EUV Lithography", d: "Gravure par lumière ultraviolette extrême pour une résolution nanométrique sans précédent." },
+                            { t: "Molecular Purity", d: "Filtration de l'air et de l'eau atteignant des niveaux de pureté de 99.99999%." },
+                            { t: "Quantum Integrity", d: "Protection contre les interférences cosmiques et magnétiques pour garantir la stabilité des transistors." }
+                          ].map((step, i) => (
+                            <div key={i} className="group flex gap-12 border-b border-white/5 pb-16 hover:border-cyan-400/20 transition-all cursor-default">
+                               <div className="text-6xl font-black text-white/5 group-hover:text-cyan-400/20 transition-colors italic leading-none">0{i+1}</div>
+                               <div>
+                                  <h5 className="text-3xl font-black uppercase tracking-tight text-white mb-6 italic group-hover:translate-x-4 transition-transform text-white">{step.t}</h5>
+                                  <p className="text-[12px] text-white/20 uppercase tracking-[0.3em] font-bold leading-loose italic">{step.d}</p>
+                               </div>
+                            </div>
+                          ))}
+                       </div>
+                    </Reveal>
+                 </div>
+              </div>
            </div>
-        </div>
-      </footer>
+        </section>
+
+        {/* MEGA FOOTER */}
+        <footer className="bg-black pt-60 pb-12 px-8 md:px-24 relative z-50">
+           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-32 mb-60 text-white">
+              <div className="lg:col-span-2">
+                 <div className="flex items-center gap-6 mb-16">
+                    <div className="w-16 h-16 bg-cyan-600 flex items-center justify-center">
+                      <Hexagon className="w-10 h-10 text-black" />
+                    </div>
+                    <span className="text-4xl font-black uppercase tracking-tighter italic">NEURAL<span className="text-white/20">FOUNDRY.</span></span>
+                 </div>
+                 <p className="text-white/20 text-[11px] font-black uppercase tracking-[0.5em] leading-loose max-w-sm mb-20 italic">
+                    "L'intelligence commence au niveau atomique." — Archive Foundry V.12
+                 </p>
+                 <div className="flex gap-16">
+                    {["FabLog", "ChipRegistry", "GitHub", "X_Protocol"].map(s => (
+                      <Link key={s} href="#" className="text-[11px] font-black uppercase tracking-widest text-white/20 hover:text-cyan-400 transition-colors italic underline underline-offset-8 decoration-white/5">{s}</Link>
+                    ))}
+                 </div>
+              </div>
+
+              {[
+                { t: "ARCHITECTURES", l: ["Neural-Core", "Quantum-Sync", "Bio-Link", "Mobile-Edge"] },
+                { t: "FABRICATION", l: ["EUV Litho", "Ion Implant", "Plasma Etch", "Wafer Test"] },
+                { t: "FOUNDRY", l: ["Our Legacy", "Sustainability", "Locations", "Support"] }
+              ].map((col, i) => (
+                <div key={i} className="flex flex-col gap-12">
+                  <h4 className="text-[11px] font-black text-cyan-400 uppercase tracking-[0.6em] italic">{col.t}</h4>
+                  <ul className="flex flex-col gap-8">
+                    {col.l.map(link => (
+                      <li key={link} className="text-[11px] font-bold text-white/20 hover:text-white transition-colors cursor-pointer uppercase tracking-[0.4em] italic">{link}</li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+           </div>
+
+           <div className="max-w-[1600px] mx-auto border-t border-white/5 pt-16 flex flex-col md:flex-row justify-between items-center gap-16 text-[10px] font-black text-white/10 uppercase tracking-[0.6em] italic">
+              <span>© 2026 NEURAL FOUNDRY SEMICONDUCTOR AG. // ALL_RIGHTS_RESERVED</span>
+              <div className="flex gap-16">
+                 <span>STATUS: OPERATIONAL</span>
+                 <span>PRECISION: 0.5nm (MIN)</span>
+                 <span>v12.4.0-STABLE</span>
+              </div>
+           </div>
+        </footer>
+      </main>
+    </div>
+  )
+}
+
+/* ==========================================
+   TECHNICAL SUB-COMPONENTS
+   ========================================== */
+
+function HUD_Overlay({ isLithoActive }: { isLithoActive: boolean }) {
+  return (
+    <div className="fixed inset-0 pointer-events-none z-[100]">
+       {/* Corner Brackets */}
+       <div className={`absolute top-12 left-12 w-20 h-20 border-t-2 border-l-2 transition-colors duration-1000 ${isLithoActive ? "border-cyan-400" : "border-white/10"}`} />
+       <div className={`absolute top-12 right-12 w-20 h-20 border-t-2 border-r-2 transition-colors duration-1000 ${isLithoActive ? "border-cyan-400" : "border-white/10"}`} />
+       <div className={`absolute bottom-12 left-12 w-20 h-20 border-b-2 border-l-2 transition-colors duration-1000 ${isLithoActive ? "border-cyan-400" : "border-white/10"}`} />
+       <div className={`absolute bottom-12 right-12 w-20 h-20 border-b-2 border-r-2 transition-colors duration-1000 ${isLithoActive ? "border-cyan-400" : "border-white/10"}`} />
+
+       {/* Top Status Bar */}
+       <div className="absolute top-12 left-1/2 -translate-x-1/2 flex items-center gap-20 bg-black/60 backdrop-blur-2xl px-12 py-4 border border-white/10 rounded-none">
+          <div className="flex items-center gap-6 text-white">
+             <div className={`w-3 h-3 transition-colors duration-500 ${isLithoActive ? "bg-cyan-400 animate-pulse" : "bg-red-500 animate-ping"}`} />
+             <span className="text-[10px] font-black uppercase tracking-[0.4em] italic leading-none">Litho_Sync: {isLithoActive ? "NOMINAL" : "CRITICAL_ERROR"} // Status: ACTIVE</span>
+          </div>
+          <div className="h-4 w-px bg-white/20" />
+          <div className="flex items-center gap-6 text-white/20">
+             <Wifi className="w-4 h-4" /> 
+             <span className="text-[10px] font-black uppercase tracking-[0.4em] italic leading-none">Cleanroom_Grid: SECURE</span>
+          </div>
+       </div>
+
+       {/* Right Rotation Info */}
+       <div className="absolute right-12 top-1/2 -translate-y-1/2 rotate-90 origin-right hidden lg:block">
+          <span className="text-[10px] font-black uppercase tracking-[0.8em] text-white/5 italic">Unauthorized_Duplication_Of_Circuit_Patterns_Is_Strictly_Monitored_By_Global_Foundry_Alliance</span>
+       </div>
     </div>
   )
 }

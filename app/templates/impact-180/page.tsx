@@ -1,702 +1,522 @@
 "use client"
 
-import { motion, useScroll, useTransform, useInView, AnimatePresence, useMotionValue, useSpring } from "framer-motion"
-import { useState, useRef, useEffect } from "react"
+import React, { useState, useEffect, useRef } from "react"
+import { 
+  motion, 
+  AnimatePresence, 
+  useScroll, 
+  useTransform, 
+  useInView, 
+  useSpring 
+} from "framer-motion"
 import Image from "next/image"
 import Link from "next/link"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
-import { Badge } from "@/components/ui/badge"
-import { Card, CardContent } from "@/components/ui/card"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel"
-import { Progress } from "@/components/ui/progress"
-import { Separator } from "@/components/ui/separator"
-import { ArrowRight, Menu, X, Star, Clock, Shield, Award, ChevronRight, Play, MapPin, Phone, Mail, Camera, Scissors, Wind, Sparkles, Map, Droplets, Droplet, User, Calendar, CheckCircle2 } from "lucide-react"
+import { 
+  Brain, Zap, Activity, Microscope, 
+  Target, Layers, Box, Hexagon, 
+  Terminal, Settings, Power, Info, 
+  AlertTriangle, ChevronRight, ArrowRight, 
+  Share2, Maximize2, Download, ExternalLink, 
+  Archive, Hash, Wifi, BarChart3, 
+  Fingerprint, Scan, Server, ShieldCheck, 
+  ShieldAlert, Award, Briefcase, Wind, 
+  Thermometer, Flame, Battery, Radio, 
+  Gauge, Timer, Lightbulb, Command, 
+  Grid, Radar, Orbit, Atom, Satellite, 
+  Milestone, FlaskConical, FlaskRound, 
+  Ghost, Binary, Database, Search, 
+  Cpu, HeartPulse, Eye, Move, 
+  Network, Share, Boxes, Aperture, 
+  Ear, Hand, Waves
+} from "lucide-react"
 
-// ─── REVEAL COMPONENT ────────────────────────────────────────────────────────
-function Reveal({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
+/* ==========================================================================
+   THE NEURAL MESH DATASET (ULTRA DENSITY)
+   ========================================================================== */
+
+const NEURO_ASSETS = [
+  {
+    id: "nmi-mc-42",
+    name: "Cortex-Link v4",
+    type: "Motor Cortex Interface",
+    density: "12,000 Electrodes/mm²",
+    latency: "1.2 ms",
+    biocompatibility: "99.98%",
+    desc: "Interface neurale de haute densité permettant le contrôle prothétique ultra-fluide et la restauration des fonctions motrices.",
+    status: "Operational"
+  },
+  {
+    id: "nmi-vs-08",
+    name: "Optic-Forge X",
+    type: "Visual System Augmentation",
+    density: "8,500 Sensors/mm²",
+    latency: "4.5 ms",
+    biocompatibility: "99.999%",
+    desc: "Système de restauration de la vision par stimulation directe du cortex visuel, compatible avec l'imagerie thermique et UV.",
+    status: "Syncing"
+  },
+  {
+    id: "nmi-am-15",
+    name: "Memory-Grid v5",
+    type: "Hippocampal Expansion",
+    density: "15,000 Nodes/mm²",
+    latency: "0.8 ms",
+    biocompatibility: "99.4%",
+    desc: "Module d'extension de la mémoire de travail et stockage sémantique externe via un lien neuronal sécurisé.",
+    status: "Active Link"
+  }
+]
+
+const NEURO_METRICS = [
+  { label: "Neural Latency", value: "1.2ms", trend: "Optimal" },
+  { label: "Spike Fidelity", value: "99.98%", trend: "Increasing" },
+  { label: "Sync Rate", value: "4.2 Gbps", trend: "Stable" },
+  { label: "Bio-Response", value: "Nominal", trend: "High" }
+]
+
+const DECODING_LOGS = [
+  { timestamp: "22:14:42", unit: "Spike-Sorter-01", status: "LOCKED", pattern: "MOTOR_INIT" },
+  { timestamp: "22:14:45", unit: "Neural-Bus-X", status: "SYNCED", rate: "4.2 Gb/s" },
+  { timestamp: "22:14:48", unit: "Bio-Interface", status: "STABLE", temp: "310K" }
+]
+
+/* ==========================================
+   TECHNICAL COMPONENTS
+   ========================================== */
+
+function Reveal({ children, delay = 0, y = 40, x = 0 }: { children: React.ReactNode, delay?: number, y?: number, x?: number }) {
   const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, margin: "-80px" })
+  const isInView = useInView(ref, { once: true, margin: "-100px" })
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, y: 32 }}
-      animate={isInView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.6, delay, ease: [0.22, 1, 0.36, 1] }}
+      initial={{ opacity: 0, y, x }}
+      animate={isInView ? { opacity: 1, y: 0, x: 0 } : {}}
+      transition={{ duration: 1.2, delay, ease: [0.16, 1, 0.3, 1] }}
     >
       {children}
     </motion.div>
   )
 }
 
-// ─── DATA ────────────────────────────────────────────────────────────────────
-const NAV_LINKS = [
-  { label: "Le Salon", href: "#salon" },
-  { label: "Services", href: "#services" },
-  { label: "Tarifs", href: "#tarifs" },
-  { label: "Réservation", href: "#reservation" },
-]
-
-const STATS = [
-  { value: "15", label: "Années d'Expertise", suffix: "" },
-  { value: "4", label: "Salons Parisiens", suffix: "" },
-  { value: "25", label: "Maîtres Barbiers", suffix: "+" },
-  { value: "10", label: "Marques Premium", suffix: "" },
-  { value: "4.9", label: "Note Clientèle", suffix: "/5" },
-]
-
-const FEATURES = [
-  {
-    id: "coupe",
-    title: "La Coupe Signature",
-    icon: <Scissors className="w-6 h-6" />,
-    description: "Une maîtrise parfaite des techniques classiques et contemporaines. Nos maîtres barbiers analysent votre morphologie pour créer une coupe sur-mesure qui reflète votre style unique.",
-    bullets: [
-      "Consultation morphologique complète",
-      "Shampoing et soin profond",
-      "Coupe ciseaux et finition tondeuse",
-      "Coiffage et conseils d'entretien"
-    ],
-    image: "https://images.unsplash.com/photo-1585747860715-2ba37e788b70?w=800&q=80"
-  },
-  {
-    id: "barbe",
-    title: "Taille de Barbe",
-    icon: <User className="w-6 h-6" />,
-    description: "L'art du rasage traditionnel à l'ancienne. Un rituel de détente absolu combinant serviettes chaudes, huiles précieuses et précision au coupe-choux.",
-    bullets: [
-      "Rituel de la serviette chaude",
-      "Application d'huiles essentielles pré-rasage",
-      "Taille et tracé au coupe-choux",
-      "Soin hydratant et massage facial"
-    ],
-    image: "https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=800&q=80"
-  },
-  {
-    id: "soin",
-    title: "Soins Prémium",
-    icon: <Droplets className="w-6 h-6" />,
-    description: "Des rituels de soin profonds pour le cuir chevelu et la peau. Nous utilisons exclusivement des produits biologiques haut de gamme pour une vitalité restaurée.",
-    bullets: [
-      "Gommage exfoliant du cuir chevelu",
-      "Masque à l'argile purifiant",
-      "Soin de la barbe à l'huile d'argan",
-      "Massage crânien relaxant (15 min)"
-    ],
-    image: "https://images.unsplash.com/photo-1622286342621-4bd786c2447c?w=800&q=80"
-  }
-]
-
-const TESTIMONIALS = [
-  {
-    name: "Arthur de Villepin",
-    role: "Client fidèle depuis 5 ans",
-    avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&q=80",
-    content: "Le seul salon à Paris où je confie ma barbe les yeux fermés. Le rituel de la serviette chaude est un moment d'évasion exceptionnel.",
-    rating: 5
-  },
-  {
-    name: "Lucas Mercer",
-    role: "Directeur Artistique",
-    avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&q=80",
-    content: "L'ambiance est incroyable. On s'y sent bien, la musique est bonne, et la coupe est toujours millimétrée. Une adresse incontournable.",
-    rating: 5
-  },
-  {
-    name: "Thomas Laurent",
-    role: "Entrepreneur",
-    avatar: "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=200&q=80",
-    content: "Je viens toutes les semaines pour mon entretien régulier. Le service est toujours au top, et l'équipe est aux petits soins.",
-    rating: 5
-  },
-  {
-    name: "Mathieu V.",
-    role: "Nouveau client",
-    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&q=80",
-    content: "Première expérience aujourd'hui et je suis conquis. Les conseils morphologiques m'ont fait adopter une toute nouvelle coupe qui me correspond bien mieux.",
-    rating: 5
-  }
-]
-
-const PRICING = [
-  {
-    id: "coupe",
-    title: "L'Essentiel",
-    subtitle: "Coupe & Coiffage",
-    price: "45 €",
-    duration: "45 min",
-    description: "Le classique indémodable. Une coupe millimétrée adaptée à votre style.",
-    features: [
-      "Consultation personnalisée",
-      "Shampoing traitant",
-      "Coupe sur-mesure",
-      "Coiffage & finitions",
-      "Boisson offerte"
-    ],
-    recommended: false
-  },
-  {
-    id: "complet",
-    title: "Le Complet",
-    subtitle: "Coupe & Barbe",
-    price: "75 €",
-    duration: "1h 15min",
-    description: "L'expérience signature. L'association parfaite d'une coupe de cheveux et d'un rituel barbe.",
-    features: [
-      "Tous les services de L'Essentiel",
-      "Taille de barbe personnalisée",
-      "Rituel serviette chaude",
-      "Tracé au coupe-choux",
-      "Soin hydratant barbe & visage"
-    ],
-    recommended: true
-  },
-  {
-    id: "vip",
-    title: "L'Absolu VIP",
-    subtitle: "Soin Complet",
-    price: "120 €",
-    duration: "2h",
-    description: "Le summum du raffinement. Un moment de détente absolue pour une mise en beauté totale.",
-    features: [
-      "Tous les services du Complet",
-      "Soin exfoliant du visage",
-      "Masque noir purifiant",
-      "Massage crânien prolongé",
-      "Épilation sourcils/nez/oreilles",
-      "Coupe de champagne"
-    ],
-    recommended: false
-  }
-]
-
-const FAQS = [
-  {
-    question: "Dois-je obligatoirement prendre rendez-vous ?",
-    answer: "Nous fonctionnons principalement sur rendez-vous pour vous garantir un service ponctuel et sans précipitation. Toutefois, nous acceptons les clients sans rendez-vous (walk-ins) selon nos disponibilités du jour."
-  },
-  {
-    question: "Quelle est votre politique en cas de retard ?",
-    answer: "Nous accordons un délai de grâce de 10 minutes. Au-delà, pour respecter les clients suivants, nous pourrons être amenés à raccourcir votre prestation ou à vous proposer de reprogrammer le rendez-vous."
-  },
-  {
-    question: "Quels types de produits utilisez-vous ?",
-    answer: "Nous sommes fiers de travailler avec des marques premium et respectueuses de l'environnement (Aveda, Proraso, et notre propre ligne bio). Tous nos produits sont garantis sans sulfates et non testés sur les animaux."
-  },
-  {
-    question: "Proposez-vous des cartes cadeaux ?",
-    answer: "Oui, des cartes cadeaux sont disponibles en salon et sur notre site web. Elles sont valables 1 an dans l'ensemble de nos établissements pour tous nos services et produits."
-  },
-  {
-    question: "Les enfants sont-ils acceptés ?",
-    answer: "Bien sûr. Nous accueillons les jeunes gentlemen à partir de 8 ans, avec un tarif réduit du mardi au jeudi (voir notre carte des tarifs en salon)."
-  },
-  {
-    question: "Comment puis-je modifier ou annuler mon rendez-vous ?",
-    answer: "Vous pouvez modifier ou annuler votre rendez-vous via le lien reçu dans votre email de confirmation, ou en nous appelant directement. Nous demandons un préavis de 24h pour toute annulation."
-  }
-]
-
-// ─── MAIN COMPONENT ────────────────────────────────────────────────────────
-export default function EssentialSalonTemplate() {
-  const containerRef = useRef<HTMLDivElement>(null)
-  const { scrollYProgress } = useScroll({ target: containerRef })
-  
-  // Parallax Values
-  const heroY = useTransform(scrollYProgress, [0, 1], ["0%", "40%"])
-  const textY = useTransform(scrollYProgress, [0, 1], ["0%", "20%"])
-  const opacityHero = useTransform(scrollYProgress, [0, 0.2], [1, 0])
-
-  // Mouse Parallax for Floating Card
-  const mouseX = useMotionValue(0)
-  const mouseY = useMotionValue(0)
-  const springX = useSpring(mouseX, { stiffness: 100, damping: 30 })
-  const springY = useSpring(mouseY, { stiffness: 100, damping: 30 })
-
+function SynapticFlowVisualizer() {
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
   useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      const { innerWidth, innerHeight } = window
-      mouseX.set((e.clientX - innerWidth / 2) / 25)
-      mouseY.set((e.clientY - innerHeight / 2) / 25)
-    }
-    window.addEventListener("mousemove", handleMouseMove)
-    return () => window.removeEventListener("mousemove", handleMouseMove)
-  }, [mouseX, mouseY])
+    const handleMouse = (e: MouseEvent) => setMousePos({ x: e.clientX, y: e.clientY })
+    window.addEventListener("mousemove", handleMouse)
+    return () => window.removeEventListener("mousemove", handleMouse)
+  }, [])
 
   return (
-    <div ref={containerRef} className="min-h-screen bg-[#0A0A0A] text-[#EFEFEF] font-sans" style={{ overflowX: "hidden", scrollBehavior: "smooth" }}>
-      
-      {/* ─── 1. NAVBAR STICKY ─── */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-[#0A0A0A]/90 backdrop-blur-md border-b border-white/5 transition-all duration-300">
-        <div className="max-w-7xl mx-auto px-6 h-24 flex items-center justify-between">
-          <Link href="/" className="flex flex-col group cursor-pointer">
-            <span className="text-2xl font-black tracking-tighter uppercase text-white group-hover:text-[#D4AF37] transition-colors duration-300">
-              ESSENTIAL<span className="text-[#D4AF37]">.</span>
-            </span>
-            <span className="text-[10px] tracking-[0.3em] uppercase text-zinc-500 font-bold">Barbershop</span>
-          </Link>
-
-          {/* Desktop Nav */}
-          <div className="hidden md:flex items-center gap-10">
-            {NAV_LINKS.map((link) => (
-              <Link 
-                key={link.label} 
-                href={link.href} 
-                className="text-xs font-bold tracking-[0.2em] uppercase text-zinc-400 hover:text-white transition-all duration-200 cursor-pointer"
-              >
-                {link.label}
-              </Link>
-            ))}
-          </div>
-
-          <div className="hidden md:flex items-center gap-6">
-            <button className="px-8 py-3 bg-white text-black text-xs font-bold tracking-[0.2em] uppercase hover:bg-[#D4AF37] hover:text-black transition-all duration-300 cursor-pointer">
-              Réserver
-            </button>
-          </div>
-
-          {/* Mobile Nav */}
-          <Sheet>
-            <SheetTrigger asChild>
-              <button className="md:hidden p-2 text-white cursor-pointer">
-                <Menu className="w-6 h-6" />
-              </button>
-            </SheetTrigger>
-            <SheetContent side="right" className="bg-[#0A0A0A] border-l border-white/10 text-white w-[300px]">
-              <div className="flex flex-col gap-8 mt-16">
-                {NAV_LINKS.map((link) => (
-                  <Link 
-                    key={link.label} 
-                    href={link.href} 
-                    className="text-xl font-black tracking-widest uppercase text-zinc-400 hover:text-white transition-colors cursor-pointer"
-                  >
-                    {link.label}
-                  </Link>
-                ))}
-                <Separator className="bg-white/10 my-4" />
-                <button className="px-6 py-4 bg-white text-black text-sm font-bold tracking-widest uppercase cursor-pointer">
-                  Prendre Rendez-vous
-                </button>
-              </div>
-            </SheetContent>
-          </Sheet>
-        </div>
-      </nav>
-
-      {/* ─── 2. HERO PARALLAX (SPLIT SCREEN EFFECT) ─── */}
-      <section className="relative h-[100vh] flex flex-col md:flex-row items-center overflow-hidden bg-[#0A0A0A]">
-        {/* Left Side (Text) */}
-        <div className="w-full md:w-1/2 h-full flex flex-col justify-center px-6 md:px-16 pt-32 md:pt-0 relative z-10">
-          <motion.div style={{ y: textY }}>
-            <Reveal>
-              <Badge className="bg-white/5 text-[#D4AF37] hover:bg-white/10 border border-[#D4AF37]/30 mb-8 uppercase tracking-[0.2em] px-4 py-2 cursor-pointer transition-all duration-300">
-                <Star className="w-3 h-3 mr-2 inline fill-current" /> Élu meilleur salon de l'année
-              </Badge>
-            </Reveal>
-            
-            <Reveal delay={0.1}>
-              <h1 className="text-6xl md:text-7xl lg:text-8xl font-black tracking-tighter text-white mb-6 leading-[0.9] uppercase">
-                L'Art du <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-zinc-300 to-zinc-600">
-                  Grooming.
-                </span>
-              </h1>
-            </Reveal>
-
-            <Reveal delay={0.2}>
-              <p className="text-lg text-zinc-400 font-light tracking-wide max-w-md mb-12 leading-relaxed">
-                Bien plus qu'une simple coupe. Un sanctuaire dédié à l'élégance masculine, alliant techniques traditionnelles et tendances contemporaines.
-              </p>
-            </Reveal>
-
-            <Reveal delay={0.3} className="flex flex-col sm:flex-row items-center gap-6">
-              <button className="w-full sm:w-auto px-10 py-5 bg-white text-black font-black uppercase tracking-[0.2em] text-sm hover:scale-105 hover:bg-[#D4AF37] hover:shadow-[0_0_30px_rgba(212,175,55,0.4)] transition-all duration-300 cursor-pointer">
-                Réserver
-              </button>
-              <Dialog>
-                <DialogTrigger asChild>
-                  <button className="w-full sm:w-auto px-10 py-5 border border-white/20 bg-white/5 text-white font-bold uppercase tracking-[0.2em] text-sm hover:bg-white/10 transition-all duration-300 cursor-pointer flex items-center justify-center gap-3">
-                    <Play className="w-4 h-4" /> La Visite
-                  </button>
-                </DialogTrigger>
-                <DialogContent className="bg-[#0A0A0A] border-white/10 text-white sm:max-w-[800px] p-0 overflow-hidden">
-                  <div className="aspect-video relative w-full bg-black flex items-center justify-center">
-                    <div className="w-12 h-12 rounded-full border-t-2 border-[#D4AF37] animate-spin" />
-                    <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1599351431202-1e0f0137899a?w=1600&q=80')] bg-cover opacity-50 mix-blend-screen" />
-                  </div>
-                </DialogContent>
-              </Dialog>
-            </Reveal>
-          </motion.div>
-        </div>
-
-        {/* Right Side (Image Parallax) */}
-        <div className="w-full md:w-1/2 h-full absolute md:relative right-0 top-0 opacity-30 md:opacity-100">
-          <motion.div style={{ y: heroY, opacity: opacityHero }} className="absolute inset-[-10%] w-[120%] h-[120%]">
-            <Image 
-              src="https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=1600&q=80" 
-              alt="Barbershop intérieur" 
-              fill 
-              className="object-cover grayscale contrast-125"
-              priority
+    <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden opacity-10">
+       <svg width="100%" height="100%" className="w-full h-full">
+          {[...Array(15)].map((_, i) => (
+            <motion.path 
+               key={i}
+               d={`M ${100 + i * 120} 0 Q ${200 + i * 120} 400 ${100 + i * 120} 800`}
+               stroke="#06b6d4" 
+               strokeWidth="0.5" 
+               fill="none"
+               animate={{ d: `M ${100 + i * 120} 0 Q ${mousePos.x + (i * 10)} ${mousePos.y} ${100 + i * 120} 800` }}
+               transition={{ type: "spring", damping: 30, stiffness: 50 }}
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-[#0A0A0A] via-transparent to-transparent hidden md:block" />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-transparent to-transparent md:hidden" />
+          ))}
+          {[...Array(30)].map((_, i) => (
+            <motion.circle 
+               key={`fire-${i}`}
+               r="2"
+               fill="#06b6d4"
+               initial={{ opacity: 0 }}
+               animate={{ 
+                  cx: [Math.random() * 2000, Math.random() * 2000],
+                  cy: [0, 800],
+                  opacity: [0, 1, 0]
+               }}
+               transition={{ duration: 2 + Math.random() * 3, repeat: Infinity, delay: Math.random() * 5 }}
+            />
+          ))}
+       </svg>
+    </div>
+  )
+}
+
+function NeuralMeshModel({ progress }: { progress: any }) {
+  const rotate = useTransform(progress, [0, 1], [0, 360])
+  const scale = useTransform(progress, [0, 0.5, 1], [1, 1.2, 1])
+
+  return (
+    <motion.div style={{ rotate, scale }} className="relative w-80 h-80 flex items-center justify-center">
+       <div className="absolute inset-0 border border-cyan-500/10 rounded-full animate-spin-slow shadow-[0_0_80px_rgba(6,182,212,0.05)]" />
+       <Network className="w-40 h-40 text-cyan-500/10 animate-pulse" />
+       <div className="absolute inset-8 border border-cyan-500/5 rounded-full" />
+    </motion.div>
+  )
+}
+
+/* ==========================================
+   THE NEURAL MESH - MAIN INTERFACE
+   ========================================== */
+
+export default function NeuralMeshPremium() {
+  const [activeNmi, setActiveNmi] = useState(0)
+  const [isNeuralSyncActive, setIsNeuralSyncActive] = useState(true)
+  const containerRef = useRef(null)
+  const { scrollYProgress } = useScroll({ target: containerRef })
+
+  // Neuro Scroll Effects
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.2], [1, 0])
+  const textX = useTransform(scrollYProgress, [0, 0.5], [0, 100])
+
+  return (
+    <div ref={containerRef} className="bg-[#020508] text-[#e0e8ed] font-mono selection:bg-cyan-500/30 selection:text-white min-h-screen overflow-x-hidden transition-colors duration-1000">
+      
+      {/* GLOBAL HUD OVERLAY */}
+      <HUD_Overlay isNeuralSyncActive={isNeuralSyncActive} />
+
+      <main>
+        {/* ==========================================
+            1. NEURAL IGNITION (HERO)
+            ========================================== */}
+        <section className="relative h-screen flex flex-col justify-center items-center px-8 md:px-24 overflow-hidden pt-20">
+          <SynapticFlowVisualizer />
+          <motion.div style={{ opacity: heroOpacity }} className="absolute z-0 pointer-events-none flex items-center justify-center">
+             <NeuralMeshModel progress={scrollYProgress} />
           </motion.div>
-        </div>
 
-        {/* Floating Glassmorphism Card */}
-        <motion.div 
-          style={{ x: springX, y: springY }}
-          className="hidden lg:flex absolute bottom-20 right-20 z-20 items-center gap-5 p-5 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-2xl cursor-pointer hover:border-white/30 transition-colors duration-300"
-        >
-          <div className="flex -space-x-4">
-            <Avatar className="w-12 h-12 border-2 border-black">
-              <AvatarImage src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&q=80" />
-            </Avatar>
-            <Avatar className="w-12 h-12 border-2 border-black">
-              <AvatarImage src="https://images.unsplash.com/photo-1560250097-0b93528c311a?w=200&q=80" />
-            </Avatar>
-            <Avatar className="w-12 h-12 border-2 border-black">
-              <AvatarImage src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&q=80" />
-            </Avatar>
-          </div>
-          <div>
-            <div className="flex items-center gap-1 mb-1">
-              <Star className="w-4 h-4 fill-[#D4AF37] text-[#D4AF37]" />
-              <Star className="w-4 h-4 fill-[#D4AF37] text-[#D4AF37]" />
-              <Star className="w-4 h-4 fill-[#D4AF37] text-[#D4AF37]" />
-              <Star className="w-4 h-4 fill-[#D4AF37] text-[#D4AF37]" />
-              <Star className="w-4 h-4 fill-[#D4AF37] text-[#D4AF37]" />
-            </div>
-            <div className="text-xs uppercase tracking-widest text-white font-bold">1,200+ Avis vérifiés</div>
-          </div>
-        </motion.div>
-      </section>
-
-      {/* ─── 3. STATS BAR ─── */}
-      <section className="py-20 border-y border-white/10 bg-black relative z-10">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-12 md:gap-4 divide-x-0 md:divide-x divide-white/10">
-            {STATS.map((stat, i) => (
-              <Reveal key={i} delay={i * 0.1}>
-                <div className="flex flex-col items-center text-center cursor-pointer group">
-                  <div className="text-4xl lg:text-5xl font-black text-white mb-3 group-hover:text-[#D4AF37] transition-colors duration-300">
-                    {stat.value}<span className="text-[#D4AF37]">{stat.suffix}</span>
-                  </div>
-                  <div className="text-xs uppercase tracking-[0.2em] text-zinc-500 font-bold">
-                    {stat.label}
-                  </div>
+          <div className="relative z-10 text-center max-w-7xl">
+             <Reveal>
+                <div className="inline-flex items-center gap-4 px-6 py-2 border border-cyan-500/30 bg-cyan-500/5 text-[10px] font-black uppercase tracking-[0.5em] text-cyan-500 mb-12 italic">
+                   <Brain className="w-4 h-4" /> Neuro_Sync: NOMINAL // Latency: 1.2ms
                 </div>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ─── 4. FEATURES (TABS) ─── */}
-      <section id="services" className="py-32 relative bg-[#0F0F0F]">
-        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] mix-blend-overlay pointer-events-none" />
-        <div className="max-w-7xl mx-auto px-6 relative z-10">
-          <div className="text-center mb-20">
-            <Reveal>
-              <h2 className="text-xs uppercase tracking-[0.3em] text-[#D4AF37] font-bold mb-4">Notre Expertise</h2>
-              <h3 className="text-4xl md:text-6xl font-black text-white mb-6 uppercase tracking-tighter">Nos Services</h3>
-              <p className="text-zinc-400 max-w-2xl mx-auto leading-relaxed">
-                Des prestations haut de gamme réalisées par des artisans passionnés, maîtrisant l'art classique et moderne.
-              </p>
-            </Reveal>
+                <motion.h1 style={{ x: textX }} className="text-7xl md:text-[14vw] font-black tracking-tighter uppercase mb-16 leading-[0.75] italic">
+                   Neural <br/> <span className="text-white/5 italic">Mesh.</span>
+                </motion.h1>
+                <p className="max-w-3xl mx-auto text-sm md:text-lg text-white/30 leading-relaxed uppercase tracking-widest font-light mb-16 italic">
+                   L'évolution de la conscience humaine par l'interface bio-numérique. Nous connectons le cerveau au monde synthétique avec une fidélité synaptique absolue.
+                </p>
+                
+                <div className="flex flex-col sm:flex-row gap-8 justify-center items-center">
+                   <button className="px-12 py-6 bg-cyan-800 text-white text-[10px] font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all shadow-[0_0_40px_rgba(6,182,212,0.2)] flex items-center gap-4 italic">
+                      <Activity className="w-5 h-5" /> Initialize Link
+                   </button>
+                   <button className="px-12 py-6 border border-white/10 text-white text-[10px] font-black uppercase tracking-widest hover:bg-white/5 transition-all flex items-center gap-4 italic">
+                      <Database className="w-5 h-5" /> Interface Registry
+                   </button>
+                </div>
+             </Reveal>
           </div>
 
-          <Tabs defaultValue="coupe" className="w-full flex flex-col lg:flex-row gap-12 lg:gap-20">
-            <div className="lg:w-1/3">
-              <TabsList className="flex flex-col h-auto bg-transparent gap-4 items-stretch">
-                {FEATURES.map((feature) => (
-                  <TabsTrigger 
-                    key={feature.id} 
-                    value={feature.id}
-                    className="justify-start px-8 py-6 text-left data-[state=active]:bg-white data-[state=active]:text-black text-zinc-500 hover:text-white hover:bg-white/5 transition-all duration-300 cursor-pointer rounded-none border border-transparent"
-                  >
-                    <div className="flex items-center gap-6">
-                      <div>{feature.icon}</div>
-                      <span className="text-sm font-black uppercase tracking-[0.1em]">{feature.title}</span>
-                    </div>
-                  </TabsTrigger>
-                ))}
-              </TabsList>
-            </div>
+          <div className="absolute bottom-12 left-12 right-12 flex justify-between items-end border-t border-white/5 pt-12">
+             <div className="flex flex-col gap-6">
+                <div className="flex items-center gap-4 text-[9px] font-bold text-white/20 uppercase tracking-widest italic">
+                   <div className="w-16 h-px bg-white/10" />
+                   Station_ID: NEURO-CORE-01
+                </div>
+                <div className="flex items-center gap-4 text-[9px] font-bold text-white/20 uppercase tracking-widest italic">
+                   <div className="w-16 h-px bg-white/10" />
+                   Sync_Status: SPIKE_LOCKED
+                </div>
+             </div>
+             <div className="text-right flex flex-col items-end gap-4">
+                <span className="text-[8px] font-black uppercase tracking-[0.5em] text-cyan-500">Neural_Fire_Stream</span>
+                <div className="flex gap-2 h-12 items-end">
+                   {[...Array(16)].map((_, i) => (
+                     <motion.div 
+                        key={i}
+                        animate={{ height: ["10%", "100%", "30%", "80%", "10%"] }}
+                        transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.1 }}
+                        className="w-2 bg-cyan-500/20"
+                     />
+                   ))}
+                </div>
+             </div>
+          </div>
+        </section>
 
-            <div className="lg:w-2/3">
-              <AnimatePresence mode="wait">
-                {FEATURES.map((feature) => (
-                  <TabsContent key={feature.id} value={feature.id} className="mt-0 outline-none">
-                    <motion.div
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: -20 }}
-                      transition={{ duration: 0.5 }}
-                      className="bg-[#141414] border border-white/5 overflow-hidden shadow-2xl group"
-                    >
-                      <div className="aspect-[16/9] relative w-full overflow-hidden">
-                        <Image src={feature.image} alt={feature.title} fill className="object-cover grayscale group-hover:grayscale-0 transition-all duration-1000" />
-                        <div className="absolute inset-0 bg-gradient-to-t from-[#141414] to-transparent opacity-80" />
+        {/* ==========================================
+            2. INTERFACE REGISTRY (DENSE TECHNICAL)
+            ========================================== */}
+        <section className="py-60 bg-[#04080c] relative border-y border-white/5 overflow-hidden">
+           <div className="max-w-[1600px] mx-auto px-8 md:px-24">
+              <div className="flex flex-col md:flex-row items-end justify-between mb-40 gap-12">
+                 <Reveal>
+                    <span className="text-[10px] font-black uppercase tracking-[0.6em] text-cyan-500 block mb-6 italic underline underline-offset-8 decoration-cyan-400/20">Neuro // Assets</span>
+                    <h2 className="text-6xl md:text-[10vw] font-black uppercase tracking-tighter italic leading-none text-white">Archives.</h2>
+                 </Reveal>
+                 <div className="text-right">
+                    <span className="text-[10px] font-black uppercase tracking-[0.5em] text-white/20 block mb-4 italic">Registry // Bio_Link_Audit</span>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-cyan-400">L'Architecture du Neurone Synthétique</p>
+                 </div>
+              </div>
+
+              <div className="grid md:grid-cols-3 gap-px bg-white/5 border border-white/5 shadow-2xl">
+                 {NEURO_ASSETS.map((asset, i) => (
+                   <Reveal key={asset.id} delay={i * 0.1}>
+                      <div className="bg-[#020508] p-20 flex flex-col h-full hover:bg-white/[0.02] transition-all group cursor-crosshair border-white/5 border-r last:border-r-0">
+                         <div className="flex justify-between items-start mb-16">
+                            <div className="w-16 h-16 bg-white/5 border border-white/10 flex items-center justify-center group-hover:bg-cyan-800 group-hover:text-white transition-all duration-500">
+                               <Cpu className="w-8 h-8" />
+                            </div>
+                            <span className={`px-4 py-2 bg-white/5 text-[9px] font-black uppercase tracking-[0.3em] ${asset.status === "Operational" ? "text-cyan-500" : "text-white/40"}`}>{asset.status}</span>
+                         </div>
+                         
+                         <h3 className="text-4xl font-black uppercase tracking-tighter mb-8 italic text-white group-hover:translate-x-4 transition-transform">{asset.name}</h3>
+                         <div className="text-[10px] font-black text-white/20 uppercase tracking-[0.5em] mb-12">{asset.type}</div>
+                         
+                         <div className="space-y-8 mb-20 border-l border-cyan-500/20 pl-8">
+                            <div className="flex justify-between items-center text-[11px] font-bold uppercase tracking-widest">
+                               <span className="text-white/20">Density</span>
+                               <span className="text-white group-hover:text-cyan-400 transition-colors">{asset.density}</span>
+                            </div>
+                            <div className="flex justify-between items-center text-[11px] font-bold uppercase tracking-widest">
+                               <span className="text-white/20">Latency</span>
+                               <span className="text-white group-hover:text-cyan-400 transition-colors">{asset.latency}</span>
+                            </div>
+                            <div className="flex justify-between items-center text-[11px] font-bold uppercase tracking-widest">
+                               <span className="text-white/20">Bio-Compat</span>
+                               <span className="text-white group-hover:text-cyan-400 transition-colors">{asset.biocompatibility}</span>
+                            </div>
+                         </div>
+
+                         <p className="text-[12px] text-white/30 leading-loose uppercase tracking-[0.2em] font-bold italic mb-16">
+                            {asset.desc}
+                         </p>
+
+                         <div className="mt-auto pt-10 border-t border-white/5 flex justify-between items-center">
+                            <span className="text-[10px] font-black text-white/10 uppercase tracking-widest">Ref: {asset.id}</span>
+                            <button className="text-[10px] font-black uppercase text-white/40 flex items-center gap-4 group-hover:text-white transition-all">
+                               Technical_Specs <ChevronRight className="w-5 h-5" />
+                            </button>
+                         </div>
                       </div>
-                      <div className="p-10 md:p-14 relative z-10 -mt-20">
-                        <h4 className="text-3xl font-black uppercase tracking-tighter text-white mb-6">{feature.title}</h4>
-                        <p className="text-zinc-400 leading-relaxed mb-10 text-lg">{feature.description}</p>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-6 gap-x-8">
-                          {feature.bullets.map((bullet, i) => (
-                            <div key={i} className="flex items-center gap-4">
-                              <CheckCircle2 className="w-5 h-5 text-[#D4AF37] shrink-0" />
-                              <span className="text-sm text-zinc-300 font-bold tracking-wide">{bullet}</span>
+                   </Reveal>
+                 ))}
+              </div>
+           </div>
+        </section>
+
+        {/* ==========================================
+            3. NEURO MONITOR (INTERACTIVE DATA)
+            ========================================== */}
+        <section className="py-60 bg-black relative border-y border-white/5 overflow-hidden">
+           <div className="max-w-[1400px] mx-auto px-8 md:px-24">
+              <div className="grid lg:grid-cols-2 gap-40 items-center">
+                 <div>
+                    <Reveal>
+                       <span className="text-[10px] font-black uppercase tracking-[0.5em] text-cyan-500 block mb-12 italic underline underline-offset-8 decoration-cyan-400/20">Neuro // Performance</span>
+                       <h2 className="text-7xl md:text-[9vw] font-light italic leading-none text-white mb-16 uppercase tracking-tighter">
+                          The <br/> <span className="not-italic font-black text-white/5 italic">Synapse_Link.</span>
+                       </h2>
+                       <p className="text-2xl font-light text-white/20 leading-relaxed mb-24 italic uppercase tracking-[0.2em] max-w-xl">
+                          Surveillance du lien cérébral en temps réel. Nos algorithmes de décodage analysent chaque "spike" neuronal pour traduire l'intention biologique en commande numérique.
+                       </p>
+                       <div className="grid grid-cols-2 gap-px bg-white/5 border border-white/5 mb-24 shadow-2xl">
+                          {NEURO_METRICS.map((metric, i) => (
+                            <div key={i} className="p-16 bg-[#0a100c] group hover:bg-white/[0.02] transition-all border-r border-b last:border-r-0 border-white/5">
+                               <div className="text-[10px] font-black uppercase text-cyan-400 mb-6 tracking-[0.4em]">{metric.label}</div>
+                               <div className="text-5xl font-black text-white italic mb-6 tracking-tighter group-hover:translate-x-4 transition-transform">{metric.value}</div>
+                               <div className="flex items-center gap-3 text-[9px] font-bold uppercase tracking-[0.3em] text-white/10 italic">
+                                  <Activity className="w-4 h-4 text-cyan-400" /> {metric.trend}
+                               </div>
                             </div>
                           ))}
-                        </div>
-                      </div>
-                    </motion.div>
-                  </TabsContent>
-                ))}
-              </AnimatePresence>
-            </div>
-          </Tabs>
-        </div>
-      </section>
-
-      {/* ─── 5. TESTIMONIALS CAROUSEL ─── */}
-      <section className="py-32 bg-black border-y border-white/5 overflow-hidden relative">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[40rem] font-black opacity-5 text-white pointer-events-none whitespace-nowrap">
-          REVIEWS
-        </div>
-        
-        <div className="max-w-7xl mx-auto px-6 relative z-10">
-          <Reveal>
-            <div className="text-center mb-20">
-              <h2 className="text-xs uppercase tracking-[0.3em] text-[#D4AF37] font-bold mb-4">Testimonials</h2>
-              <h3 className="text-4xl md:text-6xl font-black uppercase tracking-tighter text-white">Ce qu'ils disent</h3>
-            </div>
-          </Reveal>
-
-          <Carousel className="w-full max-w-5xl mx-auto">
-            <CarouselContent>
-              {TESTIMONIALS.map((testi, i) => (
-                <CarouselItem key={i} className="md:basis-1/2 lg:basis-1/2 pl-6">
-                  <Reveal delay={i * 0.1}>
-                    <Card className="bg-[#111] border-white/10 hover:border-white/30 transition-colors duration-300 cursor-pointer h-full rounded-none">
-                      <CardContent className="p-10 flex flex-col h-full justify-between">
-                        <div>
-                          <div className="flex gap-1 mb-8">
-                            {[...Array(testi.rating)].map((_, j) => (
-                              <Star key={j} className="w-5 h-5 fill-[#D4AF37] text-[#D4AF37]" />
-                            ))}
+                       </div>
+                       <button 
+                         onClick={() => setIsNeuralSyncActive(!isNeuralSyncActive)}
+                         className="w-full py-8 bg-cyan-950 text-white text-[11px] font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all shadow-2xl flex items-center justify-center gap-6 italic"
+                       >
+                          <Settings className="w-5 h-5" /> Re-Sync Neural Nodes
+                       </button>
+                    </Reveal>
+                 </div>
+                 
+                 <div className="relative">
+                    <Reveal delay={0.3} x={40}>
+                       <div className="aspect-square bg-[#0a100c] border border-white/10 p-20 flex flex-col justify-between relative group overflow-hidden shadow-2xl">
+                          <div className="absolute top-0 right-0 p-80 bg-cyan-400 opacity-[0.02] blur-[150px] rounded-full group-hover:opacity-[0.05] transition-opacity" />
+                          
+                          <div className="flex justify-between items-start z-10">
+                             <div className="flex flex-col gap-3">
+                                <span className="text-[10px] font-black text-white/10 uppercase tracking-[0.5em]">Neuro_Link // NMI-SYNC-v42</span>
+                                <span className="text-[12px] font-black text-white/40 uppercase tracking-[0.6em]">Cortex_Mapping_Telemetry</span>
+                             </div>
+                             <Wifi className="w-6 h-6 text-cyan-400" />
                           </div>
-                          <p className="text-zinc-300 text-lg leading-relaxed font-serif italic mb-10">
-                            "{testi.content}"
-                          </p>
-                        </div>
-                        <div className="flex items-center gap-6 border-t border-white/10 pt-8 mt-auto">
-                          <Avatar className="w-14 h-14 border border-white/20">
-                            <AvatarImage src={testi.avatar} />
-                            <AvatarFallback>ES</AvatarFallback>
-                          </Avatar>
-                          <div>
-                            <div className="text-white font-bold text-sm tracking-wider uppercase mb-1">{testi.name}</div>
-                            <div className="text-zinc-500 text-xs uppercase tracking-[0.2em]">{testi.role}</div>
+                          
+                          {/* NEURAL VISUALIZER (SVG) */}
+                          <div className="relative z-10 flex flex-col items-center justify-center h-full">
+                             <div className="w-64 h-64 border border-cyan-400/5 rounded-full flex items-center justify-center relative">
+                                <motion.div 
+                                  animate={{ rotate: 360 }}
+                                  transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+                                  className="absolute inset-0 border-t-2 border-cyan-400/20 rounded-full" 
+                                />
+                                <motion.div 
+                                  animate={{ rotate: -360 }}
+                                  transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+                                  className="absolute inset-8 border-b-2 border-cyan-400/10 rounded-full" 
+                                />
+                                <Brain className={`w-24 h-24 transition-colors duration-1000 ${isNeuralSyncActive ? "text-cyan-400 animate-pulse" : "text-white/5"}`} />
+                             </div>
+                             <div className="mt-16 text-center space-y-6">
+                                <div className={`text-4xl font-black italic tracking-tighter ${isNeuralSyncActive ? "text-white" : "text-white/20"}`}>
+                                   {isNeuralSyncActive ? "SYNC_ACTIVE" : "SYNC_LOSS"}
+                                </div>
+                                <span className="text-[11px] font-bold text-white/10 uppercase tracking-[0.6em] block">Auth_Node: MESH_UNIT_01</span>
+                             </div>
                           </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </Reveal>
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-            <div className="flex justify-center gap-6 mt-16">
-              <CarouselPrevious className="relative inset-auto translate-y-0 bg-transparent border-white/20 text-white hover:bg-white hover:text-black w-12 h-12 transition-colors rounded-none" />
-              <CarouselNext className="relative inset-auto translate-y-0 bg-transparent border-white/20 text-white hover:bg-white hover:text-black w-12 h-12 transition-colors rounded-none" />
-            </div>
-          </Carousel>
-        </div>
-      </section>
 
-      {/* ─── 6. PRICING ─── */}
-      <section id="tarifs" className="py-32 bg-[#0A0A0A] relative">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-zinc-900 via-[#0A0A0A] to-[#0A0A0A] opacity-50" />
-        
-        <div className="max-w-7xl mx-auto px-6 relative z-10">
-          <div className="text-center mb-24">
-            <Reveal>
-              <h2 className="text-xs uppercase tracking-[0.3em] text-[#D4AF37] font-bold mb-4">Investissement</h2>
-              <h3 className="text-4xl md:text-6xl font-black uppercase tracking-tighter text-white mb-6">Carte des Soins</h3>
-              <p className="text-zinc-500 max-w-xl mx-auto text-lg leading-relaxed">
-                Des forfaits transparents, un service sans compromis. L'excellence a un prix juste.
-              </p>
-            </Reveal>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-end">
-            {PRICING.map((tier, i) => (
-              <Reveal key={i} delay={i * 0.1}>
-                <Card className={`relative bg-[#111] border ${tier.recommended ? 'border-white shadow-[0_0_50px_rgba(255,255,255,0.1)] lg:-translate-y-8 z-10' : 'border-white/10'} hover:border-white/50 transition-all duration-300 cursor-pointer overflow-hidden rounded-none`}>
-                  {tier.recommended && (
-                    <div className="absolute top-0 inset-x-0 bg-white text-black text-xs font-black uppercase tracking-[0.2em] text-center py-2">
-                      Le Plus Populaire
-                    </div>
-                  )}
-                  <CardContent className={`p-10 ${tier.recommended ? 'pt-14' : ''}`}>
-                    <div className="text-xs uppercase tracking-[0.2em] text-[#D4AF37] font-bold mb-2">{tier.duration}</div>
-                    <h4 className="text-3xl font-black uppercase tracking-tighter text-white mb-2">{tier.title}</h4>
-                    <div className="text-sm font-bold uppercase tracking-widest text-zinc-500 mb-8">{tier.subtitle}</div>
-                    
-                    <p className="text-sm text-zinc-400 mb-10 h-10 leading-relaxed">{tier.description}</p>
-                    
-                    <div className="flex items-baseline gap-2 mb-10 border-b border-white/10 pb-10">
-                      <span className="text-5xl font-black text-white">{tier.price}</span>
-                    </div>
-
-                    <ul className="space-y-5 mb-12">
-                      {tier.features.map((feat, j) => (
-                        <li key={j} className="flex items-start gap-4 text-sm text-zinc-300 font-medium">
-                          <CheckCircle2 className="w-5 h-5 text-[#D4AF37] shrink-0" />
-                          <span>{feat}</span>
-                        </li>
-                      ))}
-                    </ul>
-
-                    <button className={`w-full py-5 text-sm font-black uppercase tracking-[0.2em] transition-all duration-300 rounded-none ${tier.recommended ? 'bg-white text-black hover:bg-[#D4AF37]' : 'bg-transparent border border-white/20 text-white hover:bg-white hover:text-black'}`}>
-                      Réserver ce soin
-                    </button>
-                  </CardContent>
-                </Card>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ─── 7. FAQ ACCORDION ─── */}
-      <section className="py-32 bg-[#0F0F0F] border-t border-white/5">
-        <div className="max-w-4xl mx-auto px-6">
-          <Reveal>
-            <div className="text-center mb-20">
-              <h2 className="text-xs uppercase tracking-[0.3em] text-[#D4AF37] font-bold mb-4">Guide</h2>
-              <h3 className="text-4xl md:text-5xl font-black uppercase tracking-tighter text-white">Foire aux questions</h3>
-            </div>
-          </Reveal>
-
-          <Reveal delay={0.2}>
-            <Accordion type="single" collapsible className="w-full">
-              {FAQS.map((faq, i) => (
-                <AccordionItem key={i} value={`item-${i}`} className="border-white/10">
-                  <AccordionTrigger className="text-left text-white hover:text-[#D4AF37] hover:no-underline font-bold text-lg py-8 transition-colors uppercase tracking-wider">
-                    {faq.question}
-                  </AccordionTrigger>
-                  <AccordionContent className="text-zinc-400 leading-relaxed pb-8 text-base">
-                    {faq.answer}
-                  </AccordionContent>
-                </AccordionItem>
-              ))}
-            </Accordion>
-          </Reveal>
-        </div>
-      </section>
-
-      {/* ─── 8. CTA BANNER ─── */}
-      <section className="py-24 px-6 relative z-10 bg-[#0A0A0A]">
-        <Reveal>
-          <div className="max-w-6xl mx-auto bg-white text-black p-12 md:p-24 text-center relative overflow-hidden group shadow-2xl">
-            <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=1600&q=80')] bg-cover bg-center opacity-10 group-hover:opacity-20 transition-opacity duration-1000 grayscale" />
-            
-            <div className="relative z-10">
-              <Scissors className="w-16 h-16 text-black mx-auto mb-10" />
-              <h2 className="text-5xl md:text-7xl font-black uppercase tracking-tighter mb-8 leading-[0.9]">Prêt pour la<br/>transformation ?</h2>
-              <p className="text-lg text-zinc-700 max-w-2xl mx-auto mb-12 font-medium leading-relaxed">
-                Réservez votre créneau dès maintenant. Nos maîtres barbiers vous attendent pour une expérience hors du commun.
-              </p>
-              <button className="px-14 py-6 bg-black text-white font-black uppercase tracking-[0.2em] text-sm hover:scale-105 hover:bg-[#D4AF37] transition-all duration-300 cursor-pointer shadow-xl">
-                Prendre Rendez-vous
-              </button>
-            </div>
-          </div>
-        </Reveal>
-      </section>
-
-      {/* ─── 9. FOOTER ─── */}
-      <footer className="bg-[#050505] pt-32 pb-12 border-t border-white/10">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16 mb-24">
-            <div>
-              <Link href="/" className="flex flex-col items-start gap-1 mb-8 cursor-pointer">
-                <span className="text-3xl font-black tracking-tighter uppercase text-white">
-                  ESSENTIAL<span className="text-[#D4AF37]">.</span>
-                </span>
-                <span className="text-[10px] tracking-[0.3em] uppercase text-zinc-600 font-bold">Barbershop</span>
-              </Link>
-              <p className="text-sm leading-relaxed mb-8 text-zinc-500 font-medium">
-                L'artisanat du grooming poussé à son paroxysme. L'adresse de référence pour les gentlemen exigeants.
-              </p>
-              <div className="flex gap-4">
-                <a href="#" className="w-12 h-12 bg-white/5 flex items-center justify-center hover:text-black hover:bg-white transition-colors cursor-pointer"><Camera className="w-5 h-5" /></a>
-                <a href="#" className="w-12 h-12 bg-white/5 flex items-center justify-center hover:text-black hover:bg-white transition-colors cursor-pointer"><Wind className="w-5 h-5" /></a>
+                          <div className="relative z-10 flex gap-6">
+                             <div className="flex-1 h-1 bg-white/5 overflow-hidden">
+                                <motion.div 
+                                   animate={isNeuralSyncActive ? { x: ["-100%", "100%"] } : {}}
+                                   transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+                                   className="w-1/2 h-full bg-cyan-700"
+                                />
+                             </div>
+                          </div>
+                       </div>
+                    </Reveal>
+                 </div>
               </div>
-            </div>
+           </div>
+        </section>
 
-            <div>
-              <h4 className="text-white font-black uppercase tracking-[0.2em] text-sm mb-8">Navigation</h4>
-              <ul className="space-y-4">
-                <li><a href="#" className="text-zinc-500 hover:text-white font-bold uppercase tracking-widest text-xs transition-colors cursor-pointer">Le Salon</a></li>
-                <li><a href="#" className="text-zinc-500 hover:text-white font-bold uppercase tracking-widest text-xs transition-colors cursor-pointer">Nos Services</a></li>
-                <li><a href="#" className="text-zinc-500 hover:text-white font-bold uppercase tracking-widest text-xs transition-colors cursor-pointer">L'Équipe</a></li>
-                <li><a href="#" className="text-zinc-500 hover:text-white font-bold uppercase tracking-widest text-xs transition-colors cursor-pointer">Réserver</a></li>
-              </ul>
-            </div>
+        {/* ==========================================
+            4. NEURO STORY (TECH STORYTELLING)
+            ========================================== */}
+        <section className="py-60 bg-[#020508] relative overflow-hidden border-t border-white/5">
+           <div className="max-w-[1400px] mx-auto px-8 md:px-24">
+              <div className="grid lg:grid-cols-2 gap-40 items-center">
+                 <div className="relative aspect-[3/4] overflow-hidden group border border-white/5 shadow-2xl">
+                    <Image 
+                       src="https://images.unsplash.com/photo-1559757175-5700dde675bc?q=80&w=1200&auto=format&fit=crop" 
+                       alt="Neural Mesh Infrastructure" 
+                       fill 
+                       className="object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-[2000ms]"
+                    />
+                    <div className="absolute inset-0 bg-cyan-900/10 mix-blend-color group-hover:opacity-0 transition-opacity" />
+                    <div className="absolute inset-0 p-20 flex flex-col justify-end bg-gradient-to-t from-black via-black/40 to-transparent">
+                       <div className="text-white">
+                          <span className="text-[11px] font-black uppercase tracking-[0.6em] text-cyan-400 mb-8 block italic underline underline-offset-8 decoration-cyan-400/20">Atelier // Bio // Unit</span>
+                          <h4 className="text-6xl font-black tracking-tighter uppercase italic mb-12 mix-blend-difference text-white">Neural <br/> Fabric.</h4>
+                          <button className="flex items-center gap-6 text-[11px] font-black uppercase tracking-[0.4em] border-b border-white/20 pb-4 hover:border-cyan-400 transition-all group">
+                             Decode Protocols <ExternalLink className="w-5 h-5 group-hover:translate-x-2 group-hover:-translate-y-2 transition-transform" />
+                          </button>
+                       </div>
+                    </div>
+                 </div>
 
-            <div>
-              <h4 className="text-white font-black uppercase tracking-[0.2em] text-sm mb-8">Horaires</h4>
-              <ul className="space-y-4 text-sm font-medium text-zinc-500">
-                <li className="flex justify-between">
-                  <span>Lundi - Vendredi</span>
-                  <span className="text-white">09:00 - 20:00</span>
-                </li>
-                <li className="flex justify-between">
-                  <span>Samedi</span>
-                  <span className="text-white">09:00 - 19:00</span>
-                </li>
-                <li className="flex justify-between text-[#D4AF37]">
-                  <span>Dimanche</span>
-                  <span>Fermé</span>
-                </li>
-              </ul>
-            </div>
+                 <div>
+                    <Reveal>
+                       <div className="mb-24 text-left">
+                          <span className="text-[10px] font-black uppercase tracking-[0.5em] text-cyan-500 mb-8 block italic">Chapitre III // Decodage</span>
+                          <h2 className="text-7xl md:text-[10vw] font-black tracking-tighter uppercase text-white italic leading-none text-white">Pure_Link.</h2>
+                       </div>
+                       <p className="text-2xl font-light text-white/20 leading-relaxed italic mb-20 uppercase tracking-[0.2em]">
+                          Le cerveau est le processeur ultime. Nous utilisons des micro-filaments de carbone pour écouter chaque conversation synaptique, offrant une clarté absolue entre la pensée et l'action.
+                       </p>
+                       <div className="space-y-20">
+                          {[
+                            { t: "Signal Acquisition", d: "Capture des potentiels d'action (spikes) via des réseaux d'électrodes ultra-denses à faible bruit." },
+                            { t: "Neural Decoding", d: "Traduction des motifs neuronaux en commandes numériques via des modèles de deep-learning entraînés en temps réel." },
+                            { t: "Haptic Feedback", d: "Envoi d'informations sensorielles au cerveau par micro-stimulation électrique des zones corticales dédiées." }
+                          ].map((step, i) => (
+                            <div key={i} className="group flex gap-12 border-b border-white/5 pb-16 hover:border-cyan-400/20 transition-all cursor-default">
+                               <div className="text-6xl font-black text-white/5 group-hover:text-cyan-400/20 transition-colors italic leading-none">0{i+1}</div>
+                               <div>
+                                  <h5 className="text-3xl font-black uppercase tracking-tight text-white mb-6 italic group-hover:translate-x-4 transition-transform text-white">{step.t}</h5>
+                                  <p className="text-[12px] text-white/20 uppercase tracking-[0.3em] font-bold leading-loose italic">{step.d}</p>
+                               </div>
+                            </div>
+                          ))}
+                       </div>
+                    </Reveal>
+                 </div>
+              </div>
+           </div>
+        </section>
 
-            <div>
-              <h4 className="text-white font-black uppercase tracking-[0.2em] text-sm mb-8">Contact</h4>
-              <ul className="space-y-5">
-                <li className="flex items-start gap-4 text-sm text-zinc-400 font-medium">
-                  <MapPin className="w-5 h-5 text-white shrink-0" />
-                  <span>14 Rue de la Paix<br/>75002 Paris<br/>France</span>
-                </li>
-                <li className="flex items-center gap-4 text-sm text-zinc-400 font-medium">
-                  <Phone className="w-5 h-5 text-white" /> +33 (0)1 42 00 00 00
-                </li>
-                <li className="flex items-center gap-4 text-sm text-zinc-400 font-medium">
-                  <Mail className="w-5 h-5 text-white" /> hello@essential-barber.com
-                </li>
-              </ul>
-            </div>
+        {/* MEGA FOOTER */}
+        <footer className="bg-black pt-60 pb-12 px-8 md:px-24 relative z-50">
+           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-32 mb-60 text-white">
+              <div className="lg:col-span-2">
+                 <div className="flex items-center gap-6 mb-16">
+                    <div className="w-16 h-16 bg-cyan-800 flex items-center justify-center">
+                      <Brain className="w-10 h-10 text-white" />
+                    </div>
+                    <span className="text-4xl font-black uppercase tracking-tighter italic">NEURAL<span className="text-white/20">MESH.</span></span>
+                 </div>
+                 <p className="text-white/20 text-[11px] font-black uppercase tracking-[0.5em] leading-loose max-w-sm mb-20 italic">
+                    "L'avenir de l'esprit est connecté." — Archive Mesh V.42
+                 </p>
+                 <div className="flex gap-16">
+                    {["DecodingLog", "InterfaceRegistry", "GitHub", "X_Protocol"].map(s => (
+                      <Link key={s} href="#" className="text-[11px] font-black uppercase tracking-widest text-white/20 hover:text-cyan-400 transition-colors italic underline underline-offset-8 decoration-white/5">{s}</Link>
+                    ))}
+                 </div>
+              </div>
+
+              {[
+                { t: "INTERFACES", l: ["Cortex-Link v4", "Optic-Forge X", "Memory-Grid v5", "Haptic Bus"] },
+                { t: "TECHNOLOGY", l: ["Signal Processing", "Neural Mapping", "AI Decoding", "SLA Reports"] },
+                { t: "ATELIER", l: ["Our Legacy", "Neuroethics", "Locations", "Support"] }
+              ].map((col, i) => (
+                <div key={i} className="flex flex-col gap-12">
+                  <h4 className="text-[11px] font-black text-cyan-400 uppercase tracking-[0.6em] italic">{col.t}</h4>
+                  <ul className="flex flex-col gap-8">
+                    {col.l.map(link => (
+                      <li key={link} className="text-[11px] font-bold text-white/20 hover:text-white transition-colors cursor-pointer uppercase tracking-[0.4em] italic">{link}</li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+           </div>
+
+           <div className="max-w-[1600px] mx-auto border-t border-white/5 pt-16 flex flex-col md:flex-row justify-between items-center gap-16 text-[10px] font-black text-white/10 uppercase tracking-[0.6em] italic">
+              <span>© 2026 NEURAL MESH BIO-ELECTRONICS AG. // ALL_RIGHTS_RESERVED</span>
+              <div className="flex gap-16">
+                 <span>STATUS: OPERATIONAL</span>
+                 <span>LATENCY: 1.2MS (AVG)</span>
+                 <span>v4.12.0-STABLE</span>
+              </div>
+           </div>
+        </footer>
+      </main>
+    </div>
+  )
+}
+
+/* ==========================================
+   TECHNICAL SUB-COMPONENTS
+   ========================================== */
+
+function HUD_Overlay({ isNeuralSyncActive }: { isNeuralSyncActive: boolean }) {
+  return (
+    <div className="fixed inset-0 pointer-events-none z-[100]">
+       {/* Corner Brackets */}
+       <div className={`absolute top-12 left-12 w-20 h-20 border-t-2 border-l-2 transition-colors duration-1000 ${isNeuralSyncActive ? "border-cyan-400" : "border-white/10"}`} />
+       <div className={`absolute top-12 right-12 w-20 h-20 border-t-2 border-r-2 transition-colors duration-1000 ${isNeuralSyncActive ? "border-cyan-400" : "border-white/10"}`} />
+       <div className={`absolute bottom-12 left-12 w-20 h-20 border-b-2 border-l-2 transition-colors duration-1000 ${isNeuralSyncActive ? "border-cyan-400" : "border-white/10"}`} />
+       <div className={`absolute bottom-12 right-12 w-20 h-20 border-b-2 border-r-2 transition-colors duration-1000 ${isNeuralSyncActive ? "border-cyan-400" : "border-white/10"}`} />
+
+       {/* Top Status Bar */}
+       <div className="absolute top-12 left-1/2 -translate-x-1/2 flex items-center gap-20 bg-black/60 backdrop-blur-2xl px-12 py-4 border border-white/10 rounded-none">
+          <div className="flex items-center gap-6 text-white">
+             <div className={`w-3 h-3 transition-colors duration-500 ${isNeuralSyncActive ? "bg-cyan-400 animate-pulse" : "bg-red-500 animate-ping"}`} />
+             <span className="text-[10px] font-black uppercase tracking-[0.4em] italic leading-none">Neuro_Sync: {isNeuralSyncActive ? "NOMINAL" : "SYNC_LOSS"} // Status: ACTIVE</span>
           </div>
-
-          <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-6 text-[10px] font-black uppercase tracking-[0.2em] text-zinc-600">
-            <p>&copy; 2026 ESSENTIAL BARBERSHOP. TOUS DROITS RÉSERVÉS.</p>
-            <div className="flex gap-8">
-              <a href="#" className="hover:text-white transition-colors cursor-pointer">Mentions Légales</a>
-              <a href="#" className="hover:text-white transition-colors cursor-pointer">Confidentialité</a>
-            </div>
+          <div className="h-4 w-px bg-white/20" />
+          <div className="flex items-center gap-6 text-white/20">
+             <Wifi className="w-4 h-4" /> 
+             <span className="text-[10px] font-black uppercase tracking-[0.4em] italic leading-none">Neuro_Grid: SECURE</span>
           </div>
-        </div>
-      </footer>
+       </div>
 
+       {/* Right Rotation Info */}
+       <div className="absolute right-12 top-1/2 -translate-y-1/2 rotate-90 origin-right hidden lg:block">
+          <span className="text-[10px] font-black uppercase tracking-[0.8em] text-white/5 italic">Unauthorized_Duplication_Of_Neural_Patterns_Is_Strictly_Monitored_By_Global_Mesh_Alliance</span>
+       </div>
     </div>
   )
 }

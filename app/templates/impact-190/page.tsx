@@ -1,647 +1,526 @@
 "use client"
 
-import { motion, useScroll, useTransform, useInView, AnimatePresence } from "framer-motion"
-import { useState, useRef, useEffect } from "react"
+import React, { useState, useEffect, useRef } from "react"
+import { 
+  motion, 
+  AnimatePresence, 
+  useScroll, 
+  useTransform, 
+  useInView, 
+  useSpring 
+} from "framer-motion"
 import Image from "next/image"
 import Link from "next/link"
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
-import { Badge } from "@/components/ui/badge"
-import { Card, CardContent } from "@/components/ui/card"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel"
-import { Play, Menu, ArrowRight, Star, ChevronRight, CheckCircle2, Gamepad2, Cpu, Trophy, Terminal, Shield, Crosshair, Users, Globe2, ShoppingCart } from "lucide-react"
+import { 
+  Zap, Activity, Microscope, 
+  Target, Layers, Box, Hexagon, 
+  Terminal, Settings, Power, Info, 
+  AlertTriangle, ChevronRight, ArrowRight, 
+  Share2, Maximize2, Download, ExternalLink, 
+  Archive, Hash, Wifi, BarChart3, 
+  Fingerprint, Scan, Brain, Server, 
+  ShieldCheck, ShieldAlert, Award, 
+  Briefcase, Wind, Thermometer, 
+  Flame, Battery, Radio, Gauge, 
+  Timer, Lightbulb, Command, Grid, 
+  Radar, Orbit, Atom, Satellite, 
+  Milestone, FlaskConical, FlaskRound, 
+  Ghost, Binary, Database, Search, 
+  Cpu, HeartPulse, Sun, Magnet, 
+  CircleDot, Waves, Pickaxe, Mountain, 
+  Gem, Rocket, Drill, PlaneTakeoff, 
+  Snowflake, Ship, Map, CloudSnow, 
+  Compass, ThermometerSnowflake, 
+  WavesIcon, Anchor, WindIcon
+} from "lucide-react"
 
-// ─── REVEAL COMPONENT ────────────────────────────────────────────────────────
-function Reveal({ children, delay = 0, className = "" }: { children: React.ReactNode; delay?: number, className?: string }) {
+/* ==========================================================================
+   THE ARCTIC HUB DATASET (ULTRA DENSITY)
+   ========================================================================== */
+
+const BOREAL_ASSETS = [
+  {
+    id: "bor-ice-42",
+    name: "Icebreaker v4 North",
+    type: "Nuclear-Powered Vessel",
+    temp: "-42°C",
+    thickness: "3.2m Ice",
+    integrity: "99.8%",
+    desc: "Brise-glace nucléaire de nouvelle génération capable d'ouvrir des routes commerciales permanentes à travers le passage du Nord-Est.",
+    status: "Active Route"
+  },
+  {
+    id: "bor-sta-08",
+    name: "Perma-Station Alpha",
+    type: "Autonomous Weather Hub",
+    temp: "-58°C",
+    thickness: "150m Permafrost",
+    integrity: "99.99%",
+    desc: "Station de surveillance automatisée analysant la stabilité du permafrost et les émissions de gaz à effet de serre en temps réel.",
+    status: "Syncing"
+  },
+  {
+    id: "bor-cry-15",
+    name: "Cryo-Storage v5",
+    type: "Passive Cold Vault",
+    temp: "-18°C",
+    thickness: "80m Ice Core",
+    integrity: "100%",
+    desc: "Installation de stockage de données et de semences utilisant le froid naturel de l'Arctique pour une préservation millénaire.",
+    status: "Locked"
+  }
+]
+
+const CRYOSPHERE_METRICS = [
+  { label: "Albedo Index", value: "0.82", trend: "Stable" },
+  { label: "Ice Thickness", value: "2.8m", trend: "Decreasing" },
+  { label: "Methane Levels", value: "1.8 ppm", trend: "Controlled" },
+  { label: "Sea Level", value: "+2.4mm", trend: "Rising" }
+]
+
+const POLAR_LOGS = [
+  { timestamp: "17:14:42", unit: "Ice-Radar-01", status: "NOMINAL", range: "42km" },
+  { timestamp: "17:14:45", unit: "Thermal-Probe", status: "STABLE", depth: "12m" },
+  { timestamp: "17:14:48", unit: "Wind-Sensor", status: "ALERT", speed: "110km/h" }
+]
+
+/* ==========================================
+   TECHNICAL COMPONENTS
+   ========================================== */
+
+function Reveal({ children, delay = 0, y = 40, x = 0 }: { children: React.ReactNode, delay?: number, y?: number, x?: number }) {
   const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, margin: "-80px" })
+  const isInView = useInView(ref, { once: true, margin: "-100px" })
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, y: 32 }}
-      animate={isInView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.5, delay, ease: [0.22, 1, 0.36, 1] }}
-      className={className}
+      initial={{ opacity: 0, y, x }}
+      animate={isInView ? { opacity: 1, y: 0, x: 0 } : {}}
+      transition={{ duration: 1.2, delay, ease: [0.16, 1, 0.3, 1] }}
     >
       {children}
     </motion.div>
   )
 }
 
-// ─── DATA ────────────────────────────────────────────────────────────────────
-const NAV_LINKS = [
-  { label: "Games", href: "#games" },
-  { label: "Engine", href: "#engine" },
-  { label: "Esports", href: "#esports" },
-  { label: "Store", href: "#store" },
-]
-
-const STATS = [
-  { value: "120", label: "Concurrent Players", suffix: "M" },
-  { value: "4.8", label: "Prize Pool", suffix: "$M" },
-  { value: "5", label: "AAA Titles", suffix: "" },
-  { value: "12", label: "Global Server Regions", suffix: "" },
-  { value: "10", label: "Years Active", suffix: "+" },
-]
-
-const FEATURES = [
-  {
-    id: "games",
-    title: "The Multiverse",
-    icon: <Gamepad2 className="w-5 h-5" />,
-    description: "Immersive AAA experiences built on proprietary technology. From hyper-realistic tactical shooters to massive open-world RPGs with persistent economies.",
-    bullets: [
-      "Cyber-Strike: Global Offensive",
-      "Neon Horizon RPG",
-      "Cross-platform progression",
-      "Blockchain-verified assets"
-    ],
-    image: "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800&q=80"
-  },
-  {
-    id: "engine",
-    title: "Void Engine 5",
-    icon: <Cpu className="w-5 h-5" />,
-    description: "Our proprietary game engine capable of rendering 10 million polygons per frame with real-time ray tracing and advanced physics simulation.",
-    bullets: [
-      "Real-time global illumination",
-      "Destructible environments",
-      "AI-driven NPC behaviors",
-      "Seamless loading architecture"
-    ],
-    image: "https://images.unsplash.com/photo-1552820728-8b83bb6b773f?w=800&q=80"
-  },
-  {
-    id: "esports",
-    title: "Pro Circuit",
-    icon: <Trophy className="w-5 h-5" />,
-    description: "The most competitive tier-1 esports ecosystem in the world. Franchised leagues spanning NA, EMEA, and APAC with multi-million dollar prize pools.",
-    bullets: [
-      "Franchised global leagues",
-      "In-game tournament integration",
-      "128-tick tournament servers",
-      "Official coaching analytics"
-    ],
-    image: "https://images.unsplash.com/photo-1542751110-97427bbecf20?w=800&q=80"
-  }
-]
-
-const TESTIMONIALS = [
-  {
-    name: "IGN",
-    role: "Editor's Choice 2026",
-    avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&q=80",
-    content: "Nexus Gaming hasn't just released another shooter; they've completely redefined the tactical FPS genre. The Void Engine makes every firefight feel terrifyingly real.",
-    rating: 5
-  },
-  {
-    name: "Tenz",
-    role: "Pro Player, Sentinels",
-    avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&q=80",
-    content: "The hit registration is the best I've ever seen. The 128-tick servers combined with their custom netcode means that if you miss, it's actually your fault.",
-    rating: 5
-  },
-  {
-    name: "Polygon",
-    role: "Tech Review",
-    avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&q=80",
-    content: "The neon-drenched environments of Cyber-Strike showcase exactly what next-gen hardware is capable of. It's a visual masterpiece of cyberpunk design.",
-    rating: 5
-  },
-  {
-    name: "Alex_FPS",
-    role: "Twitch Streamer",
-    avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&q=80",
-    content: "The anti-cheat is actually intrusive enough to work. I haven't seen a single spin-botter in Radiant rank since the game launched. It's refreshing.",
-    rating: 5
-  }
-]
-
-const PRICING = [
-  {
-    id: "standard",
-    title: "Base Game",
-    subtitle: "Free to Play",
-    price: "$0",
-    duration: "Forever",
-    description: "Full access to all unranked and competitive game modes, 10 base agents, and all maps.",
-    features: [
-      "Access to all 12 core maps",
-      "10 starting agents unlocked",
-      "Unranked & Competitive modes",
-      "Standard anti-cheat client"
-    ],
-    recommended: false
-  },
-  {
-    id: "battlepass",
-    title: "Premium Battle Pass",
-    subtitle: "Season 04: Neon Shadows",
-    price: "$10",
-    duration: "Per Season",
-    description: "Unlock exclusive weapon skins, player cards, and Radianite points by playing the game.",
-    features: [
-      "50 tiers of exclusive rewards",
-      "Glitch-FX Vandal Skin",
-      "30% XP Boost all season",
-      "Enough premium currency for next pass"
-    ],
-    recommended: true
-  },
-  {
-    id: "bundle",
-    title: "Champion's Bundle",
-    subtitle: "Esports Supporter Edition",
-    price: "$60",
-    duration: "One-time",
-    description: "Limited edition cosmetics. 50% of proceeds go directly to the VCT Champions prize pool.",
-    features: [
-      "Champions Aura Knife",
-      "Reactive Phantom Skin",
-      "Exclusive player title & card",
-      "Supports pro players directly"
-    ],
-    recommended: false
-  }
-]
-
-const FAQS = [
-  {
-    question: "Is the game pay-to-win?",
-    answer: "Absolutely not. Nexus Gaming strictly enforces a cosmetics-only monetization model. No weapon skins or battle pass items provide any in-game statistical advantage."
-  },
-  {
-    question: "What are the minimum system requirements?",
-    answer: "To run the game at 60fps (1080p), you need at least an Intel Core i3-4150, 4GB RAM, and a GTX 730. For the competitive 144Hz experience, we recommend an i5-9400F and a GTX 1050 Ti."
-  },
-  {
-    question: "How does the Vanguard anti-cheat work?",
-    answer: "Our proprietary kernel-level anti-cheat loads at boot to prevent cheat software from hiding its execution. It is highly optimized and uses machine learning to detect anomalous aiming patterns."
-  },
-  {
-    question: "Is cross-play supported?",
-    answer: "Yes, console players (PS5/Xbox) can play together. However, to maintain competitive integrity, PC players are kept in a separate matchmaking pool unless a console player queues specifically with a PC friend."
-  },
-  {
-    question: "How often do you release new agents?",
-    answer: "We aim for a balanced meta by releasing one new agent every episode (approximately every 6 months). This gives the competitive scene time to adapt to new utility."
-  },
-  {
-    question: "Can I host my own custom tournaments?",
-    answer: "Yes! The in-game tournament client allows anyone to organize brackets, set custom rules, and stream directly using our spectator client API."
-  },
-  {
-    question: "What happens if I disconnect during a ranked match?",
-    answer: "You have 3 minutes to reconnect before receiving an AFK penalty. Your team will receive a slight economy boost and ultimate orb to compensate for your absence."
-  },
-  {
-    question: "Do you offer a bug bounty program?",
-    answer: "Yes, we pay up to $100,000 for verified exploits found in our Vanguard anti-cheat, and up to $10,000 for game-breaking bugs reported through our HackerOne portal."
-  },
-  {
-    question: "How do I report toxic players?",
-    answer: "We take player behavior very seriously. Use the in-game scoreboard to report players for voice or text toxicity. Our automated system analyzes logs and applies voice bans or hardware bans for repeat offenders."
-  },
-  {
-    question: "Can I play on MacOS or Linux?",
-    answer: "Currently, our Vanguard anti-cheat only supports Windows 10/11 due to its kernel-level requirements. We are exploring cloud-gaming partnerships to bring the game to MacOS users in the future."
-  }
-]
-
-// ─── MAIN COMPONENT ────────────────────────────────────────────────────────
-export default function NexusGamingTemplate() {
-  const containerRef = useRef<HTMLDivElement>(null)
-  const { scrollYProgress } = useScroll({ target: containerRef })
-  
-  // Parallax Values
-  const heroY = useTransform(scrollYProgress, [0, 1], ["0%", "40%"])
-  const textY = useTransform(scrollYProgress, [0, 1], ["0%", "15%"])
+function FrostFlowVisualizer() {
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
+  useEffect(() => {
+    const handleMouse = (e: MouseEvent) => setMousePos({ x: e.clientX, y: e.clientY })
+    window.addEventListener("mousemove", handleMouse)
+    return () => window.removeEventListener("mousemove", handleMouse)
+  }, [])
 
   return (
-    <div ref={containerRef} className="min-h-screen bg-[#050505] text-[#E0E0E0] font-sans selection:bg-[#00FF41] selection:text-[#050505]" style={{ overflowX: "hidden", scrollBehavior: "smooth" }}>
+    <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden opacity-10">
+       <svg width="100%" height="100%" className="w-full h-full">
+          {[...Array(20)].map((_, i) => (
+            <motion.path 
+               key={i}
+               d={`M ${Math.random() * 2000} 0 L ${Math.random() * 2000} 1000`}
+               stroke="#7dd3fc" 
+               strokeWidth="0.5" 
+               fill="none"
+               animate={{ d: `M ${mousePos.x + (i * 20)} 0 L ${mousePos.x - (i * 20)} 1000` }}
+               transition={{ type: "spring", damping: 30, stiffness: 50 }}
+            />
+          ))}
+          {[...Array(40)].map((_, i) => (
+            <motion.circle 
+               key={`snow-${i}`}
+               r="1.5"
+               fill="#ffffff"
+               initial={{ opacity: 0 }}
+               animate={{ 
+                  cx: [Math.random() * 2000, Math.random() * 2000],
+                  cy: [0, 1000],
+                  opacity: [0, 0.5, 0]
+               }}
+               transition={{ duration: 5 + Math.random() * 5, repeat: Infinity, delay: Math.random() * 10 }}
+            />
+          ))}
+       </svg>
+    </div>
+  )
+}
+
+function ArcticHubModel({ progress }: { progress: any }) {
+  const rotate = useTransform(progress, [0, 1], [0, 360])
+  const scale = useTransform(progress, [0, 0.5, 1], [1, 1.2, 1])
+
+  return (
+    <motion.div style={{ rotate, scale }} className="relative w-80 h-80 flex items-center justify-center">
+       <div className="absolute inset-0 border border-sky-500/10 rounded-full animate-spin-slow shadow-[0_0_80px_rgba(125,211,252,0.05)]" />
+       <Snowflake className="w-40 h-40 text-sky-500/10 animate-pulse" />
+       <div className="absolute inset-8 border border-sky-500/5 rounded-full" />
+    </motion.div>
+  )
+}
+
+/* ==========================================
+   THE ARCTIC HUB - MAIN INTERFACE
+   ========================================== */
+
+export default function ArcticHubPremium() {
+  const [activeAsset, setActiveAsset] = useState(0)
+  const [isStormAlertActive, setIsStormAlertActive] = useState(false)
+  const containerRef = useRef(null)
+  const { scrollYProgress } = useScroll({ target: containerRef })
+
+  // Arctic Scroll Effects
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.2], [1, 0])
+  const textX = useTransform(scrollYProgress, [0, 0.5], [0, -100])
+
+  return (
+    <div ref={containerRef} className="bg-[#020617] text-[#e0e8ed] font-mono selection:bg-sky-500/30 selection:text-white min-h-screen overflow-x-hidden transition-colors duration-1000">
       
-      {/* ─── 1. NAVBAR (CYBERPUNK GLITCH) ─── */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-[#050505]/80 backdrop-blur-md border-b border-[#00FF41]/20 transition-all duration-300">
-        <div className="max-w-[1600px] mx-auto px-6 h-20 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2 group cursor-pointer relative">
-            <div className="absolute -inset-2 bg-[#00FF41] opacity-0 group-hover:opacity-20 blur-lg transition-opacity duration-300" />
-            <Terminal className="w-6 h-6 text-[#00FF41]" />
-            <span className="text-2xl font-black tracking-tighter uppercase text-white">
-              NEXUS<span className="text-[#00FF41]">_</span>
-            </span>
-          </Link>
+      {/* GLOBAL HUD OVERLAY */}
+      <HUD_Overlay isStormAlertActive={isStormAlertActive} />
 
-          {/* Desktop Nav */}
-          <div className="hidden md:flex items-center gap-8">
-            {NAV_LINKS.map((link) => (
-              <Link 
-                key={link.label} 
-                href={link.href} 
-                className="text-xs font-bold tracking-widest uppercase text-zinc-400 hover:text-[#00FF41] transition-colors duration-200 cursor-pointer relative group"
-              >
-                {link.label}
-                <span className="absolute -bottom-2 left-0 w-full h-[2px] bg-[#00FF41] scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300" />
-              </Link>
-            ))}
-          </div>
+      <main>
+        {/* ==========================================
+            1. BOREAL IGNITION (HERO)
+            ========================================== */}
+        <section className="relative h-screen flex flex-col justify-center items-center px-8 md:px-24 overflow-hidden pt-20">
+          <FrostFlowVisualizer />
+          <motion.div style={{ opacity: heroOpacity }} className="absolute z-0 pointer-events-none flex items-center justify-center">
+             <ArcticHubModel progress={scrollYProgress} />
+          </motion.div>
 
-          <div className="hidden md:flex items-center gap-6">
-            <button className="text-xs font-bold tracking-widest uppercase text-white hover:text-[#00FF41] transition-colors cursor-pointer">
-              Sign In
-            </button>
-            <button className="px-6 py-2.5 bg-[#00FF41] text-[#050505] text-xs font-black tracking-widest uppercase hover:bg-white transition-colors duration-300 shadow-[0_0_15px_rgba(0,255,65,0.3)] hover:shadow-[0_0_25px_rgba(0,255,65,0.6)] cursor-pointer clip-path-slant">
-              Play Now
-            </button>
-          </div>
-
-          {/* Mobile Nav */}
-          <Sheet>
-            <SheetTrigger asChild>
-              <button className="md:hidden p-2 text-[#00FF41] cursor-pointer">
-                <Menu className="w-6 h-6" />
-              </button>
-            </SheetTrigger>
-            <SheetContent side="right" className="bg-[#050505] border-l border-[#00FF41]/20 text-[#E0E0E0] w-full sm:w-[400px]">
-              <div className="flex flex-col gap-8 mt-12">
-                <span className="text-3xl font-black tracking-tighter uppercase text-white mb-8 border-b border-[#00FF41]/20 pb-4">
-                  NEXUS<span className="text-[#00FF41]">_</span>
-                </span>
-                {NAV_LINKS.map((link) => (
-                  <Link 
-                    key={link.label} 
-                    href={link.href} 
-                    className="text-xl font-bold tracking-widest uppercase text-zinc-300 hover:text-[#00FF41] transition-colors cursor-pointer"
-                  >
-                    {link.label}
-                  </Link>
-                ))}
-                <div className="mt-8">
-                  <button className="w-full py-4 bg-[#00FF41] text-[#050505] text-sm font-black tracking-widest uppercase cursor-pointer clip-path-slant">
-                    Download Client
-                  </button>
+          <div className="relative z-10 text-center max-w-7xl">
+             <Reveal>
+                <div className="inline-flex items-center gap-4 px-6 py-2 border border-sky-500/30 bg-sky-500/5 text-[10px] font-black uppercase tracking-[0.5em] text-sky-500 mb-12 italic">
+                   <Snowflake className="w-4 h-4" /> Hub_Sync: NOMINAL // Temp: -42°C
                 </div>
+                <motion.h1 style={{ x: textX }} className="text-7xl md:text-[14vw] font-black tracking-tighter uppercase mb-16 leading-[0.75] italic">
+                   Arctic <br/> <span className="text-white/5 italic">Hub.</span>
+                </motion.h1>
+                <p className="max-w-3xl mx-auto text-sm md:text-lg text-white/30 leading-relaxed uppercase tracking-widest font-light mb-16 italic">
+                   La logistique du froid extrême. Nous sécurisons les nouvelles routes maritimes du Nord et surveillons la cryosphère pour garantir une navigation sûre et une préservation environnementale totale.
+                </p>
+                
+                <div className="flex flex-col sm:flex-row gap-8 justify-center items-center">
+                   <button className="px-12 py-6 bg-sky-800 text-white text-[10px] font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all shadow-[0_0_40px_rgba(125,211,252,0.2)] flex items-center gap-4 italic">
+                      <Ship className="w-5 h-5" /> Initialize Route
+                   </button>
+                   <button className="px-12 py-6 border border-white/10 text-white text-[10px] font-black uppercase tracking-widest hover:bg-white/5 transition-all flex items-center gap-4 italic">
+                      <Database className="w-5 h-5" /> Boreal Registry
+                   </button>
+                </div>
+             </Reveal>
+          </div>
+
+          <div className="absolute bottom-12 left-12 right-12 flex justify-between items-end border-t border-white/5 pt-12">
+             <div className="flex flex-col gap-6">
+                <div className="flex items-center gap-4 text-[9px] font-bold text-white/20 uppercase tracking-widest italic">
+                   <div className="w-16 h-px bg-white/10" />
+                   Hub_ID: ARCTIC-HUB-01
+                </div>
+                <div className="flex items-center gap-4 text-[9px] font-bold text-white/20 uppercase tracking-widest italic">
+                   <div className="w-16 h-px bg-white/10" />
+                   Status: BOREAL_SYNC_ACTIVE
+                </div>
+             </div>
+             <div className="text-right flex flex-col items-end gap-4">
+                <span className="text-[8px] font-black uppercase tracking-[0.5em] text-sky-500">Cryosphere_Stability_Stream</span>
+                <div className="flex gap-2 h-12 items-end">
+                   {[...Array(16)].map((_, i) => (
+                     <motion.div 
+                        key={i}
+                        animate={{ height: ["10%", "100%", "30%", "80%", "10%"] }}
+                        transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.1 }}
+                        className="w-2 bg-sky-500/20"
+                     />
+                   ))}
+                </div>
+             </div>
+          </div>
+        </section>
+
+        {/* ==========================================
+            2. BOREAL REGISTRY (DENSE TECHNICAL)
+            ========================================== */}
+        <section className="py-60 bg-[#040c1c] relative border-y border-white/5 overflow-hidden">
+           <div className="max-w-[1600px] mx-auto px-8 md:px-24">
+              <div className="flex flex-col md:flex-row items-end justify-between mb-40 gap-12">
+                 <Reveal>
+                    <span className="text-[10px] font-black uppercase tracking-[0.6em] text-sky-500 block mb-6 italic underline underline-offset-8 decoration-sky-400/20">Arctic // Assets</span>
+                    <h2 className="text-6xl md:text-[10vw] font-black uppercase tracking-tighter italic leading-none text-white">Archives.</h2>
+                 </Reveal>
+                 <div className="text-right">
+                    <span className="text-[10px] font-black uppercase tracking-[0.5em] text-white/20 block mb-4 italic">Registry // Polar_Audit</span>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-sky-500">L'Architecture de la Logistique Boréale</p>
+                 </div>
               </div>
-            </SheetContent>
-          </Sheet>
-        </div>
-      </nav>
 
-      {/* ─── 2. HERO PARALLAX (NEON GRID & GLITCH) ─── */}
-      <section className="relative pt-20 h-[100vh] flex flex-col items-center justify-center overflow-hidden bg-[#050505]">
-        {/* Cyberpunk Grid Background */}
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#00FF4115_1px,transparent_1px),linear-gradient(to_bottom,#00FF4115_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] z-0" />
-        
-        <motion.div style={{ y: heroY }} className="absolute inset-0 z-0">
-          <Image 
-            src="https://images.unsplash.com/photo-1542751371-adc38448a05e?w=2000&q=80" 
-            alt="Cyberpunk Gaming Landscape" 
-            fill 
-            className="object-cover opacity-30 mix-blend-screen"
-            priority
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/50 to-transparent" />
-        </motion.div>
+              <div className="grid md:grid-cols-3 gap-px bg-white/5 border border-white/5 shadow-2xl">
+                 {BOREAL_ASSETS.map((asset, i) => (
+                   <Reveal key={asset.id} delay={i * 0.1}>
+                      <div className="bg-[#020617] p-20 flex flex-col h-full hover:bg-white/[0.02] transition-all group cursor-crosshair border-white/5 border-r last:border-r-0">
+                         <div className="flex justify-between items-start mb-16">
+                            <div className="w-16 h-16 bg-white/5 border border-white/10 flex items-center justify-center group-hover:bg-sky-800 group-hover:text-white transition-all duration-500">
+                               <Map className="w-8 h-8" />
+                            </div>
+                            <span className={`px-4 py-2 bg-white/5 text-[9px] font-black uppercase tracking-[0.3em] ${asset.status === "Active Route" ? "text-sky-500" : "text-white/40"}`}>{asset.status}</span>
+                         </div>
+                         
+                         <h3 className="text-4xl font-black uppercase tracking-tighter mb-8 italic text-white group-hover:translate-x-4 transition-transform">{asset.name}</h3>
+                         <div className="text-[10px] font-black text-white/20 uppercase tracking-[0.5em] mb-12">{asset.type}</div>
+                         
+                         <div className="space-y-8 mb-20 border-l border-sky-500/20 pl-8">
+                            <div className="flex justify-between items-center text-[11px] font-bold uppercase tracking-widest">
+                               <span className="text-white/20">Temperature</span>
+                               <span className="text-white group-hover:text-sky-400 transition-colors">{asset.temp}</span>
+                            </div>
+                            <div className="flex justify-between items-center text-[11px] font-bold uppercase tracking-widest">
+                               <span className="text-white/20">Ice/Perma Status</span>
+                               <span className="text-white group-hover:text-sky-400 transition-colors">{asset.thickness}</span>
+                            </div>
+                            <div className="flex justify-between items-center text-[11px] font-bold uppercase tracking-widest">
+                               <span className="text-white/20">Integrity</span>
+                               <span className="text-white group-hover:text-sky-400 transition-colors">{asset.integrity}</span>
+                            </div>
+                         </div>
 
-        <motion.div style={{ y: textY }} className="relative z-10 w-full px-6 flex flex-col items-center text-center">
-          <Reveal>
-            <Badge className="bg-[#00FF41]/10 text-[#00FF41] border border-[#00FF41]/30 mb-8 px-4 py-1.5 rounded-none font-mono text-xs uppercase tracking-widest">
-              &gt; EPISODE 4: NEON PROTOCOL IS LIVE
-            </Badge>
-          </Reveal>
-          
-          <Reveal delay={0.1}>
-            <h1 className="text-6xl md:text-8xl lg:text-9xl font-black tracking-tighter text-white mb-6 uppercase leading-[0.85] relative">
-              <span className="absolute -inset-1 bg-[#00FF41] blur-2xl opacity-20" />
-              DEFY THE <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00FF41] to-[#00A3FF]">
-                LIMITS.
-              </span>
-            </h1>
-          </Reveal>
+                         <p className="text-[12px] text-white/30 leading-loose uppercase tracking-[0.2em] font-bold italic mb-16">
+                            {asset.desc}
+                         </p>
 
-          <Reveal delay={0.2}>
-            <p className="text-sm md:text-lg text-zinc-400 font-mono max-w-2xl mx-auto mb-12 leading-relaxed">
-              A 5v5 character-based tactical shooter where precise gunplay meets unique agent abilities. Welcome to the future of competitive gaming.
-            </p>
-          </Reveal>
-
-          <Reveal delay={0.3} className="flex flex-col sm:flex-row gap-6">
-            <button className="px-10 py-5 bg-[#00FF41] text-[#050505] font-black uppercase tracking-[0.2em] text-sm hover:bg-white hover:scale-105 transition-all duration-300 cursor-pointer shadow-[0_0_20px_rgba(0,255,65,0.4)] clip-path-slant flex items-center justify-center gap-3">
-              Play For Free
-            </button>
-            <Dialog>
-              <DialogTrigger asChild>
-                <button className="px-10 py-5 bg-transparent border border-[#00FF41]/50 text-white font-bold uppercase tracking-[0.2em] text-sm hover:bg-[#00FF41]/10 transition-colors duration-300 cursor-pointer clip-path-slant flex items-center justify-center gap-3">
-                  <Play className="w-4 h-4 text-[#00FF41]" /> Watch Trailer
-                </button>
-              </DialogTrigger>
-              <DialogContent className="bg-[#050505] border-[#00FF41]/30 text-white sm:max-w-[1000px] p-0 rounded-none overflow-hidden">
-                <div className="aspect-video relative w-full bg-black flex items-center justify-center">
-                  <div className="w-16 h-16 border-t-2 border-[#00FF41] rounded-full animate-spin" />
-                </div>
-              </DialogContent>
-            </Dialog>
-          </Reveal>
-        </motion.div>
-      </section>
-
-      {/* ─── 3. STATS BAR (HOLOGRAPHIC) ─── */}
-      <section className="py-16 border-y border-[#00FF41]/20 bg-[#0A0A0A] relative z-10">
-        <div className="max-w-[1400px] mx-auto px-6">
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-8 md:gap-4">
-            {STATS.map((stat, i) => (
-              <Reveal key={i} delay={i * 0.1}>
-                <div className="flex flex-col items-center text-center p-4 border border-[#00FF41]/10 bg-[#050505] hover:border-[#00FF41]/50 transition-colors duration-300">
-                  <div className="text-4xl lg:text-5xl font-black text-white mb-2 tracking-tighter">
-                    {stat.value}<span className="text-[#00FF41]">{stat.suffix}</span>
-                  </div>
-                  <div className="text-[10px] text-zinc-500 font-mono font-bold uppercase tracking-widest">
-                    {stat.label}
-                  </div>
-                </div>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ─── 4. FEATURES (TABS) ─── */}
-      <section id="games" className="py-32 relative bg-[#050505] border-b border-[#00FF41]/10">
-        <div className="max-w-[1400px] mx-auto px-6 relative z-10">
-          <div className="flex flex-col md:flex-row justify-between items-end mb-20">
-            <Reveal className="max-w-2xl">
-              <h2 className="text-xs font-mono font-bold text-[#00FF41] mb-4 uppercase tracking-[0.3em]">System Architecture</h2>
-              <h3 className="text-5xl md:text-6xl font-black text-white uppercase tracking-tighter">The Ecosystem.</h3>
-            </Reveal>
-          </div>
-
-          <Tabs defaultValue="games" className="w-full flex flex-col lg:flex-row gap-12 lg:gap-16">
-            <div className="lg:w-1/3">
-              <TabsList className="flex flex-col h-auto bg-transparent gap-4 items-stretch">
-                {FEATURES.map((feature) => (
-                  <TabsTrigger 
-                    key={feature.id} 
-                    value={feature.id}
-                    className="justify-start px-6 py-6 text-left data-[state=active]:bg-[#00FF41]/10 data-[state=active]:text-white text-zinc-500 hover:text-white transition-all duration-300 cursor-pointer rounded-none border border-transparent data-[state=active]:border-[#00FF41]/50 clip-path-slant"
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className="text-[#00FF41]">{feature.icon}</div>
-                      <span className="text-sm font-black uppercase tracking-widest">{feature.title}</span>
-                    </div>
-                  </TabsTrigger>
-                ))}
-              </TabsList>
-            </div>
-
-            <div className="lg:w-2/3">
-              <AnimatePresence mode="wait">
-                {FEATURES.map((feature) => (
-                  <TabsContent key={feature.id} value={feature.id} className="mt-0 outline-none">
-                    <motion.div
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: -20 }}
-                      transition={{ duration: 0.4 }}
-                      className="border border-[#00FF41]/20 bg-[#0A0A0A] p-1 relative overflow-hidden"
-                    >
-                      <div className="absolute top-0 right-0 w-64 h-64 bg-[#00FF41] opacity-5 blur-[100px] pointer-events-none" />
-                      
-                      <div className="aspect-video relative w-full overflow-hidden border-b border-[#00FF41]/20">
-                        <Image src={feature.image} alt={feature.title} fill className="object-cover" />
-                        <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] to-transparent" />
+                         <div className="mt-auto pt-10 border-t border-white/5 flex justify-between items-center">
+                            <span className="text-[10px] font-black text-white/10 uppercase tracking-widest">Ref: {asset.id}</span>
+                            <button className="text-[10px] font-black uppercase text-white/40 flex items-center gap-4 group-hover:text-white transition-all">
+                               Technical_Specs <ChevronRight className="w-5 h-5" />
+                            </button>
+                         </div>
                       </div>
-                      
-                      <div className="p-8 md:p-12 relative z-10">
-                        <h4 className="text-3xl font-black text-white uppercase tracking-tighter mb-4">{feature.title}</h4>
-                        <p className="text-zinc-400 font-mono text-sm leading-relaxed mb-8">{feature.description}</p>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-6">
-                          {feature.bullets.map((bullet, i) => (
-                            <div key={i} className="flex items-center gap-3">
-                              <Crosshair className="w-4 h-4 text-[#00FF41]" />
-                              <span className="text-xs font-bold uppercase tracking-wider text-zinc-300">{bullet}</span>
+                   </Reveal>
+                 ))}
+              </div>
+           </div>
+        </section>
+
+        {/* ==========================================
+            3. CRYOSPHERE MONITOR (INTERACTIVE DATA)
+            ========================================== */}
+        <section className="py-60 bg-black relative border-y border-white/5 overflow-hidden">
+           <div className="max-w-[1400px] mx-auto px-8 md:px-24">
+              <div className="grid lg:grid-cols-2 gap-40 items-center">
+                 <div>
+                    <Reveal>
+                       <span className="text-[10px] font-black uppercase tracking-[0.5em] text-sky-500 block mb-12 italic underline underline-offset-8 decoration-sky-500/20">Cryo // Performance</span>
+                       <h2 className="text-7xl md:text-[9vw] font-light italic leading-none text-white mb-16 uppercase tracking-tighter">
+                          The <br/> <span className="not-italic font-black text-white/5 italic">Frost_Link.</span>
+                       </h2>
+                       <p className="text-2xl font-light text-white/20 leading-relaxed mb-24 italic uppercase tracking-[0.2em] max-w-xl">
+                          Surveillance de la cryosphère en temps réel. Nos capteurs polaires analysent l'albédo et l'épaisseur de la glace pour garantir une logistique sûre et une surveillance climatique totale.
+                       </p>
+                       <div className="grid grid-cols-2 gap-px bg-white/5 border border-white/5 mb-24 shadow-2xl">
+                          {CRYOSPHERE_METRICS.map((metric, i) => (
+                            <div key={i} className="p-16 bg-[#0a101c] group hover:bg-white/[0.02] transition-all border-r border-b last:border-r-0 border-white/5">
+                               <div className="text-[10px] font-black uppercase text-sky-500 mb-6 tracking-[0.4em]">{metric.label}</div>
+                               <div className="text-5xl font-black text-white italic mb-6 tracking-tighter group-hover:translate-x-4 transition-transform">{metric.value}</div>
+                               <div className="flex items-center gap-3 text-[9px] font-bold uppercase tracking-[0.3em] text-white/10 italic">
+                                  <Activity className="w-4 h-4 text-sky-500" /> {metric.trend}
+                               </div>
                             </div>
                           ))}
-                        </div>
-                      </div>
-                    </motion.div>
-                  </TabsContent>
-                ))}
-              </AnimatePresence>
-            </div>
-          </Tabs>
-        </div>
-      </section>
-
-      {/* ─── 5. TESTIMONIALS (TWITCH/PRESS) ─── */}
-      <section className="py-32 bg-[#0A0A0A] overflow-hidden relative">
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#00FF4105_1px,transparent_1px)] bg-[size:2rem_2rem]" />
-        <div className="max-w-[1400px] mx-auto px-6 relative z-10">
-          <Reveal>
-            <div className="mb-20 text-center">
-              <h2 className="text-xs font-mono font-bold text-[#00FF41] mb-4 uppercase tracking-[0.3em]">Comm-Link</h2>
-              <h3 className="text-5xl font-black text-white uppercase tracking-tighter">Transmission.</h3>
-            </div>
-          </Reveal>
-
-          <Carousel className="w-full max-w-6xl mx-auto">
-            <CarouselContent>
-              {TESTIMONIALS.map((testi, i) => (
-                <CarouselItem key={i} className="md:basis-1/2 lg:basis-1/2 pl-6">
-                  <Reveal delay={i * 0.1}>
-                    <Card className="bg-[#050505] border border-[#00FF41]/20 hover:border-[#00FF41] transition-colors duration-300 cursor-pointer h-full rounded-none group relative">
-                      <div className="absolute top-0 left-0 w-2 h-full bg-[#00FF41]/20 group-hover:bg-[#00FF41] transition-colors" />
-                      <CardContent className="p-10 flex flex-col h-full justify-between pl-12">
-                        <div>
-                          <div className="flex gap-1 mb-6">
-                            {[...Array(testi.rating)].map((_, j) => (
-                              <Star key={j} className="w-4 h-4 fill-[#00FF41] text-[#00FF41]" />
-                            ))}
+                       </div>
+                       <button 
+                         onClick={() => setIsStormAlertActive(!isStormAlertActive)}
+                         className="w-full py-8 bg-sky-950 text-white text-[11px] font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all shadow-2xl flex items-center justify-center gap-6 italic"
+                       >
+                          <Settings className="w-5 h-5" /> Re-Sync Polar Nodes
+                       </button>
+                    </Reveal>
+                 </div>
+                 
+                 <div className="relative">
+                    <Reveal delay={0.3} x={40}>
+                       <div className="aspect-square bg-[#0a101c] border border-white/10 p-20 flex flex-col justify-between relative group overflow-hidden shadow-2xl">
+                          <div className="absolute top-0 right-0 p-80 bg-sky-400 opacity-[0.02] blur-[150px] rounded-full group-hover:opacity-[0.05] transition-opacity" />
+                          
+                          <div className="flex justify-between items-start z-10">
+                             <div className="flex flex-col gap-3">
+                                <span className="text-[10px] font-black text-white/10 uppercase tracking-[0.5em]">Polar_Link // HUB-SYNC-v42</span>
+                                <span className="text-[12px] font-black text-white/40 uppercase tracking-[0.6em]">Cryosphere_Telemetry</span>
+                             </div>
+                             <Wifi className="w-6 h-6 text-sky-400" />
                           </div>
-                          <p className="text-zinc-300 font-mono text-sm leading-relaxed mb-8">
-                            "{testi.content}"
-                          </p>
-                        </div>
-                        <div className="flex items-center gap-4 pt-6 border-t border-[#00FF41]/10">
-                          <Avatar className="w-12 h-12 rounded-none border border-[#00FF41]/50">
-                            <AvatarImage src={testi.avatar} className="grayscale" />
-                            <AvatarFallback>NX</AvatarFallback>
-                          </Avatar>
-                          <div>
-                            <div className="text-white font-bold text-sm uppercase tracking-widest">{testi.name}</div>
-                            <div className="text-[#00FF41] text-[10px] font-mono mt-1 uppercase">{testi.role}</div>
+                          
+                          {/* HUB VISUALIZER (SVG) */}
+                          <div className="relative z-10 flex flex-col items-center justify-center h-full">
+                             <div className="w-64 h-64 border border-sky-400/5 rounded-full flex items-center justify-center relative">
+                                <motion.div 
+                                  animate={{ rotate: 360 }}
+                                  transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+                                  className="absolute inset-0 border-t-2 border-sky-400/20 rounded-full" 
+                                />
+                                <motion.div 
+                                  animate={{ rotate: -360 }}
+                                  transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+                                  className="absolute inset-8 border-b-2 border-sky-400/10 rounded-full" 
+                                />
+                                <WindIcon className={`w-24 h-24 transition-colors duration-1000 ${!isStormAlertActive ? "text-sky-400 animate-pulse" : "text-white/5"}`} />
+                             </div>
+                             <div className="mt-16 text-center space-y-6">
+                                <div className={`text-4xl font-black italic tracking-tighter ${!isStormAlertActive ? "text-white" : "text-white/20"}`}>
+                                   {!isStormAlertActive ? "STORM_NOMINAL" : "STORM_ALERT_DETECTED"}
+                                </div>
+                                <span className="text-[11px] font-bold text-white/10 uppercase tracking-[0.6em] block">Auth_Node: ARCTIC_UNIT_01</span>
+                             </div>
                           </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </Reveal>
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-            <div className="flex justify-center gap-4 mt-12">
-              <CarouselPrevious className="relative inset-auto translate-y-0 bg-[#050505] border-[#00FF41]/50 text-[#00FF41] hover:bg-[#00FF41] hover:text-black transition-colors rounded-none" />
-              <CarouselNext className="relative inset-auto translate-y-0 bg-[#050505] border-[#00FF41]/50 text-[#00FF41] hover:bg-[#00FF41] hover:text-black transition-colors rounded-none" />
-            </div>
-          </Carousel>
-        </div>
-      </section>
 
-      {/* ─── 6. PRICING (STORE) ─── */}
-      <section id="store" className="py-32 bg-[#050505] relative border-t border-[#00FF41]/10">
-        <div className="max-w-[1400px] mx-auto px-6 relative z-10">
-          <div className="text-center mb-24">
-            <Reveal>
-              <h2 className="text-xs font-mono font-bold text-[#00FF41] mb-4 uppercase tracking-[0.3em]">Armory</h2>
-              <h3 className="text-5xl md:text-6xl font-black text-white uppercase tracking-tighter">Loadouts.</h3>
-            </Reveal>
-          </div>
+                          <div className="relative z-10 flex gap-6">
+                             <div className="flex-1 h-1 bg-white/5 overflow-hidden">
+                                <motion.div 
+                                   animate={!isStormAlertActive ? { x: ["-100%", "100%"] } : {}}
+                                   transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+                                   className="w-1/2 h-full bg-sky-700"
+                                />
+                             </div>
+                          </div>
+                       </div>
+                    </Reveal>
+                 </div>
+              </div>
+           </div>
+        </section>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {PRICING.map((tier, i) => (
-              <Reveal key={i} delay={i * 0.1}>
-                <Card className={`relative bg-[#0A0A0A] border ${tier.recommended ? 'border-[#00FF41] shadow-[0_0_30px_rgba(0,255,65,0.15)] z-10 lg:scale-105' : 'border-[#00FF41]/20'} rounded-none transition-all duration-300 hover:border-[#00FF41]/50 clip-path-slant`}>
-                  {tier.recommended && (
-                    <div className="absolute top-0 inset-x-0 bg-[#00FF41] text-[#050505] text-[10px] font-black uppercase tracking-[0.3em] text-center py-2">
-                      Active Protocol
+        {/* ==========================================
+            4. ARCTIC STORY (TECH STORYTELLING)
+            ========================================== */}
+        <section className="py-60 bg-[#020617] relative overflow-hidden border-t border-white/5">
+           <div className="max-w-[1400px] mx-auto px-8 md:px-24">
+              <div className="grid lg:grid-cols-2 gap-40 items-center">
+                 <div className="relative aspect-[3/4] overflow-hidden group border border-white/5 shadow-2xl">
+                    <Image 
+                       src="https://images.unsplash.com/photo-1516715667182-441fb9f59692?q=80&w=1200&auto=format&fit=crop" 
+                       alt="Arctic Hub Infrastructure" 
+                       fill 
+                       className="object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-[2000ms]"
+                    />
+                    <div className="absolute inset-0 bg-sky-900/10 mix-blend-color group-hover:opacity-0 transition-opacity" />
+                    <div className="absolute inset-0 p-20 flex flex-col justify-end bg-gradient-to-t from-black via-black/40 to-transparent">
+                       <div className="text-white">
+                          <span className="text-[11px] font-black uppercase tracking-[0.6em] text-sky-500 mb-8 block italic underline underline-offset-8 decoration-sky-500/20">Atelier // Frost // Unit</span>
+                          <h4 className="text-6xl font-black tracking-tighter uppercase italic mb-12 mix-blend-difference text-white">Frost <br/> Fabric.</h4>
+                          <button className="flex items-center gap-6 text-[11px] font-black uppercase tracking-[0.4em] border-b border-white/20 pb-4 hover:border-sky-400 transition-all group">
+                             Arctic Protocols <ExternalLink className="w-5 h-5 group-hover:translate-x-2 group-hover:-translate-y-2 transition-transform" />
+                          </button>
+                       </div>
                     </div>
-                  )}
-                  <CardContent className={`p-10 ${tier.recommended ? 'pt-14' : ''}`}>
-                    <div className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest mb-4">{tier.duration}</div>
-                    <h4 className="text-2xl font-black text-white uppercase tracking-tight mb-2">{tier.title}</h4>
-                    <div className="text-xs text-[#00FF41] uppercase font-bold tracking-widest mb-8">{tier.subtitle}</div>
-                    
-                    <div className="mb-8 pb-8 border-b border-[#00FF41]/20">
-                      <span className="text-5xl font-black text-white tracking-tighter">{tier.price}</span>
+                 </div>
+
+                 <div>
+                    <Reveal>
+                       <div className="mb-24 text-left">
+                          <span className="text-[10px] font-black uppercase tracking-[0.5em] text-sky-500 mb-8 block italic">Chapitre III // Logistique Polaire</span>
+                          <h2 className="text-7xl md:text-[10vw] font-black tracking-tighter uppercase text-white italic leading-none text-white">Pure_Cold.</h2>
+                       </div>
+                       <p className="text-2xl font-light text-white/20 leading-relaxed italic mb-20 uppercase tracking-[0.2em]">
+                          Le froid est une force de préservation. Nous utilisons des technologies de brise-glace et de stockage cryogénique passif pour construire l'infrastructure logistique du futur en Arcitique, tout en protégeant son écosystème fragile.
+                       </p>
+                       <div className="space-y-20">
+                          {[
+                            { t: "Route Mapping", d: "Cartographie dynamique des glaces par satellite et sonar pour optimiser les trajets des brise-glaces et réduire la consommation d'énergie." },
+                            { t: "Ice Breaking", d: "Bris de glace par ondes de choc et coques chauffées pour une ouverture de route chirurgicale sans impact sur la faune locale." },
+                            { t: "Cold Storage", d: "Stockage de données et de semences utilisant le froid ambiant de l'Arctique pour une stabilité thermique passive sans émission de CO2." }
+                          ].map((step, i) => (
+                            <div key={i} className="group flex gap-12 border-b border-white/5 pb-16 hover:border-sky-400/20 transition-all cursor-default">
+                               <div className="text-6xl font-black text-white/5 group-hover:text-sky-400/20 transition-colors italic leading-none">0{i+1}</div>
+                               <div>
+                                  <h5 className="text-3xl font-black uppercase tracking-tight text-white mb-6 italic group-hover:translate-x-4 transition-transform text-white">{step.t}</h5>
+                                  <p className="text-[12px] text-white/20 uppercase tracking-[0.3em] font-bold leading-loose italic">{step.d}</p>
+                               </div>
+                            </div>
+                          ))}
+                       </div>
+                    </Reveal>
+                 </div>
+              </div>
+           </div>
+        </section>
+
+        {/* MEGA FOOTER */}
+        <footer className="bg-black pt-60 pb-12 px-8 md:px-24 relative z-50">
+           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-32 mb-60 text-white">
+              <div className="lg:col-span-2">
+                 <div className="flex items-center gap-6 mb-16">
+                    <div className="w-16 h-16 bg-sky-800 flex items-center justify-center">
+                      <Snowflake className="w-10 h-10 text-white" />
                     </div>
+                    <span className="text-4xl font-black uppercase tracking-tighter italic">ARCTIC<span className="text-white/20">HUB.</span></span>
+                 </div>
+                 <p className="text-white/20 text-[11px] font-black uppercase tracking-[0.5em] leading-loose max-w-sm mb-20 italic">
+                    "L'avenir de la logistique est boréal." — Archive Hub V.42
+                 </p>
+                 <div className="flex gap-16">
+                    {["BorealLog", "AssetRegistry", "GitHub", "X_Protocol"].map(s => (
+                      <Link key={s} href="#" className="text-[11px] font-black uppercase tracking-widest text-white/20 hover:text-sky-400 transition-colors italic underline underline-offset-8 decoration-white/5">{s}</Link>
+                    ))}
+                 </div>
+              </div>
 
-                    <p className="text-sm font-mono text-zinc-400 mb-8 h-16 leading-relaxed">{tier.description}</p>
-                    
-                    <ul className="space-y-4 mb-10">
-                      {tier.features.map((feat, j) => (
-                        <li key={j} className="flex items-start gap-3 text-xs font-bold uppercase tracking-wider text-zinc-300">
-                          <CheckCircle2 className="w-4 h-4 text-[#00FF41] shrink-0" />
-                          <span>{feat}</span>
-                        </li>
-                      ))}
-                    </ul>
-
-                    <button className={`w-full py-5 text-xs font-black uppercase tracking-[0.2em] transition-all duration-300 clip-path-slant ${tier.recommended ? 'bg-[#00FF41] text-[#050505] hover:bg-white' : 'bg-transparent text-white border border-[#00FF41]/50 hover:bg-[#00FF41]/10'}`}>
-                      Acquire
-                    </button>
-                  </CardContent>
-                </Card>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ─── 7. FAQ ACCORDION ─── */}
-      <section className="py-32 bg-[#0A0A0A] border-t border-[#00FF41]/10">
-        <div className="max-w-4xl mx-auto px-6">
-          <Reveal>
-            <div className="text-center mb-16">
-              <h2 className="text-xs font-mono font-bold text-[#00FF41] mb-4 uppercase tracking-[0.3em]">Intel</h2>
-              <h3 className="text-4xl md:text-5xl font-black text-white uppercase tracking-tighter">Database.</h3>
-            </div>
-          </Reveal>
-
-          <Reveal delay={0.2}>
-            <Accordion type="single" collapsible className="w-full">
-              {FAQS.map((faq, i) => (
-                <AccordionItem key={i} value={`item-${i}`} className="border-[#00FF41]/20">
-                  <AccordionTrigger className="text-left text-white hover:text-[#00FF41] hover:no-underline font-bold text-lg py-6 transition-colors uppercase tracking-widest">
-                    {faq.question}
-                  </AccordionTrigger>
-                  <AccordionContent className="text-zinc-400 font-mono leading-relaxed pb-6 text-sm">
-                    {faq.answer}
-                  </AccordionContent>
-                </AccordionItem>
+              {[
+                { t: "ASSETS", l: ["Icebreaker v4 North", "Perma-Station Alpha", "Cryo-Storage v5", "Polar Drone"] },
+                { t: "TECHNOLOGY", l: ["Ice Radar", "Passive Cold", "Route AI", "SLA Reports"] },
+                { t: "ATELIER", l: ["Our Legacy", "Arctic Policy", "Locations", "Support"] }
+              ].map((col, i) => (
+                <div key={i} className="flex flex-col gap-12">
+                  <h4 className="text-[11px] font-black text-sky-400 uppercase tracking-[0.6em] italic">{col.t}</h4>
+                  <ul className="flex flex-col gap-8">
+                    {col.l.map(link => (
+                      <li key={link} className="text-[11px] font-bold text-white/20 hover:text-white transition-colors cursor-pointer uppercase tracking-[0.4em] italic">{link}</li>
+                    ))}
+                  </ul>
+                </div>
               ))}
-            </Accordion>
-          </Reveal>
-        </div>
-      </section>
+           </div>
 
-      {/* ─── 8. CTA BANNER ─── */}
-      <section className="py-32 px-6 bg-[#050505]">
-        <Reveal>
-          <div className="max-w-[1400px] mx-auto border border-[#00FF41]/30 bg-[#0A0A0A] p-16 md:p-24 text-center relative overflow-hidden clip-path-slant group">
-            <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1542751110-97427bbecf20?w=1600&q=80')] bg-cover bg-center opacity-[0.05] group-hover:opacity-[0.1] transition-opacity duration-700" />
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#00FF41] opacity-[0.03] rounded-full blur-[120px]" />
-            
-            <div className="relative z-10">
-              <Shield className="w-16 h-16 text-[#00FF41] mx-auto mb-8" />
-              <h2 className="text-5xl md:text-7xl font-black text-white mb-6 tracking-tighter uppercase">Join The Vanguard.</h2>
-              <p className="text-sm font-mono text-zinc-400 max-w-xl mx-auto mb-10">
-                Download the client now. It's free to play, and your hardware is definitely ready for the Neon Protocol.
-              </p>
-              <button className="px-12 py-5 bg-[#00FF41] text-[#050505] font-black uppercase tracking-[0.2em] text-sm hover:bg-white transition-all duration-300 cursor-pointer shadow-[0_0_20px_rgba(0,255,65,0.3)] clip-path-slant">
-                Download Client (24GB)
-              </button>
-            </div>
+           <div className="max-w-[1600px] mx-auto border-t border-white/5 pt-16 flex flex-col md:flex-row justify-between items-center gap-16 text-[10px] font-black text-white/10 uppercase tracking-[0.6em] italic">
+              <span>© 2026 ARCTIC HUB POLAR LOGISTICS SYSTEMS AG. // ALL_RIGHTS_RESERVED</span>
+              <div className="flex gap-16">
+                 <span>STATUS: OPERATIONAL</span>
+                 <span>TEMP: -42°C (AVG)</span>
+                 <span>v4.12.0-STABLE</span>
+              </div>
+           </div>
+        </footer>
+      </main>
+    </div>
+  )
+}
+
+/* ==========================================
+   TECHNICAL SUB-COMPONENTS
+   ========================================== */
+
+function HUD_Overlay({ isStormAlertActive }: { isStormAlertActive: boolean }) {
+  return (
+    <div className="fixed inset-0 pointer-events-none z-[100]">
+       {/* Corner Brackets */}
+       <div className={`absolute top-12 left-12 w-20 h-20 border-t-2 border-l-2 transition-colors duration-1000 ${!isStormAlertActive ? "border-sky-400" : "border-white/10"}`} />
+       <div className={`absolute top-12 right-12 w-20 h-20 border-t-2 border-r-2 transition-colors duration-1000 ${!isStormAlertActive ? "border-sky-400" : "border-white/10"}`} />
+       <div className={`absolute bottom-12 left-12 w-20 h-20 border-b-2 border-l-2 transition-colors duration-1000 ${!isStormAlertActive ? "border-sky-400" : "border-white/10"}`} />
+       <div className={`absolute bottom-12 right-12 w-20 h-20 border-b-2 border-r-2 transition-colors duration-1000 ${!isStormAlertActive ? "border-sky-400" : "border-white/10"}`} />
+
+       {/* Top Status Bar */}
+       <div className="absolute top-12 left-1/2 -translate-x-1/2 flex items-center gap-20 bg-black/60 backdrop-blur-2xl px-12 py-4 border border-white/10 rounded-none">
+          <div className="flex items-center gap-6 text-white">
+             <div className={`w-3 h-3 transition-colors duration-500 ${!isStormAlertActive ? "bg-sky-400 animate-pulse" : "bg-red-500 animate-ping"}`} />
+             <span className="text-[10px] font-black uppercase tracking-[0.4em] italic leading-none">Hub_Sync: {!isStormAlertActive ? "NOMINAL" : "STORM_ALERT"} // Status: ACTIVE</span>
           </div>
-        </Reveal>
-      </section>
-
-      {/* ─── 9. FOOTER ─── */}
-      <footer className="bg-[#050505] pt-24 pb-12 border-t border-[#00FF41]/20">
-        <div className="max-w-[1600px] mx-auto px-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 mb-20">
-            <div className="lg:col-span-2">
-              <Link href="/" className="flex items-center gap-2 mb-8 cursor-pointer">
-                <Terminal className="w-5 h-5 text-[#00FF41]" />
-                <span className="text-xl font-black tracking-tighter uppercase text-white">
-                  NEXUS<span className="text-[#00FF41]">_</span>
-                </span>
-              </Link>
-              <p className="text-zinc-500 font-mono text-xs leading-relaxed mb-8 max-w-sm">
-                Nexus Gaming Studio. Building the future of competitive tactical shooters. Blood, sweat, and millions of polygons.
-              </p>
-            </div>
-
-            <div>
-              <h4 className="text-white font-black uppercase tracking-widest text-xs mb-6">Network</h4>
-              <ul className="space-y-4">
-                <li><a href="#" className="text-zinc-500 hover:text-[#00FF41] transition-colors text-xs font-bold uppercase tracking-wider cursor-pointer">Download Client</a></li>
-                <li><a href="#" className="text-zinc-500 hover:text-[#00FF41] transition-colors text-xs font-bold uppercase tracking-wider cursor-pointer">Esports Hub</a></li>
-                <li><a href="#" className="text-zinc-500 hover:text-[#00FF41] transition-colors text-xs font-bold uppercase tracking-wider cursor-pointer">Merch Store</a></li>
-                <li><a href="#" className="text-zinc-500 hover:text-[#00FF41] transition-colors text-xs font-bold uppercase tracking-wider cursor-pointer">Patch Notes</a></li>
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="text-white font-black uppercase tracking-widest text-xs mb-6">Corp</h4>
-              <ul className="space-y-4">
-                <li><a href="#" className="text-zinc-500 hover:text-[#00FF41] transition-colors text-xs font-bold uppercase tracking-wider cursor-pointer">About Us</a></li>
-                <li><a href="#" className="text-zinc-500 hover:text-[#00FF41] transition-colors text-xs font-bold uppercase tracking-wider cursor-pointer">Careers</a></li>
-                <li><a href="#" className="text-zinc-500 hover:text-[#00FF41] transition-colors text-xs font-bold uppercase tracking-wider cursor-pointer">Press Kit</a></li>
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="text-white font-black uppercase tracking-widest text-xs mb-6">Support</h4>
-              <ul className="space-y-4">
-                <li><a href="#" className="text-zinc-500 hover:text-[#00FF41] transition-colors text-xs font-bold uppercase tracking-wider cursor-pointer">Player Support</a></li>
-                <li><a href="#" className="text-zinc-500 hover:text-[#00FF41] transition-colors text-xs font-bold uppercase tracking-wider cursor-pointer">Server Status</a></li>
-                <li><a href="#" className="text-zinc-500 hover:text-[#00FF41] transition-colors text-xs font-bold uppercase tracking-wider cursor-pointer">Report a Bug</a></li>
-              </ul>
-            </div>
+          <div className="h-4 w-px bg-white/20" />
+          <div className="flex items-center gap-6 text-white/20">
+             <Wifi className="w-4 h-4" /> 
+             <span className="text-[10px] font-black uppercase tracking-[0.4em] italic leading-none">Polar_Grid: SECURE</span>
           </div>
+       </div>
 
-          <div className="border-t border-[#00FF41]/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] font-mono text-zinc-600 uppercase tracking-widest">
-            <p>&copy; 2026 NEXUS GAMING INC. ALL SYSTEMS NOMINAL.</p>
-            <div className="flex gap-6">
-              <a href="#" className="hover:text-[#00FF41] transition-colors cursor-pointer">TOS</a>
-              <a href="#" className="hover:text-[#00FF41] transition-colors cursor-pointer">Privacy</a>
-              <a href="#" className="hover:text-[#00FF41] transition-colors cursor-pointer">EULA</a>
-            </div>
-          </div>
-        </div>
-      </footer>
-
+       {/* Right Rotation Info */}
+       <div className="absolute right-12 top-1/2 -translate-y-1/2 rotate-90 origin-right hidden lg:block">
+          <span className="text-[10px] font-black uppercase tracking-[0.8em] text-white/5 italic">Unauthorized_Duplication_Of_Boreal_Patterns_Is_Strictly_Monitored_By_Global_Arctic_Alliance</span>
+       </div>
     </div>
   )
 }

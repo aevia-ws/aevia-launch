@@ -1,177 +1,287 @@
 "use client"
-import { motion, useScroll, useTransform, useInView } from "framer-motion"
-import { useRef, useState, useEffect } from "react"
+
+import React, { useState, useEffect, useRef } from "react"
+import { 
+  motion, 
+  AnimatePresence, 
+  useScroll, 
+  useTransform, 
+  useInView, 
+  useSpring 
+} from "framer-motion"
 import Image from "next/image"
 import Link from "next/link"
-import { Zap, ArrowRight, Menu, Star, Shield, Activity, Globe, Radio, ChevronRight, Binary, Terminal, Sun, Wind, Droplets } from "lucide-react"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { 
+  Cpu, Zap, Activity, Microscope, 
+  Target, Layers, Box, Hexagon, 
+  Terminal, Settings, Power, Info, 
+  AlertTriangle, ChevronRight, ArrowRight, 
+  Share2, Maximize2, Download, ExternalLink, 
+  Archive, Hash, Wifi, BarChart3, 
+  Fingerprint, Scan, Brain, Server, 
+  ShieldCheck, ShieldAlert, Award, 
+  Briefcase, Wind, Thermometer, 
+  Droplets, Flame, Battery, Radio, 
+  Gauge, Timer, Lightbulb, Command, 
+  Grid, Radar, Orbit, Atom, 
+  Satellite, Milestone, FlaskConical, 
+  FlaskRound, Ghost, Code, Binary, 
+  Microchip, Factory, HardDrive, 
+  Blocks, Search, Database
+} from "lucide-react"
 
-function Reveal({ children, delay = 0, y = 30 }: { children: React.ReactNode; delay?: number; y?: number }) {
+/* ==========================================================================
+   THE NEURAL FORGE DATASET (ULTRA DENSITY)
+   ========================================================================== */
+
+const PROCESSOR_ASSETS = [
+  {
+    id: "chip-npu-42",
+    name: "Neural Unit X-1",
+    type: "AI Accelerator",
+    lithography: "2nm (EUV)",
+    frequency: "4.2 THz",
+    tdp: "12W",
+    desc: "Processeur neuronal haute densité optimisé pour l'inférence IA en temps réel avec une architecture de mémoire intégrée.",
+    status: "In Production"
+  },
+  {
+    id: "chip-qm-08",
+    name: "Quantum-Core Z",
+    type: "Quantum Memory",
+    lithography: "Cryo-Etched",
+    frequency: "N/A (Entangled)",
+    tdp: "250W (Cooling)",
+    desc: "Unité de mémoire quantique utilisant des ions piégés pour un stockage de données persistant sans décohésion.",
+    status: "R&D Alpha"
+  },
+  {
+    id: "chip-ph-15",
+    name: "Photon-Link v5",
+    type: "Optical I/O",
+    lithography: "Silicon Photonics",
+    frequency: "12.8 THz",
+    tdp: "5W",
+    desc: "Accélérateur photonique permettant une communication inter-puces à la vitesse de la lumière avec une latence quasi nulle.",
+    status: "Approved"
+  }
+]
+
+const FABRICATION_METRICS = [
+  { label: "Wafer Yield", value: "99.98%", trend: "Stable" },
+  { label: "Purity Level", value: "Level 12", trend: "Optimal" },
+  { label: "Output Rate", value: "1.4M Units/m", trend: "High" },
+  { label: "Error Margin", value: "0.001nm", trend: "Decreasing" }
+]
+
+const FABRICATION_LOGS = [
+  { timestamp: "02:14:42", unit: "EUV-Chamber-01", status: "ACTIVE", vacuum: "10^-9 Torr" },
+  { timestamp: "02:14:45", unit: "Ion-Implanter", status: "STABLE", dose: "4.2e15/cm²" },
+  { timestamp: "02:14:48", unit: "Chemical-Wash", status: "SUCCESS", ph: "7.02" }
+]
+
+/* ==========================================
+   TECHNICAL COMPONENTS
+   ========================================== */
+
+function Reveal({ children, delay = 0, y = 40, x = 0 }: { children: React.ReactNode, delay?: number, y?: number, x?: number }) {
   const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, margin: "-80px" })
+  const isInView = useInView(ref, { once: true, margin: "-100px" })
   return (
-    <motion.div ref={ref} initial={{ opacity: 0, y }} animate={isInView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 1, delay, ease: [0.16, 1, 0.3, 1] }}>
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y, x }}
+      animate={isInView ? { opacity: 1, y: 0, x: 0 } : {}}
+      transition={{ duration: 1.2, delay, ease: [0.16, 1, 0.3, 1] }}
+    >
       {children}
     </motion.div>
   )
 }
 
-function GridBackground() {
-  return (
-    <div className="absolute inset-0 pointer-events-none opacity-[0.03] z-0" 
-         style={{ backgroundImage: `linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)`, backgroundSize: '50px 50px' }} />
-  )
-}
-
-export default function KryptonEnergyPage() {
-  const [scrolled, setScrolled] = useState(false)
-
+function MicroGridVisualizer() {
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
   useEffect(() => {
-    const h = () => setScrolled(window.scrollY > 60)
-    window.addEventListener("scroll", h)
-    return () => window.removeEventListener("scroll", h)
+    const handleMouse = (e: MouseEvent) => setMousePos({ x: e.clientX, y: e.clientY })
+    window.addEventListener("mousemove", handleMouse)
+    return () => window.removeEventListener("mousemove", handleMouse)
   }, [])
 
   return (
-    <div className="bg-[#fcfcfc] text-[#4a4a4a] font-sans min-h-screen selection:bg-[#ccff00] selection:text-black overflow-x-hidden">
+    <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden opacity-5">
+       <svg width="100%" height="100%" className="w-full h-full">
+          <pattern id="microgrid" width="40" height="40" patternUnits="userSpaceOnUse">
+             <path d="M 40 0 L 0 0 0 40" fill="none" stroke="white" strokeWidth="0.5" />
+          </pattern>
+          <rect width="100%" height="100%" fill="url(#microgrid)" />
+          {/* Scanning Beam */}
+          <motion.rect 
+             animate={{ x: ["-100%", "200%"] }}
+             transition={{ duration: 5, repeat: Infinity, ease: "linear" }}
+             width="50%" height="100%" 
+             fill="white" 
+             className="opacity-10 blur-[100px]"
+          />
+          <motion.circle 
+             animate={{ cx: mousePos.x, cy: mousePos.y }}
+             transition={{ type: "spring", damping: 30, stiffness: 100 }}
+             r="150" 
+             fill="white" 
+             className="opacity-20 blur-[120px]"
+          />
+       </svg>
+    </div>
+  )
+}
+
+function WaferModel({ progress }: { progress: any }) {
+  const rotate = useTransform(progress, [0, 1], [0, 360])
+  const scale = useTransform(progress, [0, 0.5, 1], [1, 1.1, 1])
+
+  return (
+    <motion.div style={{ rotate, scale }} className="relative w-80 h-80 flex items-center justify-center">
+       <div className="absolute inset-0 border border-blue-400/10 rounded-full animate-spin-slow shadow-[0_0_80px_rgba(59,130,246,0.05)]" />
+       <Cpu className="w-40 h-40 text-blue-400/10 animate-pulse" />
+       <div className="absolute inset-8 border border-blue-400/5 rounded-full" />
+    </motion.div>
+  )
+}
+
+/* ==========================================
+   THE NEURAL FORGE - MAIN INTERFACE
+   ========================================== */
+
+export default function NeuralForgePremium() {
+  const [activeChip, setActiveChip] = useState(0)
+  const [isLithographyActive, setIsLithographyActive] = useState(true)
+  const containerRef = useRef(null)
+  const { scrollYProgress } = useScroll({ target: containerRef })
+
+  // Forge Scroll Effects
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.2], [1, 0])
+  const textY = useTransform(scrollYProgress, [0, 0.5], [0, 100])
+
+  return (
+    <div ref={containerRef} className="bg-[#020408] text-[#e0e8ed] font-mono selection:bg-blue-500/30 selection:text-white min-h-screen overflow-x-hidden transition-colors duration-1000">
       
-      {/* ── ENERGY PULSE OVERLAY ──── */}
-      <div className="fixed inset-0 pointer-events-none z-[60] border-[20px] border-white/40 hidden lg:block" />
+      {/* GLOBAL HUD OVERLAY */}
+      <HUD_Overlay isLithographyActive={isLithographyActive} />
 
-      {/* ── NAVBAR ────────────────── */}
-      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-700 ${scrolled ? "bg-white/80 backdrop-blur-xl border-b border-black/5 py-4" : "bg-transparent py-10"}`}>
-        <div className="max-w-[1400px] mx-auto px-6 md:px-12 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-4 group">
-            <div className="w-10 h-10 bg-[#ccff00] flex items-center justify-center group-hover:skew-x-12 transition-transform duration-500 shadow-[0_0_20px_rgba(204,255,0,0.3)]">
-              <Zap className="w-6 h-6 text-black" />
-            </div>
-            <span className="text-xl font-black tracking-tighter uppercase text-[#1a1a1a] italic">Krypton<span className="text-[#ccff00]">Energy</span></span>
-          </Link>
-          <div className="hidden lg:flex gap-12 text-[10px] font-bold uppercase tracking-[0.4em] text-black/30">
-            {["Solar", "Hydrogen", "Storage", "Impact"].map(l => (
-              <Link key={l} href="#" className="hover:text-black transition-colors">{l}</Link>
-            ))}
-          </div>
-          <div className="flex items-center gap-8">
-            <button className="hidden md:block text-[10px] font-bold uppercase tracking-widest text-black/20 hover:text-black transition-colors underline underline-offset-8 decoration-[#ccff00]">Carbon Portal</button>
-            <button className="px-10 py-3.5 bg-black text-white text-[10px] font-bold uppercase tracking-[0.2em] hover:bg-[#ccff00] hover:text-black transition-all duration-500 italic shadow-lg shadow-black/5">Energize Future</button>
-            <Sheet>
-              <SheetTrigger asChild><button className="lg:hidden p-2"><Menu className="w-6 h-6 text-black" /></button></SheetTrigger>
-              <SheetContent side="right" className="bg-white border-none p-12 text-black font-sans">
-                <div className="flex flex-col gap-10 mt-16 text-left font-black uppercase tracking-tighter italic">
-                  {["Systems", "Nodes", "Network", "Contact"].map(l => (
-                    <Link key={l} href="#" className="text-4xl hover:text-[#ccff00] transition-all">{l}</Link>
-                  ))}
+      <main>
+        {/* ==========================================
+            1. SILICON IGNITION (HERO)
+            ========================================== */}
+        <section className="relative h-screen flex flex-col justify-center items-center px-8 md:px-24 overflow-hidden pt-20">
+          <MicroGridVisualizer />
+          <motion.div style={{ opacity: heroOpacity }} className="absolute z-0 pointer-events-none flex items-center justify-center">
+             <WaferModel progress={scrollYProgress} />
+          </motion.div>
+
+          <div className="relative z-10 text-center max-w-7xl">
+             <Reveal>
+                <div className="inline-flex items-center gap-4 px-6 py-2 border border-blue-400/30 bg-blue-400/5 text-[10px] font-black uppercase tracking-[0.5em] text-blue-400 mb-12 italic">
+                   <Zap className="w-4 h-4" /> Lithography_Link: NOMINAL // Yield_Rate: 99.98%
                 </div>
-              </SheetContent>
-            </Sheet>
+                <motion.h1 style={{ y: textY }} className="text-7xl md:text-[14vw] font-black tracking-tighter uppercase mb-16 leading-[0.75] italic">
+                   Neural <br/> <span className="text-white/5 italic">Forge.</span>
+                </motion.h1>
+                <p className="max-w-3xl mx-auto text-sm md:text-lg text-white/30 leading-relaxed uppercase tracking-widest font-light mb-16 italic">
+                   L'excellence du silicium par la lithographie extrême. Nous concevons les micro-architectures les plus puissantes au monde pour alimenter l'intelligence du futur.
+                </p>
+                
+                <div className="flex flex-col sm:flex-row gap-8 justify-center items-center">
+                   <button className="px-12 py-6 bg-blue-700 text-white text-[10px] font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all shadow-[0_0_40px_rgba(59,130,246,0.2)] flex items-center gap-4 italic">
+                      <Power className="w-5 h-5" /> Start Fabrication
+                   </button>
+                   <button className="px-12 py-6 border border-white/10 text-white text-[10px] font-black uppercase tracking-widest hover:bg-white/5 transition-all flex items-center gap-4 italic">
+                      <Archive className="w-5 h-5" /> Chip Registry
+                   </button>
+                </div>
+             </Reveal>
           </div>
-        </div>
-      </nav>
 
-      <main className="pt-20">
-        {/* ── HERO ──────────────────── */}
-        <section className="relative h-[90vh] flex items-center justify-center overflow-hidden">
-          <GridBackground />
-          <div className="absolute inset-0">
-             <Image src="https://images.unsplash.com/photo-1509391366360-fe5bb58583bb?auto=format&fit=crop&q=80&w=2400" alt="Solar Farm" fill className="object-cover opacity-10 scale-110 grayscale" priority />
-             <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-white/50" />
-          </div>
-
-          <div className="relative z-10 max-w-[1400px] mx-auto px-6 md:px-12 w-full">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-24 items-center">
-              <div>
-                <Reveal>
-                  <div className="inline-flex items-center gap-4 mb-10 text-[#ccff00] bg-black px-4 py-2 text-[10px] font-bold uppercase tracking-[0.5em] italic -skew-x-12">
-                     Sustainable_Grid_v10.0
-                  </div>
-                </Reveal>
-                <Reveal delay={0.1} y={100}>
-                  <h1 className="text-7xl md:text-[14vw] font-black tracking-tighter leading-[0.75] uppercase mb-16 italic text-[#1a1a1a]">
-                    PURE <br/> <span className="text-black/5 not-italic italic">POWΞR.</span>
-                  </h1>
-                </Reveal>
-                <Reveal delay={0.3}>
-                  <p className="text-xl text-black/40 font-light max-w-xl leading-relaxed italic uppercase mb-16">
-                    Engineering the foundation for the world's most resilient renewable infrastructure. High-fidelity energy solutions for the next century.
-                  </p>
-                  <div className="flex flex-col sm:flex-row gap-10 items-center justify-center lg:justify-start">
-                    <button className="px-16 py-6 bg-black text-white font-black uppercase tracking-widest text-[10px] hover:px-20 transition-all duration-700 italic -skew-x-12 shadow-2xl">
-                       Inquire Infrastructure
-                    </button>
-                    <div className="text-[10px] font-black uppercase tracking-widest text-black/20 flex items-center gap-4 group cursor-pointer hover:text-black transition-colors">
-                       Live Grid Output <Radio className="w-5 h-5 text-[#ccff00] animate-pulse" />
-                    </div>
-                  </div>
-                </Reveal>
-              </div>
-              
-              <Reveal delay={0.5} y={0}>
-                 <div className="relative p-10 bg-white border border-black/5 rounded-sm shadow-[0_40px_100px_rgba(0,0,0,0.05)] overflow-hidden group">
-                    <div className="absolute top-0 right-0 p-8 text-black/5">
-                       <Zap className="w-60 h-60 animate-pulse" />
-                    </div>
-                    <div className="relative z-10 space-y-12">
-                       <div className="flex justify-between border-b border-black/5 pb-8">
-                          <div className="text-xs font-black text-black tracking-widest uppercase italic">Operational Status</div>
-                          <div className="text-[10px] text-green-500 uppercase tracking-widest italic animate-pulse">Grid_Stable_100%</div>
-                       </div>
-                       <div className="grid grid-cols-2 gap-12">
-                          {[
-                            { l: "GW/h Active", v: "14.2" },
-                            { l: "Carbon Offset", v: "124M t" },
-                            { l: "Global Nodes", v: "842" },
-                            { l: "SLA Uptime", v: "100%" }
-                          ].map((stat, i) => (
-                            <div key={i}>
-                               <div className="text-[8px] font-bold text-black/20 uppercase tracking-widest mb-2 italic">{stat.l}</div>
-                               <div className="text-3xl font-black text-[#1a1a1a] italic tracking-tighter">{stat.v}</div>
-                            </div>
-                          ))}
-                       </div>
-                       <div className="h-1.5 w-full bg-black/5 rounded-full overflow-hidden">
-                          <motion.div animate={{ x: ["-100%", "100%"] }} transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }} className="w-[40%] h-full bg-[#ccff00]" />
-                       </div>
-                    </div>
-                 </div>
-              </Reveal>
-            </div>
+          <div className="absolute bottom-12 left-12 right-12 flex justify-between items-end border-t border-white/5 pt-12">
+             <div className="flex flex-col gap-6">
+                <div className="flex items-center gap-4 text-[9px] font-bold text-white/20 uppercase tracking-widest italic">
+                   <div className="w-16 h-px bg-white/10" />
+                   Fab_ID: FORGE-UNIT-42
+                </div>
+                <div className="flex items-center gap-4 text-[9px] font-bold text-white/20 uppercase tracking-widest italic">
+                   <div className="w-16 h-px bg-white/10" />
+                   Purity_Status: CLASS-1_CLEANROOM
+                </div>
+             </div>
+             <div className="text-right flex flex-col items-end gap-4">
+                <span className="text-[8px] font-black uppercase tracking-[0.5em] text-blue-500">Transistor_Gate_Stream</span>
+                <div className="flex gap-2 h-12 items-end">
+                   {[...Array(16)].map((_, i) => (
+                     <motion.div 
+                        key={i}
+                        animate={{ height: ["10%", "100%", "30%", "80%", "10%"] }}
+                        transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.1 }}
+                        className="w-2 bg-blue-500/20"
+                     />
+                   ))}
+                </div>
+             </div>
           </div>
         </section>
 
-        {/* ── TECHNOLOGY ──────────────── */}
-        <section className="py-60 bg-white border-y border-black/5">
-           <div className="max-w-[1400px] mx-auto px-6 md:px-12">
-              <Reveal>
-                 <div className="flex flex-col lg:flex-row items-end justify-between mb-32 gap-8 border-b-2 border-black/5 pb-16">
-                    <div className="max-w-2xl text-left">
-                       <span className="text-[10px] font-bold uppercase tracking-[0.5em] text-[#ccff00] bg-black px-4 py-1 inline-block mb-6 italic -skew-x-12">System Architecture</span>
-                       <h2 className="text-6xl md:text-[9vw] font-black uppercase tracking-tighter text-[#1a1a1a] leading-none italic">Hard <br/> <span className="font-light not-italic opacity-10">Energy.</span></h2>
-                    </div>
-                    <button className="flex items-center gap-4 text-[10px] font-bold uppercase tracking-widest text-black/40 hover:text-black transition-colors group italic">
-                       Full Portfolio <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
-                    </button>
+        {/* ==========================================
+            2. CHIP REGISTRY (DENSE TECHNICAL)
+            ========================================== */}
+        <section className="py-60 bg-[#04060a] relative border-y border-white/5 overflow-hidden">
+           <div className="max-w-[1600px] mx-auto px-8 md:px-24">
+              <div className="flex flex-col md:flex-row items-end justify-between mb-40 gap-12">
+                 <Reveal>
+                    <span className="text-[10px] font-black uppercase tracking-[0.6em] text-blue-500 block mb-6 italic underline underline-offset-8 decoration-blue-400/20">Forge // Semiconductors</span>
+                    <h2 className="text-6xl md:text-[10vw] font-black uppercase tracking-tighter italic leading-none text-white">Registry.</h2>
+                 </Reveal>
+                 <div className="text-right">
+                    <span className="text-[10px] font-black uppercase tracking-[0.5em] text-white/20 block mb-4 italic">Registry // Fabrication_Audit</span>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-blue-400">L'Architecture du Silicium</p>
                  </div>
-              </Reveal>
+              </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-black/5 border border-black/5">
-                 {[
-                   { icon: Sun, t: "Spectral Solar", d: "High-density photovoltaic arrays optimized for maximum spectral absorption and lifespan." },
-                   { icon: Droplets, t: "Green Hydrogen", d: "Zero-emission electrolysis hubs producing high-purity hydrogen for industrial scaling." },
-                   { icon: Wind, t: "Grid Storage", d: "Giga-scale kinetic and chemical storage systems for absolute power sovereignty." }
-                 ].map((item, i) => (
-                   <Reveal key={i} delay={i * 0.1}>
-                      <div className="p-16 bg-white group hover:bg-black transition-all duration-700 cursor-crosshair overflow-hidden relative">
-                         <div className="w-16 h-16 border border-black/10 flex items-center justify-center mb-12 group-hover:bg-[#ccff00] group-hover:border-[#ccff00] transition-all duration-700 -skew-x-12">
-                            <item.icon className="w-7 h-7 text-black" />
+              <div className="grid md:grid-cols-3 gap-px bg-white/5 border border-white/5 shadow-2xl">
+                 {PROCESSOR_ASSETS.map((chip, i) => (
+                   <Reveal key={chip.id} delay={i * 0.1}>
+                      <div className="bg-[#020408] p-20 flex flex-col h-full hover:bg-white/[0.02] transition-all group cursor-crosshair border-white/5 border-r last:border-r-0">
+                         <div className="flex justify-between items-start mb-16">
+                            <div className="w-16 h-16 bg-white/5 border border-white/10 flex items-center justify-center group-hover:bg-blue-700 group-hover:text-white transition-all duration-500">
+                               <Microchip className="w-8 h-8" />
+                            </div>
+                            <span className={`px-4 py-2 bg-white/5 text-[9px] font-black uppercase tracking-[0.3em] ${chip.status === "In Production" ? "text-blue-500" : "text-white/40"}`}>{chip.status}</span>
                          </div>
-                         <h3 className="text-3xl font-black uppercase mb-8 tracking-tighter italic group-hover:text-white transition-colors">{item.t}</h3>
-                         <p className="text-black/30 text-sm font-light italic leading-relaxed mb-12 group-hover:text-white/40 transition-colors">{item.d}</p>
-                         <Link href="#" className="flex items-center gap-4 text-[10px] font-black uppercase tracking-widest group-hover:gap-8 transition-all group-hover:text-[#ccff00]">
-                            Examine System <ChevronRight className="w-4 h-4" />
-                         </Link>
-                         <div className="absolute top-0 right-0 w-32 h-32 bg-[#ccff00]/5 blur-[60px] pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity" />
+                         
+                         <h3 className="text-4xl font-black uppercase tracking-tighter mb-8 italic text-white group-hover:translate-x-4 transition-transform">{chip.name}</h3>
+                         <div className="text-[10px] font-black text-white/20 uppercase tracking-[0.5em] mb-12">{chip.type}</div>
+                         
+                         <div className="space-y-8 mb-20 border-l border-blue-400/20 pl-8">
+                            <div className="flex justify-between items-center text-[11px] font-bold uppercase tracking-widest">
+                               <span className="text-white/20">Lithography</span>
+                               <span className="text-white group-hover:text-blue-400 transition-colors">{chip.lithography}</span>
+                            </div>
+                            <div className="flex justify-between items-center text-[11px] font-bold uppercase tracking-widest">
+                               <span className="text-white/20">Frequency</span>
+                               <span className="text-white group-hover:text-blue-400 transition-colors">{chip.frequency}</span>
+                            </div>
+                            <div className="flex justify-between items-center text-[11px] font-bold uppercase tracking-widest">
+                               <span className="text-white/20">Power (TDP)</span>
+                               <span className="text-white group-hover:text-blue-400 transition-colors">{chip.tdp}</span>
+                            </div>
+                         </div>
+
+                         <p className="text-[12px] text-white/30 leading-loose uppercase tracking-[0.2em] font-bold italic mb-16">
+                            {chip.desc}
+                         </p>
+
+                         <div className="mt-auto pt-10 border-t border-white/5 flex justify-between items-center">
+                            <span className="text-[10px] font-black text-white/10 uppercase tracking-widest">Ref: {chip.id}</span>
+                            <button className="text-[10px] font-black uppercase text-white/40 flex items-center gap-4 group-hover:text-white transition-all">
+                               Technical_Specs <ChevronRight className="w-5 h-5" />
+                            </button>
+                         </div>
                       </div>
                    </Reveal>
                  ))}
@@ -179,78 +289,228 @@ export default function KryptonEnergyPage() {
            </div>
         </section>
 
-        {/* ── CTA ───────────────────── */}
-        <section className="py-60 bg-[#ccff00] text-black text-center relative overflow-hidden">
-           <GridBackground />
-           <div className="absolute inset-0 opacity-[0.05] pointer-events-none select-none overflow-hidden whitespace-nowrap text-[20vw] font-black italic -rotate-12">
-              KRYPTON KRYPTON KRYPTON KRYPTON
-           </div>
-           <div className="max-w-4xl mx-auto px-6 relative z-10">
-              <Reveal>
-                 <h2 className="text-8xl md:text-[14vw] font-black uppercase tracking-tighter leading-[0.8] mb-16 italic">
-                    Initiate <br/> <span className="font-light not-italic opacity-20 text-black italic">Future.</span>
-                 </h2>
-                 <p className="text-2xl text-black/60 font-light mb-20 leading-relaxed italic max-w-2xl mx-auto uppercase">
-                    Stop decaying. Start energizing. Secure your position in the new energy hierarchy today.
-                 </p>
-                 <div className="flex flex-col sm:flex-row items-center justify-center gap-12">
-                    <button className="px-24 py-10 bg-black text-white font-black uppercase text-[10px] tracking-[0.3em] hover:px-28 transition-all duration-700 italic -skew-x-12 shadow-2xl">
-                       Provision My Grid
-                    </button>
-                    <button className="px-24 py-10 border-4 border-black text-black font-black uppercase text-[10px] tracking-[0.3em] hover:bg-black hover:text-white transition-all duration-700 italic">
-                       View Regional Reports
-                    </button>
+        {/* ==========================================
+            3. LITHOGRAPHY MONITOR (INTERACTIVE DATA)
+            ========================================== */}
+        <section className="py-60 bg-black relative border-y border-white/5 overflow-hidden">
+           <div className="max-w-[1400px] mx-auto px-8 md:px-24">
+              <div className="grid lg:grid-cols-2 gap-40 items-center">
+                 <div>
+                    <Reveal>
+                       <span className="text-[10px] font-black uppercase tracking-[0.5em] text-blue-500 block mb-12 italic underline underline-offset-8 decoration-blue-400/20">Forge // Performance</span>
+                       <h2 className="text-7xl md:text-[9vw] font-light italic leading-none text-white mb-16 uppercase tracking-tighter">
+                          The <br/> <span className="not-italic font-black text-white/5 italic">Lithography_Link.</span>
+                       </h2>
+                       <p className="text-2xl font-light text-white/20 leading-relaxed mb-24 italic uppercase tracking-[0.2em] max-w-xl">
+                          Surveillance de la fabrication en temps réel. Nos capteurs nanométriques analysent la pureté du wafer et ajustent les paramètres de gravure EUV pour garantir un rendement optimal.
+                       </p>
+                       <div className="grid grid-cols-2 gap-px bg-white/5 border border-white/5 mb-24 shadow-2xl">
+                          {FABRICATION_METRICS.map((metric, i) => (
+                            <div key={i} className="p-16 bg-[#0a0c0e] group hover:bg-white/[0.02] transition-all border-r border-b last:border-r-0 border-white/5">
+                               <div className="text-[10px] font-black uppercase text-blue-500 mb-6 tracking-[0.4em]">{metric.label}</div>
+                               <div className="text-5xl font-black text-white italic mb-6 tracking-tighter group-hover:translate-x-4 transition-transform">{metric.value}</div>
+                               <div className="flex items-center gap-3 text-[9px] font-bold uppercase tracking-[0.3em] text-white/10 italic">
+                                  <Activity className="w-4 h-4 text-blue-400" /> {metric.trend}
+                               </div>
+                            </div>
+                          ))}
+                       </div>
+                       <button 
+                         onClick={() => setIsLithographyActive(!isLithographyActive)}
+                         className="w-full py-8 bg-blue-700 text-white text-[11px] font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all shadow-2xl flex items-center justify-center gap-6 italic"
+                       >
+                          <Settings className="w-5 h-5" /> Re-Sync Lithography Nodes
+                       </button>
+                    </Reveal>
                  </div>
-              </Reveal>
-           </div>
-        </section>
-      </main>
+                 
+                 <div className="relative">
+                    <Reveal delay={0.3} x={40}>
+                       <div className="aspect-square bg-[#0a0c0e] border border-white/10 p-20 flex flex-col justify-between relative group overflow-hidden shadow-2xl">
+                          <div className="absolute top-0 right-0 p-80 bg-blue-400 opacity-[0.02] blur-[150px] rounded-full group-hover:opacity-[0.05] transition-opacity" />
+                          
+                          <div className="flex justify-between items-start z-10">
+                             <div className="flex flex-col gap-3">
+                                <span className="text-[10px] font-black text-white/10 uppercase tracking-[0.5em]">Forge_Link // LITH-SYNC-v42</span>
+                                <span className="text-[12px] font-black text-white/40 uppercase tracking-[0.6em]">Wafer_Density_Map</span>
+                             </div>
+                             <Wifi className="w-6 h-6 text-blue-400" />
+                          </div>
+                          
+                          {/* LITHOGRAPHY VISUALIZER (SVG) */}
+                          <div className="relative z-10 flex flex-col items-center justify-center h-full">
+                             <div className="w-64 h-64 border border-blue-400/5 rounded-full flex items-center justify-center relative">
+                                <motion.div 
+                                  animate={{ rotate: 360 }}
+                                  transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+                                  className="absolute inset-0 border-t-2 border-blue-400/20 rounded-full" 
+                                />
+                                <motion.div 
+                                  animate={{ rotate: -360 }}
+                                  transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+                                  className="absolute inset-8 border-b-2 border-blue-400/10 rounded-full" 
+                                />
+                                <Cpu className={`w-24 h-24 transition-colors duration-1000 ${isLithographyActive ? "text-blue-400 animate-pulse" : "text-white/5"}`} />
+                             </div>
+                             <div className="mt-16 text-center space-y-6">
+                                <div className={`text-4xl font-black italic tracking-tighter ${isLithographyActive ? "text-white" : "text-white/20"}`}>
+                                   {isLithographyActive ? "SYNC_ACTIVE" : "SYNC_LOST"}
+                                </div>
+                                <span className="text-[11px] font-bold text-white/10 uppercase tracking-[0.6em] block">Auth_Node: FORGE_UNIT_01</span>
+                             </div>
+                          </div>
 
-      {/* ── FOOTER ────────────────── */}
-      <footer className="bg-white pt-40 pb-12 px-6 border-t border-black/5 relative z-50">
-        <div className="max-w-[1400px] mx-auto grid grid-cols-1 md:grid-cols-5 gap-20 mb-40">
-           <div className="md:col-span-2">
-              <Link href="/" className="flex items-center gap-4 mb-10 group">
-                <div className="w-10 h-10 bg-[#ccff00] flex items-center justify-center">
-                  <Zap className="w-6 h-6 text-black" />
-                </div>
-                <span className="text-xl font-black tracking-tighter uppercase text-[#1a1a1a] italic">Krypton Energy.</span>
-              </Link>
-              <p className="text-black/20 max-w-sm leading-relaxed mb-12 text-[10px] font-bold uppercase italic">
-                 "Power is the only variable that defines the hierarchy of progress. We master the sun."
-              </p>
-              <div className="flex gap-10">
-                 {["LinkedIn", "Journal", "Solar Map", "Atelier"].map(s => (
-                   <Link key={s} href="#" className="text-[10px] font-bold uppercase tracking-widest text-black/20 hover:text-black transition-colors italic">{s}</Link>
-                 ))}
+                          <div className="relative z-10 flex gap-6">
+                             <div className="flex-1 h-1 bg-white/5 overflow-hidden">
+                                <motion.div 
+                                   animate={isLithographyActive ? { x: ["-100%", "100%"] } : {}}
+                                   transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+                                   className="w-1/2 h-full bg-blue-600"
+                                />
+                             </div>
+                          </div>
+                       </div>
+                    </Reveal>
+                 </div>
               </div>
            </div>
-           
-           {[
-             { t: "INFRASTRUCTURE", l: ["Solar Farm Alpha", "Hydrogen Hubs", "Grid Storage", "Edge Nodes"] },
-             { t: "SOLUTIONS", l: ["City Power", "Industrial Grid", "Sovereign Energy", "Carbon Trade"] },
-             { t: "ENTITY", l: ["Mission Control", "Legal Hub", "SLA Reports", "Contact"] }
-           ].map((col, i) => (
-             <div key={i} className="space-y-12">
-                <h4 className="text-[10px] font-bold uppercase tracking-[0.6em] text-black/20">{col.t}</h4>
-                <ul className="space-y-6">
-                   {col.l.map(link => (
-                     <li key={link} className="text-xs font-bold uppercase tracking-widest text-black/30 hover:text-black transition-colors italic">
-                        <Link href="#">{link}</Link>
-                     </li>
-                   ))}
-                </ul>
-             </div>
-           ))}
-        </div>
-        <div className="max-w-[1400px] mx-auto flex flex-col md:row justify-between items-center gap-8 border-t border-black/5 pt-12 text-[10px] font-bold uppercase tracking-[0.4em] text-black/10 italic">
-           <span>© 2026 KRYPTON ENERGY SOLUTIONS AG. THE GRID IS ETERNAL.</span>
-           <div className="flex gap-12">
-              <Link href="#" className="hover:text-black transition-all underline decoration-[#ccff00]">SYSTEM_NOMINAL</Link>
-              <Link href="#" className="hover:text-black transition-all underline decoration-[#ccff00]">CAPACITY: 100%</Link>
+        </section>
+
+        {/* ==========================================
+            4. FORGE STORY (TECH STORYTELLING)
+            ========================================== */}
+        <section className="py-60 bg-[#020408] relative overflow-hidden border-t border-white/5">
+           <div className="max-w-[1400px] mx-auto px-8 md:px-24">
+              <div className="grid lg:grid-cols-2 gap-40 items-center">
+                 <div className="relative aspect-[3/4] overflow-hidden group border border-white/5 shadow-2xl">
+                    <Image 
+                       src="https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1200&auto=format&fit=crop" 
+                       alt="Semiconductor Fabrication" 
+                       fill 
+                       className="object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-[2000ms]"
+                    />
+                    <div className="absolute inset-0 bg-blue-900/10 mix-blend-color group-hover:opacity-0 transition-opacity" />
+                    <div className="absolute inset-0 p-20 flex flex-col justify-end bg-gradient-to-t from-black via-black/40 to-transparent">
+                       <div className="text-white">
+                          <span className="text-[11px] font-black uppercase tracking-[0.6em] text-blue-500 mb-8 block italic underline underline-offset-8 decoration-blue-400/20">Atelier // Purity // Unit</span>
+                          <h4 className="text-6xl font-black tracking-tighter uppercase italic mb-12 mix-blend-difference text-white">Silicon <br/> Fabric.</h4>
+                          <button className="flex items-center gap-6 text-[11px] font-black uppercase tracking-[0.4em] border-b border-white/20 pb-4 hover:border-blue-400 transition-all group">
+                             Forge Protocols <ExternalLink className="w-5 h-5 group-hover:translate-x-2 group-hover:-translate-y-2 transition-transform" />
+                          </button>
+                       </div>
+                    </div>
+                 </div>
+
+                 <div>
+                    <Reveal>
+                       <div className="mb-24 text-left">
+                          <span className="text-[10px] font-black uppercase tracking-[0.5em] text-blue-500 mb-8 block italic">Chapitre III // Synthesis</span>
+                          <h2 className="text-7xl md:text-[10vw] font-black tracking-tighter uppercase text-white italic leading-none text-white">Pure_Logic.</h2>
+                       </div>
+                       <p className="text-2xl font-light text-white/20 leading-relaxed italic mb-20 uppercase tracking-[0.2em]">
+                          Le silicium est notre canevas. Nous utilisons la lumière EUV pour sculpter des milliards de transistors, créant ainsi les fondations de l'intelligence artificielle moderne.
+                       </p>
+                       <div className="space-y-20">
+                          {[
+                            { t: "Extreme UV Exposure", d: "Utilisation de longueurs d'onde de 13.5nm pour graver des circuits d'une précision atomique." },
+                            { t: "Wafer Polishing", d: "Aplanissement mécano-chimique du silicium pour garantir une planéité absolue avant chaque couche de gravure." },
+                            { t: "Functional Testing", d: "Surveillance automatisée par IA de chaque transistor pour garantir une fiabilité maximale post-fabrication." }
+                          ].map((step, i) => (
+                            <div key={i} className="group flex gap-12 border-b border-white/5 pb-16 hover:border-blue-400/20 transition-all cursor-default">
+                               <div className="text-6xl font-black text-white/5 group-hover:text-blue-400/20 transition-colors italic leading-none">0{i+1}</div>
+                               <div>
+                                  <h5 className="text-3xl font-black uppercase tracking-tight text-white mb-6 italic group-hover:translate-x-4 transition-transform text-white">{step.t}</h5>
+                                  <p className="text-[12px] text-white/20 uppercase tracking-[0.3em] font-bold leading-loose italic">{step.d}</p>
+                               </div>
+                            </div>
+                          ))}
+                       </div>
+                    </Reveal>
+                 </div>
+              </div>
            </div>
-        </div>
-      </footer>
+        </section>
+
+        {/* MEGA FOOTER */}
+        <footer className="bg-black pt-60 pb-12 px-8 md:px-24 relative z-50">
+           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-32 mb-60 text-white">
+              <div className="lg:col-span-2">
+                 <div className="flex items-center gap-6 mb-16">
+                    <div className="w-16 h-16 bg-blue-700 flex items-center justify-center">
+                      <Cpu className="w-10 h-10 text-white" />
+                    </div>
+                    <span className="text-4xl font-black uppercase tracking-tighter italic">NEURAL<span className="text-white/20">FORGE.</span></span>
+                 </div>
+                 <p className="text-white/20 text-[11px] font-black uppercase tracking-[0.5em] leading-loose max-w-sm mb-20 italic">
+                    "La micro-architecture au service de l'intelligence." — Archive Forge V.42
+                 </p>
+                 <div className="flex gap-16">
+                    {["ForgeLog", "ChipRegistry", "GitHub", "X_Protocol"].map(s => (
+                      <Link key={s} href="#" className="text-[11px] font-black uppercase tracking-widest text-white/20 hover:text-blue-500 transition-colors italic underline underline-offset-8 decoration-white/5">{s}</Link>
+                    ))}
+                 </div>
+              </div>
+
+              {[
+                { t: "CHIPS", l: ["Neural Unit X-1", "Quantum-Core Z", "Photon-Link v5", "Hybrid Logic"] },
+                { t: "TECHNOLOGY", l: ["EUV Lithography", "Wafer Polishing", "Ion Implantation", "SLA Reports"] },
+                { t: "ATELIER", l: ["Our Legacy", "Sustainability", "Locations", "Support"] }
+              ].map((col, i) => (
+                <div key={i} className="flex flex-col gap-12">
+                  <h4 className="text-[11px] font-black text-blue-400 uppercase tracking-[0.6em] italic">{col.t}</h4>
+                  <ul className="flex flex-col gap-8">
+                    {col.l.map(link => (
+                      <li key={link} className="text-[11px] font-bold text-white/20 hover:text-white transition-colors cursor-pointer uppercase tracking-[0.4em] italic">{link}</li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+           </div>
+
+           <div className="max-w-[1600px] mx-auto border-t border-white/5 pt-16 flex flex-col md:flex-row justify-between items-center gap-16 text-[10px] font-black text-white/10 uppercase tracking-[0.6em] italic">
+              <span>© 2026 NEURAL FORGE SEMICONDUCTOR FABRICATION AG. // ALL_RIGHTS_RESERVED</span>
+              <div className="flex gap-16">
+                 <span>STATUS: OPERATIONAL</span>
+                 <span>YIELD: 99.98% (AVG)</span>
+                 <span>v4.12.0-STABLE</span>
+              </div>
+           </div>
+        </footer>
+      </main>
+    </div>
+  )
+}
+
+/* ==========================================
+   TECHNICAL SUB-COMPONENTS
+   ========================================== */
+
+function HUD_Overlay({ isLithographyActive }: { isLithographyActive: boolean }) {
+  return (
+    <div className="fixed inset-0 pointer-events-none z-[100]">
+       {/* Corner Brackets */}
+       <div className={`absolute top-12 left-12 w-20 h-20 border-t-2 border-l-2 transition-colors duration-1000 ${isLithographyActive ? "border-blue-400" : "border-white/10"}`} />
+       <div className={`absolute top-12 right-12 w-20 h-20 border-t-2 border-r-2 transition-colors duration-1000 ${isLithographyActive ? "border-blue-400" : "border-white/10"}`} />
+       <div className={`absolute bottom-12 left-12 w-20 h-20 border-b-2 border-l-2 transition-colors duration-1000 ${isLithographyActive ? "border-blue-400" : "border-white/10"}`} />
+       <div className={`absolute bottom-12 right-12 w-20 h-20 border-b-2 border-r-2 transition-colors duration-1000 ${isLithographyActive ? "border-blue-400" : "border-white/10"}`} />
+
+       {/* Top Status Bar */}
+       <div className="absolute top-12 left-1/2 -translate-x-1/2 flex items-center gap-20 bg-black/60 backdrop-blur-2xl px-12 py-4 border border-white/10 rounded-none">
+          <div className="flex items-center gap-6 text-white">
+             <div className={`w-3 h-3 transition-colors duration-500 ${isLithographyActive ? "bg-blue-400 animate-pulse" : "bg-red-500 animate-ping"}`} />
+             <span className="text-[10px] font-black uppercase tracking-[0.4em] italic leading-none">Forge_Sync: {isLithographyActive ? "NOMINAL" : "DATA_LOSS"} // Status: ACTIVE</span>
+          </div>
+          <div className="h-4 w-px bg-white/20" />
+          <div className="flex items-center gap-6 text-white/20">
+             <Wifi className="w-4 h-4" /> 
+             <span className="text-[10px] font-black uppercase tracking-[0.4em] italic leading-none">Forge_Grid: SECURE</span>
+          </div>
+       </div>
+
+       {/* Right Rotation Info */}
+       <div className="absolute right-12 top-1/2 -translate-y-1/2 rotate-90 origin-right hidden lg:block">
+          <span className="text-[10px] font-black uppercase tracking-[0.8em] text-white/5 italic">Unauthorized_Duplication_Of_Silicon_Patterns_Is_Strictly_Monitored_By_Global_Forge_Alliance</span>
+       </div>
     </div>
   )
 }

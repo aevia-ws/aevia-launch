@@ -1,695 +1,522 @@
 "use client"
 
-import { motion, useScroll, useTransform, useInView, AnimatePresence } from "framer-motion"
-import { useState, useRef, useEffect } from "react"
+import React, { useState, useEffect, useRef } from "react"
+import { 
+  motion, 
+  AnimatePresence, 
+  useScroll, 
+  useTransform, 
+  useInView, 
+  useSpring 
+} from "framer-motion"
 import Image from "next/image"
 import Link from "next/link"
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
-import { Badge } from "@/components/ui/badge"
-import { Card, CardContent } from "@/components/ui/card"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel"
-import { Play, Menu, ArrowRight, Star, CheckCircle2, HeartPulse, Stethoscope, Microscope, ShieldCheck, Clock, MapPin, Phone, CalendarDays } from "lucide-react"
+import { 
+  Zap, Activity, Microscope, 
+  Target, Layers, Box, Hexagon, 
+  Terminal, Settings, Power, Info, 
+  AlertTriangle, ChevronRight, ArrowRight, 
+  Share2, Maximize2, Download, ExternalLink, 
+  Archive, Hash, Wifi, BarChart3, 
+  Fingerprint, Scan, Brain, Server, 
+  ShieldCheck, ShieldAlert, Award, 
+  Briefcase, Wind, Thermometer, 
+  Flame, Battery, Radio, Gauge, 
+  Timer, Lightbulb, Command, Grid, 
+  Radar, Orbit, Atom, Satellite, 
+  Milestone, FlaskConical, FlaskRound, 
+  Ghost, Binary, Database, Search, 
+  Cpu, HeartPulse, Sun, Magnet, 
+  CircleDot, Waves, Pickaxe, Mountain, 
+  Gem, Rocket, Drill, PlaneTakeoff, 
+  BrainIcon, Cable, CpuIcon, Network, 
+  Eye, ZapOff, GhostIcon, RadioReceiver
+} from "lucide-react"
 
-// ─── REVEAL COMPONENT ────────────────────────────────────────────────────────
-function Reveal({ children, delay = 0, className = "" }: { children: React.ReactNode; delay?: number, className?: string }) {
+/* ==========================================================================
+   THE NEURAL MESH DATASET (ULTRA DENSITY)
+   ========================================================================== */
+
+const COGNITIVE_ASSETS = [
+  {
+    id: "neu-v4-42",
+    name: "Neural-v4 Link",
+    type: "Cortical Interface",
+    bandwidth: "42 Gbps",
+    latency: "0.2 ms",
+    integration: "99.8%",
+    desc: "Interface neuronale de quatrième génération permettant une symbiose totale entre le cortex humain et les systèmes de calcul décentralisés.",
+    status: "Linked"
+  },
+  {
+    id: "neu-sta-08",
+    name: "Synapse Grid Alpha",
+    type: "Collective Consciousness Hub",
+    bandwidth: "18 Tbps",
+    latency: "1.5 ms",
+    integration: "99.99%",
+    desc: "Nœud de réseau permettant le partage de pensées et de souvenirs au sein d'un cluster fermé de collaborateurs.",
+    status: "Syncing"
+  },
+  {
+    id: "neu-cry-15",
+    name: "Cortex Core v5",
+    type: "Synthetic Telepathy Unit",
+    bandwidth: "120 Gbps",
+    latency: "0.05 ms",
+    integration: "99.4%",
+    desc: "Processeur de langage naturel direct émettant des ondes radio ultra-basses fréquences pour une télépathie assistée par machine.",
+    status: "Uplink Active"
+  }
+]
+
+const NEURAL_METRICS = [
+  { label: "Mind Load", value: "42%", trend: "Stable" },
+  { label: "Synapse Count", value: "1.4B", trend: "Linked" },
+  { label: "Data Flow", value: "12 Gbps", trend: "Peak" },
+  { label: "Consciousness", value: "NOMINAL", trend: "Optimal" }
+]
+
+const NEURAL_LOGS = [
+  { timestamp: "19:14:42", unit: "Cortical-Link-01", status: "UPLINK", data: "RAW_THOUGHT" },
+  { timestamp: "19:14:45", unit: "Synapse-Buffer", status: "SYNCED", latency: "0.2ms" },
+  { timestamp: "19:14:48", unit: "Mind-Guard", status: "SECURE", auth: "VERIFIED" }
+]
+
+/* ==========================================
+   TECHNICAL COMPONENTS
+   ========================================== */
+
+function Reveal({ children, delay = 0, y = 40, x = 0 }: { children: React.ReactNode, delay?: number, y?: number, x?: number }) {
   const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, margin: "-80px" })
+  const isInView = useInView(ref, { once: true, margin: "-100px" })
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, y: 32 }}
-      animate={isInView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.7, delay, ease: [0.22, 1, 0.36, 1] }}
-      className={className}
+      initial={{ opacity: 0, y, x }}
+      animate={isInView ? { opacity: 1, y: 0, x: 0 } : {}}
+      transition={{ duration: 1.2, delay, ease: [0.16, 1, 0.3, 1] }}
     >
       {children}
     </motion.div>
   )
 }
 
-// ─── DATA ────────────────────────────────────────────────────────────────────
-const NAV_LINKS = [
-  { label: "Treatments", href: "#treatments" },
-  { label: "Our Doctors", href: "#doctors" },
-  { label: "Facilities", href: "#facilities" },
-  { label: "Reviews", href: "#reviews" },
-]
-
-const STATS = [
-  { value: "15", label: "Years Experience", suffix: "+" },
-  { value: "50", label: "Medical Specialists", suffix: "+" },
-  { value: "100", label: "Happy Patients", suffix: "k" },
-  { value: "4.9", label: "Average Rating", suffix: "/5" },
-  { value: "24/7", label: "Emergency Care", suffix: "" },
-]
-
-const FEATURES = [
-  {
-    id: "aesthetics",
-    title: "Advanced Aesthetics",
-    icon: <HeartPulse className="w-5 h-5" />,
-    description: "State-of-the-art non-surgical procedures utilizing FDA-approved technology to enhance your natural beauty with minimal downtime.",
-    bullets: [
-      "Morpheus8 RF Microneedling",
-      "Laser Skin Resurfacing",
-      "Dermal Fillers & Botox",
-      "Platelet-Rich Plasma (PRP)"
-    ],
-    image: "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=800&q=80"
-  },
-  {
-    id: "dental",
-    title: "Cosmetic Dentistry",
-    icon: <Stethoscope className="w-5 h-5" />,
-    description: "Transform your smile with our master ceramists and orthodontists. We specialize in minimally invasive veneer placement and invisible aligners.",
-    bullets: [
-      "Porcelain Veneers (E-Max)",
-      "Invisalign Clear Aligners",
-      "Laser Teeth Whitening",
-      "Digital Smile Design"
-    ],
-    image: "https://images.unsplash.com/photo-1606811841689-23dfddce3e95?w=800&q=80"
-  },
-  {
-    id: "dermatology",
-    title: "Clinical Dermatology",
-    icon: <Microscope className="w-5 h-5" />,
-    description: "Comprehensive medical dermatology focused on skin health, mole mapping, acne treatment, and advanced scar revision protocols.",
-    bullets: [
-      "Advanced Mole Mapping",
-      "Acne & Rosacea Protocols",
-      "Scar Revision Surgery",
-      "Skin Cancer Screenings"
-    ],
-    image: "https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=800&q=80"
-  }
-]
-
-const TESTIMONIALS = [
-  {
-    name: "Sarah Jenkins",
-    role: "Aesthetics Patient",
-    avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&q=80",
-    content: "The level of care at Nova Clinic is unmatched. Dr. Chen took the time to explain every step of the Morpheus8 procedure. The results look completely natural.",
-    rating: 5
-  },
-  {
-    name: "David M.",
-    role: "Dental Patient",
-    avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&q=80",
-    content: "I had terrible dental anxiety for years. The environment here feels more like a luxury spa than a clinic, and the veneers completely changed my confidence.",
-    rating: 5
-  },
-  {
-    name: "Elena R.",
-    role: "Dermatology Patient",
-    avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&q=80",
-    content: "After struggling with adult acne for a decade, the specialized laser protocol at Nova cleared my skin in 3 months. Their approach is highly scientific.",
-    rating: 5
-  },
-  {
-    name: "Michael T.",
-    role: "Wellness Patient",
-    avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&q=80",
-    content: "The annual executive health screening was incredibly thorough. Receiving same-day results and a customized health roadmap is exactly what I needed.",
-    rating: 5
-  }
-]
-
-const PRICING = [
-  {
-    id: "consultation",
-    title: "Initial Consultation",
-    subtitle: "Comprehensive Assessment",
-    price: "$150",
-    duration: "Per Visit",
-    description: "A full 45-minute deep dive into your health goals with a board-certified specialist. The fee is fully redeemable against any treatment booked.",
-    features: [
-      "45-minute specialist consultation",
-      "3D facial or dental scanning",
-      "Customized treatment roadmap",
-      "Medical history review",
-      "Fee redeemable against treatments"
-    ],
-    recommended: false
-  },
-  {
-    id: "signature",
-    title: "Nova Signature Glow",
-    subtitle: "Most Popular Treatment",
-    price: "$850",
-    duration: "Per Session",
-    description: "Our proprietary combination of light chemical peeling, laser genesis, and PRP to radically improve skin texture and tone in a single session.",
-    features: [
-      "Medical-grade chemical peel",
-      "Laser genesis collagen stimulation",
-      "PRP (Platelet-Rich Plasma) therapy",
-      "LED light therapy recovery",
-      "Post-care product kit included"
-    ],
-    recommended: true
-  },
-  {
-    id: "executive",
-    title: "Executive Health",
-    subtitle: "Annual Screening",
-    price: "$2,500",
-    duration: "Annual",
-    description: "A comprehensive half-day proactive health assessment including advanced blood panels, full-body MRI, and cardiovascular stress testing.",
-    features: [
-      "Full-body MRI scan",
-      "Advanced 50+ biomarker blood panel",
-      "Cardiovascular stress testing",
-      "Genetic predisposition screening",
-      "Same-day consultation & results"
-    ],
-    recommended: false
-  }
-]
-
-const FAQS = [
-  {
-    question: "Do you accept health insurance?",
-    answer: "Nova Clinic is an out-of-network provider. While we do not bill insurance directly, we provide a detailed 'superbill' that you can submit to your insurance company for potential reimbursement on medically necessary procedures."
-  },
-  {
-    question: "Are your consultations really redeemable?",
-    answer: "Yes, the $150 consultation fee is fully credited toward any treatment or procedure you book within 30 days of your initial visit."
-  },
-  {
-    question: "How long is the waitlist for an appointment?",
-    answer: "For new patient consultations, the typical wait time is 1-2 weeks. However, we keep dedicated slots open daily for acute dermatological or dental emergencies."
-  },
-  {
-    question: "What qualifications do your practitioners have?",
-    answer: "All our treatments are performed exclusively by Board-Certified Dermatologists, Plastic Surgeons, or specialized Registered Nurses. We never use estheticians for medical-grade procedures."
-  },
-  {
-    question: "Is there downtime after aesthetic procedures?",
-    answer: "It depends on the specific treatment. Injectables usually have zero downtime. Laser resurfacing or Morpheus8 typically require 2-4 days of social downtime. Your practitioner will explain this clearly during consultation."
-  },
-  {
-    question: "Do you offer payment plans?",
-    answer: "Yes, we partner with CareCredit and PatientFi to offer 0% interest financing for up to 12 months on all procedures over $1,000."
-  },
-  {
-    question: "Where are you located?",
-    answer: "Our flagship clinic is located in the Medical Arts Building downtown. We offer complimentary valet parking for all patients in the underground garage."
-  },
-  {
-    question: "Can I do multiple treatments in one day?",
-    answer: "Absolutely. We specialize in 'stacking' treatments (e.g., Botox and Laser Genesis) to maximize your results while minimizing the number of visits and total recovery time."
-  }
-]
-
-// ─── MAIN COMPONENT ────────────────────────────────────────────────────────
-export default function NovaClinicTemplate() {
-  const containerRef = useRef<HTMLDivElement>(null)
-  const { scrollYProgress } = useScroll({ target: containerRef })
-  
-  // Parallax Values
-  const heroY = useTransform(scrollYProgress, [0, 1], ["0%", "30%"])
-  const textY = useTransform(scrollYProgress, [0, 1], ["0%", "10%"])
+function SynapseStreamVisualizer() {
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
+  useEffect(() => {
+    const handleMouse = (e: MouseEvent) => setMousePos({ x: e.clientX, y: e.clientY })
+    window.addEventListener("mousemove", handleMouse)
+    return () => window.removeEventListener("mousemove", handleMouse)
+  }, [])
 
   return (
-    <div ref={containerRef} className="min-h-screen bg-[#FDFDFD] text-[#111827] font-sans selection:bg-[#0EA5E9] selection:text-white" style={{ overflowX: "hidden", scrollBehavior: "smooth" }}>
-      
-      {/* ─── 1. NAVBAR (CLEAN & TRUSTWORTHY) ─── */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-lg border-b border-zinc-200 transition-all duration-300">
-        <div className="max-w-[1400px] mx-auto px-6 h-20 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2 group cursor-pointer">
-            <div className="w-8 h-8 rounded-lg bg-[#0EA5E9] flex items-center justify-center">
-              <ShieldCheck className="w-5 h-5 text-white" />
-            </div>
-            <span className="text-xl font-bold tracking-tight text-[#111827]">
-              Nova Clinic<span className="text-[#0EA5E9]">.</span>
-            </span>
-          </Link>
-
-          {/* Desktop Nav */}
-          <div className="hidden md:flex items-center gap-8">
-            {NAV_LINKS.map((link) => (
-              <Link 
-                key={link.label} 
-                href={link.href} 
-                className="text-sm font-semibold text-zinc-500 hover:text-[#0EA5E9] transition-colors duration-200 cursor-pointer"
-              >
-                {link.label}
-              </Link>
-            ))}
-          </div>
-
-          <div className="hidden md:flex items-center gap-4">
-            <button className="text-sm font-bold text-zinc-500 hover:text-[#111827] transition-colors cursor-pointer flex items-center gap-2">
-              <Phone className="w-4 h-4" /> 1-800-NOVA
-            </button>
-            <button className="px-6 py-2.5 bg-[#0EA5E9] text-white text-sm font-bold rounded-full hover:bg-[#0284C7] transition-all duration-300 shadow-[0_4px_14px_0_rgba(14,165,233,0.39)] hover:shadow-[0_6px_20px_rgba(14,165,233,0.23)] hover:-translate-y-0.5 cursor-pointer flex items-center gap-2">
-              <CalendarDays className="w-4 h-4" /> Book Consultation
-            </button>
-          </div>
-
-          {/* Mobile Nav */}
-          <Sheet>
-            <SheetTrigger asChild>
-              <button className="md:hidden p-2 text-zinc-500 cursor-pointer">
-                <Menu className="w-6 h-6" />
-              </button>
-            </SheetTrigger>
-            <SheetContent side="right" className="bg-white border-l border-zinc-200 text-[#111827] w-full sm:w-[400px]">
-              <div className="flex flex-col gap-6 mt-12">
-                <div className="flex items-center gap-2 mb-4">
-                  <div className="w-8 h-8 rounded-lg bg-[#0EA5E9] flex items-center justify-center">
-                    <ShieldCheck className="w-5 h-5 text-white" />
-                  </div>
-                  <span className="text-xl font-bold tracking-tight">Nova Clinic.</span>
-                </div>
-                {NAV_LINKS.map((link) => (
-                  <Link 
-                    key={link.label} 
-                    href={link.href} 
-                    className="text-lg font-semibold text-zinc-600 hover:text-[#0EA5E9] transition-colors cursor-pointer"
-                  >
-                    {link.label}
-                  </Link>
-                ))}
-                <div className="mt-8 pt-8 border-t border-zinc-100 flex flex-col gap-4">
-                  <button className="w-full py-4 border border-zinc-200 text-[#111827] text-sm font-bold rounded-xl cursor-pointer flex justify-center items-center gap-2">
-                    <Phone className="w-4 h-4" /> Call Us
-                  </button>
-                  <button className="w-full py-4 bg-[#0EA5E9] text-white text-sm font-bold rounded-xl cursor-pointer flex justify-center items-center gap-2">
-                    <CalendarDays className="w-4 h-4" /> Book Online
-                  </button>
-                </div>
-              </div>
-            </SheetContent>
-          </Sheet>
-        </div>
-      </nav>
-
-      {/* ─── 2. HERO PARALLAX (CLEAN MEDICAL AESTHETIC) ─── */}
-      <section className="relative pt-20 pb-20 md:pb-0 md:h-[95vh] flex items-center overflow-hidden bg-gradient-to-b from-[#F0F9FF] to-white">
-        <div className="max-w-[1400px] mx-auto px-6 w-full grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-          
-          <motion.div style={{ y: textY }} className="relative z-10 pt-10 md:pt-0">
-            <Reveal>
-              <Badge className="bg-white text-[#0EA5E9] border border-[#0EA5E9]/20 mb-6 px-4 py-1.5 rounded-full font-semibold shadow-sm">
-                Award-Winning Care in 2026
-              </Badge>
-            </Reveal>
-            
-            <Reveal delay={0.1}>
-              <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-[#111827] mb-6 leading-[1.1]">
-                Mastering the art <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0EA5E9] to-[#3B82F6]">
-                  of natural beauty.
-                </span>
-              </h1>
-            </Reveal>
-
-            <Reveal delay={0.2}>
-              <p className="text-lg md:text-xl text-zinc-500 font-medium max-w-lg mb-10 leading-relaxed">
-                Elevate your confidence with board-certified specialists, cutting-edge technology, and a commitment to subtle, transformative results.
-              </p>
-            </Reveal>
-
-            <Reveal delay={0.3} className="flex flex-col sm:flex-row gap-4">
-              <button className="px-8 py-4 bg-[#111827] text-white font-bold rounded-full hover:bg-zinc-800 transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5 cursor-pointer flex items-center justify-center gap-2">
-                View Treatments <ArrowRight className="w-4 h-4" />
-              </button>
-              <Dialog>
-                <DialogTrigger asChild>
-                  <button className="px-8 py-4 bg-white border border-zinc-200 text-[#111827] font-bold rounded-full hover:bg-zinc-50 transition-colors duration-300 cursor-pointer flex items-center justify-center gap-3">
-                    <div className="w-6 h-6 rounded-full bg-[#0EA5E9]/10 flex items-center justify-center">
-                      <Play className="w-3 h-3 text-[#0EA5E9] ml-0.5" />
-                    </div>
-                    Tour the Clinic
-                  </button>
-                </DialogTrigger>
-                <DialogContent className="bg-white border-zinc-200 sm:max-w-[800px] p-1 rounded-2xl overflow-hidden">
-                  <div className="aspect-video relative w-full bg-zinc-100 flex items-center justify-center rounded-xl overflow-hidden">
-                    <div className="w-12 h-12 rounded-full border-t-2 border-[#0EA5E9] animate-spin" />
-                  </div>
-                </DialogContent>
-              </Dialog>
-            </Reveal>
-            
-            <Reveal delay={0.4} className="mt-12 flex items-center gap-6">
-              <div className="flex -space-x-3">
-                {[1,2,3,4].map((i) => (
-                  <div key={i} className={`w-10 h-10 rounded-full border-2 border-white bg-zinc-200 overflow-hidden relative z-[${5-i}]`}>
-                    <Image src={`https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&q=80&auto=format&fit=crop&crop=faces`} alt="patient" fill className="object-cover" />
-                  </div>
-                ))}
-              </div>
-              <div className="text-sm font-semibold text-zinc-600">
-                <span className="text-[#111827] font-bold">100k+</span> procedures performed safely.
-              </div>
-            </Reveal>
-          </motion.div>
-
-          <motion.div style={{ y: heroY }} className="relative h-[500px] md:h-[700px] w-full hidden md:block rounded-3xl overflow-hidden shadow-2xl">
-            <Image 
-              src="https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=1200&q=80" 
-              alt="Modern medical clinic" 
-              fill 
-              className="object-cover"
-              priority
+    <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden opacity-20">
+       <svg width="100%" height="100%" className="w-full h-full">
+          {[...Array(30)].map((_, i) => (
+            <motion.circle 
+               key={i}
+               cx={mousePos.x + (Math.random() - 0.5) * 400}
+               cy={mousePos.y + (Math.random() - 0.5) * 400}
+               r={1}
+               fill="#0ea5e9"
+               animate={{ opacity: [0, 1, 0], scale: [1, 5, 1] }}
+               transition={{ duration: 2, repeat: Infinity, delay: i * 0.1 }}
             />
-            <div className="absolute inset-0 bg-gradient-to-tr from-[#0EA5E9]/20 to-transparent mix-blend-multiply" />
-            
-            {/* Floating Glass Card */}
-            <div className="absolute bottom-8 left-8 right-8 bg-white/90 backdrop-blur-md p-6 rounded-2xl shadow-xl border border-white flex items-center justify-between">
-              <div>
-                <div className="text-sm font-bold text-zinc-500 mb-1">Clinic Status</div>
-                <div className="flex items-center gap-2 font-semibold text-[#111827]">
-                  <div className="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse" /> Accepting New Patients
-                </div>
-              </div>
-              <button className="w-10 h-10 rounded-full bg-[#0EA5E9]/10 flex items-center justify-center text-[#0EA5E9]">
-                <ArrowRight className="w-5 h-5 -rotate-45" />
-              </button>
-            </div>
+          ))}
+          {[...Array(15)].map((_, i) => (
+            <motion.path 
+               key={`axon-${i}`}
+               d={`M ${Math.random() * 2000} ${Math.random() * 1000} L ${Math.random() * 2000} ${Math.random() * 1000}`}
+               stroke="#0ea5e9" 
+               strokeWidth="0.5" 
+               fill="none"
+               animate={{ d: `M ${mousePos.x} ${mousePos.y} L ${Math.random() * 2000} ${Math.random() * 1000}` }}
+               transition={{ type: "spring", damping: 30, stiffness: 50 }}
+            />
+          ))}
+       </svg>
+    </div>
+  )
+}
+
+function NeuralMeshModel({ progress }: { progress: any }) {
+  const rotate = useTransform(progress, [0, 1], [0, 360])
+  const scale = useTransform(progress, [0, 0.5, 1], [1, 1.2, 1])
+
+  return (
+    <motion.div style={{ rotate, scale }} className="relative w-80 h-80 flex items-center justify-center">
+       <div className="absolute inset-0 border border-sky-500/10 rounded-full animate-spin-slow shadow-[0_0_80px_rgba(14,165,233,0.05)]" />
+       <BrainIcon className="w-40 h-40 text-sky-500/10 animate-pulse" />
+       <div className="absolute inset-8 border border-sky-500/5 rounded-full" />
+    </motion.div>
+  )
+}
+
+/* ==========================================
+   THE NEURAL MESH - MAIN INTERFACE
+   ========================================== */
+
+export default function NeuralMeshPremium() {
+  const [activeAsset, setActiveAsset] = useState(0)
+  const [isMindLocked, setIsMindLocked] = useState(true)
+  const containerRef = useRef(null)
+  const { scrollYProgress } = useScroll({ target: containerRef })
+
+  // Mesh Scroll Effects
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.2], [1, 0])
+  const textX = useTransform(scrollYProgress, [0, 0.5], [0, -100])
+
+  return (
+    <div ref={containerRef} className="bg-[#02040c] text-[#e0e8ed] font-mono selection:bg-sky-500/30 selection:text-white min-h-screen overflow-x-hidden transition-colors duration-1000">
+      
+      {/* GLOBAL HUD OVERLAY */}
+      <HUD_Overlay isMindLocked={isMindLocked} />
+
+      <main>
+        {/* ==========================================
+            1. NEURAL IGNITION (HERO)
+            ========================================== */}
+        <section className="relative h-screen flex flex-col justify-center items-center px-8 md:px-24 overflow-hidden pt-20">
+          <SynapseStreamVisualizer />
+          <motion.div style={{ opacity: heroOpacity }} className="absolute z-0 pointer-events-none flex items-center justify-center">
+             <NeuralMeshModel progress={scrollYProgress} />
           </motion.div>
-        </div>
-      </section>
 
-      {/* ─── 3. STATS BAR ─── */}
-      <section className="py-16 border-y border-zinc-100 bg-white relative z-10">
-        <div className="max-w-[1400px] mx-auto px-6">
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-8 md:gap-4 divide-x-0 md:divide-x divide-zinc-100">
-            {STATS.map((stat, i) => (
-              <Reveal key={i} delay={i * 0.1}>
-                <div className="flex flex-col items-center text-center">
-                  <div className="text-4xl lg:text-5xl font-bold text-[#111827] mb-2 tracking-tight">
-                    {stat.value}<span className="text-[#0EA5E9]">{stat.suffix}</span>
-                  </div>
-                  <div className="text-xs text-zinc-500 font-bold uppercase tracking-widest">
-                    {stat.label}
-                  </div>
+          <div className="relative z-10 text-center max-w-7xl">
+             <Reveal>
+                <div className="inline-flex items-center gap-4 px-6 py-2 border border-sky-500/30 bg-sky-500/5 text-[10px] font-black uppercase tracking-[0.5em] text-sky-500 mb-12 italic">
+                   <BrainIcon className="w-4 h-4" /> Mesh_Sync: NOMINAL // Bandwidth: 42 Gbps
                 </div>
-              </Reveal>
-            ))}
+                <motion.h1 style={{ x: textX }} className="text-7xl md:text-[14vw] font-black tracking-tighter uppercase mb-16 leading-[0.75] italic">
+                   Neural <br/> <span className="text-white/5 italic">Mesh.</span>
+                </motion.h1>
+                <p className="max-w-3xl mx-auto text-sm md:text-lg text-white/30 leading-relaxed uppercase tracking-widest font-light mb-16 italic">
+                   L'évolution de la conscience. Nous connectons l'esprit humain au réseau mondial via des interfaces neuronales de haute fidélité, permettant une communication et un apprentissage instantanés.
+                </p>
+                
+                <div className="flex flex-col sm:flex-row gap-8 justify-center items-center">
+                   <button className="px-12 py-6 bg-sky-800 text-white text-[10px] font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all shadow-[0_0_40px_rgba(14,165,233,0.2)] flex items-center gap-4 italic">
+                      <Zap className="w-5 h-5" /> Initialize Uplink
+                   </button>
+                   <button className="px-12 py-6 border border-white/10 text-white text-[10px] font-black uppercase tracking-widest hover:bg-white/5 transition-all flex items-center gap-4 italic">
+                      <Database className="w-5 h-5" /> Cognitive Registry
+                   </button>
+                </div>
+             </Reveal>
           </div>
-        </div>
-      </section>
 
-      {/* ─── 4. FEATURES (TABS) ─── */}
-      <section id="treatments" className="py-32 relative bg-zinc-50">
-        <div className="max-w-[1400px] mx-auto px-6 relative z-10">
-          <div className="text-center mb-20">
-            <Reveal>
-              <h2 className="text-sm font-bold text-[#0EA5E9] mb-4 uppercase tracking-widest">Departments</h2>
-              <h3 className="text-4xl md:text-5xl font-bold text-[#111827] mb-6 tracking-tight">Comprehensive Care.</h3>
-              <p className="text-zinc-500 max-w-2xl mx-auto leading-relaxed text-lg font-medium">
-                Our clinic houses three distinct departments under one roof, allowing for a holistic and collaborative approach to your aesthetic and medical needs.
-              </p>
-            </Reveal>
+          <div className="absolute bottom-12 left-12 right-12 flex justify-between items-end border-t border-white/5 pt-12">
+             <div className="flex flex-col gap-6">
+                <div className="flex items-center gap-4 text-[9px] font-bold text-white/20 uppercase tracking-widest italic">
+                   <div className="w-16 h-px bg-white/10" />
+                   Mesh_ID: NEURAL-MESH-01
+                </div>
+                <div className="flex items-center gap-4 text-[9px] font-bold text-white/20 uppercase tracking-widest italic">
+                   <div className="w-16 h-px bg-white/10" />
+                   Status: CORTEX_LINK_ACTIVE
+                </div>
+             </div>
+             <div className="text-right flex flex-col items-end gap-4">
+                <span className="text-[8px] font-black uppercase tracking-[0.5em] text-sky-500">Synaptic_Data_Stream</span>
+                <div className="flex gap-2 h-12 items-end">
+                   {[...Array(16)].map((_, i) => (
+                     <motion.div 
+                        key={i}
+                        animate={{ height: ["10%", "100%", "30%", "80%", "10%"] }}
+                        transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.1 }}
+                        className="w-2 bg-sky-500/20"
+                     />
+                   ))}
+                </div>
+             </div>
           </div>
+        </section>
 
-          <Tabs defaultValue="aesthetics" className="w-full">
-            <TabsList className="flex flex-col sm:flex-row justify-center h-auto bg-transparent gap-4 mb-16 p-0">
-              {FEATURES.map((feature) => (
-                <TabsTrigger 
-                  key={feature.id} 
-                  value={feature.id}
-                  className="px-8 py-4 text-center data-[state=active]:bg-[#111827] data-[state=active]:text-white text-zinc-500 hover:bg-white hover:text-[#111827] transition-all duration-300 cursor-pointer rounded-full border border-zinc-200 data-[state=active]:border-[#111827] shadow-sm data-[state=active]:shadow-md"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="opacity-70">{feature.icon}</div>
-                    <span className="text-sm font-bold">{feature.title}</span>
-                  </div>
-                </TabsTrigger>
-              ))}
-            </TabsList>
+        {/* ==========================================
+            2. COGNITIVE REGISTRY (DENSE TECHNICAL)
+            ========================================== */}
+        <section className="py-60 bg-[#04081c] relative border-y border-white/5 overflow-hidden">
+           <div className="max-w-[1600px] mx-auto px-8 md:px-24">
+              <div className="flex flex-col md:flex-row items-end justify-between mb-40 gap-12">
+                 <Reveal>
+                    <span className="text-[10px] font-black uppercase tracking-[0.6em] text-sky-500 block mb-6 italic underline underline-offset-8 decoration-sky-400/20">Cognitive // Assets</span>
+                    <h2 className="text-6xl md:text-[10vw] font-black uppercase tracking-tighter italic leading-none text-white">Archives.</h2>
+                 </Reveal>
+                 <div className="text-right">
+                    <span className="text-[10px] font-black uppercase tracking-[0.5em] text-white/20 block mb-4 italic">Registry // Mind_Audit</span>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-sky-500">L'Architecture de la Connexion Corticale</p>
+                 </div>
+              </div>
 
-            <div className="w-full">
-              <AnimatePresence mode="wait">
-                {FEATURES.map((feature) => (
-                  <TabsContent key={feature.id} value={feature.id} className="mt-0 outline-none">
-                    <motion.div
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -20 }}
-                      transition={{ duration: 0.5 }}
-                      className="bg-white rounded-3xl overflow-hidden shadow-xl border border-zinc-100 flex flex-col lg:flex-row"
-                    >
-                      <div className="p-10 md:p-16 lg:w-1/2 flex flex-col justify-center">
-                        <div className="w-12 h-12 rounded-xl bg-[#E0F2FE] flex items-center justify-center text-[#0EA5E9] mb-8">
-                          {feature.icon}
-                        </div>
-                        <h4 className="text-3xl font-bold text-[#111827] mb-6">{feature.title}</h4>
-                        <p className="text-zinc-500 leading-relaxed mb-10 text-lg">{feature.description}</p>
-                        <div className="space-y-5">
-                          {feature.bullets.map((bullet, i) => (
-                            <div key={i} className="flex items-center gap-4">
-                              <div className="w-6 h-6 rounded-full bg-[#F0F9FF] flex items-center justify-center shrink-0">
-                                <CheckCircle2 className="w-4 h-4 text-[#0EA5E9]" />
-                              </div>
-                              <span className="text-base font-semibold text-zinc-700">{bullet}</span>
+              <div className="grid md:grid-cols-3 gap-px bg-white/5 border border-white/5 shadow-2xl">
+                 {COGNITIVE_ASSETS.map((asset, i) => (
+                   <Reveal key={asset.id} delay={i * 0.1}>
+                      <div className="bg-[#02040c] p-20 flex flex-col h-full hover:bg-white/[0.02] transition-all group cursor-crosshair border-white/5 border-r last:border-r-0">
+                         <div className="flex justify-between items-start mb-16">
+                            <div className="w-16 h-16 bg-white/5 border border-white/10 flex items-center justify-center group-hover:bg-sky-800 group-hover:text-white transition-all duration-500">
+                               <CpuIcon className="w-8 h-8" />
+                            </div>
+                            <span className={`px-4 py-2 bg-white/5 text-[9px] font-black uppercase tracking-[0.3em] ${asset.status === "Linked" ? "text-sky-500" : "text-white/40"}`}>{asset.status}</span>
+                         </div>
+                         
+                         <h3 className="text-4xl font-black uppercase tracking-tighter mb-8 italic text-white group-hover:translate-x-4 transition-transform">{asset.name}</h3>
+                         <div className="text-[10px] font-black text-white/20 uppercase tracking-[0.5em] mb-12">{asset.type}</div>
+                         
+                         <div className="space-y-8 mb-20 border-l border-sky-500/20 pl-8">
+                            <div className="flex justify-between items-center text-[11px] font-bold uppercase tracking-widest">
+                               <span className="text-white/20">Bandwidth</span>
+                               <span className="text-white group-hover:text-sky-400 transition-colors">{asset.bandwidth}</span>
+                            </div>
+                            <div className="flex justify-between items-center text-[11px] font-bold uppercase tracking-widest">
+                               <span className="text-white/20">Syn. Latency</span>
+                               <span className="text-white group-hover:text-sky-400 transition-colors">{asset.latency}</span>
+                            </div>
+                            <div className="flex justify-between items-center text-[11px] font-bold uppercase tracking-widest">
+                               <span className="text-white/20">Integration</span>
+                               <span className="text-white group-hover:text-sky-400 transition-colors">{asset.integration}</span>
+                            </div>
+                         </div>
+
+                         <p className="text-[12px] text-white/30 leading-loose uppercase tracking-[0.2em] font-bold italic mb-16">
+                            {asset.desc}
+                         </p>
+
+                         <div className="mt-auto pt-10 border-t border-white/5 flex justify-between items-center">
+                            <span className="text-[10px] font-black text-white/10 uppercase tracking-widest">Ref: {asset.id}</span>
+                            <button className="text-[10px] font-black uppercase text-white/40 flex items-center gap-4 group-hover:text-white transition-all">
+                               Technical_Specs <ChevronRight className="w-5 h-5" />
+                            </button>
+                         </div>
+                      </div>
+                   </Reveal>
+                 ))}
+              </div>
+           </div>
+        </section>
+
+        {/* ==========================================
+            3. MIND MONITOR (INTERACTIVE DATA)
+            ========================================== */}
+        <section className="py-60 bg-black relative border-y border-white/5 overflow-hidden">
+           <div className="max-w-[1400px] mx-auto px-8 md:px-24">
+              <div className="grid lg:grid-cols-2 gap-40 items-center">
+                 <div>
+                    <Reveal>
+                       <span className="text-[10px] font-black uppercase tracking-[0.5em] text-sky-500 block mb-12 italic underline underline-offset-8 decoration-sky-500/20">Mind // Performance</span>
+                       <h2 className="text-7xl md:text-[9vw] font-light italic leading-none text-white mb-16 uppercase tracking-tighter">
+                          The <br/> <span className="not-italic font-black text-white/5 italic">Synapse_Link.</span>
+                       </h2>
+                       <p className="text-2xl font-light text-white/20 leading-relaxed mb-24 italic uppercase tracking-[0.2em] max-w-xl">
+                          Surveillance de l'intégrité cognitive en temps réel. Nos capteurs neuronaux analysent chaque pensée et chaque connexion pour garantir un Uplink sûr et sans perte de conscience.
+                       </p>
+                       <div className="grid grid-cols-2 gap-px bg-white/5 border border-white/5 mb-24 shadow-2xl">
+                          {NEURAL_METRICS.map((metric, i) => (
+                            <div key={i} className="p-16 bg-[#0a101c] group hover:bg-white/[0.02] transition-all border-r border-b last:border-r-0 border-white/5">
+                               <div className="text-[10px] font-black uppercase text-sky-500 mb-6 tracking-[0.4em]">{metric.label}</div>
+                               <div className="text-5xl font-black text-white italic mb-6 tracking-tighter group-hover:translate-x-4 transition-transform">{metric.value}</div>
+                               <div className="flex items-center gap-3 text-[9px] font-bold uppercase tracking-[0.3em] text-white/10 italic">
+                                  <Activity className="w-4 h-4 text-sky-500" /> {metric.trend}
+                               </div>
                             </div>
                           ))}
-                        </div>
-                        <button className="mt-12 w-fit px-8 py-3 text-sm font-bold text-[#0EA5E9] border border-[#0EA5E9]/30 rounded-full hover:bg-[#F0F9FF] transition-colors cursor-pointer">
-                          Learn More
-                        </button>
-                      </div>
-                      
-                      <div className="relative lg:w-1/2 min-h-[400px] lg:min-h-full">
-                        <Image src={feature.image} alt={feature.title} fill className="object-cover" />
-                      </div>
-                    </motion.div>
-                  </TabsContent>
-                ))}
-              </AnimatePresence>
-            </div>
-          </Tabs>
-        </div>
-      </section>
-
-      {/* ─── 5. TESTIMONIALS CAROUSEL ─── */}
-      <section id="reviews" className="py-32 bg-white border-y border-zinc-100 overflow-hidden relative">
-        <div className="max-w-[1400px] mx-auto px-6 relative z-10">
-          <Reveal>
-            <div className="text-center mb-16">
-              <h2 className="text-sm font-bold text-[#0EA5E9] mb-4 uppercase tracking-widest">Testimonials</h2>
-              <h3 className="text-4xl font-bold text-[#111827]">Patient Stories.</h3>
-            </div>
-          </Reveal>
-
-          <Carousel className="w-full max-w-6xl mx-auto">
-            <CarouselContent>
-              {TESTIMONIALS.map((testi, i) => (
-                <CarouselItem key={i} className="md:basis-1/2 lg:basis-1/2 pl-6">
-                  <Reveal delay={i * 0.1}>
-                    <Card className="bg-[#F8FAFC] border-zinc-100 hover:border-zinc-300 transition-colors duration-300 cursor-pointer h-full rounded-2xl relative overflow-hidden group">
-                      <CardContent className="p-10 flex flex-col h-full justify-between relative z-10">
-                        <div>
-                          <div className="flex gap-1 mb-6">
-                            {[...Array(testi.rating)].map((_, j) => (
-                              <Star key={j} className="w-5 h-5 fill-[#F59E0B] text-[#F59E0B]" />
-                            ))}
+                       </div>
+                       <button 
+                         onClick={() => setIsMindLocked(!isMindLocked)}
+                         className="w-full py-8 bg-sky-950 text-white text-[11px] font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all shadow-2xl flex items-center justify-center gap-6 italic"
+                       >
+                          <Settings className="w-5 h-5" /> Re-Sync Neural Nodes
+                       </button>
+                    </Reveal>
+                 </div>
+                 
+                 <div className="relative">
+                    <Reveal delay={0.3} x={40}>
+                       <div className="aspect-square bg-[#0a101c] border border-white/10 p-20 flex flex-col justify-between relative group overflow-hidden shadow-2xl">
+                          <div className="absolute top-0 right-0 p-80 bg-sky-400 opacity-[0.02] blur-[150px] rounded-full group-hover:opacity-[0.05] transition-opacity" />
+                          
+                          <div className="flex justify-between items-start z-10">
+                             <div className="flex flex-col gap-3">
+                                <span className="text-[10px] font-black text-white/10 uppercase tracking-[0.5em]">Mesh_Link // NUC-SYNC-v42</span>
+                                <span className="text-[12px] font-black text-white/40 uppercase tracking-[0.6em]">Cognitive_Stability_Telemetry</span>
+                             </div>
+                             <Wifi className="w-6 h-6 text-sky-400" />
                           </div>
-                          <p className="text-zinc-600 text-lg leading-relaxed mb-8 italic">
-                            "{testi.content}"
-                          </p>
-                        </div>
-                        <div className="flex items-center gap-4 pt-6 mt-auto border-t border-zinc-200">
-                          <Avatar className="w-12 h-12">
-                            <AvatarImage src={testi.avatar} />
-                            <AvatarFallback>PT</AvatarFallback>
-                          </Avatar>
-                          <div>
-                            <div className="text-[#111827] font-bold text-sm">{testi.name}</div>
-                            <div className="text-[#0EA5E9] font-semibold text-xs mt-1">{testi.role}</div>
+                          
+                          {/* MESH VISUALIZER (SVG) */}
+                          <div className="relative z-10 flex flex-col items-center justify-center h-full">
+                             <div className="w-64 h-64 border border-sky-400/5 rounded-full flex items-center justify-center relative">
+                                <motion.div 
+                                  animate={{ rotate: 360 }}
+                                  transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+                                  className="absolute inset-0 border-t-2 border-sky-400/20 rounded-full" 
+                                />
+                                <motion.div 
+                                  animate={{ rotate: -360 }}
+                                  transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+                                  className="absolute inset-8 border-b-2 border-sky-400/10 rounded-full" 
+                                />
+                                <Zap className={`w-24 h-24 transition-colors duration-1000 ${isMindLocked ? "text-sky-400 animate-pulse" : "text-white/5"}`} />
+                             </div>
+                             <div className="mt-16 text-center space-y-6">
+                                <div className={`text-4xl font-black italic tracking-tighter ${isMindLocked ? "text-white" : "text-white/20"}`}>
+                                   {isMindLocked ? "UPLINK_SECURE" : "NEURAL_DISRUPTION"}
+                                </div>
+                                <span className="text-[11px] font-bold text-white/10 uppercase tracking-[0.6em] block">Auth_Node: MESH_UNIT_01</span>
+                             </div>
                           </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </Reveal>
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-            <div className="flex justify-center gap-4 mt-12">
-              <CarouselPrevious className="relative inset-auto translate-y-0 bg-white border-zinc-200 text-[#111827] hover:bg-zinc-100 hover:text-black transition-colors" />
-              <CarouselNext className="relative inset-auto translate-y-0 bg-white border-zinc-200 text-[#111827] hover:bg-zinc-100 hover:text-black transition-colors" />
-            </div>
-          </Carousel>
-        </div>
-      </section>
 
-      {/* ─── 6. PRICING ─── */}
-      <section className="py-32 bg-zinc-50 relative">
-        <div className="max-w-[1400px] mx-auto px-6 relative z-10">
-          <div className="text-center mb-20">
-            <Reveal>
-              <h2 className="text-sm font-bold text-[#0EA5E9] mb-4 uppercase tracking-widest">Investment</h2>
-              <h3 className="text-4xl md:text-5xl font-bold text-[#111827] mb-6">Transparent Pricing.</h3>
-              <p className="text-zinc-500 max-w-xl mx-auto text-lg">
-                We believe in complete transparency. Every journey begins with a comprehensive consultation to map out your specific needs.
-              </p>
-            </Reveal>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
-            {PRICING.map((tier, i) => (
-              <Reveal key={i} delay={i * 0.1}>
-                <Card className={`relative bg-white border ${tier.recommended ? 'border-[#0EA5E9] shadow-[0_20px_50px_rgba(14,165,233,0.1)] lg:scale-105 z-10' : 'border-zinc-200 shadow-sm'} rounded-3xl transition-all duration-300`}>
-                  {tier.recommended && (
-                    <div className="absolute top-0 inset-x-0 bg-[#0EA5E9] text-white text-xs font-bold uppercase tracking-widest text-center py-2 rounded-t-3xl">
-                      Most Popular
-                    </div>
-                  )}
-                  <CardContent className={`p-10 ${tier.recommended ? 'pt-12' : ''}`}>
-                    <h4 className="text-2xl font-bold text-[#111827] mb-1">{tier.title}</h4>
-                    <div className="text-sm font-semibold text-zinc-500 mb-6">{tier.subtitle}</div>
-                    
-                    <div className="flex items-end gap-1 mb-8">
-                      <span className="text-5xl font-bold text-[#111827] tracking-tight">{tier.price}</span>
-                      <span className="text-sm font-semibold text-zinc-500 mb-2">{tier.duration}</span>
-                    </div>
-
-                    <p className="text-sm font-medium text-zinc-600 mb-8 h-16">{tier.description}</p>
-                    
-                    <ul className="space-y-4 mb-10 border-t border-zinc-100 pt-8">
-                      {tier.features.map((feat, j) => (
-                        <li key={j} className="flex items-start gap-3 text-sm text-zinc-700 font-semibold">
-                          <CheckCircle2 className="w-5 h-5 text-[#0EA5E9] shrink-0" />
-                          <span>{feat}</span>
-                        </li>
-                      ))}
-                    </ul>
-
-                    <button className={`w-full py-4 text-sm font-bold rounded-xl transition-all duration-300 ${tier.recommended ? 'bg-[#111827] text-white hover:bg-zinc-800 shadow-md' : 'bg-[#F0F9FF] text-[#0EA5E9] hover:bg-[#E0F2FE]'}`}>
-                      Book Now
-                    </button>
-                  </CardContent>
-                </Card>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ─── 7. FAQ ACCORDION ─── */}
-      <section className="py-32 bg-white border-t border-zinc-100">
-        <div className="max-w-4xl mx-auto px-6">
-          <Reveal>
-            <div className="text-center mb-16">
-              <h2 className="text-sm font-bold text-[#0EA5E9] mb-4 uppercase tracking-widest">Support</h2>
-              <h3 className="text-4xl font-bold text-[#111827]">Frequently Asked.</h3>
-            </div>
-          </Reveal>
-
-          <Reveal delay={0.2}>
-            <Accordion type="single" collapsible className="w-full">
-              {FAQS.map((faq, i) => (
-                <AccordionItem key={i} value={`item-${i}`} className="border-zinc-200">
-                  <AccordionTrigger className="text-left text-[#111827] hover:text-[#0EA5E9] hover:no-underline font-bold text-lg py-6 transition-colors">
-                    {faq.question}
-                  </AccordionTrigger>
-                  <AccordionContent className="text-zinc-600 font-medium leading-relaxed pb-6 text-base">
-                    {faq.answer}
-                  </AccordionContent>
-                </AccordionItem>
-              ))}
-            </Accordion>
-          </Reveal>
-        </div>
-      </section>
-
-      {/* ─── 8. CTA BANNER ─── */}
-      <section className="py-24 px-6 relative z-10 bg-zinc-50">
-        <Reveal>
-          <div className="max-w-[1400px] mx-auto bg-[#111827] rounded-3xl p-12 md:p-24 text-center relative overflow-hidden group">
-            <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=1600&q=80')] bg-cover bg-center opacity-20 mix-blend-overlay group-hover:opacity-30 transition-opacity duration-700" />
-            <div className="absolute top-0 right-0 w-96 h-96 bg-[#0EA5E9] opacity-20 rounded-full blur-3xl" />
-            
-            <div className="relative z-10">
-              <CalendarDays className="w-16 h-16 text-[#0EA5E9] mx-auto mb-8" />
-              <h2 className="text-4xl md:text-5xl font-bold text-white mb-6 tracking-tight">Ready to begin your journey?</h2>
-              <p className="text-lg text-zinc-300 max-w-2xl mx-auto mb-10 font-medium">
-                Schedule your comprehensive consultation today. Let our experts create a tailored roadmap for your aesthetic and medical goals.
-              </p>
-              <div className="flex flex-col sm:flex-row justify-center gap-4">
-                <button className="px-10 py-4 bg-[#0EA5E9] text-white font-bold rounded-full hover:bg-[#0284C7] hover:-translate-y-1 transition-all duration-300 cursor-pointer shadow-lg shadow-[#0EA5E9]/30">
-                  Book Online
-                </button>
-                <button className="px-10 py-4 bg-white/10 backdrop-blur-md text-white border border-white/20 font-bold rounded-full hover:bg-white/20 transition-all duration-300 cursor-pointer">
-                  Call the Clinic
-                </button>
+                          <div className="relative z-10 flex gap-6">
+                             <div className="flex-1 h-1 bg-white/5 overflow-hidden">
+                                <motion.div 
+                                   animate={isMindLocked ? { x: ["-100%", "100%"] } : {}}
+                                   transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+                                   className="w-1/2 h-full bg-sky-700"
+                                />
+                             </div>
+                          </div>
+                       </div>
+                    </Reveal>
+                 </div>
               </div>
-            </div>
-          </div>
-        </Reveal>
-      </section>
+           </div>
+        </section>
 
-      {/* ─── 9. FOOTER ─── */}
-      <footer className="bg-white pt-24 pb-12 border-t border-zinc-200">
-        <div className="max-w-[1400px] mx-auto px-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 mb-20">
-            <div className="lg:col-span-2">
-              <Link href="/" className="flex items-center gap-2 mb-8 cursor-pointer">
-                <div className="w-8 h-8 rounded-lg bg-[#0EA5E9] flex items-center justify-center">
-                  <ShieldCheck className="w-5 h-5 text-white" />
+        {/* ==========================================
+            4. MESH STORY (TECH STORYTELLING)
+            ========================================== */}
+        <section className="py-60 bg-[#02040c] relative overflow-hidden border-t border-white/5">
+           <div className="max-w-[1400px] mx-auto px-8 md:px-24">
+              <div className="grid lg:grid-cols-2 gap-40 items-center">
+                 <div className="relative aspect-[3/4] overflow-hidden group border border-white/5 shadow-2xl">
+                    <Image 
+                       src="https://images.unsplash.com/photo-1558494949-ef010cbdcc51?q=80&w=1200&auto=format&fit=crop" 
+                       alt="Neural Mesh Infrastructure" 
+                       fill 
+                       className="object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-[2000ms]"
+                    />
+                    <div className="absolute inset-0 bg-sky-900/10 mix-blend-color group-hover:opacity-0 transition-opacity" />
+                    <div className="absolute inset-0 p-20 flex flex-col justify-end bg-gradient-to-t from-black via-black/40 to-transparent">
+                       <div className="text-white">
+                          <span className="text-[11px] font-black uppercase tracking-[0.6em] text-sky-500 mb-8 block italic underline underline-offset-8 decoration-sky-500/20">Atelier // Cognitive // Unit</span>
+                          <h4 className="text-6xl font-black tracking-tighter uppercase italic mb-12 mix-blend-difference text-white">Synapse <br/> Fabric.</h4>
+                          <button className="flex items-center gap-6 text-[11px] font-black uppercase tracking-[0.4em] border-b border-white/20 pb-4 hover:border-sky-400 transition-all group">
+                             Linking Protocols <ExternalLink className="w-5 h-5 group-hover:translate-x-2 group-hover:-translate-y-2 transition-transform" />
+                          </button>
+                       </div>
+                    </div>
+                 </div>
+
+                 <div>
+                    <Reveal>
+                       <div className="mb-24 text-left">
+                          <span className="text-[10px] font-black uppercase tracking-[0.5em] text-sky-500 mb-8 block italic">Chapitre III // Connexion Corticale</span>
+                          <h2 className="text-7xl md:text-[10vw] font-black tracking-tighter uppercase text-white italic leading-none text-white">Pure_Thought.</h2>
+                       </div>
+                       <p className="text-2xl font-light text-white/20 leading-relaxed italic mb-20 uppercase tracking-[0.2em]">
+                          L'esprit est le processeur ultime. Nous utilisons des technologies d'interface cerveau-machine pour traduire les impulsions neuronales en données exploitables, offrant une communication et un partage de conscience sans précédent.
+                       </p>
+                       <div className="space-y-20">
+                          {[
+                            { t: "Cortex Mapping", d: "Cartographie haute résolution des zones corticales pour identifier les centres de langage et de pensée abstraite via imagerie photonique." },
+                            { t: "Synapse Calibration", d: "Calibrage millimétré des implants neuronaux pour une détection parfaite des potentiels d'action sans bruit de fond." },
+                            { t: "Neural Uplink", d: "Établissement du canal de communication bi-directionnel entre le cerveau et le réseau via protocoles de chiffrement quantique." }
+                          ].map((step, i) => (
+                            <div key={i} className="group flex gap-12 border-b border-white/5 pb-16 hover:border-sky-400/20 transition-all cursor-default">
+                               <div className="text-6xl font-black text-white/5 group-hover:text-sky-400/20 transition-colors italic leading-none">0{i+1}</div>
+                               <div>
+                                  <h5 className="text-3xl font-black uppercase tracking-tight text-white mb-6 italic group-hover:translate-x-4 transition-transform text-white">{step.t}</h5>
+                                  <p className="text-[12px] text-white/20 uppercase tracking-[0.3em] font-bold leading-loose italic">{step.d}</p>
+                               </div>
+                            </div>
+                          ))}
+                       </div>
+                    </Reveal>
+                 </div>
+              </div>
+           </div>
+        </section>
+
+        {/* MEGA FOOTER */}
+        <footer className="bg-black pt-60 pb-12 px-8 md:px-24 relative z-50">
+           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-32 mb-60 text-white">
+              <div className="lg:col-span-2">
+                 <div className="flex items-center gap-6 mb-16">
+                    <div className="w-16 h-16 bg-sky-800 flex items-center justify-center">
+                      <BrainIcon className="w-10 h-10 text-white" />
+                    </div>
+                    <span className="text-4xl font-black uppercase tracking-tighter italic">NEURAL<span className="text-white/20">MESH.</span></span>
+                 </div>
+                 <p className="text-white/20 text-[11px] font-black uppercase tracking-[0.5em] leading-loose max-w-sm mb-20 italic">
+                    "L'avenir de la conscience est synaptique." — Archive Mesh V.42
+                 </p>
+                 <div className="flex gap-16">
+                    {["MeshLog", "MindRegistry", "GitHub", "X_Protocol"].map(s => (
+                      <Link key={s} href="#" className="text-[11px] font-black uppercase tracking-widest text-white/20 hover:text-sky-400 transition-colors italic underline underline-offset-8 decoration-white/5">{s}</Link>
+                    ))}
+                 </div>
+              </div>
+
+              {[
+                { t: "IMPLANTS", l: ["Neural-v4 Link", "Cortex Core v5", "Synapse Grid Alpha", "Axiom-Implant"] },
+                { t: "TECHNOLOGY", l: ["Cortex Mapping", "Neural Uplink", "Quantum Sync", "SLA Reports"] },
+                { t: "ATELIER", l: ["Our Legacy", "Cognitive Ethics", "Locations", "Support"] }
+              ].map((col, i) => (
+                <div key={i} className="flex flex-col gap-12">
+                  <h4 className="text-[11px] font-black text-sky-400 uppercase tracking-[0.6em] italic">{col.t}</h4>
+                  <ul className="flex flex-col gap-8">
+                    {col.l.map(link => (
+                      <li key={link} className="text-[11px] font-bold text-white/20 hover:text-white transition-colors cursor-pointer uppercase tracking-[0.4em] italic">{link}</li>
+                    ))}
+                  </ul>
                 </div>
-                <span className="text-xl font-bold tracking-tight text-[#111827]">
-                  Nova Clinic.
-                </span>
-              </Link>
-              <p className="text-zinc-500 font-medium text-sm leading-relaxed mb-8 max-w-sm">
-                A premium medical and aesthetics center dedicated to evidence-based treatments and natural, elegant results.
-              </p>
-            </div>
+              ))}
+           </div>
 
-            <div>
-              <h4 className="text-[#111827] font-bold uppercase tracking-widest text-xs mb-6">Treatments</h4>
-              <ul className="space-y-4">
-                <li><a href="#" className="text-zinc-500 hover:text-[#0EA5E9] transition-colors text-sm font-semibold cursor-pointer">Injectables</a></li>
-                <li><a href="#" className="text-zinc-500 hover:text-[#0EA5E9] transition-colors text-sm font-semibold cursor-pointer">Laser Therapy</a></li>
-                <li><a href="#" className="text-zinc-500 hover:text-[#0EA5E9] transition-colors text-sm font-semibold cursor-pointer">Skin Tightening</a></li>
-                <li><a href="#" className="text-zinc-500 hover:text-[#0EA5E9] transition-colors text-sm font-semibold cursor-pointer">Cosmetic Dental</a></li>
-                <li><a href="#" className="text-zinc-500 hover:text-[#0EA5E9] transition-colors text-sm font-semibold cursor-pointer">Health Screenings</a></li>
-              </ul>
-            </div>
+           <div className="max-w-[1600px] mx-auto border-t border-white/5 pt-16 flex flex-col md:flex-row justify-between items-center gap-16 text-[10px] font-black text-white/10 uppercase tracking-[0.6em] italic">
+              <span>© 2026 NEURAL MESH COGNITIVE SYSTEMS AG. // ALL_RIGHT_RESERVED</span>
+              <div className="flex gap-16">
+                 <span>STATUS: OPERATIONAL</span>
+                 <span>BANDWIDTH: 42 GBPS (AVG)</span>
+                 <span>v4.12.0-STABLE</span>
+              </div>
+           </div>
+        </footer>
+      </main>
+    </div>
+  )
+}
 
-            <div>
-              <h4 className="text-[#111827] font-bold uppercase tracking-widest text-xs mb-6">Patient Info</h4>
-              <ul className="space-y-4">
-                <li><a href="#" className="text-zinc-500 hover:text-[#0EA5E9] transition-colors text-sm font-semibold cursor-pointer">First Visit Guide</a></li>
-                <li><a href="#" className="text-zinc-500 hover:text-[#0EA5E9] transition-colors text-sm font-semibold cursor-pointer">Financing Options</a></li>
-                <li><a href="#" className="text-zinc-500 hover:text-[#0EA5E9] transition-colors text-sm font-semibold cursor-pointer">Post-Care Portal</a></li>
-                <li><a href="#" className="text-zinc-500 hover:text-[#0EA5E9] transition-colors text-sm font-semibold cursor-pointer">Telehealth</a></li>
-              </ul>
-            </div>
+/* ==========================================
+   TECHNICAL SUB-COMPONENTS
+   ========================================== */
 
-            <div>
-              <h4 className="text-[#111827] font-bold uppercase tracking-widest text-xs mb-6">Contact</h4>
-              <ul className="space-y-4 font-semibold text-sm text-zinc-500">
-                <li className="flex items-center gap-3">
-                  <MapPin className="w-4 h-4 text-[#0EA5E9]" /> 123 Medical Plaza, NY
-                </li>
-                <li className="flex items-center gap-3">
-                  <Phone className="w-4 h-4 text-[#0EA5E9]" /> +1 (800) 555-NOVA
-                </li>
-              </ul>
-            </div>
+function HUD_Overlay({ isMindLocked }: { isMindLocked: boolean }) {
+  return (
+    <div className="fixed inset-0 pointer-events-none z-[100]">
+       {/* Corner Brackets */}
+       <div className={`absolute top-12 left-12 w-20 h-20 border-t-2 border-l-2 transition-colors duration-1000 ${isMindLocked ? "border-sky-400" : "border-white/10"}`} />
+       <div className={`absolute top-12 right-12 w-20 h-20 border-t-2 border-r-2 transition-colors duration-1000 ${isMindLocked ? "border-sky-400" : "border-white/10"}`} />
+       <div className={`absolute bottom-12 left-12 w-20 h-20 border-b-2 border-l-2 transition-colors duration-1000 ${isMindLocked ? "border-sky-400" : "border-white/10"}`} />
+       <div className={`absolute bottom-12 right-12 w-20 h-20 border-b-2 border-r-2 transition-colors duration-1000 ${isMindLocked ? "border-sky-400" : "border-white/10"}`} />
+
+       {/* Top Status Bar */}
+       <div className="absolute top-12 left-1/2 -translate-x-1/2 flex items-center gap-20 bg-black/60 backdrop-blur-2xl px-12 py-4 border border-white/10 rounded-none">
+          <div className="flex items-center gap-6 text-white">
+             <div className={`w-3 h-3 transition-colors duration-500 ${isMindLocked ? "bg-sky-400 animate-pulse" : "bg-red-500 animate-ping"}`} />
+             <span className="text-[10px] font-black uppercase tracking-[0.4em] italic leading-none">Mesh_Sync: {isMindLocked ? "NOMINAL" : "NEURAL_DISRUPTION"} // Status: ACTIVE</span>
           </div>
-
-          <div className="border-t border-zinc-200 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs font-semibold text-zinc-500">
-            <p>&copy; 2026 Nova Clinic LLC. All rights reserved.</p>
-            <div className="flex gap-6">
-              <a href="#" className="hover:text-[#0EA5E9] transition-colors cursor-pointer">Privacy Policy</a>
-              <a href="#" className="hover:text-[#0EA5E9] transition-colors cursor-pointer">Terms of Service</a>
-              <a href="#" className="hover:text-[#0EA5E9] transition-colors cursor-pointer">HIPAA Notice</a>
-            </div>
+          <div className="h-4 w-px bg-white/20" />
+          <div className="flex items-center gap-6 text-white/20">
+             <Wifi className="w-4 h-4" /> 
+             <span className="text-[10px] font-black uppercase tracking-[0.4em] italic leading-none">Cognitive_Grid: SECURE</span>
           </div>
-        </div>
-      </footer>
+       </div>
 
+       {/* Right Rotation Info */}
+       <div className="absolute right-12 top-1/2 -translate-y-1/2 rotate-90 origin-right hidden lg:block">
+          <span className="text-[10px] font-black uppercase tracking-[0.8em] text-white/5 italic">Unauthorized_Duplication_Of_Neural_Patterns_Is_Strictly_Monitored_By_Global_Mesh_Alliance</span>
+       </div>
     </div>
   )
 }

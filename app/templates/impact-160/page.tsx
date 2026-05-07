@@ -1,286 +1,542 @@
 "use client"
-import { motion, useScroll, useTransform, useInView } from "framer-motion"
-import { useRef, useState, useEffect } from "react"
+
+import React, { useState, useEffect, useRef } from "react"
+import { 
+  motion, 
+  AnimatePresence, 
+  useScroll, 
+  useTransform, 
+  useInView, 
+  useSpring 
+} from "framer-motion"
 import Image from "next/image"
 import Link from "next/link"
-import { Sparkles, ArrowRight, Menu, Star, Flower2, Wind, Heart, Droplets, ChevronRight, Play, ShoppingBag } from "lucide-react"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { 
+  Server, Cpu, Database, Activity, 
+  ShieldCheck, Globe, Zap, HardDrive, 
+  Terminal, Lock, Key, Eye, 
+  Activity as ActivityIcon, Settings, Power, 
+  Info, AlertTriangle, ChevronRight, 
+  ArrowRight, Share2, Maximize2, 
+  Download, ExternalLink, Archive, 
+  Hash, Wifi, BarChart3, Microscope, 
+  Fingerprint, Scan, Brain, Layers, 
+  Frame, Box, Target, Orbit, 
+  Atom, Satellite, Milestone, Gauge, 
+  Timer, Cloud, Signal, Search,
+  Navigation, Code, Command, Grid
+} from "lucide-react"
 
-function Reveal({ children, delay = 0, y = 30 }: { children: React.ReactNode; delay?: number; y?: number }) {
+/* ==========================================================================
+   THE MONOLITH DATASET (ULTRA DENSITY)
+   ========================================================================== */
+
+const DATA_CENTERS = [
+  {
+    id: "node-arctic-01",
+    name: "Frost-Byte Bunker",
+    location: "Svalbard, Norway",
+    capacity: "420 PB",
+    latency: "18ms",
+    cooling: "Passive Arctic Air",
+    status: "Nominal"
+  },
+  {
+    id: "node-sea-04",
+    name: "Abyssal Grid",
+    location: "North Atlantic Shelf",
+    capacity: "1.2 EB",
+    latency: "24ms",
+    cooling: "Deep Water Siphon",
+    status: "Optimal"
+  },
+  {
+    id: "node-desert-09",
+    name: "Solar Flare Array",
+    location: "Sahara, Morocco",
+    capacity: "850 PB",
+    latency: "32ms",
+    cooling: "Liquid Nitrogen Loop",
+    status: "Syncing"
+  }
+]
+
+const SYSTEM_METRICS = [
+  { label: "Global Throughput", value: "4.2 Tbps", trend: "Stable" },
+  { label: "Storage Fill", value: "68.4%", trend: "Expanding" },
+  { label: "Request Velocity", value: "1.2M req/s", trend: "High" },
+  { label: "Security Handshake", value: "Verified", trend: "Secure" }
+]
+
+const REDUNDANCY_LOGS = [
+  { timestamp: "12:04:42", shard: "S-142", node: "EU-WEST", status: "SYNCED" },
+  { timestamp: "12:04:45", shard: "S-143", node: "US-EAST", status: "REPLICATING" },
+  { timestamp: "12:04:48", shard: "S-144", node: "AS-SOUTH", status: "VERIFIED" }
+]
+
+/* ==========================================================================
+   TECHNICAL COMPONENTS
+   ========================================================================== */
+
+function Reveal({ children, delay = 0, y = 40, x = 0 }: { children: React.ReactNode, delay?: number, y?: number, x?: number }) {
   const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, margin: "-80px" })
+  const isInView = useInView(ref, { once: true, margin: "-100px" })
   return (
-    <motion.div ref={ref} initial={{ opacity: 0, y }} animate={isInView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 1.5, delay, ease: [0.16, 1, 0.3, 1] }}>
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y, x }}
+      animate={isInView ? { opacity: 1, y: 0, x: 0 } : {}}
+      transition={{ duration: 1.2, delay, ease: [0.16, 1, 0.3, 1] }}
+    >
       {children}
     </motion.div>
   )
 }
 
-function ParallaxImg({ src, alt }: { src: string; alt: string }) {
-  const ref = useRef(null)
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] })
-  const y = useTransform(scrollYProgress, [0, 1], ["-12%", "12%"])
+function GridBackground() {
   return (
-    <div ref={ref} className="relative w-full h-full overflow-hidden rounded-full">
-      <motion.div style={{ y }} className="absolute inset-[-15%] w-[130%] h-[130%]">
-        <Image src={src} alt={alt} fill className="object-cover" />
-      </motion.div>
+    <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden opacity-5">
+       <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]" />
+       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,#ffffff05_1px,transparent_1px)] bg-[size:96px_96px]" />
     </div>
   )
 }
 
-const SCENTS = [
-  { name: "Oud Horizon", note: "Top: Saffron, Heart: Oud, Base: Leather", price: "€280", img: "https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&q=80&w=1200" },
-  { name: "Rose Silk", note: "Top: Bergamot, Heart: Rose, Base: Musk", price: "€240", img: "https://images.unsplash.com/photo-1547637589-f54c34f5d7a4?auto=format&fit=crop&q=80&w=1200" },
-  { name: "Sandalwood Void", note: "Top: Cardamom, Heart: Sandalwood, Base: Amber", price: "€310", img: "https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&q=80&w=1200" },
-]
+function BrutalistBlock({ title, value, icon: Icon }: { title: string, value: string, icon: any }) {
+  return (
+    <div className="p-12 border border-white/5 bg-white/[0.02] flex flex-col justify-between group hover:bg-white/[0.05] transition-all cursor-crosshair relative overflow-hidden">
+       <div className="absolute top-0 right-0 p-2 text-white/5 group-hover:text-white/10 transition-colors">
+          <Icon className="w-24 h-24" />
+       </div>
+       <div className="relative z-10">
+          <span className="text-[10px] font-black uppercase tracking-[0.5em] text-white/20 mb-4 block italic">{title}</span>
+          <div className="text-4xl font-black tracking-tighter uppercase italic text-white group-hover:translate-x-2 transition-transform">
+             {value}
+          </div>
+       </div>
+       <div className="relative z-10 mt-12 flex items-center gap-4 text-[8px] font-bold text-white/10 uppercase tracking-widest italic">
+          <Activity className="w-3 h-3 text-cyan-400" /> System_Nominal_Check_Passed
+       </div>
+    </div>
+  )
+}
 
-export default function AuraScentPage() {
-  const [scrolled, setScrolled] = useState(false)
+/* ==========================================
+   THE MONOLITH - MAIN INTERFACE
+   ========================================== */
 
-  useEffect(() => {
-    const h = () => setScrolled(window.scrollY > 60)
-    window.addEventListener("scroll", h)
-    return () => window.removeEventListener("scroll", h)
-  }, [])
+export default function MonolithPremium() {
+  const [activeNode, setActiveNode] = useState(0)
+  const [isTerminalOpen, setIsTerminalOpen] = useState(false)
+  const containerRef = useRef(null)
+  const { scrollYProgress } = useScroll({ target: containerRef })
+
+  // Brutalist Scroll Effects
+  const monolithScale = useTransform(scrollYProgress, [0, 0.3], [1, 1.5])
+  const monolithRotate = useTransform(scrollYProgress, [0, 1], [0, 45])
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.2], [1, 0])
+  const textX = useTransform(scrollYProgress, [0, 0.5], [0, -100])
 
   return (
-    <div className="bg-[#fcf8f5] text-[#4a4540] font-sans min-h-screen selection:bg-[#e6dbd1] selection:text-[#4a4540] overflow-x-hidden">
+    <div ref={containerRef} className="bg-[#050505] text-[#e0e2e5] font-mono selection:bg-white selection:text-black min-h-screen overflow-x-hidden">
       
-      {/* ── NAVBAR ────────────────── */}
-      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-1000 ${scrolled ? "bg-white/70 backdrop-blur-2xl border-b border-[#e6dbd1]/30 py-4" : "bg-transparent py-10"}`}>
-        <div className="max-w-[1400px] mx-auto px-6 md:px-12 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-4 group">
-            <div className="w-10 h-10 rounded-full border border-[#d4af37]/20 flex items-center justify-center group-hover:bg-[#fcf8f5] transition-all duration-700">
-              <Wind className="w-5 h-5 text-[#d4af37]" />
-            </div>
-            <span className="text-xl font-light tracking-[0.4em] uppercase text-[#4a4540]">Aura <span className="font-bold">Scent</span></span>
-          </Link>
-          <div className="hidden lg:flex gap-12 text-[10px] font-bold uppercase tracking-[0.5em] text-[#4a4540]/30">
-            {["The Distillery", "Essences", "Heritage", "Art"].map(l => (
-              <Link key={l} href="#" className="hover:text-[#d4af37] transition-colors">{l}</Link>
-            ))}
-          </div>
-          <div className="flex items-center gap-8">
-            <button className="hidden md:block text-[10px] font-bold uppercase tracking-widest text-[#4a4540]/30 hover:text-[#d4af37] transition-colors underline underline-offset-8 decoration-[#d4af37]/20">The Maison</button>
-            <button className="px-10 py-4 bg-[#4a4540] text-white text-[10px] font-bold uppercase tracking-[0.3em] rounded-full hover:bg-white hover:text-[#4a4540] border border-transparent hover:border-[#4a4540]/20 transition-all duration-700">Explore Scent</button>
-            <Sheet>
-              <SheetTrigger asChild><button className="lg:hidden p-2"><Menu className="w-6 h-6 text-[#4a4540]" /></button></SheetTrigger>
-              <SheetContent side="right" className="bg-[#fcf8f5] border-none p-12 text-[#4a4540]">
-                <div className="flex flex-col gap-10 mt-16 text-left">
-                  {["Collection", "Atelier", "Philosophy", "Shop"].map(l => (
-                    <Link key={l} href="#" className="text-4xl font-light uppercase tracking-widest hover:italic transition-all">{l}</Link>
-                  ))}
-                </div>
-              </SheetContent>
-            </Sheet>
-          </div>
-        </div>
-      </nav>
+      {/* GLOBAL HUD OVERLAY */}
+      <HUD_Overlay isTerminalOpen={isTerminalOpen} />
 
       <main>
-        {/* ── HERO ──────────────────── */}
-        <section className="relative h-screen flex items-center justify-center overflow-hidden">
-          <div className="absolute inset-0">
-             <Image src="https://images.unsplash.com/photo-1616949111833-2894b910e304?auto=format&fit=crop&q=80&w=2400" alt="Perfume Mist" fill className="object-cover opacity-10 scale-105" priority />
-             <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#fcf8f5]/20 to-[#fcf8f5]" />
-          </div>
-
-          <div className="relative z-10 max-w-[1200px] mx-auto px-6 text-center">
-            <Reveal>
-              <div className="flex items-center justify-center gap-8 mb-16 opacity-30">
-                 <div className="w-16 h-[1px] bg-[#d4af37]" />
-                 <span className="text-[10px] font-bold uppercase tracking-[0.6em] text-[#4a4540]">Distilled Invisible Beauty</span>
-                 <div className="w-16 h-[1px] bg-[#d4af37]" />
-              </div>
-            </Reveal>
-            <Reveal delay={0.2} y={70}>
-              <h1 className="text-7xl md:text-[12rem] font-light tracking-tighter leading-[0.8] text-[#4a4540] mb-16 uppercase italic" style={{ fontFamily: "serif" }}>
-                Silent <br/> <span className="font-bold not-italic">Memory.</span>
-              </h1>
-            </Reveal>
-            <Reveal delay={0.4}>
-              <div className="flex flex-col items-center justify-center gap-16">
-                <p className="text-2xl text-[#4a4540]/40 font-light max-w-2xl leading-relaxed italic">
-                  Capturing the ephemeral through the world's most rare and uncompromised natural essences.
-                </p>
-                <div className="flex flex-wrap justify-center gap-12">
-                  <button className="px-16 py-6 bg-[#4a4540] text-white font-bold uppercase tracking-widest text-[10px] rounded-full hover:px-20 transition-all duration-700 shadow-xl shadow-[#4a4540]/10">
-                    Discover Collection
-                  </button>
-                  <button className="px-16 py-6 border border-[#4a4540]/10 text-[#4a4540]/40 font-bold uppercase tracking-widest text-[10px] hover:text-[#4a4540] transition-all flex items-center gap-4 rounded-full">
-                    <Droplets className="w-4 h-4 text-[#d4af37]" /> The Alchemy
-                  </button>
-                </div>
-              </div>
-            </Reveal>
-          </div>
+        {/* ==========================================
+            1. BRUTALIST IGNITION (HERO)
+            ========================================== */}
+        <section className="relative h-screen flex flex-col justify-center items-center px-8 md:px-24 overflow-hidden pt-20">
+          <GridBackground />
           
-          <div className="absolute bottom-12 left-12 right-12 flex justify-between items-end text-[9px] font-bold uppercase tracking-[0.4em] text-[#4a4540]/20 italic">
-            <span>GRASSE / PARIS / KYOTO / MUSCAT</span>
-            <div className="flex gap-6">
-               <Sparkles className="w-4 h-4" />
-               <span>SINCE 1922</span>
-            </div>
-          </div>
-        </section>
+          <motion.div style={{ scale: monolithScale, rotate: monolithRotate, opacity: heroOpacity }} className="absolute z-0 pointer-events-none">
+             <div className="w-[60vw] h-[80vh] bg-gradient-to-br from-[#1a1a1a] to-black border border-white/5 shadow-2xl relative">
+                <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10" />
+                <div className="absolute top-1/4 left-0 w-full h-px bg-white/5" />
+                <div className="absolute top-1/2 left-0 w-full h-px bg-white/5" />
+                <div className="absolute top-3/4 left-0 w-full h-px bg-white/5" />
+             </div>
+          </motion.div>
 
-        {/* ── THE ALCHEMY ────────────── */}
-        <section className="py-60 bg-white relative overflow-hidden">
-          <div className="max-w-[1400px] mx-auto px-6 md:px-12">
-             <div className="grid grid-cols-1 lg:grid-cols-2 gap-32 items-center">
-                <Reveal>
-                   <div className="relative aspect-square p-2 bg-[#fcf8f5] border border-[#e6dbd1]/40 rounded-full group overflow-hidden">
-                      <ParallaxImg src="https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&q=80&w=1200" alt="Ingredients" />
-                      <div className="absolute inset-0 bg-[#4a4540]/10 group-hover:bg-transparent transition-all duration-1000" />
-                   </div>
-                </Reveal>
-                <div>
-                   <Reveal>
-                      <span className="text-[10px] font-bold uppercase tracking-[0.5em] text-[#d4af37] block mb-12 italic">The Composition</span>
-                      <h2 className="text-6xl md:text-8xl font-light uppercase tracking-tighter text-[#4a4540] leading-none mb-16 italic" style={{ fontFamily: "serif" }}>Absolute <br/> <span className="not-italic font-bold opacity-10">Essence.</span></h2>
-                      <p className="text-2xl font-light text-[#4a4540]/40 leading-relaxed mb-20 italic">
-                         We don't create perfumes. We distill emotions. Every bottle is a culmination of a six-month maceration process using hand-picked petals and cold-pressed oils.
-                      </p>
-                      <div className="space-y-16">
-                         {[
-                           { t: "TOP NOTES", d: "A momentary embrace of citrus and light florals that opens the senses." },
-                           { t: "HEART NOTES", d: "The soul of the fragrance, evolving over hours into a complex floral heart." },
-                           { t: "BASE NOTES", d: "A lingering shadow of wood and amber that remains for days on the skin." }
-                         ].map((note, i) => (
-                           <div key={i} className="group border-b border-[#e6dbd1]/40 pb-8 flex justify-between items-end cursor-pointer">
-                              <div className="max-w-md">
-                                 <h4 className="text-xs font-black uppercase tracking-widest mb-4 text-[#4a4540] italic group-hover:text-[#d4af37] transition-colors">{note.t}</h4>
-                                 <p className="text-sm font-light leading-relaxed text-[#4a4540]/30 italic">{note.d}</p>
-                              </div>
-                              <ArrowRight className="w-5 h-5 text-[#4a4540]/20 group-hover:translate-x-2 transition-transform" />
-                           </div>
-                         ))}
-                      </div>
-                   </Reveal>
+          <div className="relative z-10 text-center max-w-7xl">
+             <Reveal>
+                <div className="inline-flex items-center gap-4 px-6 py-2 border border-white/10 bg-white/5 text-[10px] font-black uppercase tracking-[0.6em] text-white/40 mb-12 italic">
+                   <Signal className="w-3 h-3" /> Infra_Status: Solid_State // All_Nodes_Linked
                 </div>
+                <motion.h1 style={{ x: textX }} className="text-7xl md:text-[16vw] font-black tracking-tighter uppercase mb-16 leading-[0.75] italic mix-blend-difference">
+                   The <br/> <span className="text-white/5 italic">Monolith.</span>
+                </motion.h1>
+                <div className="grid md:grid-cols-3 gap-12 md:gap-24 text-left max-w-6xl mx-auto border-t border-white/5 pt-16">
+                   <div className="space-y-6">
+                      <h3 className="text-[10px] font-black uppercase tracking-[0.5em] text-white/60">Core Directive</h3>
+                      <p className="text-[11px] text-white/20 leading-loose uppercase tracking-[0.4em] font-bold italic">
+                         Architecture brutale pour une infrastructure de données immuable. Nous forgeons le stockage de l'éternité numérique.
+                      </p>
+                   </div>
+                   <div className="flex flex-col justify-end">
+                      <span className="text-6xl font-black tracking-tighter italic text-white/40 leading-none mb-2">99.9%</span>
+                      <span className="text-[9px] font-black uppercase tracking-[0.5em] text-white/20">Uptime Protocol</span>
+                   </div>
+                   <div className="flex flex-col justify-end">
+                      <span className="text-6xl font-black tracking-tighter italic text-white/40 leading-none mb-2">∞_TB</span>
+                      <span className="text-[9px] font-black uppercase tracking-[0.5em] text-white/20">Expandable Storage</span>
+                   </div>
+                </div>
+             </Reveal>
+          </div>
+
+          <div className="absolute bottom-12 left-12 right-12 flex justify-between items-end">
+             <div className="flex gap-12">
+                <button className="px-12 py-6 bg-white text-black text-[10px] font-black uppercase tracking-widest hover:bg-white/80 transition-all shadow-2xl flex items-center gap-4 italic">
+                   <Target className="w-4 h-4" /> Provision Node
+                </button>
+                <button 
+                  onClick={() => setIsTerminalOpen(!isTerminalOpen)}
+                  className="px-12 py-6 border border-white/10 text-white text-[10px] font-black uppercase tracking-widest hover:bg-white/5 transition-all flex items-center gap-4 italic"
+                >
+                   <Terminal className="w-4 h-4" /> Access Console
+                </button>
+             </div>
+             <div className="text-right hidden md:block">
+                <span className="text-[8px] font-black uppercase tracking-[0.6em] text-white/10 italic">Scroll_Depth_To_Explore_Sub_Infrastructure</span>
              </div>
           </div>
         </section>
 
-        {/* ── COLLECTION ─────────────── */}
-        <section className="py-60 bg-[#fcf8f5]">
-           <div className="max-w-[1400px] mx-auto px-6 md:px-12">
-              <Reveal>
-                 <div className="flex flex-col md:flex-row items-end justify-between mb-32 gap-8 border-b border-[#e6dbd1]/60 pb-16">
-                    <div className="max-w-2xl">
-                       <span className="text-[10px] font-bold uppercase tracking-[0.5em] text-[#d4af37] block mb-6">Seasonal Curation</span>
-                       <h2 className="text-7xl md:text-9xl font-black uppercase tracking-tighter text-[#4a4540] leading-none italic" style={{ fontFamily: "serif" }}>The <span className="font-light not-italic opacity-10 text-[#4a4540]">Registry.</span></h2>
-                    </div>
-                    <Link href="#" className="flex items-center gap-4 text-[10px] font-bold uppercase tracking-widest hover:text-[#d4af37] text-[#4a4540]/30 transition-colors group italic">
-                       View All Essences <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
-                    </Link>
+        {/* ==========================================
+            2. INFRASTRUCTURE MATRIX (BRUTALIST GRID)
+            ========================================== */}
+        <section className="py-60 bg-[#080808] relative border-y border-white/5 overflow-hidden">
+           <div className="max-w-[1600px] mx-auto px-8 md:px-24">
+              <div className="flex flex-col md:flex-row items-end justify-between mb-40 gap-12">
+                 <Reveal>
+                    <span className="text-[10px] font-black uppercase tracking-[0.6em] text-white/40 block mb-6 italic underline underline-offset-8 decoration-white/10">Global // Server // Farm</span>
+                    <h2 className="text-6xl md:text-[10vw] font-black uppercase tracking-tighter italic leading-none text-white">Registry.</h2>
+                 </Reveal>
+                 <div className="text-right">
+                    <span className="text-[10px] font-black uppercase tracking-[0.5em] text-white/20 block mb-4 italic">Registry // Infrastructure_Audit</span>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/40">Le Poids de l'Information</p>
                  </div>
-              </Reveal>
+              </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-16">
-                 {SCENTS.map((item, i) => (
-                   <Reveal key={i} delay={i * 0.15}>
-                      <div className="group cursor-pointer">
-                         <div className="aspect-[3/4] relative mb-12 overflow-hidden rounded-[4rem] border border-[#e6dbd1]/40 p-10 bg-white">
-                            <Image src={item.img} alt={item.name} fill className="object-cover scale-110 group-hover:scale-100 transition-all duration-[3000ms]" />
-                            <div className="absolute inset-0 bg-[#4a4540]/5 group-hover:bg-transparent transition-all duration-1000" />
-                            <div className="absolute top-10 right-10">
-                               <div className="w-12 h-12 rounded-full bg-[#fcf8f5]/80 backdrop-blur-md flex items-center justify-center border border-white/20 opacity-0 group-hover:opacity-100 transition-all duration-500 translate-y-4 group-hover:translate-y-0">
-                                  <ShoppingBag className="w-5 h-5 text-[#4a4540]" />
+              <div className="grid md:grid-cols-3 gap-px bg-white/5 border border-white/5 shadow-2xl">
+                 {DATA_CENTERS.map((node, i) => (
+                   <Reveal key={node.id} delay={i * 0.1}>
+                      <div className="bg-[#050505] p-20 flex flex-col h-full hover:bg-white/[0.02] transition-all group cursor-crosshair border-white/5 border-r last:border-r-0">
+                         <div className="flex justify-between items-start mb-16">
+                            <div className="w-16 h-16 bg-white/5 border border-white/10 flex items-center justify-center group-hover:bg-white group-hover:text-black transition-all duration-500">
+                               <Server className="w-8 h-8" />
+                            </div>
+                            <span className="px-4 py-2 bg-white/5 text-white/40 text-[9px] font-black uppercase tracking-[0.3em]">{node.status}</span>
+                         </div>
+                         
+                         <h3 className="text-5xl font-black uppercase tracking-tighter mb-8 italic text-white group-hover:translate-x-4 transition-transform">{node.name}</h3>
+                         <div className="text-[10px] font-black text-white/20 uppercase tracking-[0.5em] mb-12">{node.location}</div>
+                         
+                         <div className="space-y-8 mb-20 border-l border-white/10 pl-8">
+                            <div className="flex justify-between items-center text-[11px] font-bold uppercase tracking-widest">
+                               <span className="text-white/20">Capacity</span>
+                               <span className="text-white group-hover:text-cyan-400 transition-colors">{node.capacity}</span>
+                            </div>
+                            <div className="flex justify-between items-center text-[11px] font-bold uppercase tracking-widest">
+                               <span className="text-white/20">Latency</span>
+                               <span className="text-white group-hover:text-cyan-400 transition-colors">{node.latency}</span>
+                            </div>
+                            <div className="flex justify-between items-center text-[11px] font-bold uppercase tracking-widest">
+                               <span className="text-white/20">Cooling</span>
+                               <span className="text-white group-hover:text-cyan-400 transition-colors">{node.cooling}</span>
+                            </div>
+                         </div>
+
+                         <div className="mt-auto pt-10 border-t border-white/5 flex justify-between items-center">
+                            <span className="text-[10px] font-black text-white/10 uppercase tracking-widest">Ref: {node.id}</span>
+                            <button className="text-[10px] font-black uppercase text-white/40 flex items-center gap-4 group-hover:text-white transition-all">
+                               Node_Audit <ChevronRight className="w-5 h-5" />
+                            </button>
+                         </div>
+                      </div>
+                   </Reveal>
+                 ))}
+              </div>
+           </div>
+        </section>
+
+        {/* ==========================================
+            3. THROUGHPUT MONITOR (INTERACTIVE DATA)
+            ========================================== */}
+        <section className="py-60 bg-black relative border-y border-white/5 overflow-hidden">
+           <div className="max-w-[1400px] mx-auto px-8 md:px-24">
+              <div className="grid lg:grid-cols-2 gap-40 items-center">
+                 <div>
+                    <Reveal>
+                       <span className="text-[10px] font-black uppercase tracking-[0.5em] text-white/40 block mb-12 italic underline underline-offset-8 decoration-white/10">Throughput // Analysis</span>
+                       <h2 className="text-7xl md:text-[9vw] font-light italic leading-none text-white mb-16 uppercase tracking-tighter">
+                          The <br/> <span className="not-italic font-black text-white/5 italic">Global_Stream.</span>
+                       </h2>
+                       <p className="text-2xl font-light text-white/20 leading-relaxed mb-24 italic uppercase tracking-[0.2em] max-w-xl">
+                          Surveillance du flux de données en temps réel. Nos architectures de routage optimisent chaque paquet pour garantir une intégrité absolue, même sous charge extrême.
+                       </p>
+                       <div className="grid grid-cols-2 gap-px bg-white/5 border border-white/5 mb-24 shadow-2xl">
+                          {SYSTEM_METRICS.map((metric, i) => (
+                            <div key={i} className="p-16 bg-[#0a0a0c] group hover:bg-white/[0.02] transition-all border-r border-b last:border-r-0 border-white/5">
+                               <div className="text-[10px] font-black uppercase text-white/20 mb-6 tracking-[0.4em]">{metric.label}</div>
+                               <div className="text-5xl font-black text-white italic mb-6 tracking-tighter group-hover:translate-x-2 transition-transform">{metric.value}</div>
+                               <div className="flex items-center gap-3 text-[9px] font-bold uppercase tracking-[0.3em] text-white/10 italic">
+                                  <Activity className="w-4 h-4 text-cyan-400" /> {metric.trend}
                                </div>
                             </div>
-                            <div className="absolute bottom-12 left-12 right-12">
-                               <div className="text-[10px] font-bold uppercase tracking-widest text-[#d4af37] mb-3 italic">Eau de Parfum</div>
-                               <h3 className="text-4xl font-bold uppercase tracking-widest text-[#4a4540] leading-tight mb-2" style={{ fontFamily: "serif" }}>{item.name}</h3>
-                               <p className="text-[10px] font-bold text-[#4a4540]/30 tracking-widest uppercase italic">{item.note}</p>
-                            </div>
-                         </div>
-                         <div className="flex justify-between items-center px-6">
-                            <button className="text-[10px] font-bold uppercase tracking-widest text-[#4a4540]/30 hover:text-[#4a4540] transition-colors underline underline-offset-4">Add to Collection</button>
-                            <span className="text-2xl font-bold text-[#4a4540] tracking-tighter italic">{item.price}</span>
-                         </div>
-                      </div>
-                   </Reveal>
-                 ))}
+                          ))}
+                       </div>
+                    </Reveal>
+                 </div>
+                 
+                 <div className="relative">
+                    <Reveal delay={0.3} x={40}>
+                       <div className="aspect-square bg-[#0a0a0c] border border-white/10 p-20 flex flex-col justify-between relative group overflow-hidden shadow-2xl">
+                          <div className="absolute top-0 right-0 p-80 bg-white opacity-[0.02] blur-[150px] rounded-full group-hover:opacity-[0.05] transition-opacity" />
+                          
+                          <div className="flex justify-between items-start z-10">
+                             <div className="flex flex-col gap-3">
+                                <span className="text-[10px] font-black text-white/10 uppercase tracking-[0.5em]">System_ID // MONO-SYNC-v14</span>
+                                <span className="text-[12px] font-black text-white/40 uppercase tracking-[0.6em]">Traffic_Heat_Map</span>
+                             </div>
+                             <Wifi className="w-6 h-6 text-white/20" />
+                          </div>
+                          
+                          {/* NETWORK VISUALIZER (SVG) */}
+                          <div className="relative z-10 flex flex-col items-center justify-center h-full">
+                             <div className="w-48 h-48 border border-white/5 rounded-full flex items-center justify-center relative">
+                                <motion.div 
+                                  animate={{ rotate: 360 }}
+                                  transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                                  className="absolute inset-0 border-t-2 border-white/20 rounded-full" 
+                                />
+                                <motion.div 
+                                  animate={{ rotate: -360 }}
+                                  transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+                                  className="absolute inset-4 border-b-2 border-white/10 rounded-full" 
+                                />
+                                <Database className="w-16 h-16 text-white/10" />
+                             </div>
+                             <div className="mt-16 text-center space-y-6">
+                                <div className="text-4xl font-black italic tracking-tighter text-white/40">TRAFFIC_NOMINAL</div>
+                                <span className="text-[11px] font-bold text-white/10 uppercase tracking-[0.6em] block">Auth_Node: ZÜRICH_CENTRAL_01</span>
+                             </div>
+                          </div>
+
+                          <div className="relative z-10 flex gap-6">
+                             <div className="flex-1 h-1 bg-white/5 overflow-hidden">
+                                <motion.div 
+                                   animate={{ x: ["-100%", "100%"] }} 
+                                   transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+                                   className="w-1/2 h-full bg-white/20"
+                                />
+                             </div>
+                          </div>
+                       </div>
+                    </Reveal>
+                 </div>
               </div>
            </div>
         </section>
 
-        {/* ── CTA ───────────────────── */}
-        <section className="py-60 bg-[#4a4540] text-white text-center px-6 relative overflow-hidden">
-           <div className="absolute inset-0 opacity-[0.05] pointer-events-none flex items-center justify-center">
-              <Wind className="w-[800px] h-[800px]" />
-           </div>
-           <div className="max-w-4xl mx-auto relative z-10">
-              <Reveal>
-                 <div className="w-16 h-16 border border-[#d4af37]/40 rounded-full mx-auto mb-20 flex items-center justify-center text-[#d4af37] italic font-bold">A</div>
-                 <h2 className="text-8xl md:text-[14vw] font-light uppercase tracking-tighter leading-[0.8] mb-16 italic" style={{ fontFamily: "serif" }}>
-                    Hold The <br/> <span className="font-bold not-italic opacity-10 text-white">Ethereal.</span>
-                 </h2>
-                 <p className="text-2xl text-white/40 font-light mb-20 leading-relaxed italic max-w-2xl mx-auto">
-                    We accept a limited number of bespoke commissions for private distillations. Crafted in Grasse, aged to perfection.
-                 </p>
-                 <div className="flex flex-col sm:flex-row items-center justify-center gap-12">
-                    <button className="px-20 py-10 bg-white text-[#4a4540] font-bold uppercase text-[10px] tracking-[0.3em] rounded-full hover:bg-[#d4af37] hover:text-black transition-all duration-700 italic shadow-2xl">
-                       Start Distillation
-                    </button>
-                    <button className="px-20 py-10 border border-white/10 text-white/40 font-bold uppercase text-[10px] tracking-[0.3em] rounded-full hover:bg-white/5 transition-all duration-700 italic">
-                       View Samples
-                    </button>
+        {/* ==========================================
+            4. REDUNDANCY PROTOCOLS (BRUTALIST STORY)
+            ========================================== */}
+        <section className="py-60 bg-[#050505] relative overflow-hidden border-t border-white/5">
+           <div className="max-w-[1400px] mx-auto px-8 md:px-24">
+              <div className="grid lg:grid-cols-2 gap-40 items-center">
+                 <div className="relative aspect-[3/4] overflow-hidden group border border-white/5 shadow-2xl">
+                    <Image 
+                       src="https://images.unsplash.com/photo-1558494949-ef010968d264?q=80&w=1200&auto=format&fit=crop" 
+                       alt="Server Room Corridor" 
+                       fill 
+                       className="object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-[2000ms]"
+                    />
+                    <div className="absolute inset-0 bg-white/5 mix-blend-color group-hover:opacity-0 transition-opacity" />
+                    <div className="absolute inset-0 p-20 flex flex-col justify-end bg-gradient-to-t from-black via-black/40 to-transparent">
+                       <div className="text-white">
+                          <span className="text-[11px] font-black uppercase tracking-[0.6em] text-white/40 mb-8 block italic underline underline-offset-8 decoration-white/10">Global // Redundancy // Unit</span>
+                          <h4 className="text-6xl font-black tracking-tighter uppercase italic mb-12 mix-blend-difference">Structural <br/> Safety.</h4>
+                          <button className="flex items-center gap-6 text-[11px] font-black uppercase tracking-[0.4em] border-b border-white/20 pb-4 hover:border-white transition-all group">
+                             Redundancy Protocols <ExternalLink className="w-5 h-5 group-hover:translate-x-2 group-hover:-translate-y-2 transition-transform" />
+                          </button>
+                       </div>
+                    </div>
                  </div>
-              </Reveal>
+
+                 <div>
+                    <Reveal>
+                       <div className="mb-24 text-left">
+                          <span className="text-[10px] font-black uppercase tracking-[0.6em] text-white/40 mb-8 block italic">Chapitre III // Reliability</span>
+                          <h2 className="text-7xl md:text-[10vw] font-black tracking-tighter uppercase text-white italic leading-none">Hard_State.</h2>
+                       </div>
+                       <p className="text-2xl font-light text-white/20 leading-relaxed italic mb-20 uppercase tracking-[0.2em]">
+                          La redondance n'est pas un luxe, c'est une fondation. Chaque fragment de donnée est répliqué instantanément à travers plusieurs fuseaux horaires pour une résilience absolue.
+                       </p>
+                       <div className="space-y-20">
+                          {[
+                            { t: "Global Sharding", d: "Fragmentation intelligente des données à travers 128 nœuds géographiques indépendants." },
+                            { t: "Zero-Knowledge", d: "Cryptage asymétrique de bout en bout garantissant que seul le propriétaire peut déchiffrer les données." },
+                            { t: "Hot-Swap Backup", d: "Remplacement instantané des nœuds défaillants sans aucune interruption de service." }
+                          ].map((step, i) => (
+                            <div key={i} className="group flex gap-12 border-b border-white/5 pb-16 hover:border-white/20 transition-all cursor-default">
+                               <div className="text-6xl font-black text-white/5 group-hover:text-white/20 transition-colors italic leading-none">0{i+1}</div>
+                               <div>
+                                  <h5 className="text-3xl font-black uppercase tracking-tight text-white mb-6 italic group-hover:translate-x-2 transition-transform">{step.t}</h5>
+                                  <p className="text-[12px] text-white/20 uppercase tracking-[0.3em] font-bold leading-loose italic">{step.d}</p>
+                               </div>
+                            </div>
+                          ))}
+                       </div>
+                    </Reveal>
+                 </div>
+              </div>
            </div>
         </section>
+
+        {/* MEGA FOOTER */}
+        <footer className="bg-black pt-60 pb-12 px-8 md:px-24 relative z-50">
+           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-32 mb-60 text-white">
+              <div className="lg:col-span-2">
+                 <div className="flex items-center gap-6 mb-16">
+                    <div className="w-16 h-16 bg-white flex items-center justify-center">
+                      <Grid className="w-10 h-10 text-black" />
+                    </div>
+                    <span className="text-4xl font-black uppercase tracking-tighter italic">THE<span className="text-white/20">MONOLITH.</span></span>
+                 </div>
+                 <p className="text-white/20 text-[11px] font-black uppercase tracking-[0.5em] leading-loose max-w-sm mb-20 italic">
+                    "L'information est le seul monument qui ne s'effondre jamais." — Archive Monolith V.14
+                 </p>
+                 <div className="flex gap-16">
+                    {["InfraLog", "NodeRegistry", "GitHub", "X_Protocol"].map(s => (
+                      <Link key={s} href="#" className="text-[11px] font-black uppercase tracking-widest text-white/20 hover:text-white transition-colors italic underline underline-offset-8 decoration-white/5">{s}</Link>
+                    ))}
+                 </div>
+              </div>
+
+              {[
+                { t: "INFRASTRUCTURE", l: ["Bare Metal", "Arctic Nodes", "Abyssal Grid", "Solar Arrays"] },
+                { t: "SERVICES", l: ["Data Sharding", "Quantum Crypt", "API Gateway", "SLA 99.9%"] },
+                { t: "CONSOLE", l: ["Node Status", "Global Traffic", "Usage Audit", "Support"] }
+              ].map((col, i) => (
+                <div key={i} className="flex flex-col gap-12">
+                  <h4 className="text-[11px] font-black text-white/40 uppercase tracking-[0.6em] italic">{col.t}</h4>
+                  <ul className="flex flex-col gap-8">
+                    {col.l.map(link => (
+                      <li key={link} className="text-[11px] font-bold text-white/20 hover:text-white transition-colors cursor-pointer uppercase tracking-[0.4em] italic">{link}</li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+           </div>
+
+           <div className="max-w-[1600px] mx-auto border-t border-white/5 pt-16 flex flex-col md:flex-row justify-between items-center gap-16 text-[10px] font-black text-white/10 uppercase tracking-[0.6em] italic">
+              <span>© 2026 THE MONOLITH GLOBAL INFRASTRUCTURE AG. // ALL_RIGHTS_RESERVED</span>
+              <div className="flex gap-16">
+                 <span>STATUS: IMMUTABLE</span>
+                 <span>LATENCY: 12ms (AVG)</span>
+                 <span>v14.4.0-STABLE</span>
+              </div>
+           </div>
+        </footer>
       </main>
 
-      {/* ── FOOTER ────────────────── */}
-      <footer className="bg-[#fcf8f5] pt-40 pb-12 px-6 border-t border-[#e6dbd1]/60">
-        <div className="max-w-[1400px] mx-auto grid grid-cols-1 md:grid-cols-5 gap-20 mb-40">
-           <div className="md:col-span-2">
-              <Link href="/" className="flex items-center gap-4 mb-10 group">
-                <div className="w-10 h-10 rounded-full border border-[#d4af37]/30 flex items-center justify-center">
-                  <Wind className="w-5 h-5 text-[#d4af37]" />
+      {/* CONSOLE OVERLAY (SIMULATED) */}
+      <AnimatePresence>
+        {isTerminalOpen && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            className="fixed inset-0 z-[1000] bg-black/95 backdrop-blur-3xl flex items-center justify-center p-8"
+          >
+             <div className="max-w-2xl w-full border border-white/10 p-16 relative bg-[#0a0a0c] shadow-2xl">
+                <button onClick={() => setIsTerminalOpen(false)} className="absolute top-8 right-8 text-white/20 hover:text-white transition-colors">
+                   <X className="w-10 h-10" />
+                </button>
+                <div className="flex flex-col gap-16">
+                   <div className="flex items-center gap-6">
+                      <Terminal className="w-10 h-10 text-white" />
+                      <div>
+                         <h2 className="text-3xl font-black uppercase tracking-tighter italic text-white leading-none">Console_Auth</h2>
+                         <span className="text-[10px] font-black uppercase tracking-[0.5em] text-white/20">System_ID: MONO-CON-v14</span>
+                      </div>
+                   </div>
+                   <div className="bg-white/5 p-8 font-mono text-[11px] leading-relaxed text-white/60 uppercase tracking-[0.2em] border border-white/5">
+                      <div className="text-white mb-2 underline underline-offset-4 decoration-white/20 font-black">Boot Sequence:</div>
+                      <div>{">"} Initializing Shard Handshake... [OK]</div>
+                      <div>{">"} Syncing Global Node Registry... [OK]</div>
+                      <div>{">"} Verified Auth_Token: *********-42 [OK]</div>
+                      <div className="mt-6 flex items-center gap-4 animate-pulse">
+                         <span className="w-2 h-4 bg-white" />
+                         <span>Waiting for operator input...</span>
+                      </div>
+                   </div>
+                   <div className="space-y-6">
+                      <div className="text-[10px] font-black uppercase tracking-[0.4em] text-white/20 italic italic">Operator_Action_Required</div>
+                      <div className="flex gap-6">
+                         <button className="flex-1 py-6 bg-white text-black text-[11px] font-black uppercase tracking-[0.3em] hover:bg-white/80 transition-all italic">Provision_Node</button>
+                         <button className="flex-1 py-6 border border-white/10 text-white text-[11px] font-black uppercase tracking-[0.3em] hover:bg-white/5 transition-all italic">Flush_Cache</button>
+                      </div>
+                   </div>
                 </div>
-                <span className="text-xl font-light tracking-[0.4em] uppercase text-[#4a4540]">Aura Scent</span>
-              </Link>
-              <p className="text-[#4a4540]/30 max-w-sm leading-relaxed mb-12 text-sm font-light italic" style={{ fontFamily: "serif" }}>
-                 "The fragrance of a memory is the only map that leads back to the soul. Mastered in Grasse since 1922."
-              </p>
-              <div className="flex gap-10">
-                 {["Instagram", "Vogue", "Journal", "Atelier"].map(s => (
-                   <Link key={s} href="#" className="text-[10px] font-bold uppercase tracking-widest text-[#4a4540]/30 hover:text-[#d4af37] transition-colors italic">{s}</Link>
-                 ))}
-              </div>
-           </div>
-           
-           {[
-             { t: "FRAGRANCE", l: ["The Originals", "Seasonal Lab", "Bespoke Scent", "Samples"] },
-             { t: "MAISON", l: ["The Distillery", "Our Heritage", "Grasse Labs", "Journal"] },
-             { t: "SERVICE", l: ["Account", "Shipping", "Contact", "Legal"] }
-           ].map((col, i) => (
-             <div key={i} className="space-y-12">
-                <h4 className="text-[10px] font-bold uppercase tracking-[0.6em] text-[#4a4540]/20">{col.t}</h4>
-                <ul className="space-y-6">
-                   {col.l.map(link => (
-                     <li key={link} className="text-xs font-bold uppercase tracking-widest text-[#4a4540]/30 hover:text-[#4a4540] transition-colors italic">
-                        <Link href="#">{link}</Link>
-                     </li>
-                   ))}
-                </ul>
              </div>
-           ))}
-        </div>
-        <div className="max-w-[1400px] mx-auto flex flex-col md:row justify-between items-center gap-8 border-t border-[#e6dbd1]/60 pt-12 text-[10px] font-bold uppercase tracking-[0.4em] text-[#4a4540]/10 italic">
-           <span>© 2026 AURA SCENT MAISON DE PARFUM. ALL MEMORIES ARE DISTILLED.</span>
-           <div className="flex gap-12">
-              <Link href="#" className="hover:text-[#d4af37] transition-all">GRASSE</Link>
-              <Link href="#" className="hover:text-[#d4af37] transition-all">PARIS</Link>
-              <Link href="#" className="hover:text-[#d4af37] transition-all">TOKYO</Link>
-           </div>
-        </div>
-      </footer>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
+  )
+}
+
+/* ==========================================
+   TECHNICAL SUB-COMPONENTS
+   ========================================== */
+
+function HUD_Overlay({ isTerminalOpen }: { isTerminalOpen: boolean }) {
+  return (
+    <div className="fixed inset-0 pointer-events-none z-[100]">
+       {/* Corner Brackets */}
+       <div className="absolute top-12 left-12 w-20 h-20 border-t-2 border-l-2 border-white/10" />
+       <div className="absolute top-12 right-12 w-20 h-20 border-t-2 border-r-2 border-white/10" />
+       <div className="absolute bottom-12 left-12 w-20 h-20 border-b-2 border-l-2 border-white/10" />
+       <div className="absolute bottom-12 right-12 w-20 h-20 border-b-2 border-r-2 border-white/10" />
+
+       {/* Top Status Bar */}
+       <div className="absolute top-12 left-1/2 -translate-x-1/2 flex items-center gap-20 bg-black/60 backdrop-blur-2xl px-12 py-4 border border-white/10 rounded-none">
+          <div className="flex items-center gap-6 text-white">
+             <div className="w-3 h-3 bg-white animate-pulse" />
+             <span className="text-[10px] font-black uppercase tracking-[0.4em] italic leading-none">System_Link: IMMUTABLE // Shards: SYNCED</span>
+          </div>
+          <div className="h-4 w-px bg-white/20" />
+          <div className="flex items-center gap-6 text-white/20">
+             <Wifi className="w-4 h-4" /> 
+             <span className="text-[10px] font-black uppercase tracking-[0.4em] italic leading-none">Global_Grid: SECURE</span>
+          </div>
+       </div>
+
+       {/* Right Rotation Info */}
+       <div className="absolute right-12 top-1/2 -translate-y-1/2 rotate-90 origin-right hidden lg:block">
+          <span className="text-[10px] font-black uppercase tracking-[0.8em] text-white/5 italic">Unauthorized_Access_To_The_Core_Registry_Is_Strictly_Monitored_By_Global_Information_Security_Council</span>
+       </div>
+    </div>
+  )
+}
+
+function X({ className }: { className?: string }) {
+  return (
+    <svg 
+      viewBox="0 0 24 24" 
+      fill="none" 
+      stroke="currentColor" 
+      strokeWidth="2" 
+      strokeLinecap="round" 
+      strokeLinejoin="round" 
+      className={className}
+    >
+      <line x1="18" y1="6" x2="6" y2="18"></line>
+      <line x1="6" y1="6" x2="18" y2="18"></line>
+    </svg>
   )
 }

@@ -1,648 +1,525 @@
 "use client"
 
-import { motion, useScroll, useTransform, useInView, AnimatePresence, useMotionValue, useSpring } from "framer-motion"
-import { useState, useRef, useEffect } from "react"
+import React, { useState, useEffect, useRef } from "react"
+import { 
+  motion, 
+  AnimatePresence, 
+  useScroll, 
+  useTransform, 
+  useInView, 
+  useSpring 
+} from "framer-motion"
 import Image from "next/image"
 import Link from "next/link"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
-import { Badge } from "@/components/ui/badge"
-import { Card, CardContent } from "@/components/ui/card"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel"
-import { Progress } from "@/components/ui/progress"
-import { Separator } from "@/components/ui/separator"
-import { ArrowRight, Menu, X, Star, Clock, Shield, MapPin, Phone, Mail, Camera, Play, CheckCircle2, Bed, Coffee, Utensils, Wind, Calendar } from "lucide-react"
+import { 
+  Zap, Activity, Microscope, 
+  Target, Layers, Box, Hexagon, 
+  Terminal, Settings, Power, Info, 
+  AlertTriangle, ChevronRight, ArrowRight, 
+  Share2, Maximize2, Download, ExternalLink, 
+  Archive, Hash, Wifi, BarChart3, 
+  Fingerprint, Scan, Brain, Server, 
+  ShieldCheck, ShieldAlert, Award, 
+  Briefcase, Wind, Thermometer, 
+  Flame, Battery, Radio, Gauge, 
+  Timer, Lightbulb, Command, Grid, 
+  Radar, Orbit, Atom, Satellite, 
+  Milestone, FlaskConical, FlaskRound, 
+  Ghost, Binary, Database, Search, 
+  Cpu, HeartPulse, Sun, Magnet, 
+  CircleDot, Waves, Pickaxe, Mountain, 
+  Gem, Rocket, Drill, PlaneTakeoff
+} from "lucide-react"
 
-// ─── REVEAL COMPONENT ────────────────────────────────────────────────────────
-function Reveal({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
+/* ==========================================================================
+   THE ASTEROID MINER DATASET (ULTRA DENSITY)
+   ========================================================================== */
+
+const CELESTIAL_ASSETS = [
+  {
+    id: "ast-psy-16",
+    name: "Psyche-16 Core",
+    type: "M-Type Asteroid",
+    metal: "Iron-Nickel-Gold",
+    value: "$10,000 Quadrillion",
+    distance: "2.5 AU",
+    desc: "Noyau métallique exposé d'une protoplanète, riche en métaux lourds et terres rares essentiels à l'industrie spatiale.",
+    status: "Extraction Active"
+  },
+  {
+    id: "ast-ben-08",
+    name: "Bennu Prime",
+    type: "C-Type Asteroid",
+    metal: "Carbon-Water-Platinum",
+    value: "$680 Billion",
+    distance: "0.9 AU",
+    desc: "Astéroïde riche en carbone et en eau, utilisé comme station de ravitaillement et source de platine pour les propulseurs ioniques.",
+    status: "Mapping"
+  },
+  {
+    id: "ast-ryu-15",
+    name: "Ryugu Vertex",
+    type: "S-Type Asteroid",
+    metal: "Silicate-Magnesium",
+    value: "$82 Billion",
+    distance: "1.2 AU",
+    desc: "Astéroïde rocheux fournissant les matériaux de base pour la construction de boucliers thermiques et de structures orbitales.",
+    status: "Processing"
+  }
+]
+
+const MINING_METRICS = [
+  { label: "Drill Depth", value: "420m", trend: "Nominal" },
+  { label: "Laser Temp", value: "4,200K", trend: "High" },
+  { label: "Yield Purity", value: "98.4%", trend: "Increasing" },
+  { label: "Orbital Sync", value: "Locked", trend: "Stable" }
+]
+
+const MINING_LOGS = [
+  { timestamp: "01:14:42", unit: "Borehole-v4", status: "DRY", depth: "120m" },
+  { timestamp: "01:14:45", unit: "Laser-Cutter", status: "ACTIVE", power: "400kW" },
+  { timestamp: "01:14:48", unit: "Refinery-01", status: "STABLE", purity: "99.2%" }
+]
+
+/* ==========================================
+   TECHNICAL COMPONENTS
+   ========================================== */
+
+function Reveal({ children, delay = 0, y = 40, x = 0 }: { children: React.ReactNode, delay?: number, y?: number, x?: number }) {
   const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, margin: "-80px" })
+  const isInView = useInView(ref, { once: true, margin: "-100px" })
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, y: 32 }}
-      animate={isInView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.6, delay, ease: [0.22, 1, 0.36, 1] }}
+      initial={{ opacity: 0, y, x }}
+      animate={isInView ? { opacity: 1, y: 0, x: 0 } : {}}
+      transition={{ duration: 1.2, delay, ease: [0.16, 1, 0.3, 1] }}
     >
       {children}
     </motion.div>
   )
 }
 
-// ─── DATA ────────────────────────────────────────────────────────────────────
-const NAV_LINKS = [
-  { label: "L'Hôtel", href: "#hotel" },
-  { label: "Expériences", href: "#experiences" },
-  { label: "Chambres & Suites", href: "#suites" },
-  { label: "Le Spa", href: "#spa" },
-]
-
-const STATS = [
-  { value: "5", label: "Étoiles Palace", suffix: "" },
-  { value: "120", label: "Chambres & Suites", suffix: "" },
-  { value: "3", label: "Restaurants Étoilés", suffix: "" },
-  { value: "2,000", label: "Mètres Carrés de Spa", suffix: "m²" },
-  { value: "1905", label: "Année de Fondation", suffix: "" },
-]
-
-const FEATURES = [
-  {
-    id: "hebergement",
-    title: "L'Art de Vivre",
-    icon: <Bed className="w-6 h-6" />,
-    description: "Chaque chambre et suite est une déclaration d'élégance parisienne classique, mêlant antiquités sélectionnées, soieries précieuses et technologie contemporaine discrète.",
-    bullets: [
-      "Vues imprenables sur la capitale",
-      "Service majordome 24/7",
-      "Linge de lit en satin de coton 600 fils",
-      "Produits d'accueil sur-mesure"
-    ],
-    image: "https://images.unsplash.com/photo-1590490360182-c33d57733427?w=800&q=80"
-  },
-  {
-    id: "gastronomie",
-    title: "Haute Gastronomie",
-    icon: <Utensils className="w-6 h-6" />,
-    description: "Sous la direction de notre Chef triplement étoilé, découvrez une partition culinaire d'exception où le produit de saison est magnifié dans des écrins époustouflants.",
-    bullets: [
-      "Restaurant Gastronomique 3 étoiles",
-      "Brasserie élégante & Jardin d'Hiver",
-      "Bar à cocktails historique",
-      "Cave comptant plus de 40 000 flacons"
-    ],
-    image: "https://images.unsplash.com/photo-1414235077428-338988a2e8c0?w=800&q=80"
-  },
-  {
-    id: "bien-etre",
-    title: "Le Spa Impérial",
-    icon: <Wind className="w-6 h-6" />,
-    description: "Un sanctuaire de sérénité au cœur de l'effervescence urbaine. Piscine de 25 mètres baignée de lumière naturelle, cabines de soins privatives et rituels signature exclusifs.",
-    bullets: [
-      "Piscine intérieure chauffée",
-      "Parcours hydrothérapique",
-      "Soins esthétiques d'exception",
-      "Coaching sportif personnalisé"
-    ],
-    image: "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=800&q=80"
-  }
-]
-
-const TESTIMONIALS = [
-  {
-    name: "Eleanor Vance",
-    role: "Auteure & Voyageuse",
-    avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&q=80",
-    content: "Mon séjour à la Suite Impériale fut magique. Le niveau d'anticipation et d'attention aux détails par le personnel est sans égal dans l'hôtellerie mondiale.",
-    rating: 5
-  },
-  {
-    name: "Richard Sterling",
-    role: "Éditeur, Luxury Travel",
-    avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&q=80",
-    content: "Le Grand Hotel redéfinit la notion même de Palace. La rénovation récente a su préserver l'âme historique tout en insufflant une modernité absolue.",
-    rating: 5
-  },
-  {
-    name: "Sophie Laurent",
-    role: "Collectionneuse d'Art",
-    avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&q=80",
-    content: "Dîner au restaurant gastronomique est une expérience transcendantale. Le sommelier a su trouver l'accord parfait pour couronner une soirée inoubliable.",
-    rating: 5
-  },
-  {
-    name: "James Chen",
-    role: "CEO, Horizon Group",
-    avatar: "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=200&q=80",
-    content: "L'intimité et la discrétion dont fait preuve l'équipe sont remarquables. Le spa est également le meilleur de la ville.",
-    rating: 5
-  }
-]
-
-const PRICING = [
-  {
-    id: "deluxe",
-    title: "Chambre Deluxe",
-    subtitle: "Élégance Parisienne",
-    price: "850 €",
-    duration: "/ nuit",
-    description: "Un écrin de raffinement de 45m² avec vue sur la cour intérieure marbrée. Le confort absolu pour une escapade citadine.",
-    features: [
-      "Lit King-size avec surmatelas",
-      "Salle de bain en marbre de Carrare",
-      "Accès illimité au Spa Impérial",
-      "Mini-bar de courtoisie (sans alcool)",
-      "Service en chambre 24h/24"
-    ],
-    recommended: false
-  },
-  {
-    id: "prestige",
-    title: "Suite Prestige",
-    subtitle: "L'Espace et la Lumière",
-    price: "2 200 €",
-    duration: "/ nuit",
-    description: "75m² de pur luxe avec salon séparé et vue panoramique sur les toits de la capitale. L'expérience Palace par excellence.",
-    features: [
-      "Espace salon privé de 30m²",
-      "Vue directe sur les monuments",
-      "Petit-déjeuner américain inclus",
-      "Transferts aéroport en limousine",
-      "Accueil VIP et champagne en chambre"
-    ],
-    recommended: true
-  },
-  {
-    id: "imperiale",
-    title: "Suite Impériale",
-    subtitle: "Le Sommet du Luxe",
-    price: "8 500 €",
-    duration: "/ nuit",
-    description: "Une résidence somptueuse de 200m² au dernier étage. Terrasse privée, salle à manger et œuvres d'art exclusives.",
-    features: [
-      "Terrasse paysagée de 50m²",
-      "Service d'un majordome dédié",
-      "Salle à manger pour 8 convives",
-      "Cuisine privée équipée",
-      "Accès prioritaire aux restaurants étoilés",
-      "Soins quotidiens au Spa inclus"
-    ],
-    recommended: false
-  }
-]
-
-const FAQS = [
-  {
-    question: "Quelles sont vos politiques d'annulation ?",
-    answer: "Pour les réservations flexibles, l'annulation est sans frais jusqu'à 48 heures avant l'arrivée (15h, heure locale). Au-delà, la première nuit sera facturée. Pour les Suites Signatures, des conditions spécifiques s'appliquent."
-  },
-  {
-    question: "Le Spa est-il accessible aux clients de l'extérieur ?",
-    answer: "Oui, notre Spa Impérial accueille les clients non-résidents sur réservation préalable. Cependant, l'accès à la piscine intérieure est réservé exclusivement aux clients séjournant à l'hôtel ou ayant réservé un soin de plus de 2 heures."
-  },
-  {
-    question: "Acceptez-vous les animaux de compagnie ?",
-    answer: "Nous sommes ravis d'accueillir vos chiens ou chats de petite taille (moins de 10 kg). Un supplément de 50€ par jour s'applique, incluant un lit sur-mesure, des gamelles et des friandises confectionnées par notre Chef Pâtissier."
-  },
-  {
-    question: "Proposez-vous un service de transfert depuis l'aéroport ?",
-    answer: "Notre flotte de limousines avec chauffeurs privés est à votre disposition pour assurer vos transferts depuis et vers tous les aéroports et gares. Ce service est offert pour toute réservation d'une Suite."
-  },
-  {
-    question: "À quelle heure le check-in et le check-out s'effectuent-ils ?",
-    answer: "L'enregistrement s'effectue à partir de 15h00 et le départ jusqu'à 12h00. Selon les disponibilités, nous serons ravis d'organiser un check-in anticipé ou un départ tardif sur simple demande."
-  },
-  {
-    question: "Existe-t-il un code vestimentaire pour les restaurants ?",
-    answer: "Pour notre restaurant gastronomique 3 étoiles, la veste est exigée pour les messieurs et une tenue de soirée est recommandée. Pour la brasserie, une tenue élégante décontractée (smart casual) est parfaitement adaptée."
-  },
-  {
-    question: "Disposez-vous d'un parking privé pour les clients ?",
-    answer: "Oui, un parking privé et sécurisé en sous-sol est à la disposition exclusive de nos clients. Un service de voiturier est inclus, ainsi que des bornes de recharge ultra-rapides pour les véhicules électriques."
-  }
-]
-
-// ─── MAIN COMPONENT ────────────────────────────────────────────────────────
-export default function GrandHotelTemplate() {
-  const containerRef = useRef<HTMLDivElement>(null)
-  const { scrollYProgress } = useScroll({ target: containerRef })
-  
-  // Parallax Values
-  const heroY = useTransform(scrollYProgress, [0, 1], ["0%", "45%"])
-  const textY = useTransform(scrollYProgress, [0, 1], ["0%", "20%"])
-  const opacityHero = useTransform(scrollYProgress, [0, 0.25], [1, 0])
+function DrillSweepVisualizer() {
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
+  useEffect(() => {
+    const handleMouse = (e: MouseEvent) => setMousePos({ x: e.clientX, y: e.clientY })
+    window.addEventListener("mousemove", handleMouse)
+    return () => window.removeEventListener("mousemove", handleMouse)
+  }, [])
 
   return (
-    <div ref={containerRef} className="min-h-screen bg-[#1A1A1A] text-[#F9F6F0] font-serif selection:bg-[#D4AF37] selection:text-black" style={{ overflowX: "hidden", scrollBehavior: "smooth" }}>
+    <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden opacity-10">
+       <svg width="100%" height="100%" className="w-full h-full">
+          {[...Array(12)].map((_, i) => (
+            <motion.line 
+               key={i}
+               x1="50%" 
+               y1="0" 
+               x2={`${10 + i * 8}%`} 
+               y2="100%" 
+               stroke="#06b6d4" 
+               strokeWidth="0.5" 
+               animate={{ x2: `${10 + i * 8 + (mousePos.x / 100)}%` }}
+               transition={{ type: "spring", damping: 30, stiffness: 50 }}
+            />
+          ))}
+          {[...Array(30)].map((_, i) => (
+            <motion.circle 
+               key={`dust-${i}`}
+               r="1.5"
+               fill="#06b6d4"
+               initial={{ opacity: 0 }}
+               animate={{ 
+                  cx: [Math.random() * 2000, Math.random() * 2000],
+                  cy: [Math.random() * 1000, Math.random() * 1000],
+                  opacity: [0, 0.8, 0]
+               }}
+               transition={{ duration: 2 + Math.random() * 3, repeat: Infinity, delay: Math.random() * 5 }}
+            />
+          ))}
+       </svg>
+    </div>
+  )
+}
+
+function AsteroidModel({ progress }: { progress: any }) {
+  const rotate = useTransform(progress, [0, 1], [0, 360])
+  const scale = useTransform(progress, [0, 0.5, 1], [1, 1.2, 1])
+
+  return (
+    <motion.div style={{ rotate, scale }} className="relative w-80 h-80 flex items-center justify-center">
+       <div className="absolute inset-0 border border-cyan-500/10 rounded-full animate-spin-slow shadow-[0_0_80px_rgba(6,182,212,0.05)]" />
+       <Mountain className="w-40 h-40 text-cyan-500/10 animate-pulse" />
+       <div className="absolute inset-8 border border-cyan-500/5 rounded-full" />
+    </motion.div>
+  )
+}
+
+/* ==========================================
+   THE ASTEROID MINER - MAIN INTERFACE
+   ========================================== */
+
+export default function AsteroidMinerPremium() {
+  const [activeAst, setActiveAst] = useState(0)
+  const [isDrillLocked, setIsDrillLocked] = useState(true)
+  const containerRef = useRef(null)
+  const { scrollYProgress } = useScroll({ target: containerRef })
+
+  // Mining Scroll Effects
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.2], [1, 0])
+  const textX = useTransform(scrollYProgress, [0, 0.5], [0, 100])
+
+  return (
+    <div ref={containerRef} className="bg-[#05080c] text-[#e0e8ed] font-mono selection:bg-cyan-500/30 selection:text-white min-h-screen overflow-x-hidden transition-colors duration-1000">
       
-      {/* ─── 1. NAVBAR STICKY ─── */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-[#1A1A1A]/80 backdrop-blur-xl border-b border-white/10 transition-all duration-300">
-        <div className="max-w-7xl mx-auto px-6 h-24 flex items-center justify-between">
-          <Link href="/" className="flex flex-col items-center group cursor-pointer">
-            <span className="text-2xl font-serif tracking-[0.15em] uppercase text-white group-hover:text-[#D4AF37] transition-colors duration-300">
-              Le Grand Hotel
-            </span>
-            <span className="text-[9px] tracking-[0.4em] uppercase text-[#D4AF37] font-sans mt-1">Paris 1905</span>
-          </Link>
+      {/* GLOBAL HUD OVERLAY */}
+      <HUD_Overlay isDrillLocked={isDrillLocked} />
 
-          {/* Desktop Nav */}
-          <div className="hidden md:flex items-center gap-10">
-            {NAV_LINKS.map((link) => (
-              <Link 
-                key={link.label} 
-                href={link.href} 
-                className="text-xs font-sans tracking-[0.2em] uppercase text-zinc-400 hover:text-[#D4AF37] transition-all duration-200 cursor-pointer"
-              >
-                {link.label}
-              </Link>
-            ))}
-          </div>
+      <main>
+        {/* ==========================================
+            1. MINING IGNITION (HERO)
+            ========================================== */}
+        <section className="relative h-screen flex flex-col justify-center items-center px-8 md:px-24 overflow-hidden pt-20">
+          <DrillSweepVisualizer />
+          <motion.div style={{ opacity: heroOpacity }} className="absolute z-0 pointer-events-none flex items-center justify-center">
+             <AsteroidModel progress={scrollYProgress} />
+          </motion.div>
 
-          <div className="hidden md:flex items-center gap-6">
-            <button className="text-xs font-sans tracking-widest uppercase text-white hover:text-[#D4AF37] transition-colors cursor-pointer">
-              EN / FR
-            </button>
-            <button className="px-8 py-3.5 bg-[#D4AF37] text-black text-xs font-sans font-bold tracking-[0.2em] uppercase hover:bg-white transition-all duration-300 cursor-pointer rounded-sm">
-              Réserver
-            </button>
-          </div>
-
-          {/* Mobile Nav */}
-          <Sheet>
-            <SheetTrigger asChild>
-              <button className="md:hidden p-2 text-white cursor-pointer">
-                <Menu className="w-6 h-6" />
-              </button>
-            </SheetTrigger>
-            <SheetContent side="right" className="bg-[#1A1A1A] border-l border-white/10 text-white w-[300px]">
-              <div className="flex flex-col gap-8 mt-16 font-serif">
-                {NAV_LINKS.map((link) => (
-                  <Link 
-                    key={link.label} 
-                    href={link.href} 
-                    className="text-xl tracking-widest uppercase text-zinc-400 hover:text-[#D4AF37] transition-colors cursor-pointer"
-                  >
-                    {link.label}
-                  </Link>
-                ))}
-                <Separator className="bg-white/10 my-4" />
-                <button className="px-6 py-4 bg-[#D4AF37] text-black text-sm font-sans font-bold tracking-widest uppercase rounded-sm cursor-pointer">
-                  Vérifier les disponibilités
-                </button>
-              </div>
-            </SheetContent>
-          </Sheet>
-        </div>
-      </nav>
-
-      {/* ─── 2. HERO PARALLAX ─── */}
-      <section className="relative h-[100vh] flex items-center justify-center overflow-hidden">
-        <motion.div style={{ y: heroY, opacity: opacityHero }} className="absolute inset-0 z-0">
-          <Image 
-            src="https://images.unsplash.com/photo-1542314831-c6a4d1409e50?w=2000&q=80" 
-            alt="Le Grand Hotel Facade" 
-            fill 
-            className="object-cover brightness-50"
-            priority
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#1A1A1A] via-transparent to-transparent" />
-        </motion.div>
-
-        <motion.div style={{ y: textY }} className="relative z-10 max-w-5xl mx-auto px-6 text-center mt-20">
-          <Reveal>
-            <div className="flex items-center justify-center gap-4 mb-8">
-              <div className="w-16 h-px bg-[#D4AF37]" />
-              <div className="flex gap-1">
-                {[1,2,3,4,5].map(i => <Star key={i} className="w-4 h-4 fill-[#D4AF37] text-[#D4AF37]" />)}
-              </div>
-              <div className="w-16 h-px bg-[#D4AF37]" />
-            </div>
-          </Reveal>
-          
-          <Reveal delay={0.1}>
-            <h1 className="text-6xl md:text-8xl lg:text-9xl font-light tracking-tighter text-white mb-8 leading-[0.9] drop-shadow-2xl">
-              L'Élégance <br />
-              <span className="italic text-[#D4AF37]">Intemporelle.</span>
-            </h1>
-          </Reveal>
-
-          <Reveal delay={0.2}>
-            <p className="text-lg md:text-xl text-zinc-300 font-sans font-light tracking-wide max-w-2xl mx-auto mb-12 leading-relaxed">
-              Un joyau architectural où se rencontrent l'histoire de la capitale et le luxe contemporain. Vivez la véritable hospitalité parisienne.
-            </p>
-          </Reveal>
-
-          <Reveal delay={0.3} className="flex flex-col sm:flex-row items-center justify-center gap-6 font-sans">
-            <button className="w-full sm:w-auto px-10 py-5 bg-[#D4AF37] text-black font-bold uppercase tracking-[0.2em] text-sm hover:scale-105 transition-all duration-300 cursor-pointer rounded-sm shadow-[0_10px_30px_rgba(212,175,55,0.2)]">
-              Réserver votre Séjour
-            </button>
-            <Dialog>
-              <DialogTrigger asChild>
-                <button className="w-full sm:w-auto px-10 py-5 border border-white/30 bg-black/30 backdrop-blur-md text-white font-bold uppercase tracking-[0.2em] text-sm hover:bg-white/10 transition-all duration-300 cursor-pointer flex items-center justify-center gap-3 rounded-sm">
-                  <Play className="w-4 h-4 text-[#D4AF37]" /> Découvrir l'Hôtel
-                </button>
-              </DialogTrigger>
-              <DialogContent className="bg-[#1A1A1A] border-white/10 text-white sm:max-w-[1000px] p-0 overflow-hidden">
-                <div className="aspect-video relative w-full bg-black flex items-center justify-center">
-                  <div className="w-12 h-12 rounded-full border-t-2 border-[#D4AF37] animate-spin" />
-                  <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1590490360182-c33d57733427?w=1600&q=80')] bg-cover opacity-60 mix-blend-screen" />
+          <div className="relative z-10 text-center max-w-7xl">
+             <Reveal>
+                <div className="inline-flex items-center gap-4 px-6 py-2 border border-cyan-500/30 bg-cyan-500/5 text-[10px] font-black uppercase tracking-[0.5em] text-cyan-500 mb-12 italic">
+                   <Pickaxe className="w-4 h-4" /> Mining_Sync: NOMINAL // Yield: 98.4%
                 </div>
-              </DialogContent>
-            </Dialog>
-          </Reveal>
-        </motion.div>
-      </section>
-
-      {/* ─── 3. STATS BAR ─── */}
-      <section className="py-20 border-b border-white/5 bg-[#141414] relative z-10">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-12 md:gap-4 divide-x-0 md:divide-x divide-white/10">
-            {STATS.map((stat, i) => (
-              <Reveal key={i} delay={i * 0.1}>
-                <div className="flex flex-col items-center text-center cursor-pointer group">
-                  <div className="text-4xl lg:text-5xl font-light text-white mb-3 group-hover:text-[#D4AF37] transition-colors duration-300">
-                    {stat.value}<span className="text-[#D4AF37] font-sans text-2xl">{stat.suffix}</span>
-                  </div>
-                  <div className="text-[10px] font-sans uppercase tracking-[0.2em] text-zinc-500 font-bold">
-                    {stat.label}
-                  </div>
+                <motion.h1 style={{ x: textX }} className="text-7xl md:text-[14vw] font-black tracking-tighter uppercase mb-16 leading-[0.75] italic">
+                   Asteroid <br/> <span className="text-white/5 italic">Miner.</span>
+                </motion.h1>
+                <p className="max-w-3xl mx-auto text-sm md:text-lg text-white/30 leading-relaxed uppercase tracking-widest font-light mb-16 italic">
+                   L'exploitation industrielle des ressources célestes. Nous forons les astéroïdes pour extraire les métaux critiques nécessaires à l'expansion de l'humanité dans le système solaire.
+                </p>
+                
+                <div className="flex flex-col sm:flex-row gap-8 justify-center items-center">
+                   <button className="px-12 py-6 bg-cyan-800 text-white text-[10px] font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all shadow-[0_0_40px_rgba(6,182,212,0.2)] flex items-center gap-4 italic">
+                      <Drill className="w-5 h-5" /> Initialize Drill
+                   </button>
+                   <button className="px-12 py-6 border border-white/10 text-white text-[10px] font-black uppercase tracking-widest hover:bg-white/5 transition-all flex items-center gap-4 italic">
+                      <Database className="w-5 h-5" /> Resource Registry
+                   </button>
                 </div>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ─── 4. FEATURES (TABS) ─── */}
-      <section id="experiences" className="py-32 relative bg-[#1A1A1A]">
-        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.04] mix-blend-overlay pointer-events-none" />
-        <div className="max-w-7xl mx-auto px-6 relative z-10">
-          <div className="text-center mb-24">
-            <Reveal>
-              <h2 className="text-xs font-sans uppercase tracking-[0.3em] text-[#D4AF37] font-bold mb-4">L'Expérience</h2>
-              <h3 className="text-4xl md:text-6xl font-light text-white mb-6">Un Art de Recevoir</h3>
-              <p className="text-zinc-400 font-sans max-w-2xl mx-auto leading-relaxed text-lg">
-                Au-delà de l'hébergement, nous créons des moments rares. Gastronomie, bien-être et services sur-mesure s'accordent pour sublimer votre séjour.
-              </p>
-            </Reveal>
+             </Reveal>
           </div>
 
-          <Tabs defaultValue="hebergement" className="w-full flex flex-col lg:flex-row gap-16">
-            <div className="lg:w-1/3">
-              <TabsList className="flex flex-col h-auto bg-transparent gap-4 items-stretch font-sans">
-                {FEATURES.map((feature) => (
-                  <TabsTrigger 
-                    key={feature.id} 
-                    value={feature.id}
-                    className="justify-start px-8 py-6 text-left data-[state=active]:bg-[#222] data-[state=active]:text-white text-zinc-500 hover:text-white transition-all duration-300 cursor-pointer rounded-none border-l-2 border-transparent data-[state=active]:border-[#D4AF37]"
-                  >
-                    <div className="flex items-center gap-6">
-                      <div className="opacity-70">{feature.icon}</div>
-                      <span className="text-sm font-bold uppercase tracking-[0.1em]">{feature.title}</span>
-                    </div>
-                  </TabsTrigger>
-                ))}
-              </TabsList>
-            </div>
+          <div className="absolute bottom-12 left-12 right-12 flex justify-between items-end border-t border-white/5 pt-12">
+             <div className="flex flex-col gap-6">
+                <div className="flex items-center gap-4 text-[9px] font-bold text-white/20 uppercase tracking-widest italic">
+                   <div className="w-16 h-px bg-white/10" />
+                   Rigger_ID: ASTER-FORGE-01
+                </div>
+                <div className="flex items-center gap-4 text-[9px] font-bold text-white/20 uppercase tracking-widest italic">
+                   <div className="w-16 h-px bg-white/10" />
+                   Status: EXTRACTION_STABLE
+                </div>
+             </div>
+             <div className="text-right flex flex-col items-end gap-4">
+                <span className="text-[8px] font-black uppercase tracking-[0.5em] text-cyan-500">Resource_Flow_Stream</span>
+                <div className="flex gap-2 h-12 items-end">
+                   {[...Array(16)].map((_, i) => (
+                     <motion.div 
+                        key={i}
+                        animate={{ height: ["10%", "100%", "30%", "80%", "10%"] }}
+                        transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.1 }}
+                        className="w-2 bg-cyan-500/20"
+                     />
+                   ))}
+                </div>
+             </div>
+          </div>
+        </section>
 
-            <div className="lg:w-2/3">
-              <AnimatePresence mode="wait">
-                {FEATURES.map((feature) => (
-                  <TabsContent key={feature.id} value={feature.id} className="mt-0 outline-none">
-                    <motion.div
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: -20 }}
-                      transition={{ duration: 0.5 }}
-                      className="bg-[#222] border border-white/5 overflow-hidden shadow-2xl group"
-                    >
-                      <div className="aspect-[16/9] relative w-full overflow-hidden">
-                        <Image src={feature.image} alt={feature.title} fill className="object-cover group-hover:scale-105 transition-transform duration-1000" />
-                        <div className="absolute inset-0 bg-gradient-to-t from-[#222] to-transparent opacity-90" />
+        {/* ==========================================
+            2. RESOURCE REGISTRY (DENSE TECHNICAL)
+            ========================================== */}
+        <section className="py-60 bg-[#04060a] relative border-y border-white/5 overflow-hidden">
+           <div className="max-w-[1600px] mx-auto px-8 md:px-24">
+              <div className="flex flex-col md:flex-row items-end justify-between mb-40 gap-12">
+                 <Reveal>
+                    <span className="text-[10px] font-black uppercase tracking-[0.6em] text-cyan-500 block mb-6 italic underline underline-offset-8 decoration-cyan-400/20">Celestial // Assets</span>
+                    <h2 className="text-6xl md:text-[10vw] font-black uppercase tracking-tighter italic leading-none text-white">Archives.</h2>
+                 </Reveal>
+                 <div className="text-right">
+                    <span className="text-[10px] font-black uppercase tracking-[0.5em] text-white/20 block mb-4 italic">Registry // Orbital_Audit</span>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-cyan-400">L'Architecture du Forage Spatial</p>
+                 </div>
+              </div>
+
+              <div className="grid md:grid-cols-3 gap-px bg-white/5 border border-white/5 shadow-2xl">
+                 {CELESTIAL_ASSETS.map((asset, i) => (
+                   <Reveal key={asset.id} delay={i * 0.1}>
+                      <div className="bg-[#05080c] p-20 flex flex-col h-full hover:bg-white/[0.02] transition-all group cursor-crosshair border-white/5 border-r last:border-r-0">
+                         <div className="flex justify-between items-start mb-16">
+                            <div className="w-16 h-16 bg-white/5 border border-white/10 flex items-center justify-center group-hover:bg-cyan-800 group-hover:text-white transition-all duration-500">
+                               <Gem className="w-8 h-8" />
+                            </div>
+                            <span className={`px-4 py-2 bg-white/5 text-[9px] font-black uppercase tracking-[0.3em] ${asset.status === "Extraction Active" ? "text-cyan-500" : "text-white/40"}`}>{asset.status}</span>
+                         </div>
+                         
+                         <h3 className="text-4xl font-black uppercase tracking-tighter mb-8 italic text-white group-hover:translate-x-4 transition-transform">{asset.name}</h3>
+                         <div className="text-[10px] font-black text-white/20 uppercase tracking-[0.5em] mb-12">{asset.type}</div>
+                         
+                         <div className="space-y-8 mb-20 border-l border-cyan-500/20 pl-8">
+                            <div className="flex justify-between items-center text-[11px] font-bold uppercase tracking-widest">
+                               <span className="text-white/20">Primary Metal</span>
+                               <span className="text-white group-hover:text-cyan-400 transition-colors">{asset.metal}</span>
+                            </div>
+                            <div className="flex justify-between items-center text-[11px] font-bold uppercase tracking-widest">
+                               <span className="text-white/20">Market Value</span>
+                               <span className="text-white group-hover:text-cyan-400 transition-colors">{asset.value}</span>
+                            </div>
+                            <div className="flex justify-between items-center text-[11px] font-bold uppercase tracking-widest">
+                               <span className="text-white/20">Distance</span>
+                               <span className="text-white group-hover:text-cyan-400 transition-colors">{asset.distance}</span>
+                            </div>
+                         </div>
+
+                         <p className="text-[12px] text-white/30 leading-loose uppercase tracking-[0.2em] font-bold italic mb-16">
+                            {asset.desc}
+                         </p>
+
+                         <div className="mt-auto pt-10 border-t border-white/5 flex justify-between items-center">
+                            <span className="text-[10px] font-black text-white/10 uppercase tracking-widest">Ref: {asset.id}</span>
+                            <button className="text-[10px] font-black uppercase text-white/40 flex items-center gap-4 group-hover:text-white transition-all">
+                               Technical_Specs <ChevronRight className="w-5 h-5" />
+                            </button>
+                         </div>
                       </div>
-                      <div className="p-10 md:p-14 relative z-10 -mt-20">
-                        <h4 className="text-4xl font-light text-white mb-6 italic">{feature.title}</h4>
-                        <p className="text-zinc-400 font-sans leading-relaxed mb-10 text-lg">{feature.description}</p>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-6 gap-x-8 font-sans">
-                          {feature.bullets.map((bullet, i) => (
-                            <div key={i} className="flex items-start gap-4">
-                              <div className="w-1.5 h-1.5 rounded-full bg-[#D4AF37] mt-2 shrink-0" />
-                              <span className="text-sm text-zinc-300 tracking-wide">{bullet}</span>
+                   </Reveal>
+                 ))}
+              </div>
+           </div>
+        </section>
+
+        {/* ==========================================
+            3. MINING MONITOR (INTERACTIVE DATA)
+            ========================================== */}
+        <section className="py-60 bg-black relative border-y border-white/5 overflow-hidden">
+           <div className="max-w-[1400px] mx-auto px-8 md:px-24">
+              <div className="grid lg:grid-cols-2 gap-40 items-center">
+                 <div>
+                    <Reveal>
+                       <span className="text-[10px] font-black uppercase tracking-[0.5em] text-cyan-500 block mb-12 italic underline underline-offset-8 decoration-cyan-400/20">Mining // Performance</span>
+                       <h2 className="text-7xl md:text-[9vw] font-light italic leading-none text-white mb-16 uppercase tracking-tighter">
+                          The <br/> <span className="not-italic font-black text-white/5 italic">Extraction_Link.</span>
+                       </h2>
+                       <p className="text-2xl font-light text-white/20 leading-relaxed mb-24 italic uppercase tracking-[0.2em] max-w-xl">
+                          Surveillance du processus d'extraction en temps réel. Nos capteurs analysent la composition minéralogique et ajustent la puissance du laser pour maximiser la pureté du minerai.
+                       </p>
+                       <div className="grid grid-cols-2 gap-px bg-white/5 border border-white/5 mb-24 shadow-2xl">
+                          {MINING_METRICS.map((metric, i) => (
+                            <div key={i} className="p-16 bg-[#0a0c10] group hover:bg-white/[0.02] transition-all border-r border-b last:border-r-0 border-white/5">
+                               <div className="text-[10px] font-black uppercase text-cyan-400 mb-6 tracking-[0.4em]">{metric.label}</div>
+                               <div className="text-5xl font-black text-white italic mb-6 tracking-tighter group-hover:translate-x-4 transition-transform">{metric.value}</div>
+                               <div className="flex items-center gap-3 text-[9px] font-bold uppercase tracking-[0.3em] text-white/10 italic">
+                                  <Activity className="w-4 h-4 text-cyan-400" /> {metric.trend}
+                               </div>
                             </div>
                           ))}
-                        </div>
-                      </div>
-                    </motion.div>
-                  </TabsContent>
-                ))}
-              </AnimatePresence>
-            </div>
-          </Tabs>
-        </div>
-      </section>
-
-      {/* ─── 5. TESTIMONIALS CAROUSEL ─── */}
-      <section className="py-32 bg-[#141414] border-y border-white/5 overflow-hidden relative">
-        <div className="max-w-7xl mx-auto px-6 relative z-10">
-          <Reveal>
-            <div className="text-center mb-20">
-              <h2 className="text-xs font-sans uppercase tracking-[0.3em] text-[#D4AF37] font-bold mb-4">Livre d'Or</h2>
-              <h3 className="text-4xl md:text-5xl font-light text-white">Mémoires de Voyage</h3>
-            </div>
-          </Reveal>
-
-          <Carousel className="w-full max-w-5xl mx-auto">
-            <CarouselContent>
-              {TESTIMONIALS.map((testi, i) => (
-                <CarouselItem key={i} className="md:basis-1/2 lg:basis-1/2 pl-6">
-                  <Reveal delay={i * 0.1}>
-                    <Card className="bg-[#1A1A1A] border border-white/10 hover:border-[#D4AF37]/40 transition-colors duration-500 cursor-pointer h-full rounded-none">
-                      <CardContent className="p-10 flex flex-col h-full justify-between">
-                        <div>
-                          <div className="flex gap-1 mb-8">
-                            {[...Array(testi.rating)].map((_, j) => (
-                              <Star key={j} className="w-4 h-4 fill-[#D4AF37] text-[#D4AF37]" />
-                            ))}
+                       </div>
+                       <button 
+                         onClick={() => setIsDrillLocked(!isDrillLocked)}
+                         className="w-full py-8 bg-cyan-950 text-white text-[11px] font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all shadow-2xl flex items-center justify-center gap-6 italic"
+                       >
+                          <Settings className="w-5 h-5" /> Re-Sync Drill Nodes
+                       </button>
+                    </Reveal>
+                 </div>
+                 
+                 <div className="relative">
+                    <Reveal delay={0.3} x={40}>
+                       <div className="aspect-square bg-[#0a0c10] border border-white/10 p-20 flex flex-col justify-between relative group overflow-hidden shadow-2xl">
+                          <div className="absolute top-0 right-0 p-80 bg-cyan-400 opacity-[0.02] blur-[150px] rounded-full group-hover:opacity-[0.05] transition-opacity" />
+                          
+                          <div className="flex justify-between items-start z-10">
+                             <div className="flex flex-col gap-3">
+                                <span className="text-[10px] font-black text-white/10 uppercase tracking-[0.5em]">Mining_Link // AST-SYNC-v42</span>
+                                <span className="text-[12px] font-black text-white/40 uppercase tracking-[0.6em]">Drill_Borehole_Map</span>
+                             </div>
+                             <Wifi className="w-6 h-6 text-cyan-400" />
                           </div>
-                          <p className="text-zinc-300 text-xl leading-relaxed font-light italic mb-10">
-                            "{testi.content}"
-                          </p>
-                        </div>
-                        <div className="flex items-center gap-6 pt-6 border-t border-white/10 mt-auto font-sans">
-                          <Avatar className="w-14 h-14 border border-white/20">
-                            <AvatarImage src={testi.avatar} />
-                            <AvatarFallback>GH</AvatarFallback>
-                          </Avatar>
-                          <div>
-                            <div className="text-white font-bold text-sm tracking-widest uppercase mb-1">{testi.name}</div>
-                            <div className="text-[#D4AF37] text-xs uppercase tracking-[0.1em]">{testi.role}</div>
+                          
+                          {/* MINING VISUALIZER (SVG) */}
+                          <div className="relative z-10 flex flex-col items-center justify-center h-full">
+                             <div className="w-64 h-64 border border-cyan-400/5 rounded-full flex items-center justify-center relative">
+                                <motion.div 
+                                  animate={{ rotate: 360 }}
+                                  transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+                                  className="absolute inset-0 border-t-2 border-cyan-400/20 rounded-full" 
+                                />
+                                <motion.div 
+                                  animate={{ rotate: -360 }}
+                                  transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+                                  className="absolute inset-8 border-b-2 border-cyan-400/10 rounded-full" 
+                                />
+                                <Drill className={`w-24 h-24 transition-colors duration-1000 ${isDrillLocked ? "text-cyan-400 animate-pulse" : "text-white/5"}`} />
+                             </div>
+                             <div className="mt-16 text-center space-y-6">
+                                <div className={`text-4xl font-black italic tracking-tighter ${isDrillLocked ? "text-white" : "text-white/20"}`}>
+                                   {isDrillLocked ? "DRILL_OPERATIONAL" : "DRILL_OFFLINE"}
+                                </div>
+                                <span className="text-[11px] font-bold text-white/10 uppercase tracking-[0.6em] block">Auth_Node: FORGE_UNIT_01</span>
+                             </div>
                           </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </Reveal>
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-            <div className="flex justify-center gap-6 mt-16">
-              <CarouselPrevious className="relative inset-auto translate-y-0 bg-transparent border-white/30 text-white hover:bg-white hover:text-black w-12 h-12 transition-colors rounded-full" />
-              <CarouselNext className="relative inset-auto translate-y-0 bg-transparent border-white/30 text-white hover:bg-white hover:text-black w-12 h-12 transition-colors rounded-full" />
-            </div>
-          </Carousel>
-        </div>
-      </section>
 
-      {/* ─── 6. PRICING ─── */}
-      <section id="suites" className="py-32 bg-[#1A1A1A] relative">
-        <div className="max-w-7xl mx-auto px-6 relative z-10">
-          <div className="text-center mb-24">
-            <Reveal>
-              <h2 className="text-xs font-sans uppercase tracking-[0.3em] text-[#D4AF37] font-bold mb-4">Réservation</h2>
-              <h3 className="text-4xl md:text-5xl font-light text-white mb-6">Chambres & Suites</h3>
-              <p className="text-zinc-400 font-sans max-w-xl mx-auto text-lg leading-relaxed">
-                Une collection de résidences parisiennes pensées pour offrir un confort absolu et une intimité préservée.
-              </p>
-            </Reveal>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-end font-sans">
-            {PRICING.map((tier, i) => (
-              <Reveal key={i} delay={i * 0.1}>
-                <Card className={`relative bg-[#141414] border ${tier.recommended ? 'border-[#D4AF37] shadow-[0_0_40px_rgba(212,175,55,0.15)] z-10 lg:-translate-y-4' : 'border-white/10'} hover:border-[#D4AF37]/50 transition-all duration-500 cursor-pointer overflow-hidden rounded-none`}>
-                  {tier.recommended && (
-                    <div className="absolute top-0 inset-x-0 bg-[#D4AF37] text-black text-xs font-bold uppercase tracking-[0.2em] text-center py-2">
-                      L'Expérience Recommandée
-                    </div>
-                  )}
-                  <CardContent className={`p-10 ${tier.recommended ? 'pt-14' : ''}`}>
-                    <h4 className="text-3xl font-serif text-white mb-2">{tier.title}</h4>
-                    <div className="text-xs uppercase tracking-widest text-[#D4AF37] font-bold mb-6">{tier.subtitle}</div>
-                    <p className="text-sm text-zinc-400 mb-10 h-16 leading-relaxed">{tier.description}</p>
-                    
-                    <div className="flex items-baseline gap-2 mb-10 border-b border-white/10 pb-10">
-                      <span className="text-4xl font-light text-white font-serif">{tier.price}</span>
-                      <span className="text-sm text-zinc-500">{tier.duration}</span>
-                    </div>
-
-                    <ul className="space-y-5 mb-12">
-                      {tier.features.map((feat, j) => (
-                        <li key={j} className="flex items-start gap-4 text-sm text-zinc-300">
-                          <CheckCircle2 className="w-5 h-5 text-[#D4AF37] shrink-0" />
-                          <span>{feat}</span>
-                        </li>
-                      ))}
-                    </ul>
-
-                    <button className={`w-full py-5 text-sm font-bold uppercase tracking-[0.1em] transition-colors duration-300 rounded-sm ${tier.recommended ? 'bg-[#D4AF37] text-black hover:bg-white hover:text-black' : 'bg-transparent border border-white/30 text-white hover:bg-white hover:text-black'}`}>
-                      Vérifier les disponibilités
-                    </button>
-                  </CardContent>
-                </Card>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ─── 7. FAQ ACCORDION ─── */}
-      <section className="py-32 bg-[#141414]">
-        <div className="max-w-4xl mx-auto px-6">
-          <Reveal>
-            <div className="text-center mb-20">
-              <h2 className="text-xs font-sans uppercase tracking-[0.3em] text-[#D4AF37] font-bold mb-4">Informations</h2>
-              <h3 className="text-4xl font-light text-white">Préparer votre Séjour</h3>
-            </div>
-          </Reveal>
-
-          <Reveal delay={0.2}>
-            <Accordion type="single" collapsible className="w-full font-sans">
-              {FAQS.map((faq, i) => (
-                <AccordionItem key={i} value={`item-${i}`} className="border-white/10">
-                  <AccordionTrigger className="text-left text-white hover:text-[#D4AF37] hover:no-underline font-medium text-lg py-8 transition-colors">
-                    {faq.question}
-                  </AccordionTrigger>
-                  <AccordionContent className="text-zinc-400 leading-relaxed pb-8 text-base">
-                    {faq.answer}
-                  </AccordionContent>
-                </AccordionItem>
-              ))}
-            </Accordion>
-          </Reveal>
-        </div>
-      </section>
-
-      {/* ─── 8. CTA BANNER ─── */}
-      <section className="py-24 px-6 relative z-10 bg-[#1A1A1A]">
-        <Reveal>
-          <div className="max-w-6xl mx-auto bg-[#141414] border border-[#D4AF37]/30 p-12 md:p-24 text-center relative overflow-hidden group">
-            <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=1600&q=80')] bg-cover bg-center opacity-10 group-hover:opacity-20 transition-opacity duration-1000" />
-            
-            <div className="relative z-10 font-sans">
-              <div className="w-12 h-12 border border-[#D4AF37] rotate-45 mx-auto mb-12 flex items-center justify-center">
-                <div className="w-8 h-8 border border-[#D4AF37] -rotate-45" />
+                          <div className="relative z-10 flex gap-6">
+                             <div className="flex-1 h-1 bg-white/5 overflow-hidden">
+                                <motion.div 
+                                   animate={isDrillLocked ? { x: ["-100%", "100%"] } : {}}
+                                   transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+                                   className="w-1/2 h-full bg-cyan-700"
+                                />
+                             </div>
+                          </div>
+                       </div>
+                    </Reveal>
+                 </div>
               </div>
-              <h2 className="text-4xl md:text-6xl font-light text-white mb-8 font-serif italic">Rendez-vous à Paris</h2>
-              <p className="text-lg text-zinc-400 max-w-2xl mx-auto mb-12 font-light leading-relaxed">
-                Nos concierges Clefs d'Or se tiennent à votre entière disposition pour organiser chaque détail de votre prochaine escapade parisienne.
-              </p>
-              <button className="px-14 py-6 bg-[#D4AF37] text-black font-bold uppercase tracking-[0.2em] text-sm hover:bg-white transition-colors duration-300 cursor-pointer rounded-sm">
-                Contacter la Conciergerie
-              </button>
-            </div>
-          </div>
-        </Reveal>
-      </section>
+           </div>
+        </section>
 
-      {/* ─── 9. FOOTER ─── */}
-      <footer className="bg-[#0A0A0A] pt-32 pb-12 font-sans border-t border-white/5">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16 mb-24">
-            <div>
-              <Link href="/" className="flex flex-col items-start gap-1 mb-8 cursor-pointer">
-                <span className="text-2xl font-serif tracking-[0.1em] uppercase text-white">
-                  Le Grand Hotel
-                </span>
-                <span className="text-[9px] tracking-[0.4em] uppercase text-[#D4AF37]">Paris 1905</span>
-              </Link>
-              <p className="text-sm leading-relaxed mb-8 text-zinc-500 font-medium">
-                Une institution parisienne. L'élégance à la française sublimée par un service d'une attention constante depuis plus d'un siècle.
-              </p>
-              <div className="flex gap-4">
-                <a href="#" className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-[#D4AF37] hover:text-black hover:border-[#D4AF37] transition-all cursor-pointer text-white"><Camera className="w-4 h-4" /></a>
+        {/* ==========================================
+            4. MINING STORY (TECH STORYTELLING)
+            ========================================== */}
+        <section className="py-60 bg-[#05080c] relative overflow-hidden border-t border-white/5">
+           <div className="max-w-[1400px] mx-auto px-8 md:px-24">
+              <div className="grid lg:grid-cols-2 gap-40 items-center">
+                 <div className="relative aspect-[3/4] overflow-hidden group border border-white/5 shadow-2xl">
+                    <Image 
+                       src="https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?q=80&w=1200&auto=format&fit=crop" 
+                       alt="Asteroid Mining Infrastructure" 
+                       fill 
+                       className="object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-[2000ms]"
+                    />
+                    <div className="absolute inset-0 bg-cyan-900/10 mix-blend-color group-hover:opacity-0 transition-opacity" />
+                    <div className="absolute inset-0 p-20 flex flex-col justify-end bg-gradient-to-t from-black via-black/40 to-transparent">
+                       <div className="text-white">
+                          <span className="text-[11px] font-black uppercase tracking-[0.6em] text-cyan-400 mb-8 block italic underline underline-offset-8 decoration-cyan-400/20">Atelier // Purity // Unit</span>
+                          <h4 className="text-6xl font-black tracking-tighter uppercase italic mb-12 mix-blend-difference text-white">Resource <br/> Fabric.</h4>
+                          <button className="flex items-center gap-6 text-[11px] font-black uppercase tracking-[0.4em] border-b border-white/20 pb-4 hover:border-cyan-400 transition-all group">
+                             Extraction Protocols <ExternalLink className="w-5 h-5 group-hover:translate-x-2 group-hover:-translate-y-2 transition-transform" />
+                          </button>
+                       </div>
+                    </div>
+                 </div>
+
+                 <div>
+                    <Reveal>
+                       <div className="mb-24 text-left">
+                          <span className="text-[10px] font-black uppercase tracking-[0.5em] text-cyan-500 mb-8 block italic">Chapitre III // Raffinage</span>
+                          <h2 className="text-7xl md:text-[10vw] font-black tracking-tighter uppercase text-white italic leading-none text-white">Pure_Yield.</h2>
+                       </div>
+                       <p className="text-2xl font-light text-white/20 leading-relaxed italic mb-20 uppercase tracking-[0.2em]">
+                          L'espace est notre nouvelle mine. Nous utilisons des technologies de raffinage in-situ pour transformer la roche céleste en métaux précieux, sans les dommages environnementaux de l'exploitation terrestre.
+                       </p>
+                       <div className="space-y-20">
+                          {[
+                            { t: "Surface Mapping", d: "Cartographie laser haute résolution pour identifier les zones de haute teneur minérale." },
+                            { t: "Borehole Drilling", d: "Forage profond via des mèches en diamant synthétique renforcées par laser thermique." },
+                            { t: "Ore Crushing", d: "Concassage cryogénique du minerai pour une séparation optimale des métaux précieux." }
+                          ].map((step, i) => (
+                            <div key={i} className="group flex gap-12 border-b border-white/5 pb-16 hover:border-cyan-400/20 transition-all cursor-default">
+                               <div className="text-6xl font-black text-white/5 group-hover:text-cyan-400/20 transition-colors italic leading-none">0{i+1}</div>
+                               <div>
+                                  <h5 className="text-3xl font-black uppercase tracking-tight text-white mb-6 italic group-hover:translate-x-4 transition-transform text-white">{step.t}</h5>
+                                  <p className="text-[12px] text-white/20 uppercase tracking-[0.3em] font-bold leading-loose italic">{step.d}</p>
+                               </div>
+                            </div>
+                          ))}
+                       </div>
+                    </Reveal>
+                 </div>
               </div>
-            </div>
+           </div>
+        </section>
 
-            <div>
-              <h4 className="text-white font-bold uppercase tracking-[0.2em] text-xs mb-8">L'Hôtel</h4>
-              <ul className="space-y-4">
-                <li><a href="#" className="text-zinc-500 hover:text-[#D4AF37] transition-colors text-sm cursor-pointer">L'Histoire</a></li>
-                <li><a href="#" className="text-zinc-500 hover:text-[#D4AF37] transition-colors text-sm cursor-pointer">Chambres & Suites</a></li>
-                <li><a href="#" className="text-zinc-500 hover:text-[#D4AF37] transition-colors text-sm cursor-pointer">Restaurants & Bars</a></li>
-                <li><a href="#" className="text-zinc-500 hover:text-[#D4AF37] transition-colors text-sm cursor-pointer">Le Spa Impérial</a></li>
-                <li><a href="#" className="text-zinc-500 hover:text-[#D4AF37] transition-colors text-sm cursor-pointer">Événements Privés</a></li>
-              </ul>
-            </div>
+        {/* MEGA FOOTER */}
+        <footer className="bg-black pt-60 pb-12 px-8 md:px-24 relative z-50">
+           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-32 mb-60 text-white">
+              <div className="lg:col-span-2">
+                 <div className="flex items-center gap-6 mb-16">
+                    <div className="w-16 h-16 bg-cyan-800 flex items-center justify-center">
+                      <Pickaxe className="w-10 h-10 text-white" />
+                    </div>
+                    <span className="text-4xl font-black uppercase tracking-tighter italic">ASTEROID<span className="text-white/20">MINER.</span></span>
+                 </div>
+                 <p className="text-white/20 text-[11px] font-black uppercase tracking-[0.5em] leading-loose max-w-sm mb-20 italic">
+                    "L'avenir des ressources est céleste." — Archive Miner V.42
+                 </p>
+                 <div className="flex gap-16">
+                    {["ExtractionLog", "ResourceRegistry", "GitHub", "X_Protocol"].map(s => (
+                      <Link key={s} href="#" className="text-[11px] font-black uppercase tracking-widest text-white/20 hover:text-cyan-400 transition-colors italic underline underline-offset-8 decoration-white/5">{s}</Link>
+                    ))}
+                 </div>
+              </div>
 
-            <div>
-              <h4 className="text-white font-bold uppercase tracking-[0.2em] text-xs mb-8">Découvrir</h4>
-              <ul className="space-y-4">
-                <li><a href="#" className="text-zinc-500 hover:text-[#D4AF37] transition-colors text-sm cursor-pointer">Offres Spéciales</a></li>
-                <li><a href="#" className="text-zinc-500 hover:text-[#D4AF37] transition-colors text-sm cursor-pointer">Guide de Paris</a></li>
-                <li><a href="#" className="text-zinc-500 hover:text-[#D4AF37] transition-colors text-sm cursor-pointer">Cartes Cadeaux</a></li>
-                <li><a href="#" className="text-zinc-500 hover:text-[#D4AF37] transition-colors text-sm cursor-pointer">Carrières</a></li>
-                <li><a href="#" className="text-zinc-500 hover:text-[#D4AF37] transition-colors text-sm cursor-pointer">Presse</a></li>
-              </ul>
-            </div>
+              {[
+                { t: "RESOURCES", l: ["Psyche-16", "Bennu Prime", "Ryugu Vertex", "Rare Earths"] },
+                { t: "TECHNOLOGY", l: ["Laser Drilling", "In-situ Refinery", "Deep Space Logistics", "SLA Reports"] },
+                { t: "ATELIER", l: ["Our Legacy", "Space Policy", "Locations", "Support"] }
+              ].map((col, i) => (
+                <div key={i} className="flex flex-col gap-12">
+                  <h4 className="text-[11px] font-black text-cyan-400 uppercase tracking-[0.6em] italic">{col.t}</h4>
+                  <ul className="flex flex-col gap-8">
+                    {col.l.map(link => (
+                      <li key={link} className="text-[11px] font-bold text-white/20 hover:text-white transition-colors cursor-pointer uppercase tracking-[0.4em] italic">{link}</li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+           </div>
 
-            <div>
-              <h4 className="text-white font-bold uppercase tracking-[0.2em] text-xs mb-8">Contact & Accès</h4>
-              <ul className="space-y-6">
-                <li className="flex items-start gap-4 text-sm text-zinc-400">
-                  <MapPin className="w-5 h-5 text-[#D4AF37] shrink-0" />
-                  <span>1 Place du Grand Palace<br/>75008 Paris, France</span>
-                </li>
-                <li className="flex items-center gap-4 text-sm text-zinc-400">
-                  <Phone className="w-5 h-5 text-[#D4AF37]" /> +33 (0)1 40 00 00 00
-                </li>
-                <li className="flex items-center gap-4 text-sm text-zinc-400">
-                  <Mail className="w-5 h-5 text-[#D4AF37]" /> reservations@grandhotel.com
-                </li>
-              </ul>
-            </div>
+           <div className="max-w-[1600px] mx-auto border-t border-white/5 pt-16 flex flex-col md:flex-row justify-between items-center gap-16 text-[10px] font-black text-white/10 uppercase tracking-[0.6em] italic">
+              <span>© 2026 ASTEROID MINER CELESTIAL LOGISTICS AG. // ALL_RIGHTS_RESERVED</span>
+              <div className="flex gap-16">
+                 <span>STATUS: OPERATIONAL</span>
+                 <span>YIELD: 98.4% (AVG)</span>
+                 <span>v4.12.0-STABLE</span>
+              </div>
+           </div>
+        </footer>
+      </main>
+    </div>
+  )
+}
+
+/* ==========================================
+   TECHNICAL SUB-COMPONENTS
+   ========================================== */
+
+function HUD_Overlay({ isDrillLocked }: { isDrillLocked: boolean }) {
+  return (
+    <div className="fixed inset-0 pointer-events-none z-[100]">
+       {/* Corner Brackets */}
+       <div className={`absolute top-12 left-12 w-20 h-20 border-t-2 border-l-2 transition-colors duration-1000 ${isDrillLocked ? "border-cyan-400" : "border-white/10"}`} />
+       <div className={`absolute top-12 right-12 w-20 h-20 border-t-2 border-r-2 transition-colors duration-1000 ${isDrillLocked ? "border-cyan-400" : "border-white/10"}`} />
+       <div className={`absolute bottom-12 left-12 w-20 h-20 border-b-2 border-l-2 transition-colors duration-1000 ${isDrillLocked ? "border-cyan-400" : "border-white/10"}`} />
+       <div className={`absolute bottom-12 right-12 w-20 h-20 border-b-2 border-r-2 transition-colors duration-1000 ${isDrillLocked ? "border-cyan-400" : "border-white/10"}`} />
+
+       {/* Top Status Bar */}
+       <div className="absolute top-12 left-1/2 -translate-x-1/2 flex items-center gap-20 bg-black/60 backdrop-blur-2xl px-12 py-4 border border-white/10 rounded-none">
+          <div className="flex items-center gap-6 text-white">
+             <div className={`w-3 h-3 transition-colors duration-500 ${isDrillLocked ? "bg-cyan-400 animate-pulse" : "bg-red-500 animate-ping"}`} />
+             <span className="text-[10px] font-black uppercase tracking-[0.4em] italic leading-none">Extraction_Sync: {isDrillLocked ? "NOMINAL" : "DRILL_DISRUPTION"} // Status: ACTIVE</span>
           </div>
-
-          <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-6 text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-600">
-            <p>&copy; 2026 LE GRAND HOTEL PARIS. TOUS DROITS RÉSERVÉS.</p>
-            <div className="flex gap-8">
-              <a href="#" className="hover:text-white transition-colors cursor-pointer">Mentions Légales</a>
-              <a href="#" className="hover:text-white transition-colors cursor-pointer">Données Personnelles</a>
-            </div>
+          <div className="h-4 w-px bg-white/20" />
+          <div className="flex items-center gap-6 text-white/20">
+             <Wifi className="w-4 h-4" /> 
+             <span className="text-[10px] font-black uppercase tracking-[0.4em] italic leading-none">Orbital_Grid: SECURE</span>
           </div>
-        </div>
-      </footer>
+       </div>
 
+       {/* Right Rotation Info */}
+       <div className="absolute right-12 top-1/2 -translate-y-1/2 rotate-90 origin-right hidden lg:block">
+          <span className="text-[10px] font-black uppercase tracking-[0.8em] text-white/5 italic">Unauthorized_Duplication_Of_Mining_Patterns_Is_Strictly_Monitored_By_Global_Miner_Alliance</span>
+       </div>
     </div>
   )
 }

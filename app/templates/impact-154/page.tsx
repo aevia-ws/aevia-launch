@@ -1,291 +1,494 @@
 "use client"
-import { motion, useScroll, useTransform, useInView } from "framer-motion"
-import { useRef, useState, useEffect } from "react"
+
+import React, { useState, useEffect, useRef } from "react"
+import { 
+  motion, 
+  AnimatePresence, 
+  useScroll, 
+  useTransform, 
+  useInView, 
+  useSpring 
+} from "framer-motion"
 import Image from "next/image"
 import Link from "next/link"
-import { Sparkles, ArrowRight, Menu, Star, Users, Award, Briefcase, Layers, PenTool, Camera, Code, Megaphone, ChevronRight, Mail, Phone, MapPin } from "lucide-react"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { 
+  History, Landmark, Award, Star, 
+  ArrowRight, Menu, X, Plus, 
+  Maximize2, Share2, Download, ExternalLink, 
+  Archive, Search, Clock, Hash, 
+  Layers, Frame, Eye, Lock, Crosshair,
+  ShieldCheck, MapPin, ChevronRight, Play,
+  BookOpen, PenTool, Radio, Activity,
+  Database, Microscope, Fingerprint, Scan,
+  Palette, Camera, Shield, FileText,
+  UserCheck, Globe2, AlertCircle
+} from "lucide-react"
 
-function Reveal({ children, delay = 0, y = 40 }: { children: React.ReactNode; delay?: number; y?: number }) {
+/* ==========================================================================
+   IVORY ARCHIVE DATASET (ULTRA DENSITY)
+   ========================================================================== */
+
+const COLLECTIONS = [
+  {
+    id: "art-01",
+    title: "The Renaissance Veil",
+    period: "15th Century",
+    status: "Private_Vault",
+    location: "Zurich Node",
+    desc: "Une étude rare attribuée au cercle de Vinci, conservée dans des conditions atmosphériques contrôlées.",
+    image: "https://images.unsplash.com/photo-1578321272176-b7bbc067985c?q=80&w=1200&auto=format&fit=crop"
+  },
+  {
+    id: "art-02",
+    title: "Celestial Marbles",
+    period: "Classical Era",
+    status: "In_Exhibition",
+    location: "Paris Annex",
+    desc: "Sculptures hellénistiques retrouvées lors de l'expédition de 1924 en mer Égée.",
+    image: "https://images.unsplash.com/photo-1549887534-1541e9326642?q=80&w=1200&auto=format&fit=crop"
+  },
+  {
+    id: "art-03",
+    title: "Gilded Manuscripts",
+    period: "Medieval",
+    status: "Restoration",
+    location: "London Lab",
+    desc: "Enluminures byzantines sur parchemin de soie, en cours de stabilisation pigmentaire.",
+    image: "https://images.unsplash.com/photo-1582555172866-f73bb12a2ab3?q=80&w=1200&auto=format&fit=crop"
+  }
+]
+
+const PROVENANCE_LOGS = [
+  { year: "1892", event: "Acquired by the von Hardenburg family, Vienna." },
+  { year: "1946", event: "Recovered from the Salt Mines of Altaussee." },
+  { year: "1978", event: "Private auction, Sotheby’s Geneva, Record Sale." },
+  { year: "2024", event: "Secured by The Ivory Archive for conservation." }
+]
+
+const LAB_METRICS = [
+  { label: "Humidity", value: "42.5%", status: "Nominal" },
+  { label: "UV Exposure", value: "0.01 lux", status: "Optimal" },
+  { label: "CO2 Levels", value: "350 ppm", status: "Secure" },
+  { label: "Surface Temp", value: "18.2°C", status: "Stable" }
+]
+
+/* ==========================================================================
+   ADVANCED ANIMATION COMPONENTS
+   ========================================================================== */
+
+function Reveal({ children, delay = 0, y = 40, x = 0 }: { children: React.ReactNode, delay?: number, y?: number, x?: number }) {
   const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, margin: "-80px" })
+  const isInView = useInView(ref, { once: true, margin: "-100px" })
   return (
-    <motion.div ref={ref} initial={{ opacity: 0, y }} animate={isInView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 1, delay, ease: [0.16, 1, 0.3, 1] }}>
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y, x }}
+      animate={isInView ? { opacity: 1, y: 0, x: 0 } : {}}
+      transition={{ duration: 1.2, delay, ease: [0.16, 1, 0.3, 1] }}
+    >
       {children}
     </motion.div>
   )
 }
 
-function ParallaxImg({ src, alt }: { src: string; alt: string }) {
-  const ref = useRef(null)
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] })
-  const y = useTransform(scrollYProgress, [0, 1], ["-12%", "12%"])
+function SectionTitle({ subtitle, title, alignment = "center" }: { subtitle: string, title: string, alignment?: "center" | "left" }) {
   return (
-    <div ref={ref} className="relative w-full h-full overflow-hidden">
-      <motion.div style={{ y }} className="absolute inset-[-12%] w-[124%] h-[124%]">
-        <Image src={src} alt={alt} fill className="object-cover" />
-      </motion.div>
+    <div className={`mb-32 ${alignment === "center" ? "text-center" : "text-left"}`}>
+       <Reveal>
+          <span className="text-[10px] font-black uppercase tracking-[0.6em] text-[#b4925e] mb-8 block italic underline underline-offset-8">
+             {subtitle}
+          </span>
+          <h2 className="text-6xl md:text-[8vw] font-light italic leading-none tracking-tighter uppercase text-[#fdfcfb]" style={{ fontFamily: "serif" }}>
+             {title}
+          </h2>
+       </Reveal>
     </div>
   )
 }
 
-const WORK = [
-  { title: "Neon District", client: "Pulse Gaming", type: "Brand Identity", img: "https://images.unsplash.com/photo-1558618666-fcd25c85f82e?auto=format&fit=crop&q=80&w=1200" },
-  { title: "Aether Launch", client: "Aether Space", type: "Product Campaign", img: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=1200" },
-  { title: "Silk & Stone", client: "Maison Versa", type: "Editorial Design", img: "https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&q=80&w=1200" },
-  { title: "Digital Roots", client: "TerraFi", type: "Web Experience", img: "https://images.unsplash.com/photo-1551434678-e076c223a692?auto=format&fit=crop&q=80&w=1200" },
-]
+/* ==========================================================================
+   THE IVORY ARCHIVE - MAIN APPLICATION
+   ========================================================================== */
 
-const SERVICES = [
-  { icon: PenTool, title: "Brand Strategy", desc: "Name, narrative, visual system. We build identities that create irrational loyalty." },
-  { icon: Layers, title: "Web & Digital", desc: "Immersive websites and digital products that convert attention into action." },
-  { icon: Camera, title: "Content Production", desc: "Photo, video, and motion graphics that stop the scroll and start conversations." },
-  { icon: Megaphone, title: "Campaign Design", desc: "Integrated campaigns across channels that amplify your message exponentially." },
-]
+export default function IvoryArchivePremium() {
+  const [activeReport, setActiveReport] = useState(0)
+  const [vaultOpen, setVaultOpen] = useState(false)
+  const containerRef = useRef(null)
+  const { scrollYProgress } = useScroll({ target: containerRef })
 
-const TESTIMONIALS = [
-  { text: "Obliq didn't just design our brand — they gave us a voice we didn't know we had. Revenue up 340% since the rebrand.", author: "Marcus Chen", role: "CEO, Pulse Gaming" },
-  { text: "Working with Obliq feels like having a secret weapon. Their creative instincts are otherworldly.", author: "Elena Frost", role: "CMO, Aether Space" },
-  { text: "The website they built us isn't a website — it's an experience. Our bounce rate dropped to 12%.", author: "Sophie Laurent", role: "Founder, Maison Versa" },
-]
-
-export default function ObliqServicesPage() {
-  const [scrolled, setScrolled] = useState(false)
-  const heroRef = useRef(null)
-
-  const { scrollYProgress } = useScroll()
-  const heroY = useTransform(scrollYProgress, [0, 0.2], ["0%", "40%"])
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.15], [1, 0])
-
-  useEffect(() => {
-    const h = () => setScrolled(window.scrollY > 60)
-    window.addEventListener("scroll", h)
-    return () => window.removeEventListener("scroll", h)
-  }, [])
+  // Parallax & Depth Effects
+  const galleryX = useTransform(scrollYProgress, [0, 1], [0, -500])
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.2], [1, 0])
+  const heroScale = useTransform(scrollYProgress, [0, 0.2], [1, 1.1])
 
   return (
-    <div className="bg-[#0a0508] text-white font-sans min-h-screen selection:bg-rose-500 selection:text-white overflow-x-hidden">
+    <div ref={containerRef} className="bg-[#0c0c0e] text-[#fdfcfb] font-sans selection:bg-[#b4925e] selection:text-black min-h-screen overflow-x-hidden">
+      
+      {/* GLOBAL HUD & NAVIGATION */}
+      <nav className="fixed top-0 left-0 w-full h-24 z-[100] px-8 md:px-20 flex items-center justify-between border-b border-white/5 bg-[#0c0c0e]/80 backdrop-blur-xl">
+         <Link href="/" className="flex flex-col group">
+            <span className="text-3xl font-light tracking-[0.2em] uppercase text-white flex items-center gap-4">
+               <Landmark className="w-8 h-8 text-[#b4925e]" />
+               IVORY<span className="text-[#b4925e] font-black italic">.ARCHIVE</span>
+            </span>
+            <span className="text-[8px] font-black tracking-[0.6em] text-white/20 uppercase italic">Elite Art Conservation & Private Registry</span>
+         </Link>
 
-      {/* ── NAVBAR ───────────────────────────────────── */}
-      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-700 ${scrolled ? "bg-[#0a0508]/90 backdrop-blur-xl border-b border-rose-500/10 py-4" : "bg-transparent py-8"}`}>
-        <div className="max-w-[1600px] mx-auto px-6 md:px-12 flex items-center justify-between">
-          <Link href="/" className="text-2xl font-black tracking-tighter">
-            OBL<span className="text-rose-500">IQ</span><span className="text-rose-500">.</span>
-          </Link>
-          <div className="hidden lg:flex gap-10 text-[10px] font-bold uppercase tracking-[0.3em] text-white/40">
-            {["Work", "Services", "Studio", "Journal", "Contact"].map(l => (
-              <Link key={l} href="#" className="hover:text-rose-400 transition-colors">{l}</Link>
-            ))}
-          </div>
-          <div className="flex items-center gap-6">
-            <button className="hidden md:block px-8 py-3 bg-rose-500 text-white text-[10px] font-bold uppercase tracking-[0.2em] rounded-full hover:bg-white hover:text-black transition-all duration-500">
-              Let's Talk
+         <div className="hidden lg:flex items-center gap-12">
+            <div className="flex gap-10 text-[10px] font-black uppercase tracking-[0.4em] text-white/30">
+               <Link href="#" className="hover:text-white transition-colors">Curated</Link>
+               <Link href="#" className="hover:text-white transition-colors">The Lab</Link>
+               <Link href="#" className="hover:text-white transition-colors">Provenance</Link>
+               <Link href="#" className="hover:text-white transition-colors">Registry</Link>
+            </div>
+            <div className="h-10 w-px bg-white/10" />
+            <button 
+              onClick={() => setVaultOpen(true)}
+              className="flex items-center gap-3 px-8 py-3 bg-[#b4925e] text-black text-[10px] font-black uppercase tracking-widest hover:bg-white transition-all shadow-xl"
+            >
+               <Lock className="w-4 h-4" /> Collector Vault
             </button>
-            <Sheet>
-              <SheetTrigger asChild><button className="lg:hidden"><Menu className="w-6 h-6 text-white" /></button></SheetTrigger>
-              <SheetContent side="right" className="bg-[#0a0508] border-rose-500/10 p-12">
-                <div className="flex flex-col gap-8 mt-16">
-                  {["Work", "Services", "Studio", "Contact"].map(l => (
-                    <Link key={l} href="#" className="text-3xl font-light uppercase tracking-widest hover:text-rose-400 transition-colors">{l}</Link>
-                  ))}
-                </div>
-              </SheetContent>
-            </Sheet>
-          </div>
-        </div>
+         </div>
+
+         <button className="lg:hidden w-10 h-10 flex items-center justify-center border border-white/10">
+            <Menu className="w-6 h-6" />
+         </button>
       </nav>
 
       <main>
-        {/* ── HERO ───────────────────────────────────── */}
-        <section className="relative h-[110vh] min-h-[800px] flex items-center overflow-hidden" ref={heroRef}>
-          <motion.div style={{ y: heroY }} className="absolute inset-0">
-            <Image src="https://images.unsplash.com/photo-1558618666-fcd25c85f82e?auto=format&fit=crop&q=80&w=2400" alt="Creative" fill className="object-cover opacity-40" priority />
-            <div className="absolute inset-0 bg-gradient-to-r from-[#0a0508] via-[#0a0508]/60 to-transparent" />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#0a0508] via-transparent to-transparent" />
+        {/* ==========================================
+            1. THE PROLOGUE (HERO)
+            ========================================== */}
+        <section className="relative h-screen flex items-center justify-center overflow-hidden">
+          <motion.div style={{ opacity: heroOpacity, scale: heroScale }} className="absolute inset-0 z-0">
+             <Image 
+                src="https://images.unsplash.com/photo-1549887534-1541e9326642?q=80&w=2400&auto=format&fit=crop" 
+                alt="Classical Sculpture in Museum" 
+                fill 
+                className="object-cover opacity-20 grayscale"
+                priority
+             />
+             <div className="absolute inset-0 bg-gradient-to-t from-[#0c0c0e] via-transparent to-[#0c0c0e]" />
           </motion.div>
 
-          <motion.div style={{ opacity: heroOpacity }} className="relative z-10 max-w-[1600px] mx-auto px-6 md:px-12 w-full">
-            <Reveal>
-              <div className="flex items-center gap-4 mb-8">
-                <div className="w-12 h-[2px] bg-rose-500" />
-                <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-rose-400">Creative Agency — Est. 2018</span>
-              </div>
-            </Reveal>
-            <Reveal delay={0.1} y={70}>
-              <h1 className="text-7xl md:text-[8rem] lg:text-[11rem] font-black tracking-tighter leading-[0.8] mb-10">
-                We Make<br/>Brands<br/><span className="text-rose-500 italic">Unignorable.</span>
-              </h1>
-            </Reveal>
-            <Reveal delay={0.25}>
-              <p className="text-xl text-white/40 font-light max-w-lg leading-relaxed mb-10">
-                Strategy, design, and production for companies that refuse to blend in. We don't do safe — we do unforgettable.
-              </p>
-            </Reveal>
-            <Reveal delay={0.35}>
-              <div className="flex flex-wrap gap-4">
-                <button className="px-10 py-5 bg-rose-500 text-white font-bold rounded-full hover:bg-white hover:text-black transition-all duration-500 flex items-center gap-3">
-                  View Our Work <ArrowRight className="w-5 h-5" />
-                </button>
-              </div>
-            </Reveal>
-          </motion.div>
+          <div className="relative z-10 text-center max-w-7xl px-8">
+             <Reveal>
+                <div className="inline-flex items-center gap-4 px-4 py-1 border border-[#b4925e]/30 bg-[#b4925e]/5 text-[10px] font-bold uppercase tracking-[0.5em] text-[#b4925e] mb-12 italic">
+                   Status // High_Security_Node: Zurich
+                </div>
+                <h1 className="text-7xl md:text-[14vw] font-light italic leading-[0.75] tracking-tighter uppercase mb-16" style={{ fontFamily: "serif" }}>
+                   Heritage <br/> <span className="not-italic font-black text-white/5 italic">Eternalized.</span>
+                </h1>
+                <div className="grid md:grid-cols-3 gap-12 md:gap-24 text-left max-w-5xl mx-auto border-t border-white/10 pt-16">
+                   <div className="space-y-4">
+                      <h3 className="text-[10px] font-black uppercase tracking-widest text-[#b4925e]">The Mandate</h3>
+                      <p className="text-[11px] text-white/30 leading-loose uppercase tracking-widest font-bold italic">
+                         Nous assurons la pérennité des chefs-d'œuvre mondiaux à travers une expertise scientifique et une conservation de haute sphère.
+                      </p>
+                   </div>
+                   <div className="flex flex-col justify-end">
+                      <span className="text-5xl font-light tracking-tighter">1.4B</span>
+                      <span className="text-[10px] font-black uppercase tracking-[0.3em] text-white/20">Aggregate Vault Value (USD)</span>
+                   </div>
+                   <div className="flex flex-col justify-end">
+                      <span className="text-5xl font-light tracking-tighter">42</span>
+                      <span className="text-[10px] font-black uppercase tracking-[0.3em] text-white/20">Centuries of Provance</span>
+                   </div>
+                </div>
+             </Reveal>
+          </div>
+
+          <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4">
+             <span className="text-[8px] font-black uppercase tracking-[0.5em] text-white/20">Explore_The_Repository</span>
+             <div className="h-20 w-px bg-gradient-to-b from-[#b4925e] to-transparent" />
+          </div>
         </section>
 
-        {/* ── STATS ──────────────────────────────────── */}
-        <section className="py-20 border-y border-white/5 bg-[#0a0508]">
-          <div className="max-w-[1200px] mx-auto px-6 md:px-12 grid grid-cols-2 md:grid-cols-4 gap-8">
-            {[
-              { v: "86", l: "Brand launches" },
-              { v: "4.2B", l: "Impressions generated" },
-              { v: "24", l: "Industry awards" },
-              { v: "97%", l: "Client retention" },
-            ].map((s, i) => (
-              <Reveal key={i} delay={i * 0.08}>
-                <div className="text-center">
-                  <div className="text-4xl font-black text-rose-400 mb-1">{s.v}</div>
-                  <div className="text-[10px] font-bold uppercase tracking-widest text-white/30">{s.l}</div>
-                </div>
+        {/* ==========================================
+            2. THE GALLERY (Z-INDEX DEPTH)
+            ========================================== */}
+        <section className="py-60 bg-black relative border-y border-white/5 overflow-hidden">
+           <div className="max-w-[1600px] mx-auto px-8 md:px-20">
+              <SectionTitle subtitle="Chapitre I // Curated Selection" title="The Repository." />
+              
+              <div className="grid md:grid-cols-3 gap-16 relative">
+                 {COLLECTIONS.map((art, i) => (
+                   <Reveal key={art.id} delay={i * 0.1} y={80}>
+                      <div className="group relative bg-[#0c0c0e] border border-white/5 p-12 hover:border-[#b4925e]/30 transition-all duration-700 cursor-pointer">
+                         <div className="relative aspect-[3/4] mb-12 overflow-hidden shadow-2xl">
+                            <Image 
+                               src={art.image} 
+                               alt={art.title} 
+                               fill 
+                               className="object-cover grayscale group-hover:grayscale-0 group-hover:scale-110 transition-all duration-1000"
+                            />
+                            <div className="absolute inset-0 bg-black/40 group-hover:bg-transparent transition-colors" />
+                            <div className="absolute top-6 left-6">
+                               <span className="px-3 py-1 bg-[#b4925e] text-black text-[8px] font-black uppercase tracking-widest">{art.period}</span>
+                            </div>
+                         </div>
+                         
+                         <h3 className="text-3xl font-light italic uppercase tracking-tighter text-white group-hover:text-[#b4925e] transition-colors mb-6" style={{ fontFamily: "serif" }}>{art.title}</h3>
+                         <div className="flex justify-between items-center text-[9px] font-black text-white/20 uppercase tracking-widest mb-12">
+                            <span>ID: {art.id}</span>
+                            <span className="text-[#b4925e]">{art.status}</span>
+                         </div>
+                         <p className="text-[11px] text-white/40 leading-loose uppercase tracking-[0.2em] font-bold italic mb-12">
+                            {art.desc}
+                         </p>
+                         <div className="flex justify-between items-center border-t border-white/5 pt-8">
+                            <div className="flex items-center gap-3">
+                               <MapPin className="w-3 h-3 text-[#b4925e]" />
+                               <span className="text-[8px] font-black uppercase tracking-widest text-white/30">{art.location}</span>
+                            </div>
+                            <button className="text-[9px] font-black uppercase tracking-widest text-[#b4925e] flex items-center gap-2 group-hover:translate-x-2 transition-transform">
+                               Expertise Report <ChevronRight className="w-4 h-4" />
+                            </button>
+                         </div>
+                      </div>
+                   </Reveal>
+                 ))}
+              </div>
+           </div>
+        </section>
+
+        {/* ==========================================
+            3. CONSERVATION LAB (TECHNICAL DENSITY)
+            ========================================== */}
+        <section className="py-60 bg-[#0c0c0e] relative overflow-hidden">
+           <div className="max-w-[1400px] mx-auto px-8 md:px-20">
+              <div className="grid lg:grid-cols-2 gap-32 items-center">
+                 <div>
+                    <Reveal>
+                       <SectionTitle subtitle="Chapitre II // The Science" title="Conservation Lab." alignment="left" />
+                       <p className="text-xl font-light text-white/40 leading-relaxed italic mb-16 uppercase tracking-widest">
+                          La préservation du patrimoine mondial exige une rigueur scientifique sans compromis. Notre laboratoire utilise l'imagerie multi-spectrale et la stabilisation atomique pour contrer les effets du temps.
+                       </p>
+                       <div className="grid grid-cols-2 gap-8 mb-20">
+                          {LAB_METRICS.map((metric, i) => (
+                            <div key={i} className="p-8 bg-black border border-white/5 hover:border-[#b4925e]/30 transition-all">
+                               <div className="text-[8px] font-black uppercase text-[#b4925e] mb-2 tracking-[0.3em]">{metric.label}</div>
+                               <div className="text-3xl font-light text-white mb-4 italic">{metric.value}</div>
+                               <div className="flex items-center gap-2 text-[8px] font-bold uppercase tracking-widest text-white/20 italic">
+                                  <Activity className="w-3 h-3" /> {metric.status}
+                               </div>
+                            </div>
+                          ))}
+                       </div>
+                       <button className="w-full py-6 border-2 border-[#b4925e] text-[#b4925e] text-[10px] font-black uppercase tracking-widest hover:bg-[#b4925e] hover:text-black transition-all shadow-2xl">
+                          Request Lab Analysis Log
+                       </button>
+                    </Reveal>
+                 </div>
+                 <div className="relative">
+                    <Reveal delay={0.3} x={40}>
+                       <div className="aspect-square bg-black border border-white/10 p-12 flex flex-col justify-between relative group overflow-hidden">
+                          <div className="absolute top-0 right-0 p-40 bg-[#b4925e] opacity-[0.03] blur-[100px] rounded-full group-hover:opacity-[0.1] transition-opacity" />
+                          <div className="flex justify-between items-start z-10">
+                             <div className="flex flex-col gap-2">
+                                <span className="text-[8px] font-black text-white/20 uppercase tracking-widest">System_ID // ARCH-V4</span>
+                                <span className="text-[10px] font-black text-white uppercase tracking-[0.4em]">Multi-Spectral_Scan</span>
+                             </div>
+                             <Microscope className="w-5 h-5 text-[#b4925e]" />
+                          </div>
+                          
+                          <div className="flex flex-col gap-12 relative z-10">
+                             <div className="flex items-center justify-center gap-8">
+                                <div className="w-24 h-24 border border-white/10 rounded-full flex items-center justify-center text-[#b4925e] shadow-[0_0_30px_rgba(180,146,94,0.1)]">
+                                   <Palette className="w-12 h-12" />
+                                </div>
+                             </div>
+                             <div className="text-center">
+                                <span className="text-[8px] font-black text-white/20 uppercase tracking-[0.5em] block mb-4 italic">Scan_Efficiency</span>
+                                <div className="text-4xl font-black italic text-[#b4925e]">99.98% // SECURE</div>
+                             </div>
+                          </div>
+
+                          <div className="flex gap-4 relative z-10">
+                             <div className="w-full h-1 bg-white/5 rounded-full overflow-hidden">
+                                <motion.div 
+                                   animate={{ x: ["-100%", "100%"] }} 
+                                   transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+                                   className="w-1/2 h-full bg-[#b4925e]"
+                                />
+                             </div>
+                          </div>
+                       </div>
+                    </Reveal>
+                 </div>
+              </div>
+           </div>
+        </section>
+
+        {/* ==========================================
+            4. PROVENANCE TIMELINE (STORYTELLING)
+            ========================================== */}
+        <section className="py-60 bg-black relative border-y border-white/5 overflow-hidden">
+           <div className="max-w-[1400px] mx-auto px-8 md:px-20">
+              <div className="grid lg:grid-cols-2 gap-32 items-center">
+                 <div className="relative aspect-[4/5] overflow-hidden group">
+                    <Image 
+                       src="https://images.unsplash.com/photo-1510850473394-d236d1e3d0cd?q=80&w=1200&auto=format&fit=crop" 
+                       alt="Art Restorer Working" 
+                       fill 
+                       className="object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-1000"
+                    />
+                    <div className="absolute inset-0 bg-black/60 group-hover:bg-black/20 transition-all" />
+                    <div className="absolute inset-0 p-16 flex flex-col justify-end">
+                       <div className="text-white">
+                          <span className="text-[10px] font-black uppercase tracking-[0.5em] text-[#b4925e] mb-4 block italic underline underline-offset-8">Featured Provenance // Case-09</span>
+                          <h4 className="text-5xl font-light tracking-tighter uppercase italic mb-8" style={{ fontFamily: "serif" }}>The Royal <br/> Archive Trace.</h4>
+                          <button className="flex items-center gap-4 text-[10px] font-black uppercase tracking-widest border-b border-[#b4925e] pb-2">
+                             Full Chronology <ExternalLink className="w-4 h-4" />
+                          </button>
+                       </div>
+                    </div>
+                 </div>
+
+                 <div>
+                    <Reveal>
+                       <SectionTitle subtitle="Chapitre III // Provenance" title="Chain of Custody." alignment="left" />
+                       <div className="space-y-12">
+                          {PROVENANCE_LOGS.map((log, i) => (
+                            <div key={i} className="group border-l border-white/5 pl-12 hover:border-[#b4925e] transition-all cursor-default">
+                               <div className="flex justify-between items-center mb-4">
+                                  <span className="text-[10px] font-black text-[#b4925e] uppercase tracking-widest">{log.year}</span>
+                                  <History className="w-4 h-4 text-white/10 group-hover:text-white transition-all" />
+                               </div>
+                               <p className="text-[11px] text-white/30 uppercase tracking-[0.2em] font-bold leading-relaxed">{log.event}</p>
+                            </div>
+                          ))}
+                       </div>
+                       <div className="mt-20 pt-10 border-t border-white/5">
+                          <p className="text-xs text-white/20 italic font-light leading-relaxed">
+                             Toute pièce enregistrée auprès de The Ivory Archive bénéficie d'une authentification certifiée sur protocole blockchain privé, garantissant l'intégrité de son histoire.
+                          </p>
+                       </div>
+                    </Reveal>
+                 </div>
+              </div>
+           </div>
+        </section>
+
+        {/* ==========================================
+            5. THE REGISTRY (PRIVATE ACCESS)
+            ========================================== */}
+        <section className="py-60 bg-white text-black relative">
+           <div className="max-w-[1200px] mx-auto px-8 md:px-20 text-center">
+              <Reveal>
+                 <SectionTitle subtitle="Acquisitions // Privilège" title="Registry Application." />
+                 <p className="max-w-2xl mx-auto text-xl font-light text-black/40 leading-relaxed italic mb-20 uppercase tracking-widest">
+                    L'accès à notre registre privé et aux opportunités d'acquisition est réservé aux institutions muséales et aux collectionneurs certifiés.
+                 </p>
+                 
+                 <form className="max-w-xl mx-auto space-y-12" onSubmit={e => e.preventDefault()}>
+                    <div className="grid md:grid-cols-2 gap-8">
+                       <div className="border-b border-black/10 py-4 text-left">
+                          <label className="text-[8px] font-black uppercase tracking-[0.4em] text-black/20 block mb-2">Surname</label>
+                          <input type="text" className="w-full bg-transparent outline-none text-xl font-light italic" placeholder="Sterling" />
+                       </div>
+                       <div className="border-b border-black/10 py-4 text-left">
+                          <label className="text-[8px] font-black uppercase tracking-[0.4em] text-black/20 block mb-2">Entity</label>
+                          <input type="text" className="w-full bg-transparent outline-none text-xl font-light italic" placeholder="Private Institution" />
+                       </div>
+                    </div>
+                    <div className="border-b border-black/10 py-4 text-left">
+                       <label className="text-[8px] font-black uppercase tracking-[0.4em] text-black/20 block mb-2">Digital Signature</label>
+                       <input type="email" className="w-full bg-transparent outline-none text-xl font-light italic" placeholder="alistair@sterling.ch" />
+                    </div>
+                    <button className="w-full py-6 bg-black text-white text-[10px] font-black uppercase tracking-widest hover:bg-[#b4925e] transition-all shadow-2xl">
+                       Request Acquisition Handshake
+                    </button>
+                 </form>
               </Reveal>
-            ))}
-          </div>
+           </div>
         </section>
 
-        {/* ── SELECTED WORK ──────────────────────────── */}
-        <section className="py-32 bg-[#0a0508]">
-          <div className="max-w-[1600px] mx-auto px-6 md:px-12">
-            <Reveal>
-              <div className="flex justify-between items-end mb-20">
-                <div>
-                  <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-rose-400 block mb-4">Portfolio</span>
-                  <h2 className="text-5xl md:text-7xl font-black tracking-tighter">Selected <span className="text-rose-400 italic">Work.</span></h2>
-                </div>
-              </div>
-            </Reveal>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {WORK.map((w, i) => (
-                <Reveal key={i} delay={i * 0.1}>
-                  <div className="group cursor-pointer">
-                    <div className="relative aspect-[16/10] overflow-hidden rounded-xl mb-6">
-                      <ParallaxImg src={w.img} alt={w.title} />
-                      <div className="absolute inset-0 bg-rose-900/10 group-hover:bg-transparent transition-colors duration-700" />
-                      <div className="absolute bottom-0 left-0 right-0 p-8 bg-gradient-to-t from-black/80 to-transparent translate-y-full group-hover:translate-y-0 transition-transform duration-500">
-                        <div className="text-[10px] font-bold uppercase tracking-widest text-rose-300 mb-1">{w.type}</div>
-                        <div className="text-sm text-white/60">Client: {w.client}</div>
-                      </div>
+        {/* MEGA FOOTER */}
+        <footer className="bg-black pt-60 pb-12 px-8 md:px-20 relative z-50">
+           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-32 mb-60 text-white">
+              <div className="lg:col-span-2">
+                 <div className="flex items-center gap-4 mb-12">
+                    <div className="w-10 h-10 bg-[#b4925e] flex items-center justify-center rounded-sm">
+                       <Landmark className="w-6 h-6 text-black" />
                     </div>
-                    <h3 className="text-3xl font-bold group-hover:text-rose-400 transition-colors">{w.title}</h3>
-                  </div>
-                </Reveal>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ── SERVICES ───────────────────────────────── */}
-        <section className="py-32 bg-[#0d080a]">
-          <div className="max-w-[1400px] mx-auto px-6 md:px-12">
-            <Reveal>
-              <div className="text-center mb-24">
-                <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-rose-400 block mb-4">Capabilities</span>
-                <h2 className="text-5xl md:text-7xl font-black tracking-tighter">What We <span className="text-rose-400 italic">Do.</span></h2>
+                    <span className="text-3xl font-light tracking-[0.2em] uppercase">IVORY<span className="text-[#b4925e] font-black">.ARCHIVE</span></span>
+                 </div>
+                 <p className="text-white/20 text-[10px] font-black uppercase tracking-[0.4em] leading-loose max-w-sm mb-16 italic">
+                    "La conservation est l'art de faire taire le temps pour laisser parler l'histoire." — Archive Ivory V.4
+                 </p>
+                 <div className="flex gap-12">
+                    {["Instagram", "ArtsNet", "UNESCO_Partner", "LinkedIn"].map(s => (
+                       <Link key={s} href="#" className="text-[10px] font-black uppercase tracking-widest text-white/20 hover:text-[#b4925e] transition-colors italic">{s}</Link>
+                    ))}
+                 </div>
               </div>
-            </Reveal>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {SERVICES.map((s, i) => (
-                <Reveal key={i} delay={i * 0.08}>
-                  <div className="group p-10 bg-white/[0.02] border border-white/5 rounded-2xl hover:border-rose-500/30 transition-all duration-500 cursor-default">
-                    <div className="flex items-start gap-6">
-                      <div className="w-14 h-14 rounded-xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center shrink-0 group-hover:bg-rose-500 group-hover:border-rose-500 transition-all duration-500">
-                        <s.icon className="w-6 h-6 text-rose-400 group-hover:text-white transition-colors" />
-                      </div>
-                      <div>
-                        <h3 className="text-xl font-bold mb-3">{s.title}</h3>
-                        <p className="text-sm text-white/40 leading-relaxed">{s.desc}</p>
-                      </div>
-                    </div>
-                  </div>
-                </Reveal>
-              ))}
-            </div>
-          </div>
-        </section>
 
-        {/* ── TESTIMONIALS ───────────────────────────── */}
-        <section className="py-32 bg-[#0a0508]">
-          <div className="max-w-[1200px] mx-auto px-6 md:px-12">
-            <Reveal>
-              <div className="text-center mb-20">
-                <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-rose-400 block mb-4">Praise</span>
-                <h2 className="text-5xl font-black tracking-tighter">Client <span className="text-rose-400 italic">Words.</span></h2>
-              </div>
-            </Reveal>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {TESTIMONIALS.map((t, i) => (
-                <Reveal key={i} delay={i * 0.1}>
-                  <div className="p-8 bg-white/[0.02] border border-white/5 rounded-2xl h-full flex flex-col">
-                    <div className="flex gap-1 mb-6">
-                      {Array.from({ length: 5 }).map((_, j) => (
-                        <Star key={j} className="w-4 h-4 fill-rose-400 text-rose-400" />
+              {[
+                { t: "REPOSITORY", l: ["Renaissance", "Classical", "Medieval", "Contemporary"] },
+                { t: "SERVICES", l: ["Conservation Lab", "Expertise", "Provenance", "Acquisition"] },
+                { t: "NODES", l: ["Zurich Hub", "London Lab", "Paris Annex", "Tokyo Node"] }
+              ].map((col, i) => (
+                <div key={i} className="flex flex-col gap-12">
+                   <h4 className="text-[10px] font-black text-[#b4925e] uppercase tracking-[0.5em] italic">{col.t}</h4>
+                   <ul className="flex flex-col gap-6">
+                      {col.l.map(link => (
+                         <li key={link} className="text-[10px] font-bold text-white/20 hover:text-white transition-colors cursor-pointer uppercase tracking-widest italic">{link}</li>
                       ))}
-                    </div>
-                    <p className="text-white/60 leading-relaxed flex-1 mb-6 italic">"{t.text}"</p>
-                    <div>
-                      <div className="font-bold">{t.author}</div>
-                      <div className="text-xs text-white/30">{t.role}</div>
-                    </div>
-                  </div>
-                </Reveal>
+                   </ul>
+                </div>
               ))}
-            </div>
-          </div>
-        </section>
+           </div>
 
-        {/* ── CTA ────────────────────────────────────── */}
-        <section className="relative h-[70vh] flex items-center justify-center overflow-hidden">
-          <div className="absolute inset-0">
-            <Image src="https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&q=80&w=2400" alt="CTA" fill className="object-cover" />
-            <div className="absolute inset-0 bg-rose-900/60 mix-blend-multiply" />
-            <div className="absolute inset-0 bg-black/40" />
-          </div>
-          <div className="relative z-10 text-center px-6">
-            <Reveal>
-              <h2 className="text-6xl md:text-8xl font-black tracking-tighter mb-8">
-                Ready To Be<br/><span className="italic">Unignorable?</span>
-              </h2>
-              <button className="px-12 py-5 bg-white text-black font-bold rounded-full hover:bg-rose-500 hover:text-white transition-all duration-500">
-                Start a Project
-              </button>
-            </Reveal>
-          </div>
-        </section>
+           <div className="max-w-[1600px] mx-auto border-t border-white/5 pt-12 flex flex-col md:flex-row justify-between items-center gap-12 text-[8px] font-black text-white/10 uppercase tracking-[0.4em] italic">
+              <span>© 2026 THE IVORY ARCHIVE FOUNDATION. // ALL_RIGHTS_RESERVED</span>
+              <div className="flex gap-12">
+                 <span>SECURITY: LVL_9</span>
+                 <span>LATENCY: 14ms</span>
+                 <span>v4.2.18</span>
+              </div>
+           </div>
+        </footer>
       </main>
 
-      {/* ── FOOTER ───────────────────────────────────── */}
-      <footer className="bg-[#050305] pt-24 pb-12 px-6">
-        <div className="max-w-[1400px] mx-auto grid grid-cols-1 md:grid-cols-4 gap-16 mb-20">
-          <div>
-            <span className="text-2xl font-black tracking-tighter mb-6 block">OBL<span className="text-rose-500">IQ</span>.</span>
-            <p className="text-sm text-white/30 leading-relaxed">Creative agency for brands that dare to be different.</p>
-          </div>
-          {[
-            { title: "Studio", links: ["Work", "Services", "Team", "Culture"] },
-            { title: "Connect", links: ["Contact", "Careers", "Press", "Newsletter"] },
-            { title: "Social", links: ["Instagram", "Behance", "Dribbble", "LinkedIn"] },
-          ].map((col, i) => (
-            <div key={i}>
-              <h4 className="text-[10px] font-bold uppercase tracking-[0.3em] text-rose-400 mb-6">{col.title}</h4>
-              <ul className="space-y-3 text-sm text-white/30">
-                {col.links.map(l => <li key={l}><Link href="#" className="hover:text-white transition-colors">{l}</Link></li>)}
-              </ul>
-            </div>
-          ))}
-        </div>
-        <div className="max-w-[1400px] mx-auto pt-8 border-t border-white/5 text-[10px] font-bold uppercase tracking-widest text-white/20 flex justify-between">
-          <span>© 2026 OBLIQ CREATIVE.</span>
-          <span>LONDON · NEW YORK · TOKYO</span>
-        </div>
-      </footer>
+      {/* COLLECTOR VAULT OVERLAY (SIMULATED) */}
+      <AnimatePresence>
+        {vaultOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[1000] bg-black/95 backdrop-blur-3xl flex items-center justify-center p-8"
+          >
+             <div className="max-w-md w-full border border-[#b4925e]/30 p-12 relative bg-[#0c0c0e]">
+                <button onClick={() => setVaultOpen(false)} className="absolute top-4 right-4 text-white/20 hover:text-white transition-colors">
+                   <X className="w-8 h-8" />
+                </button>
+                <div className="flex flex-col items-center gap-12">
+                   <div className="w-20 h-20 bg-[#b4925e]/10 flex items-center justify-center rounded-full">
+                      <Fingerprint className="w-10 h-10 text-[#b4925e]" />
+                   </div>
+                   <div className="text-center">
+                      <h2 className="text-2xl font-black uppercase tracking-tighter mb-4 italic">Collector_Handshake</h2>
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-white/20 leading-relaxed">
+                         Veuillez scanner votre identité biométrique ou entrer votre clé d'accréditation privée pour accéder au catalogue d'acquisition confidentiel.
+                      </p>
+                   </div>
+                   <div className="w-full space-y-4">
+                      <input 
+                         type="text" 
+                         placeholder="IDENT_ACCESS_KEY"
+                         className="w-full bg-white/5 border border-white/10 px-6 py-4 text-[10px] font-bold uppercase tracking-[0.3em] outline-none focus:border-[#b4925e] text-white"
+                      />
+                      <button className="w-full py-4 bg-[#b4925e] text-black text-[10px] font-black uppercase tracking-widest">
+                         Authenticate Access
+                      </button>
+                   </div>
+                </div>
+             </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

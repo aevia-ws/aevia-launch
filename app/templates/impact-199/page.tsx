@@ -29,58 +29,59 @@ import {
   Cpu, HeartPulse, Sun, Magnet, 
   CircleDot, Waves, Pickaxe, Mountain, 
   Gem, Rocket, Drill, PlaneTakeoff, 
-  FlameIcon, Hammer, Factory, ThermometerIcon, 
-  Droplets, HardHat, Warehouse
+  ZapOff, GhostIcon, RadioReceiver, 
+  CpuIcon, Network, Eye, BrainCircuit, 
+  ZapIcon, Pulse
 } from "lucide-react"
 
 /* ==========================================================================
-   THE KINETIC FOUNDRY DATASET (ULTRA DENSITY)
+   THE NEURAL LINK DATASET (ULTRA DENSITY)
    ========================================================================== */
 
-const INDUSTRIAL_ASSETS = [
+const COGNITIVE_ASSETS = [
   {
-    id: "for-vul-42",
-    name: "Forge-v4 Vulcan",
-    type: "Liquid Metal 3D Printer",
-    temp: "2,400 °C",
-    rate: "45 kg / hour",
-    precision: "5 μm",
-    desc: "Unité de fabrication additive haute puissance utilisant des lasers multi-faisceaux pour le frittage de poudres métalliques complexes.",
-    status: "Forging"
+    id: "neu-v4-42",
+    name: "Neural-v4 Implant",
+    type: "Cortex Interface",
+    bandwidth: "142 Tbps",
+    latency: "0.2 ms",
+    stability: "99.8%",
+    desc: "Interface neuronale de quatrième génération offrant une fusion totale avec les systèmes d'IA de bord.",
+    status: "Synchronized"
   },
   {
-    id: "for-mol-08",
-    name: "Molten Grid Alpha",
-    type: "Robotic Industrial Forge",
-    temp: "1,850 °C",
-    rate: "120 kg / hour",
-    precision: "25 μm",
-    desc: "Système de forge robotisé automatisé pour la production massive de pièces structurelles aérospatiales en alliages de titane.",
-    status: "Stable State"
+    id: "neu-cor-08",
+    name: "Cortex Link Alpha",
+    type: "Synaptic Bridge",
+    bandwidth: "88 Tbps",
+    latency: "0.5 ms",
+    stability: "99.99%",
+    desc: "Pont synaptique permettant la télépathie synthétique et le partage de mémoire vive entre plusieurs utilisateurs.",
+    status: "Uplink Active"
   },
   {
-    id: "for-tit-15",
-    name: "Titan-Print v5",
-    type: "Giga-Scale Additive",
-    temp: "1,200 °C",
-    rate: "500 kg / hour",
-    precision: "150 μm",
-    desc: "Imprimante 3D géante conçue pour la fabrication d'éléments de coques de navires et de structures de réacteurs.",
-    status: "Syncing Flow"
+    id: "neu-min-15",
+    name: "Mind Grid v5",
+    type: "Consciousness Stabilizer",
+    bandwidth: "250 Tbps",
+    latency: "0.1 ms",
+    stability: "99.4%",
+    desc: "Système de stabilisation critique pour les transferts de conscience longue durée vers des serveurs distants.",
+    status: "Locked"
   }
 ]
 
-const THERMAL_METRICS = [
-  { label: "Core Temp", value: "2,402 °C", trend: "High" },
-  { label: "Laser Power", value: "12.4 kW", trend: "Optimal" },
-  { label: "Deposition Rate", value: "45 kg/h", trend: "Stable" },
-  { label: "Cooling Eff.", value: "94%", trend: "Increasing" }
+const BRAIN_METRICS = [
+  { label: "Alpha Waves", value: "8.4 Hz", trend: "Stable" },
+  { label: "Beta Waves", value: "18.2 Hz", trend: "Increasing" },
+  { label: "Gamma Waves", value: "42 Hz", trend: "Peak" },
+  { label: "Neuro-Sync", value: "ACTIVE", trend: "Nominal" }
 ]
 
-const FORGE_LOGS = [
-  { timestamp: "13:14:42", unit: "Laser-Module-01", status: "FIRING", power: "12kW" },
-  { timestamp: "13:14:45", unit: "Chamber-01", status: "STABLE", pressure: "1.2bar" },
-  { timestamp: "13:14:48", unit: "Layer-Check", status: "SUCCESS", prec: "5μm" }
+const NEURAL_LOGS = [
+  { timestamp: "34:14:42", unit: "Implant-Module-01", status: "SYNCING", phase: "Calibration" },
+  { timestamp: "34:14:45", unit: "Synaptic-Buffer", status: "UPLINKING", rate: "12Tb/s" },
+  { timestamp: "34:14:48", unit: "Cortex-Guard", status: "SECURE", drift: "0.001ms" }
 ]
 
 /* ==========================================
@@ -102,7 +103,7 @@ function Reveal({ children, delay = 0, y = 40, x = 0 }: { children: React.ReactN
   )
 }
 
-function MoltenFlowVisualizer() {
+function SynapseFlowVisualizer() {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
   useEffect(() => {
     const handleMouse = (e: MouseEvent) => setMousePos({ x: e.clientX, y: e.clientY })
@@ -113,29 +114,32 @@ function MoltenFlowVisualizer() {
   return (
     <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden opacity-20">
        <svg width="100%" height="100%" className="w-full h-full">
-          {[...Array(15)].map((_, i) => (
-            <motion.path 
+          {[...Array(40)].map((_, i) => (
+            <motion.line 
                key={i}
-               d={`M ${100 + i * 150} 0 Q ${200 + i * 150} 400 ${100 + i * 150} 1000`}
-               stroke="#f97316" 
-               strokeWidth="2" 
-               fill="none"
-               animate={{ d: `M ${100 + i * 150} 0 Q ${mousePos.x + (i * 10)} ${mousePos.y} ${100 + i * 150} 1000` }}
-               transition={{ type: "spring", damping: 30, stiffness: 50 }}
+               x1={Math.random() * 2000}
+               y1={Math.random() * 1000}
+               x2={mousePos.x}
+               y2={mousePos.y}
+               stroke="#3b82f6" 
+               strokeWidth="0.2" 
+               initial={{ opacity: 0 }}
+               animate={{ opacity: [0, 0.5, 0] }}
+               transition={{ duration: 2, repeat: Infinity, delay: i * 0.05 }}
             />
           ))}
-          {[...Array(40)].map((_, i) => (
+          {[...Array(15)].map((_, i) => (
             <motion.circle 
-               key={`spark-${i}`}
-               r="1.5"
-               fill="#f97316"
-               initial={{ opacity: 0 }}
+               key={`neuron-${i}`}
+               cx={Math.random() * 2000}
+               cy={Math.random() * 1000}
+               r={Math.random() * 5 + 2}
+               fill="#3b82f6"
                animate={{ 
-                  cx: [Math.random() * 2000, Math.random() * 2000],
-                  cy: [0, 1000],
-                  opacity: [0, 1, 0]
+                  scale: [1, 1.5, 1],
+                  opacity: [0.1, 0.6, 0.1]
                }}
-               transition={{ duration: 1 + Math.random() * 2, repeat: Infinity, delay: Math.random() * 3 }}
+               transition={{ duration: 3, repeat: Infinity, delay: i * 0.2 }}
             />
           ))}
        </svg>
@@ -143,67 +147,67 @@ function MoltenFlowVisualizer() {
   )
 }
 
-function ForgeCoreModel({ progress }: { progress: any }) {
+function NeuralLinkModel({ progress }: { progress: any }) {
   const rotate = useTransform(progress, [0, 1], [0, 360])
   const scale = useTransform(progress, [0, 0.5, 1], [1, 1.2, 1])
 
   return (
     <motion.div style={{ rotate, scale }} className="relative w-80 h-80 flex items-center justify-center">
-       <div className="absolute inset-0 border border-orange-500/10 rounded-full animate-spin-slow shadow-[0_0_80px_rgba(249,115,22,0.05)]" />
-       <FlameIcon className="w-40 h-40 text-orange-500/10 animate-pulse" />
-       <div className="absolute inset-8 border border-orange-500/5 rounded-full" />
+       <div className="absolute inset-0 border border-blue-500/10 rounded-full animate-spin-slow shadow-[0_0_80px_rgba(59,130,246,0.05)]" />
+       <BrainCircuit className="w-40 h-40 text-blue-500/10 animate-pulse" />
+       <div className="absolute inset-8 border border-blue-500/5 rounded-full" />
     </motion.div>
   )
 }
 
 /* ==========================================
-   THE KINETIC FOUNDRY - MAIN INTERFACE
+   THE NEURAL LINK - MAIN INTERFACE
    ========================================== */
 
-export default function KineticFoundryPremium() {
+export default function NeuralLinkPremium() {
   const [activeAsset, setActiveAsset] = useState(0)
-  const [isThermalGuardActive, setIsThermalGuardActive] = useState(true)
+  const [isNeuralStable, setIsNeuralStable] = useState(true)
   const containerRef = useRef(null)
   const { scrollYProgress } = useScroll({ target: containerRef })
 
-  // Forge Scroll Effects
+  // Neural Scroll Effects
   const heroOpacity = useTransform(scrollYProgress, [0, 0.2], [1, 0])
   const textX = useTransform(scrollYProgress, [0, 0.5], [0, -100])
 
   return (
-    <div ref={containerRef} className="bg-[#080402] text-[#e0e8ed] font-mono selection:bg-orange-500/30 selection:text-white min-h-screen overflow-x-hidden transition-colors duration-1000">
+    <div ref={containerRef} className="bg-[#02040c] text-[#e0e8ed] font-mono selection:bg-blue-500/30 selection:text-white min-h-screen overflow-x-hidden transition-colors duration-1000">
       
       {/* GLOBAL HUD OVERLAY */}
-      <HUD_Overlay isThermalGuardActive={isThermalGuardActive} />
+      <HUD_Overlay isNeuralStable={isNeuralStable} />
 
       <main>
         {/* ==========================================
-            1. FORGE IGNITION (HERO)
+            1. NEURAL IGNITION (HERO)
             ========================================== */}
         <section className="relative h-screen flex flex-col justify-center items-center px-8 md:px-24 overflow-hidden pt-20">
-          <MoltenFlowVisualizer />
+          <SynapseFlowVisualizer />
           <motion.div style={{ opacity: heroOpacity }} className="absolute z-0 pointer-events-none flex items-center justify-center">
-             <ForgeCoreModel progress={scrollYProgress} />
+             <NeuralLinkModel progress={scrollYProgress} />
           </motion.div>
 
           <div className="relative z-10 text-center max-w-7xl">
              <Reveal>
-                <div className="inline-flex items-center gap-4 px-6 py-2 border border-orange-500/30 bg-orange-500/5 text-[10px] font-black uppercase tracking-[0.5em] text-orange-500 mb-12 italic">
-                   <FlameIcon className="w-4 h-4" /> Forge_Sync: NOMINAL // Temp: 2,402 °C
+                <div className="inline-flex items-center gap-4 px-6 py-2 border border-blue-500/30 bg-blue-500/5 text-[10px] font-black uppercase tracking-[0.5em] text-blue-500 mb-12 italic">
+                   <BrainCircuit className="w-4 h-4" /> Link_Sync: NOMINAL // Bandwidth: 142 Tbps
                 </div>
                 <motion.h1 style={{ x: textX }} className="text-7xl md:text-[14vw] font-black tracking-tighter uppercase mb-16 leading-[0.75] italic">
-                   Kinetic <br/> <span className="text-white/5 italic">Foundry.</span>
+                   Neural <br/> <span className="text-white/5 italic">Link.</span>
                 </motion.h1>
                 <p className="max-w-3xl mx-auto text-sm md:text-lg text-white/30 leading-relaxed uppercase tracking-widest font-light mb-16 italic">
-                   L'industrie de la fusion et de la précision. Nous forgeons les composants les plus critiques de l'ère spatiale via des technologies de fabrication additive métal haute performance.
+                   La synchronisation de la conscience. Nous concevons des interfaces cerveau-machine de haute précision, offrant une fusion directe entre l'intelligence humaine et les systèmes de calcul avancés.
                 </p>
                 
                 <div className="flex flex-col sm:flex-row gap-8 justify-center items-center">
-                   <button className="px-12 py-6 bg-orange-800 text-white text-[10px] font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all shadow-[0_0_40px_rgba(249,115,22,0.2)] flex items-center gap-4 italic">
-                      <Zap className="w-5 h-5" /> Initialize Fusion
+                   <button className="px-12 py-6 bg-blue-800 text-white text-[10px] font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all shadow-[0_0_40px_rgba(59,130,246,0.2)] flex items-center gap-4 italic">
+                      <Zap className="w-5 h-5" /> Initialize Uplink
                    </button>
                    <button className="px-12 py-6 border border-white/10 text-white text-[10px] font-black uppercase tracking-widest hover:bg-white/5 transition-all flex items-center gap-4 italic">
-                      <Database className="w-5 h-5" /> Industrial Registry
+                      <Database className="w-5 h-5" /> Cognitive Registry
                    </button>
                 </div>
              </Reveal>
@@ -213,22 +217,22 @@ export default function KineticFoundryPremium() {
              <div className="flex flex-col gap-6">
                 <div className="flex items-center gap-4 text-[9px] font-bold text-white/20 uppercase tracking-widest italic">
                    <div className="w-16 h-px bg-white/10" />
-                   Foundry_ID: VULCAN-FORGE-01
+                   Implant_ID: NEURAL-LINK-01
                 </div>
                 <div className="flex items-center gap-4 text-[9px] font-bold text-white/20 uppercase tracking-widest italic">
                    <div className="w-16 h-px bg-white/10" />
-                   Status: THERMAL_LOCKED
+                   Status: CORTEX_LOCKED_STABLE
                 </div>
              </div>
              <div className="text-right flex flex-col items-end gap-4">
-                <span className="text-[8px] font-black uppercase tracking-[0.5em] text-orange-500">Molten_Metal_Stream</span>
+                <span className="text-[8px] font-black uppercase tracking-[0.5em] text-blue-500">Neural_Data_Transfer_Stream</span>
                 <div className="flex gap-2 h-12 items-end">
                    {[...Array(16)].map((_, i) => (
                      <motion.div 
                         key={i}
                         animate={{ height: ["10%", "100%", "30%", "80%", "10%"] }}
                         transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.1 }}
-                        className="w-2 bg-orange-500/20"
+                        className="w-2 bg-blue-500/20"
                      />
                    ))}
                 </div>
@@ -237,47 +241,47 @@ export default function KineticFoundryPremium() {
         </section>
 
         {/* ==========================================
-            2. INDUSTRIAL REGISTRY (DENSE TECHNICAL)
+            2. COGNITIVE REGISTRY (DENSE TECHNICAL)
             ========================================== */}
-        <section className="py-60 bg-[#0c0804] relative border-y border-white/5 overflow-hidden">
+        <section className="py-60 bg-[#04081c] relative border-y border-white/5 overflow-hidden">
            <div className="max-w-[1600px] mx-auto px-8 md:px-24">
               <div className="flex flex-col md:flex-row items-end justify-between mb-40 gap-12">
                  <Reveal>
-                    <span className="text-[10px] font-black uppercase tracking-[0.6em] text-orange-500 block mb-6 italic underline underline-offset-8 decoration-orange-400/20">Manufacturing // Assets</span>
+                    <span className="text-[10px] font-black uppercase tracking-[0.6em] text-blue-500 block mb-6 italic underline underline-offset-8 decoration-blue-400/20">Cognitive // Assets</span>
                     <h2 className="text-6xl md:text-[10vw] font-black uppercase tracking-tighter italic leading-none text-white">Archives.</h2>
                  </Reveal>
                  <div className="text-right">
-                    <span className="text-[10px] font-black uppercase tracking-[0.5em] text-white/20 block mb-4 italic">Registry // Forge_Audit</span>
-                    <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-orange-500">L'Architecture du Forage Industriel</p>
+                    <span className="text-[10px] font-black uppercase tracking-[0.5em] text-white/20 block mb-4 italic">Registry // Cognitive_Audit</span>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-blue-500">L'Architecture de la Fusion Neuronale</p>
                  </div>
               </div>
 
               <div className="grid md:grid-cols-3 gap-px bg-white/5 border border-white/5 shadow-2xl">
-                 {INDUSTRIAL_ASSETS.map((asset, i) => (
+                 {COGNITIVE_ASSETS.map((asset, i) => (
                    <Reveal key={asset.id} delay={i * 0.1}>
-                      <div className="bg-[#080402] p-20 flex flex-col h-full hover:bg-white/[0.02] transition-all group cursor-crosshair border-white/5 border-r last:border-r-0">
+                      <div className="bg-[#02040c] p-20 flex flex-col h-full hover:bg-white/[0.02] transition-all group cursor-crosshair border-white/5 border-r last:border-r-0">
                          <div className="flex justify-between items-start mb-16">
-                            <div className="w-16 h-16 bg-white/5 border border-white/10 flex items-center justify-center group-hover:bg-orange-800 group-hover:text-white transition-all duration-500">
-                               <Factory className="w-8 h-8" />
+                            <div className="w-16 h-16 bg-white/5 border border-white/10 flex items-center justify-center group-hover:bg-blue-800 group-hover:text-white transition-all duration-500">
+                               <Brain className="w-8 h-8" />
                             </div>
-                            <span className={`px-4 py-2 bg-white/5 text-[9px] font-black uppercase tracking-[0.3em] ${asset.status === "Forging" ? "text-orange-500" : "text-white/40"}`}>{asset.status}</span>
+                            <span className={`px-4 py-2 bg-white/5 text-[9px] font-black uppercase tracking-[0.3em] ${asset.status === "Synchronized" ? "text-blue-500" : "text-white/40"}`}>{asset.status}</span>
                          </div>
                          
                          <h3 className="text-4xl font-black uppercase tracking-tighter mb-8 italic text-white group-hover:translate-x-4 transition-transform">{asset.name}</h3>
                          <div className="text-[10px] font-black text-white/20 uppercase tracking-[0.5em] mb-12">{asset.type}</div>
                          
-                         <div className="space-y-8 mb-20 border-l border-orange-500/20 pl-8">
+                         <div className="space-y-8 mb-20 border-l border-blue-500/20 pl-8">
                             <div className="flex justify-between items-center text-[11px] font-bold uppercase tracking-widest">
-                               <span className="text-white/20">Melting Temp</span>
-                               <span className="text-white group-hover:text-orange-400 transition-colors">{asset.temp}</span>
+                               <span className="text-white/20">Bandwidth</span>
+                               <span className="text-white group-hover:text-blue-400 transition-colors">{asset.bandwidth}</span>
                             </div>
                             <div className="flex justify-between items-center text-[11px] font-bold uppercase tracking-widest">
-                               <span className="text-white/20">Deposition Rate</span>
-                               <span className="text-white group-hover:text-orange-400 transition-colors">{asset.rate}</span>
+                               <span className="text-white/20">Latency</span>
+                               <span className="text-white group-hover:text-blue-400 transition-colors">{asset.latency}</span>
                             </div>
                             <div className="flex justify-between items-center text-[11px] font-bold uppercase tracking-widest">
-                               <span className="text-white/20">Precision</span>
-                               <span className="text-white group-hover:text-orange-400 transition-colors">{asset.precision}</span>
+                               <span className="text-white/20">Stability</span>
+                               <span className="text-white group-hover:text-blue-400 transition-colors">{asset.stability}</span>
                             </div>
                          </div>
 
@@ -299,82 +303,82 @@ export default function KineticFoundryPremium() {
         </section>
 
         {/* ==========================================
-            3. FORGE MONITOR (INTERACTIVE DATA)
+            3. BRAIN MONITOR (INTERACTIVE DATA)
             ========================================== */}
         <section className="py-60 bg-black relative border-y border-white/5 overflow-hidden">
            <div className="max-w-[1400px] mx-auto px-8 md:px-24">
               <div className="grid lg:grid-cols-2 gap-40 items-center">
                  <div>
                     <Reveal>
-                       <span className="text-[10px] font-black uppercase tracking-[0.5em] text-orange-500 block mb-12 italic underline underline-offset-8 decoration-orange-500/20">Forge // Performance</span>
+                       <span className="text-[10px] font-black uppercase tracking-[0.5em] text-blue-500 block mb-12 italic underline underline-offset-8 decoration-blue-500/20">Brain // Performance</span>
                        <h2 className="text-7xl md:text-[9vw] font-light italic leading-none text-white mb-16 uppercase tracking-tighter">
-                          The <br/> <span className="not-italic font-black text-white/5 italic">Molten_Link.</span>
+                          The <br/> <span className="not-italic font-black text-white/5 italic">Neural_Link.</span>
                        </h2>
                        <p className="text-2xl font-light text-white/20 leading-relaxed mb-24 italic uppercase tracking-[0.2em] max-w-xl">
-                          Surveillance de la stabilité thermique en temps réel. Nos capteurs analysent la puissance du laser et la dissipation thermique pour garantir une solidification parfaite.
+                          Surveillance de l'activité cérébrale en temps réel. Nos capteurs neuronaux analysent les ondes alpha, bêta et gamma pour garantir une synchronisation parfaite entre le cerveau et l'IA.
                        </p>
                        <div className="grid grid-cols-2 gap-px bg-white/5 border border-white/5 mb-24 shadow-2xl">
-                          {THERMAL_METRICS.map((metric, i) => (
-                            <div key={i} className="p-16 bg-[#100c0a] group hover:bg-white/[0.02] transition-all border-r border-b last:border-r-0 border-white/5">
-                               <div className="text-[10px] font-black uppercase text-orange-500 mb-6 tracking-[0.4em]">{metric.label}</div>
+                          {BRAIN_METRICS.map((metric, i) => (
+                            <div key={i} className="p-16 bg-[#0a101c] group hover:bg-white/[0.02] transition-all border-r border-b last:border-r-0 border-white/5">
+                               <div className="text-[10px] font-black uppercase text-blue-500 mb-6 tracking-[0.4em]">{metric.label}</div>
                                <div className="text-5xl font-black text-white italic mb-6 tracking-tighter group-hover:translate-x-4 transition-transform">{metric.value}</div>
                                <div className="flex items-center gap-3 text-[9px] font-bold uppercase tracking-[0.3em] text-white/10 italic">
-                                  <Activity className="w-4 h-4 text-orange-500" /> {metric.trend}
+                                  <Activity className="w-4 h-4 text-blue-500" /> {metric.trend}
                                </div>
                             </div>
                           ))}
                        </div>
                        <button 
-                         onClick={() => setIsThermalGuardActive(!isThermalGuardActive)}
-                         className="w-full py-8 bg-orange-950 text-white text-[11px] font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all shadow-2xl flex items-center justify-center gap-6 italic"
+                         onClick={() => setIsNeuralStable(!isNeuralStable)}
+                         className="w-full py-8 bg-blue-950 text-white text-[11px] font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all shadow-2xl flex items-center justify-center gap-6 italic"
                        >
-                          <Settings className="w-5 h-5" /> Re-Sync Thermal Nodes
+                          <Settings className="w-5 h-5" /> Re-Sync Neural Nodes
                        </button>
                     </Reveal>
                  </div>
                  
                  <div className="relative">
                     <Reveal delay={0.3} x={40}>
-                       <div className="aspect-square bg-[#100c0a] border border-white/10 p-20 flex flex-col justify-between relative group overflow-hidden shadow-2xl">
-                          <div className="absolute top-0 right-0 p-80 bg-orange-400 opacity-[0.02] blur-[150px] rounded-full group-hover:opacity-[0.05] transition-opacity" />
+                       <div className="aspect-square bg-[#0a101c] border border-white/10 p-20 flex flex-col justify-between relative group overflow-hidden shadow-2xl">
+                          <div className="absolute top-0 right-0 p-80 bg-blue-400 opacity-[0.02] blur-[150px] rounded-full group-hover:opacity-[0.05] transition-opacity" />
                           
                           <div className="flex justify-between items-start z-10">
                              <div className="flex flex-col gap-3">
-                                <span className="text-[10px] font-black text-white/10 uppercase tracking-[0.5em]">Forge_Link // MOLTEN-SYNC-v42</span>
-                                <span className="text-[12px] font-black text-white/40 uppercase tracking-[0.6em]">Additive_Forge_Telemetry</span>
+                                <span className="text-[10px] font-black text-white/10 uppercase tracking-[0.5em]">Link_Link // NEURAL-SYNC-v42</span>
+                                <span className="text-[12px] font-black text-white/40 uppercase tracking-[0.6em]">Brain_Stability_Telemetry</span>
                              </div>
-                             <Wifi className="w-6 h-6 text-orange-400" />
+                             <Wifi className="w-6 h-6 text-blue-400" />
                           </div>
                           
-                          {/* FORGE VISUALIZER (SVG) */}
+                          {/* LINK VISUALIZER (SVG) */}
                           <div className="relative z-10 flex flex-col items-center justify-center h-full">
-                             <div className="w-64 h-64 border border-orange-400/5 rounded-full flex items-center justify-center relative">
+                             <div className="w-64 h-64 border border-blue-400/5 rounded-full flex items-center justify-center relative">
                                 <motion.div 
                                   animate={{ rotate: 360 }}
                                   transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-                                  className="absolute inset-0 border-t-2 border-orange-400/20 rounded-full" 
+                                  className="absolute inset-0 border-t-2 border-blue-400/20 rounded-full" 
                                 />
                                 <motion.div 
                                   animate={{ rotate: -360 }}
                                   transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
-                                  className="absolute inset-8 border-b-2 border-orange-400/10 rounded-full" 
+                                  className="absolute inset-8 border-b-2 border-blue-400/10 rounded-full" 
                                 />
-                                <Hammer className={`w-24 h-24 transition-colors duration-1000 ${isThermalGuardActive ? "text-orange-400 animate-pulse" : "text-white/5"}`} />
+                                <Pulse className={`w-24 h-24 transition-colors duration-1000 ${isNeuralStable ? "text-blue-400 animate-pulse" : "text-white/5"}`} />
                              </div>
                              <div className="mt-16 text-center space-y-6">
-                                <div className={`text-4xl font-black italic tracking-tighter ${isThermalGuardActive ? "text-white" : "text-white/20"}`}>
-                                   {isThermalGuardActive ? "THERMAL_SECURE" : "THERMAL_DISRUPTION"}
+                                <div className={`text-4xl font-black italic tracking-tighter ${isNeuralStable ? "text-white" : "text-white/20"}`}>
+                                   {isNeuralStable ? "NEURAL_SECURE" : "BRAIN_DISRUPTION"}
                                 </div>
-                                <span className="text-[11px] font-bold text-white/10 uppercase tracking-[0.6em] block">Auth_Node: VULCAN_UNIT_01</span>
+                                <span className="text-[11px] font-bold text-white/10 uppercase tracking-[0.6em] block">Auth_Node: LINK_UNIT_01</span>
                              </div>
                           </div>
 
                           <div className="relative z-10 flex gap-6">
                              <div className="flex-1 h-1 bg-white/5 overflow-hidden">
                                 <motion.div 
-                                   animate={isThermalGuardActive ? { x: ["-100%", "100%"] } : {}}
+                                   animate={isNeuralStable ? { x: ["-100%", "100%"] } : {}}
                                    transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-                                   className="w-1/2 h-full bg-orange-700"
+                                   className="w-1/2 h-full bg-blue-700"
                                 />
                              </div>
                           </div>
@@ -386,25 +390,25 @@ export default function KineticFoundryPremium() {
         </section>
 
         {/* ==========================================
-            4. FORGE STORY (TECH STORYTELLING)
+            4. NEURAL STORY (TECH STORYTELLING)
             ========================================== */}
-        <section className="py-60 bg-[#080402] relative overflow-hidden border-t border-white/5">
+        <section className="py-60 bg-[#02040c] relative overflow-hidden border-t border-white/5">
            <div className="max-w-[1400px] mx-auto px-8 md:px-24">
               <div className="grid lg:grid-cols-2 gap-40 items-center">
                  <div className="relative aspect-[3/4] overflow-hidden group border border-white/5 shadow-2xl">
                     <Image 
-                       src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=1200&auto=format&fit=crop" 
-                       alt="Kinetic Foundry Infrastructure" 
+                       src="https://images.unsplash.com/photo-1559757175-5700dde675bc?q=80&w=1200&auto=format&fit=crop" 
+                       alt="Neural Link Infrastructure" 
                        fill 
                        className="object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-[2000ms]"
                     />
-                    <div className="absolute inset-0 bg-orange-900/10 mix-blend-color group-hover:opacity-0 transition-opacity" />
+                    <div className="absolute inset-0 bg-blue-900/10 mix-blend-color group-hover:opacity-0 transition-opacity" />
                     <div className="absolute inset-0 p-20 flex flex-col justify-end bg-gradient-to-t from-black via-black/40 to-transparent">
                        <div className="text-white">
-                          <span className="text-[11px] font-black uppercase tracking-[0.6em] text-orange-500 mb-8 block italic underline underline-offset-8 decoration-orange-400/20">Atelier // Molten // Unit</span>
-                          <h4 className="text-6xl font-black tracking-tighter uppercase italic mb-12 mix-blend-difference text-white">Molten <br/> Fabric.</h4>
-                          <button className="flex items-center gap-6 text-[11px] font-black uppercase tracking-[0.4em] border-b border-white/20 pb-4 hover:border-orange-400 transition-all group">
-                             Forging Protocols <ExternalLink className="w-5 h-5 group-hover:translate-x-2 group-hover:-translate-y-2 transition-transform" />
+                          <span className="text-[11px] font-black uppercase tracking-[0.6em] text-blue-500 mb-8 block italic underline underline-offset-8 decoration-blue-500/20">Atelier // Neural // Unit</span>
+                          <h4 className="text-6xl font-black tracking-tighter uppercase italic mb-12 mix-blend-difference text-white">Brain <br/> Fabric.</h4>
+                          <button className="flex items-center gap-6 text-[11px] font-black uppercase tracking-[0.4em] border-b border-white/20 pb-4 hover:border-blue-400 transition-all group">
+                             Uplink Protocols <ExternalLink className="w-5 h-5 group-hover:translate-x-2 group-hover:-translate-y-2 transition-transform" />
                           </button>
                        </div>
                     </div>
@@ -413,20 +417,20 @@ export default function KineticFoundryPremium() {
                  <div>
                     <Reveal>
                        <div className="mb-24 text-left">
-                          <span className="text-[10px] font-black uppercase tracking-[0.5em] text-orange-500 mb-8 block italic">Chapitre III // Fusion Additive</span>
-                          <h2 className="text-7xl md:text-[10vw] font-black tracking-tighter uppercase text-white italic leading-none text-white">Pure_Fusion.</h2>
+                          <span className="text-[10px] font-black uppercase tracking-[0.5em] text-blue-500 mb-8 block italic">Chapitre III // Interface Cerveau-Machine</span>
+                          <h2 className="text-7xl md:text-[10vw] font-black tracking-tighter uppercase text-white italic leading-none text-white">Pure_Link.</h2>
                        </div>
                        <p className="text-2xl font-light text-white/20 leading-relaxed italic mb-20 uppercase tracking-[0.2em]">
-                          La fabrication est une symphonie de chaleur et de lumière. Nous utilisons des technologies de fusion laser pour construire des composants métalliques d'une complexité impossible à réaliser par les méthodes de forgeage conventionnelles.
+                          La conscience est un signal. Nous utilisons des technologies d'interface cerveau-machine et de synchronisation neuronale pour offrir une fusion directe entre l'intelligence humaine et les systèmes de calcul avancés, ouvrant de nouvelles frontières à l'évolution humaine.
                        </p>
                        <div className="space-y-20">
                           {[
-                            { t: "Alloy Melting", d: "Fusion contrôlée sous atmosphère d'argon des poudres métalliques pour garantir une pureté atomique totale." },
-                            { t: "Laser Sintering", d: "Frittage laser multi-points par miroirs galvanométriques pour une solidification couche par couche ultra-rapide." },
-                            { t: "Layer Deposition", d: "Dépôt micrométrique de couches métalliques successives créant des structures internes complexes (canaux de refroidissement, treillis)." }
+                            { t: "Neural Mapping", d: "Cartographie chirurgicale du cortex cérébral via des scanners IRM haute résolution pour identifier les zones de synchronisation optimales." },
+                            { t: "Implantation", d: "Insertion automatisée de micro-électrodes biocompatibles et de processeurs neuronaux capables de traduire les signaux électriques en données numériques." },
+                            { t: "Consciousness Uplink", d: "Initialisation du transfert de données bidirectionnel entre le cerveau et le cloud pour assurer une intégration totale et une intelligence augmentée." }
                           ].map((step, i) => (
-                            <div key={i} className="group flex gap-12 border-b border-white/5 pb-16 hover:border-orange-400/20 transition-all cursor-default">
-                               <div className="text-6xl font-black text-white/5 group-hover:text-orange-400/20 transition-colors italic leading-none">0{i+1}</div>
+                            <div key={i} className="group flex gap-12 border-b border-white/5 pb-16 hover:border-blue-400/20 transition-all cursor-default">
+                               <div className="text-6xl font-black text-white/5 group-hover:text-blue-400/20 transition-colors italic leading-none">0{i+1}</div>
                                <div>
                                   <h5 className="text-3xl font-black uppercase tracking-tight text-white mb-6 italic group-hover:translate-x-4 transition-transform text-white">{step.t}</h5>
                                   <p className="text-[12px] text-white/20 uppercase tracking-[0.3em] font-bold leading-loose italic">{step.d}</p>
@@ -445,28 +449,28 @@ export default function KineticFoundryPremium() {
            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-32 mb-60 text-white">
               <div className="lg:col-span-2">
                  <div className="flex items-center gap-6 mb-16">
-                    <div className="w-16 h-16 bg-orange-800 flex items-center justify-center">
-                      <FlameIcon className="w-10 h-10 text-white" />
+                    <div className="w-16 h-16 bg-blue-800 flex items-center justify-center">
+                      <BrainCircuit className="w-10 h-10 text-white" />
                     </div>
-                    <span className="text-4xl font-black uppercase tracking-tighter italic">KINETIC<span className="text-white/20">FOUNDRY.</span></span>
+                    <span className="text-4xl font-black uppercase tracking-tighter italic">NEURAL<span className="text-white/20">LINK.</span></span>
                  </div>
                  <p className="text-white/20 text-[11px] font-black uppercase tracking-[0.5em] leading-loose max-w-sm mb-20 italic">
-                    "L'avenir de la fabrication est cinétique." — Archive Foundry V.42
+                    "L'avenir de la conscience est numérique." — Archive Link V.42
                  </p>
                  <div className="flex gap-16">
-                    {["ForgeLog", "ForgeRegistry", "GitHub", "X_Protocol"].map(s => (
-                      <Link key={s} href="#" className="text-[11px] font-black uppercase tracking-widest text-white/20 hover:text-orange-400 transition-colors italic underline underline-offset-8 decoration-white/5">{s}</Link>
+                    {["LinkLog", "NeuralRegistry", "GitHub", "X_Protocol"].map(s => (
+                      <Link key={s} href="#" className="text-[11px] font-black uppercase tracking-widest text-white/20 hover:text-blue-400 transition-colors italic underline underline-offset-8 decoration-white/5">{s}</Link>
                     ))}
                  </div>
               </div>
 
               {[
-                { t: "UNITS", l: ["Forge-v4 Vulcan", "Molten Grid Alpha", "Titan-Print v5", "Plasma Arc-v1"] },
-                { t: "TECHNOLOGY", l: ["Laser Sintering", "Liquid Metal", "Additive Mfg", "SLA Reports"] },
-                { t: "ATELIER", l: ["Our Legacy", "Industrial Policy", "Locations", "Support"] }
+                { t: "IMPLANTS", l: ["Neural-v4 Implant", "Cortex Link Alpha", "Mind Grid v5", "Signal-Amplifier"] },
+                { t: "TECHNOLOGY", l: ["Neural Mapping", "Implantation Tech", "Uplink Sync", "SLA Reports"] },
+                { t: "ATELIER", l: ["Our Legacy", "Neuro-Ethics Policy", "Locations", "Support"] }
               ].map((col, i) => (
                 <div key={i} className="flex flex-col gap-12">
-                  <h4 className="text-[11px] font-black text-orange-400 uppercase tracking-[0.6em] italic">{col.t}</h4>
+                  <h4 className="text-[11px] font-black text-blue-400 uppercase tracking-[0.6em] italic">{col.t}</h4>
                   <ul className="flex flex-col gap-8">
                     {col.l.map(link => (
                       <li key={link} className="text-[11px] font-bold text-white/20 hover:text-white transition-colors cursor-pointer uppercase tracking-[0.4em] italic">{link}</li>
@@ -477,10 +481,10 @@ export default function KineticFoundryPremium() {
            </div>
 
            <div className="max-w-[1600px] mx-auto border-t border-white/5 pt-16 flex flex-col md:flex-row justify-between items-center gap-16 text-[10px] font-black text-white/10 uppercase tracking-[0.6em] italic">
-              <span>© 2026 KINETIC FOUNDRY INDUSTRIAL ADDITIVE AG. // ALL_RIGHTS_RESERVED</span>
+              <span>© 2026 NEURAL LINK COGNITIVE SYSTEMS AG. // ALL_RIGHTS_RESERVED</span>
               <div className="flex gap-16">
                  <span>STATUS: OPERATIONAL</span>
-                 <span>TEMP: 2,402 °C (AVG)</span>
+                 <span>BANDWIDTH: 142 Tbps (AVG)</span>
                  <span>v4.12.0-STABLE</span>
               </div>
            </div>
@@ -494,31 +498,31 @@ export default function KineticFoundryPremium() {
    TECHNICAL SUB-COMPONENTS
    ========================================== */
 
-function HUD_Overlay({ isThermalGuardActive }: { isThermalGuardActive: boolean }) {
+function HUD_Overlay({ isNeuralStable }: { isNeuralStable: boolean }) {
   return (
     <div className="fixed inset-0 pointer-events-none z-[100]">
        {/* Corner Brackets */}
-       <div className={`absolute top-12 left-12 w-20 h-20 border-t-2 border-l-2 transition-colors duration-1000 ${isThermalGuardActive ? "border-orange-400" : "border-white/10"}`} />
-       <div className={`absolute top-12 right-12 w-20 h-20 border-t-2 border-r-2 transition-colors duration-1000 ${isThermalGuardActive ? "border-orange-400" : "border-white/10"}`} />
-       <div className={`absolute bottom-12 left-12 w-20 h-20 border-b-2 border-l-2 transition-colors duration-1000 ${isThermalGuardActive ? "border-orange-400" : "border-white/10"}`} />
-       <div className={`absolute bottom-12 right-12 w-20 h-20 border-b-2 border-r-2 transition-colors duration-1000 ${isThermalGuardActive ? "border-orange-400" : "border-white/10"}`} />
+       <div className={`absolute top-12 left-12 w-20 h-20 border-t-2 border-l-2 transition-colors duration-1000 ${isNeuralStable ? "border-blue-400" : "border-white/10"}`} />
+       <div className={`absolute top-12 right-12 w-20 h-20 border-t-2 border-r-2 transition-colors duration-1000 ${isNeuralStable ? "border-blue-400" : "border-white/10"}`} />
+       <div className={`absolute bottom-12 left-12 w-20 h-20 border-b-2 border-l-2 transition-colors duration-1000 ${isNeuralStable ? "border-blue-400" : "border-white/10"}`} />
+       <div className={`absolute bottom-12 right-12 w-20 h-20 border-b-2 border-r-2 transition-colors duration-1000 ${isNeuralStable ? "border-blue-400" : "border-white/10"}`} />
 
        {/* Top Status Bar */}
        <div className="absolute top-12 left-1/2 -translate-x-1/2 flex items-center gap-20 bg-black/60 backdrop-blur-2xl px-12 py-4 border border-white/10 rounded-none">
           <div className="flex items-center gap-6 text-white">
-             <div className={`w-3 h-3 transition-colors duration-500 ${isThermalGuardActive ? "bg-orange-400 animate-pulse" : "bg-red-500 animate-ping"}`} />
-             <span className="text-[10px] font-black uppercase tracking-[0.4em] italic leading-none">Forge_Sync: {isThermalGuardActive ? "NOMINAL" : "THERMAL_DISRUPTION"} // Status: ACTIVE</span>
+             <div className={`w-3 h-3 transition-colors duration-500 ${isNeuralStable ? "bg-blue-400 animate-pulse" : "bg-red-500 animate-ping"}`} />
+             <span className="text-[10px] font-black uppercase tracking-[0.4em] italic leading-none">Link_Sync: {isNeuralStable ? "NOMINAL" : "BRAIN_DISRUPTION"} // Status: ACTIVE</span>
           </div>
           <div className="h-4 w-px bg-white/20" />
           <div className="flex items-center gap-6 text-white/20">
              <Wifi className="w-4 h-4" /> 
-             <span className="text-[10px] font-black uppercase tracking-[0.4em] italic leading-none">Foundry_Grid: SECURE</span>
+             <span className="text-[10px] font-black uppercase tracking-[0.4em] italic leading-none">Neural_Grid: SECURE</span>
           </div>
        </div>
 
        {/* Right Rotation Info */}
        <div className="absolute right-12 top-1/2 -translate-y-1/2 rotate-90 origin-right hidden lg:block">
-          <span className="text-[10px] font-black uppercase tracking-[0.8em] text-white/5 italic">Unauthorized_Duplication_Of_Forge_Patterns_Is_Strictly_Monitored_By_Global_Foundry_Alliance</span>
+          <span className="text-[10px] font-black uppercase tracking-[0.8em] text-white/5 italic">Unauthorized_Duplication_Of_Neural_Patterns_Is_Strictly_Monitored_By_Global_Neuro_Alliance</span>
        </div>
     </div>
   )

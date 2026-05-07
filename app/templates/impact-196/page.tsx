@@ -1,18 +1,102 @@
 "use client"
-import { motion, useScroll, useTransform, useInView, AnimatePresence } from "framer-motion"
-import { useState, useRef, useEffect } from "react"
+
+import React, { useState, useEffect, useRef } from "react"
+import { 
+  motion, 
+  AnimatePresence, 
+  useScroll, 
+  useTransform, 
+  useInView, 
+  useSpring 
+} from "framer-motion"
 import Image from "next/image"
 import Link from "next/link"
-import { Menu, ArrowRight, Gauge, ShieldAlert, Cpu, Activity, MoveRight, ChevronRight, Zap } from "lucide-react"
+import { 
+  Zap, Activity, Microscope, 
+  Target, Layers, Box, Hexagon, 
+  Terminal, Settings, Power, Info, 
+  AlertTriangle, ChevronRight, ArrowRight, 
+  Share2, Maximize2, Download, ExternalLink, 
+  Archive, Hash, Wifi, BarChart3, 
+  Fingerprint, Scan, Brain, Server, 
+  ShieldCheck, ShieldAlert, Award, 
+  Briefcase, Wind, Thermometer, 
+  Flame, Battery, Radio, Gauge, 
+  Timer, Lightbulb, Command, Grid, 
+  Radar, Orbit, Atom, Satellite, 
+  Milestone, FlaskConical, FlaskRound, 
+  Ghost, Binary, Database, Search, 
+  Cpu, HeartPulse, Sun, Magnet, 
+  CircleDot, Waves, Pickaxe, Mountain, 
+  Gem, Rocket, Drill, PlaneTakeoff, 
+  CpuIcon, Network, Eye, ZapOff, 
+  GhostIcon, RadioReceiver, 
+  Wrench, Hammer, Cog, Hand, 
+  Accessibility, Bot
+} from "lucide-react"
 
-function Reveal({ children, delay = 0, y = 40 }: { children: React.ReactNode; delay?: number; y?: number }) {
+/* ==========================================================================
+   THE BIO-ROBOT DATASET (ULTRA DENSITY)
+   ========================================================================== */
+
+const CYBERNETIC_ASSETS = [
+  {
+    id: "cyb-v4-42",
+    name: "Cyber-v4 Arm",
+    type: "Biomimetic Limb",
+    force: "1400 N",
+    latency: "1.2 ms",
+    integration: "99.8%",
+    desc: "Bras bionique haute performance utilisant des muscles synthétiques en polymère électro-actif pour une fluidité de mouvement naturelle.",
+    status: "Calibrated"
+  },
+  {
+    id: "cyb-neu-08",
+    name: "Neural Link Alpha",
+    type: "Synaptic Interface",
+    force: "N/A",
+    latency: "0.2 ms",
+    integration: "99.99%",
+    desc: "Interface neuronale permettant un contrôle direct par la pensée, traduisant les signaux corticaux en commandes motrices instantanées.",
+    status: "Linked"
+  },
+  {
+    id: "cyb-bio-15",
+    name: "Bionic Grid v5",
+    type: "Exoskeleton Suit",
+    force: "8500 N",
+    latency: "5.0 ms",
+    integration: "99.4%",
+    desc: "Exosquelette complet offrant une force surhumaine et une endurance illimitée pour les environnements de travail extrêmes.",
+    status: "Powered"
+  }
+]
+
+const MOTOR_METRICS = [
+  { label: "Servo Tension", value: "42.4%", trend: "Stable" },
+  { label: "Signal Latency", value: "1.2 ms", trend: "Optimal" },
+  { label: "Battery Eff.", value: "94.2%", trend: "Peak" },
+  { label: "Nerve Sync", value: "ACTIVE", trend: "Nominal" }
+]
+
+const CYBER_LOGS = [
+  { timestamp: "28:14:42", unit: "Arm-Module-01", status: "CALIBRATING", axis: "X-Y-Z" },
+  { timestamp: "28:14:45", unit: "Neural-Buffer", status: "SYNCING", signal: "RAW_MOTOR" },
+  { timestamp: "28:14:48", unit: "Power-Core", status: "SECURE", voltage: "48.2V" }
+]
+
+/* ==========================================
+   TECHNICAL COMPONENTS
+   ========================================== */
+
+function Reveal({ children, delay = 0, y = 40, x = 0 }: { children: React.ReactNode, delay?: number, y?: number, x?: number }) {
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true, margin: "-100px" })
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, y }}
-      animate={isInView ? { opacity: 1, y: 0 } : {}}
+      initial={{ opacity: 0, y, x }}
+      animate={isInView ? { opacity: 1, y: 0, x: 0 } : {}}
       transition={{ duration: 1.2, delay, ease: [0.16, 1, 0.3, 1] }}
     >
       {children}
@@ -20,232 +104,428 @@ function Reveal({ children, delay = 0, y = 40 }: { children: React.ReactNode; de
   )
 }
 
-function ParallaxImg({ src, alt, speed = 0.5 }: { src: string; alt: string; speed?: number }) {
-  const ref = useRef(null)
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] })
-  const y = useTransform(scrollYProgress, [0, 1], ["-15%", "15%"])
+function BionicFlowVisualizer() {
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
+  useEffect(() => {
+    const handleMouse = (e: MouseEvent) => setMousePos({ x: e.clientX, y: e.clientY })
+    window.addEventListener("mousemove", handleMouse)
+    return () => window.removeEventListener("mousemove", handleMouse)
+  }, [])
+
   return (
-    <div ref={ref} className="relative w-full h-full overflow-hidden">
-      <motion.div style={{ y }} className="absolute inset-[-15%] w-[130%] h-[130%]">
-        <Image src={src} alt={alt} fill className="object-cover" />
-      </motion.div>
+    <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden opacity-20">
+       <svg width="100%" height="100%" className="w-full h-full">
+          {[...Array(15)].map((_, i) => (
+            <motion.rect 
+               key={i}
+               x={i * 150}
+               y={300}
+               width="20"
+               height="100"
+               fill="#facc15"
+               animate={{ 
+                  rotate: [0, mousePos.y / 20, 0],
+                  scaleY: [1, 1 + mousePos.x / 1000, 1]
+               }}
+               transition={{ type: "spring", damping: 10, stiffness: 100 }}
+            />
+          ))}
+          {[...Array(8)].map((_, i) => (
+            <motion.circle 
+               key={`joint-${i}`}
+               cx={i * 250 + 100}
+               cy={500}
+               r={10}
+               fill="#facc15"
+               animate={{ 
+                  opacity: [0.2, 1, 0.2],
+                  scale: [1, 1.5, 1]
+               }}
+               transition={{ duration: 2, repeat: Infinity, delay: i * 0.2 }}
+            />
+          ))}
+       </svg>
     </div>
   )
 }
 
-const CARS = [
-  { name: "V12 OMEGA", type: "Hypercar", img: "https://images.unsplash.com/photo-1614200187524-dc4b892acf16?auto=format&fit=crop&q=80&w=1200", hp: "1080", aero: "0.24", accel: "2.1s" },
-  { name: "APEX R", type: "Track Focus", img: "https://images.unsplash.com/photo-1603584173870-7f23fdae1b7a?auto=format&fit=crop&q=80&w=1200", hp: "950", aero: "0.21", accel: "1.9s" },
-  { name: "ECHO GT", type: "Grand Tourer", img: "https://images.unsplash.com/photo-1544829099-b9a0c07fad1a?auto=format&fit=crop&q=80&w=1200", hp: "720", aero: "0.26", accel: "2.8s" },
-]
-
-export default function VulcanAtelier() {
-  const [scrolled, setScrolled] = useState(false)
-  const heroRef = useRef(null)
-  
-  const { scrollYProgress } = useScroll()
-  const heroY = useTransform(scrollYProgress, [0, 0.2], ["0%", "50%"])
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.15], [1, 0])
-  const heroScale = useTransform(scrollYProgress, [0, 0.2], [1, 1.1])
-
-  useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 50)
-    window.addEventListener("scroll", handleScroll)
-    return () => window.removeEventListener("scroll", handleScroll)
-  }, [])
+function BioRobotModel({ progress }: { progress: any }) {
+  const rotate = useTransform(progress, [0, 1], [0, 360])
+  const scale = useTransform(progress, [0, 0.5, 1], [1, 1.2, 1])
 
   return (
-    <div className="bg-[#050505] text-white font-sans min-h-screen selection:bg-red-600 selection:text-white overflow-x-hidden">
+    <motion.div style={{ rotate, scale }} className="relative w-80 h-80 flex items-center justify-center">
+       <div className="absolute inset-0 border border-yellow-500/10 rounded-full animate-spin-slow shadow-[0_0_80px_rgba(250,204,21,0.05)]" />
+       <Bot className="w-40 h-40 text-yellow-500/10 animate-pulse" />
+       <div className="absolute inset-8 border border-yellow-500/5 rounded-full" />
+    </motion.div>
+  )
+}
+
+/* ==========================================
+   THE BIO-ROBOT - MAIN INTERFACE
+   ========================================== */
+
+export default function BioRobotPremium() {
+  const [activeAsset, setActiveAsset] = useState(0)
+  const [isMotorStable, setIsMotorStable] = useState(true)
+  const containerRef = useRef(null)
+  const { scrollYProgress } = useScroll({ target: containerRef })
+
+  // Bionic Scroll Effects
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.2], [1, 0])
+  const textX = useTransform(scrollYProgress, [0, 0.5], [0, 100])
+
+  return (
+    <div ref={containerRef} className="bg-[#0c0c0c] text-[#e0e8ed] font-mono selection:bg-yellow-500/30 selection:text-white min-h-screen overflow-x-hidden transition-colors duration-1000">
       
-      {/* ── NAVBAR ── */}
-      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-700 ${scrolled ? "bg-[#050505]/90 backdrop-blur-xl border-b border-red-600/20 py-4" : "bg-transparent py-8"}`}>
-        <div className="max-w-[1800px] mx-auto px-6 md:px-12 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-4">
-            <div className="w-8 h-8 bg-red-600 flex items-center justify-center transform -skew-x-12">
-              <Zap className="w-4 h-4 text-black" />
-            </div>
-            <span className="text-xl font-bold tracking-[0.3em] uppercase">Vulcan<span className="text-red-600">.</span></span>
-          </Link>
-          <div className="hidden lg:flex items-center gap-12 text-[10px] font-bold tracking-[0.3em] uppercase">
-            {["Models", "Engineering", "Motorsport", "Atelier"].map((link) => (
-              <Link key={link} href="#" className="hover:text-red-600 transition-colors">{link}</Link>
-            ))}
-          </div>
-          <button className="hidden md:flex items-center gap-2 px-8 py-3 bg-white text-black text-[10px] font-bold tracking-[0.2em] uppercase hover:bg-red-600 hover:text-white transition-colors duration-500 transform -skew-x-12">
-            Configure
-          </button>
-        </div>
-      </nav>
+      {/* GLOBAL HUD OVERLAY */}
+      <HUD_Overlay isMotorStable={isMotorStable} />
 
       <main>
-        {/* ── HERO ── */}
-        <section className="relative h-[120vh] min-h-[900px] flex items-center justify-center overflow-hidden" ref={heroRef}>
-          <motion.div style={{ y: heroY, scale: heroScale }} className="absolute inset-0">
-            <Image src="https://images.unsplash.com/photo-1614200187524-dc4b892acf16?auto=format&fit=crop&q=80&w=2400" alt="Hypercar" fill className="object-cover opacity-60" priority />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-transparent" />
+        {/* ==========================================
+            1. BIONIC IGNITION (HERO)
+            ========================================== */}
+        <section className="relative h-screen flex flex-col justify-center items-center px-8 md:px-24 overflow-hidden pt-20">
+          <BionicFlowVisualizer />
+          <motion.div style={{ opacity: heroOpacity }} className="absolute z-0 pointer-events-none flex items-center justify-center">
+             <BioRobotModel progress={scrollYProgress} />
           </motion.div>
-          
-          <motion.div style={{ opacity: heroOpacity }} className="relative z-10 w-full max-w-[1800px] px-6 md:px-12 pt-32">
-            <Reveal y={50}>
-              <div className="flex items-center gap-4 mb-6">
-                <div className="w-12 h-1 bg-red-600" />
-                <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-red-600">Engineering Beyond Limits</span>
-              </div>
-            </Reveal>
-            <Reveal delay={0.2} y={80}>
-              <h1 className="text-[5rem] md:text-[8rem] lg:text-[12rem] font-black uppercase tracking-tighter leading-[0.8] mb-12">
-                Apex<br/><span className="text-transparent" style={{ WebkitTextStroke: "2px white" }}>Predator.</span>
-              </h1>
-            </Reveal>
-            <Reveal delay={0.4} y={40}>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-3xl border-l border-red-600/30 pl-8">
-                <div>
-                  <div className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-1">Power Output</div>
-                  <div className="text-3xl font-light">1,080 <span className="text-red-600 text-lg">HP</span></div>
-                </div>
-                <div>
-                  <div className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-1">Top Speed</div>
-                  <div className="text-3xl font-light">236 <span className="text-red-600 text-lg">MPH</span></div>
-                </div>
-              </div>
-            </Reveal>
-          </motion.div>
-        </section>
 
-        {/* ── ENGINEERING SPLIT ── */}
-        <section className="py-32 relative bg-[#050505]">
-          <div className="max-w-[1800px] mx-auto px-6 md:px-12 grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
-            <div>
-              <Reveal>
-                <h2 className="text-5xl md:text-7xl font-bold uppercase tracking-tighter leading-none mb-10">
-                  Aerodynamic<br/>Supremacy.
-                </h2>
-                <p className="text-lg text-white/50 font-light leading-relaxed mb-12 max-w-lg">
-                  Every curve, every vent, and every plane is dictated by the laws of physics. We don't design cars; we sculpt the air around them.
+          <div className="relative z-10 text-center max-w-7xl">
+             <Reveal>
+                <div className="inline-flex items-center gap-4 px-6 py-2 border border-yellow-500/30 bg-yellow-500/5 text-[10px] font-black uppercase tracking-[0.5em] text-yellow-500 mb-12 italic">
+                   <Bot className="w-4 h-4" /> Bionic_Sync: NOMINAL // Tension: 42.4%
+                </div>
+                <motion.h1 style={{ x: textX }} className="text-7xl md:text-[14vw] font-black tracking-tighter uppercase mb-16 leading-[0.75] italic">
+                   Bio <br/> <span className="text-white/5 italic">Robot.</span>
+                </motion.h1>
+                <p className="max-w-3xl mx-auto text-sm md:text-lg text-white/30 leading-relaxed uppercase tracking-widest font-light mb-16 italic">
+                   La convergence homme-machine. Nous concevons des membres bioniques et des systèmes cybernétiques biomimétiques, offrant une mobilité et une force augmentées avec une précision chirurgicale.
                 </p>
-                <div className="space-y-6">
-                  {[
-                    { icon: Gauge, t: "Active Aero System", d: "Adjusts downforce dynamically in 10ms." },
-                    { icon: Cpu, t: "Carbon Monocoque", d: "F1-grade composite structure weighing only 85kg." },
-                    { icon: Activity, t: "Telemetry Link", d: "Real-time track data streamed to your engineer." }
-                  ].map((f, i) => (
-                    <div key={i} className="flex gap-6 items-start">
-                      <div className="w-12 h-12 bg-red-600/10 border border-red-600/20 flex items-center justify-center shrink-0">
-                        <f.icon className="w-5 h-5 text-red-600" />
-                      </div>
-                      <div>
-                        <h4 className="text-lg font-bold uppercase tracking-widest mb-1">{f.t}</h4>
-                        <p className="text-sm text-white/40">{f.d}</p>
-                      </div>
-                    </div>
-                  ))}
+                
+                <div className="flex flex-col sm:flex-row gap-8 justify-center items-center">
+                   <button className="px-12 py-6 bg-yellow-800 text-white text-[10px] font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all shadow-[0_0_40px_rgba(250,204,21,0.2)] flex items-center gap-4 italic">
+                      <Zap className="w-5 h-5" /> Initialize Motor
+                   </button>
+                   <button className="px-12 py-6 border border-white/10 text-white text-[10px] font-black uppercase tracking-widest hover:bg-white/5 transition-all flex items-center gap-4 italic">
+                      <Database className="w-5 h-5" /> Cybernetic Registry
+                   </button>
                 </div>
-              </Reveal>
-            </div>
-            <div className="h-[80vh] relative">
-              <Reveal delay={0.2}>
-                <ParallaxImg src="https://images.unsplash.com/photo-1544636331-e26879cd3d92?auto=format&fit=crop&q=80&w=1200" alt="Engineering" />
-                <div className="absolute top-10 left-10 p-4 bg-black/50 backdrop-blur-md border border-white/10 font-mono text-xs">
-                  <div className="text-red-600 font-bold mb-2">WIND TUNNEL DATA</div>
-                  <div>DRAG COEF: 0.24</div>
-                  <div>DOWNFORCE: 1200KG @ 200MPH</div>
+             </Reveal>
+          </div>
+
+          <div className="absolute bottom-12 left-12 right-12 flex justify-between items-end border-t border-white/5 pt-12">
+             <div className="flex flex-col gap-6">
+                <div className="flex items-center gap-4 text-[9px] font-bold text-white/20 uppercase tracking-widest italic">
+                   <div className="w-16 h-px bg-white/10" />
+                   Bionic_ID: BIO-ROBOT-01
                 </div>
-              </Reveal>
-            </div>
+                <div className="flex items-center gap-4 text-[9px] font-bold text-white/20 uppercase tracking-widest italic">
+                   <div className="w-16 h-px bg-white/10" />
+                   Status: NEURAL_LINK_ACTIVE
+                </div>
+             </div>
+             <div className="text-right flex flex-col items-end gap-4">
+                <span className="text-[8px] font-black uppercase tracking-[0.5em] text-yellow-500">Cyber_Motor_Data_Stream</span>
+                <div className="flex gap-2 h-12 items-end">
+                   {[...Array(16)].map((_, i) => (
+                     <motion.div 
+                        key={i}
+                        animate={{ height: ["10%", "100%", "30%", "80%", "10%"] }}
+                        transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.1 }}
+                        className="w-2 bg-yellow-500/20"
+                     />
+                   ))}
+                </div>
+             </div>
           </div>
         </section>
 
-        {/* ── HORIZONTAL GARAGE ── */}
-        <section className="py-32 bg-[#0a0a0a] border-y border-white/5">
-          <div className="max-w-[1800px] mx-auto px-6 md:px-12 mb-20 flex justify-between items-end">
-            <Reveal>
-              <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-red-600 block mb-4">The Bloodline</span>
-              <h2 className="text-6xl font-black uppercase tracking-tighter">Current Models</h2>
-            </Reveal>
-          </div>
-          
-          <div className="flex gap-12 px-6 md:px-12 overflow-x-auto pb-12 snap-x snap-mandatory hide-scrollbar">
-            {CARS.map((car, i) => (
-              <div key={i} className="w-[85vw] md:w-[40vw] shrink-0 snap-center group cursor-pointer">
-                <Reveal delay={i * 0.1}>
-                  <div className="relative aspect-[16/9] overflow-hidden mb-6">
-                    <Image src={car.img} alt={car.name} fill className="object-cover group-hover:scale-105 transition-transform duration-1000 ease-out" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-transparent to-transparent opacity-80" />
-                    <div className="absolute bottom-6 left-6 flex gap-4">
-                      <div className="bg-white/10 backdrop-blur-md px-4 py-2 text-[10px] font-bold uppercase tracking-widest">{car.hp} HP</div>
-                      <div className="bg-white/10 backdrop-blur-md px-4 py-2 text-[10px] font-bold uppercase tracking-widest">{car.accel}</div>
-                    </div>
-                  </div>
-                  <div className="flex justify-between items-end">
-                    <div>
-                      <h3 className="text-3xl font-bold uppercase tracking-widest mb-1">{car.name}</h3>
-                      <div className="text-red-600 text-xs font-bold uppercase tracking-[0.2em]">{car.type}</div>
-                    </div>
-                    <div className="w-12 h-12 bg-red-600 flex items-center justify-center transform -skew-x-12 group-hover:bg-white transition-colors duration-300">
-                      <ChevronRight className="w-6 h-6 text-black" />
-                    </div>
-                  </div>
-                </Reveal>
+        {/* ==========================================
+            2. CYBERNETIC REGISTRY (DENSE TECHNICAL)
+            ========================================== */}
+        <section className="py-60 bg-[#14140c] relative border-y border-white/5 overflow-hidden">
+           <div className="max-w-[1600px] mx-auto px-8 md:px-24">
+              <div className="flex flex-col md:flex-row items-end justify-between mb-40 gap-12">
+                 <Reveal>
+                    <span className="text-[10px] font-black uppercase tracking-[0.6em] text-yellow-500 block mb-6 italic underline underline-offset-8 decoration-yellow-400/20">Cybernetic // Assets</span>
+                    <h2 className="text-6xl md:text-[10vw] font-black uppercase tracking-tighter italic leading-none text-white">Archives.</h2>
+                 </Reveal>
+                 <div className="text-right">
+                    <span className="text-[10px] font-black uppercase tracking-[0.5em] text-white/20 block mb-4 italic">Registry // Cyber_Audit</span>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-yellow-500">L'Architecture de la Bionique Avancée</p>
+                 </div>
               </div>
-            ))}
-          </div>
+
+              <div className="grid md:grid-cols-3 gap-px bg-white/5 border border-white/5 shadow-2xl">
+                 {CYBERNETIC_ASSETS.map((asset, i) => (
+                   <Reveal key={asset.id} delay={i * 0.1}>
+                      <div className="bg-[#0c0c0c] p-20 flex flex-col h-full hover:bg-white/[0.02] transition-all group cursor-crosshair border-white/5 border-r last:border-r-0">
+                         <div className="flex justify-between items-start mb-16">
+                            <div className="w-16 h-16 bg-white/5 border border-white/10 flex items-center justify-center group-hover:bg-yellow-800 group-hover:text-white transition-all duration-500">
+                               <CpuIcon className="w-8 h-8" />
+                            </div>
+                            <span className={`px-4 py-2 bg-white/5 text-[9px] font-black uppercase tracking-[0.3em] ${asset.status === "Calibrated" ? "text-yellow-500" : "text-white/40"}`}>{asset.status}</span>
+                         </div>
+                         
+                         <h3 className="text-4xl font-black uppercase tracking-tighter mb-8 italic text-white group-hover:translate-x-4 transition-transform">{asset.name}</h3>
+                         <div className="text-[10px] font-black text-white/20 uppercase tracking-[0.5em] mb-12">{asset.type}</div>
+                         
+                         <div className="space-y-8 mb-20 border-l border-yellow-500/20 pl-8">
+                            <div className="flex justify-between items-center text-[11px] font-bold uppercase tracking-widest">
+                               <span className="text-white/20">Grip Force</span>
+                               <span className="text-white group-hover:text-yellow-400 transition-colors">{asset.force}</span>
+                            </div>
+                            <div className="flex justify-between items-center text-[11px] font-bold uppercase tracking-widest">
+                               <span className="text-white/20">Latency</span>
+                               <span className="text-white group-hover:text-yellow-400 transition-colors">{asset.latency}</span>
+                            </div>
+                            <div className="flex justify-between items-center text-[11px] font-bold uppercase tracking-widest">
+                               <span className="text-white/20">Integration</span>
+                               <span className="text-white group-hover:text-yellow-400 transition-colors">{asset.integration}</span>
+                            </div>
+                         </div>
+
+                         <p className="text-[12px] text-white/30 leading-loose uppercase tracking-[0.2em] font-bold italic mb-16">
+                            {asset.desc}
+                         </p>
+
+                         <div className="mt-auto pt-10 border-t border-white/5 flex justify-between items-center">
+                            <span className="text-[10px] font-black text-white/10 uppercase tracking-widest">Ref: {asset.id}</span>
+                            <button className="text-[10px] font-black uppercase text-white/40 flex items-center gap-4 group-hover:text-white transition-all">
+                               Technical_Specs <ChevronRight className="w-5 h-5" />
+                            </button>
+                         </div>
+                      </div>
+                   </Reveal>
+                 ))}
+              </div>
+           </div>
         </section>
 
-        {/* ── BIG CTA ── */}
-        <section className="h-screen relative flex items-center justify-center overflow-hidden">
-          <div className="absolute inset-0">
-            <Image src="https://images.unsplash.com/photo-1603584173870-7f23fdae1b7a?auto=format&fit=crop&q=80&w=2400" alt="CTA" fill className="object-cover grayscale" />
-            <div className="absolute inset-0 bg-red-600/80 mix-blend-multiply" />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#050505] to-transparent" />
-          </div>
-          
-          <div className="relative z-10 text-center">
-            <Reveal>
-              <h2 className="text-[5rem] md:text-[8rem] font-black uppercase tracking-tighter leading-none mb-10">
-                Command<br/>The Track.
-              </h2>
-              <button className="px-12 py-5 bg-white text-black text-xs font-bold uppercase tracking-[0.3em] transform -skew-x-12 hover:bg-black hover:text-white transition-colors duration-500 border border-transparent hover:border-white">
-                Build Your Vulcan
-              </button>
-            </Reveal>
-          </div>
+        {/* ==========================================
+            3. MOTOR MONITOR (INTERACTIVE DATA)
+            ========================================== */}
+        <section className="py-60 bg-black relative border-y border-white/5 overflow-hidden">
+           <div className="max-w-[1400px] mx-auto px-8 md:px-24">
+              <div className="grid lg:grid-cols-2 gap-40 items-center">
+                 <div>
+                    <Reveal>
+                       <span className="text-[10px] font-black uppercase tracking-[0.5em] text-yellow-500 block mb-12 italic underline underline-offset-8 decoration-yellow-500/20">Motor // Performance</span>
+                       <h2 className="text-7xl md:text-[9vw] font-light italic leading-none text-white mb-16 uppercase tracking-tighter">
+                          The <br/> <span className="not-italic font-black text-white/5 italic">Cyber_Link.</span>
+                       </h2>
+                       <p className="text-2xl font-light text-white/20 leading-relaxed mb-24 italic uppercase tracking-[0.2em] max-w-xl">
+                          Surveillance de l'intégrité motrice en temps réel. Nos capteurs cybernétiques analysent la tension des servomoteurs et la latence du signal neuronal pour garantir une fluidité de mouvement parfaite.
+                       </p>
+                       <div className="grid grid-cols-2 gap-px bg-white/5 border border-white/5 mb-24 shadow-2xl">
+                          {MOTOR_METRICS.map((metric, i) => (
+                            <div key={i} className="p-16 bg-[#1c1c0a] group hover:bg-white/[0.02] transition-all border-r border-b last:border-r-0 border-white/5">
+                               <div className="text-[10px] font-black uppercase text-yellow-500 mb-6 tracking-[0.4em]">{metric.label}</div>
+                               <div className="text-5xl font-black text-white italic mb-6 tracking-tighter group-hover:translate-x-4 transition-transform">{metric.value}</div>
+                               <div className="flex items-center gap-3 text-[9px] font-bold uppercase tracking-[0.3em] text-white/10 italic">
+                                  <Activity className="w-4 h-4 text-yellow-500" /> {metric.trend}
+                               </div>
+                            </div>
+                          ))}
+                       </div>
+                       <button 
+                         onClick={() => setIsMotorStable(!isMotorStable)}
+                         className="w-full py-8 bg-yellow-950 text-white text-[11px] font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all shadow-2xl flex items-center justify-center gap-6 italic"
+                       >
+                          <Settings className="w-5 h-5" /> Re-Sync Motor Nodes
+                       </button>
+                    </Reveal>
+                 </div>
+                 
+                 <div className="relative">
+                    <Reveal delay={0.3} x={40}>
+                       <div className="aspect-square bg-[#1c1c0a] border border-white/10 p-20 flex flex-col justify-between relative group overflow-hidden shadow-2xl">
+                          <div className="absolute top-0 right-0 p-80 bg-yellow-400 opacity-[0.02] blur-[150px] rounded-full group-hover:opacity-[0.05] transition-opacity" />
+                          
+                          <div className="flex justify-between items-start z-10">
+                             <div className="flex flex-col gap-3">
+                                <span className="text-[10px] font-black text-white/10 uppercase tracking-[0.5em]">Motor_Link // SYNC-v42</span>
+                                <span className="text-[12px] font-black text-white/40 uppercase tracking-[0.6em]">Cyber_Stability_Telemetry</span>
+                             </div>
+                             <Wifi className="w-6 h-6 text-yellow-400" />
+                          </div>
+                          
+                          {/* BIONIC VISUALIZER (SVG) */}
+                          <div className="relative z-10 flex flex-col items-center justify-center h-full">
+                             <div className="w-64 h-64 border border-yellow-400/5 rounded-full flex items-center justify-center relative">
+                                <motion.div 
+                                  animate={{ rotate: 360 }}
+                                  transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+                                  className="absolute inset-0 border-t-2 border-yellow-400/20 rounded-full" 
+                                />
+                                <motion.div 
+                                  animate={{ rotate: -360 }}
+                                  transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+                                  className="absolute inset-8 border-b-2 border-yellow-400/10 rounded-full" 
+                                />
+                                <Hand className={`w-24 h-24 transition-colors duration-1000 ${isMotorStable ? "text-yellow-400 animate-pulse" : "text-white/5"}`} />
+                             </div>
+                             <div className="mt-16 text-center space-y-6">
+                                <div className={`text-4xl font-black italic tracking-tighter ${isMotorStable ? "text-white" : "text-white/20"}`}>
+                                   {isMotorStable ? "MOTOR_SECURE" : "SIGNAL_DISRUPTION"}
+                                </div>
+                                <span className="text-[11px] font-bold text-white/10 uppercase tracking-[0.6em] block">Auth_Node: BIONIC_UNIT_01</span>
+                             </div>
+                          </div>
+
+                          <div className="relative z-10 flex gap-6">
+                             <div className="flex-1 h-1 bg-white/5 overflow-hidden">
+                                <motion.div 
+                                   animate={isMotorStable ? { x: ["-100%", "100%"] } : {}}
+                                   transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+                                   className="w-1/2 h-full bg-yellow-700"
+                                />
+                             </div>
+                          </div>
+                       </div>
+                    </Reveal>
+                 </div>
+              </div>
+           </div>
         </section>
 
+        {/* ==========================================
+            4. CYBER STORY (TECH STORYTELLING)
+            ========================================== */}
+        <section className="py-60 bg-[#0c0c0c] relative overflow-hidden border-t border-white/5">
+           <div className="max-w-[1400px] mx-auto px-8 md:px-24">
+              <div className="grid lg:grid-cols-2 gap-40 items-center">
+                 <div className="relative aspect-[3/4] overflow-hidden group border border-white/5 shadow-2xl">
+                    <Image 
+                       src="https://images.unsplash.com/photo-1581092160562-40aa08e78837?q=80&w=1200&auto=format&fit=crop" 
+                       alt="Bio Robot Infrastructure" 
+                       fill 
+                       className="object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-[2000ms]"
+                    />
+                    <div className="absolute inset-0 bg-yellow-900/10 mix-blend-color group-hover:opacity-0 transition-opacity" />
+                    <div className="absolute inset-0 p-20 flex flex-col justify-end bg-gradient-to-t from-black via-black/40 to-transparent">
+                       <div className="text-white">
+                          <span className="text-[11px] font-black uppercase tracking-[0.6em] text-yellow-500 mb-8 block italic underline underline-offset-8 decoration-yellow-500/20">Atelier // Cybernetic // Unit</span>
+                          <h4 className="text-6xl font-black tracking-tighter uppercase italic mb-12 mix-blend-difference text-white">Bionic <br/> Fabric.</h4>
+                          <button className="flex items-center gap-6 text-[11px] font-black uppercase tracking-[0.4em] border-b border-white/20 pb-4 hover:border-yellow-400 transition-all group">
+                             Bionic Protocols <ExternalLink className="w-5 h-5 group-hover:translate-x-2 group-hover:-translate-y-2 transition-transform" />
+                          </button>
+                       </div>
+                    </div>
+                 </div>
+
+                 <div>
+                    <Reveal>
+                       <div className="mb-24 text-left">
+                          <span className="text-[10px] font-black uppercase tracking-[0.5em] text-yellow-500 mb-8 block italic">Chapitre III // Robotique Biomimétique</span>
+                          <h2 className="text-7xl md:text-[10vw] font-black tracking-tighter uppercase text-white italic leading-none text-white">Pure_Bionic.</h2>
+                       </div>
+                       <p className="text-2xl font-light text-white/20 leading-relaxed italic mb-20 uppercase tracking-[0.2em]">
+                          Le mouvement est une symphonie. Nous utilisons des technologies de robotique biomimétique et d'interface neuronale pour construire des membres cybernétiques d'une complexité sans précédent, offrant une nouvelle autonomie à l'être humain.
+                       </p>
+                       <div className="space-y-20">
+                          {[
+                            { t: "Skeletal Printing", d: "Impression 3D de structures osseuses en titane-carbone pour une robustesse et une légèreté optimales, servant de base au membre bionique." },
+                            { t: "Synthetic Muscle Layering", d: "Superposition de fibres musculaires en polymère électro-actif capables de contractions fluides et puissantes simulant le muscle humain." },
+                            { t: "Neural Signal Calibration", d: "Calibrage chirurgical du signal nerveux pour assurer une latence minimale entre la pensée et l'exécution du mouvement moteur." }
+                          ].map((step, i) => (
+                            <div key={i} className="group flex gap-12 border-b border-white/5 pb-16 hover:border-yellow-400/20 transition-all cursor-default">
+                               <div className="text-6xl font-black text-white/5 group-hover:text-yellow-400/20 transition-colors italic leading-none">0{i+1}</div>
+                               <div>
+                                  <h5 className="text-3xl font-black uppercase tracking-tight text-white mb-6 italic group-hover:translate-x-4 transition-transform text-white">{step.t}</h5>
+                                  <p className="text-[12px] text-white/20 uppercase tracking-[0.3em] font-bold leading-loose italic">{step.d}</p>
+                               </div>
+                            </div>
+                          ))}
+                       </div>
+                    </Reveal>
+                 </div>
+              </div>
+           </div>
+        </section>
+
+        {/* MEGA FOOTER */}
+        <footer className="bg-black pt-60 pb-12 px-8 md:px-24 relative z-50">
+           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-32 mb-60 text-white">
+              <div className="lg:col-span-2">
+                 <div className="flex items-center gap-6 mb-16">
+                    <div className="w-16 h-16 bg-yellow-800 flex items-center justify-center">
+                      <Bot className="w-10 h-10 text-white" />
+                    </div>
+                    <span className="text-4xl font-black uppercase tracking-tighter italic">BIO<span className="text-white/20">ROBOT.</span></span>
+                 </div>
+                 <p className="text-white/20 text-[11px] font-black uppercase tracking-[0.5em] leading-loose max-w-sm mb-20 italic">
+                    "L'avenir de l'homme est bionique." — Archive Robot V.42
+                 </p>
+                 <div className="flex gap-16">
+                    {["RobotLog", "CyberRegistry", "GitHub", "X_Protocol"].map(s => (
+                      <Link key={s} href="#" className="text-[11px] font-black uppercase tracking-widest text-white/20 hover:text-yellow-400 transition-colors italic underline underline-offset-8 decoration-white/5">{s}</Link>
+                    ))}
+                 </div>
+              </div>
+
+              {[
+                { t: "BIONICS", l: ["Cyber-v4 Arm", "Neural Link Alpha", "Bionic Grid v5", "Signal-Amplifier"] },
+                { t: "TECHNOLOGY", l: ["Skeletal Printing", "Muscle Layering", "Signal Sync", "SLA Reports"] },
+                { t: "ATELIER", l: ["Our Legacy", "Robot-Ethics Policy", "Locations", "Support"] }
+              ].map((col, i) => (
+                <div key={i} className="flex flex-col gap-12">
+                  <h4 className="text-[11px] font-black text-yellow-400 uppercase tracking-[0.6em] italic">{col.t}</h4>
+                  <ul className="flex flex-col gap-8">
+                    {col.l.map(link => (
+                      <li key={link} className="text-[11px] font-bold text-white/20 hover:text-white transition-colors cursor-pointer uppercase tracking-[0.4em] italic">{link}</li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+           </div>
+
+           <div className="max-w-[1600px] mx-auto border-t border-white/5 pt-16 flex flex-col md:flex-row justify-between items-center gap-16 text-[10px] font-black text-white/10 uppercase tracking-[0.6em] italic">
+              <span>© 2026 BIO ROBOT CYBERNETIC SYSTEMS AG. // ALL_RIGHTS_RESERVED</span>
+              <div className="flex gap-16">
+                 <span>STATUS: OPERATIONAL</span>
+                 <span>LATENCY: 1.2 ms (AVG)</span>
+                 <span>v4.12.0-STABLE</span>
+              </div>
+           </div>
+        </footer>
       </main>
+    </div>
+  )
+}
 
-      {/* ── FOOTER ── */}
-      <footer className="bg-[#050505] pt-32 pb-12 px-6 border-t border-white/10 relative z-20">
-        <div className="max-w-[1800px] mx-auto grid grid-cols-1 md:grid-cols-4 gap-16 mb-24">
-          <div className="md:col-span-2">
-            <div className="text-3xl font-black tracking-[0.3em] uppercase mb-8">Vulcan<span className="text-red-600">.</span></div>
-            <p className="max-w-sm text-sm text-white/40 leading-relaxed mb-8">
-              Pushing the boundaries of automotive engineering. Built for the track, unleashed on the road.
-            </p>
+/* ==========================================
+   TECHNICAL SUB-COMPONENTS
+   ========================================== */
+
+function HUD_Overlay({ isMotorStable }: { isMotorStable: boolean }) {
+  return (
+    <div className="fixed inset-0 pointer-events-none z-[100]">
+       {/* Corner Brackets */}
+       <div className={`absolute top-12 left-12 w-20 h-20 border-t-2 border-l-2 transition-colors duration-1000 ${isMotorStable ? "border-yellow-400" : "border-white/10"}`} />
+       <div className={`absolute top-12 right-12 w-20 h-20 border-t-2 border-r-2 transition-colors duration-1000 ${isMotorStable ? "border-yellow-400" : "border-white/10"}`} />
+       <div className={`absolute bottom-12 left-12 w-20 h-20 border-b-2 border-l-2 transition-colors duration-1000 ${isMotorStable ? "border-yellow-400" : "border-white/10"}`} />
+       <div className={`absolute bottom-12 right-12 w-20 h-20 border-b-2 border-r-2 transition-colors duration-1000 ${isMotorStable ? "border-yellow-400" : "border-white/10"}`} />
+
+       {/* Top Status Bar */}
+       <div className="absolute top-12 left-1/2 -translate-x-1/2 flex items-center gap-20 bg-black/60 backdrop-blur-2xl px-12 py-4 border border-white/10 rounded-none">
+          <div className="flex items-center gap-6 text-white">
+             <div className={`w-3 h-3 transition-colors duration-500 ${isMotorStable ? "bg-yellow-400 animate-pulse" : "bg-red-500 animate-ping"}`} />
+             <span className="text-[10px] font-black uppercase tracking-[0.4em] italic leading-none">Bionic_Sync: {isMotorStable ? "NOMINAL" : "SIGNAL_DISRUPTION"} // Status: ACTIVE</span>
           </div>
-          <div>
-            <h4 className="text-[10px] font-bold uppercase tracking-[0.3em] text-white mb-8">Vehicles</h4>
-            <ul className="space-y-4 text-xs uppercase tracking-widest text-white/50">
-              <li><Link href="#" className="hover:text-red-600 transition-colors">V12 Omega</Link></li>
-              <li><Link href="#" className="hover:text-red-600 transition-colors">Apex R</Link></li>
-              <li><Link href="#" className="hover:text-red-600 transition-colors">Echo GT</Link></li>
-              <li><Link href="#" className="hover:text-red-600 transition-colors">Concept Lab</Link></li>
-            </ul>
+          <div className="h-4 w-px bg-white/20" />
+          <div className="flex items-center gap-6 text-white/20">
+             <Wifi className="w-4 h-4" /> 
+             <span className="text-[10px] font-black uppercase tracking-[0.4em] italic leading-none">Cybernetic_Grid: SECURE</span>
           </div>
-          <div>
-            <h4 className="text-[10px] font-bold uppercase tracking-[0.3em] text-white mb-8">Company</h4>
-            <ul className="space-y-4 text-xs uppercase tracking-widest text-white/50">
-              <li><Link href="#" className="hover:text-red-600 transition-colors">Engineering</Link></li>
-              <li><Link href="#" className="hover:text-red-600 transition-colors">Motorsport</Link></li>
-              <li><Link href="#" className="hover:text-red-600 transition-colors">Careers</Link></li>
-              <li><Link href="#" className="hover:text-red-600 transition-colors">Press</Link></li>
-            </ul>
-          </div>
-        </div>
-        <div className="max-w-[1800px] mx-auto pt-8 border-t border-white/10 text-[10px] font-bold uppercase tracking-[0.3em] text-white/30 flex justify-between">
-          <span>© 2026 VULCAN AUTOMOTIVE.</span>
-          <span>SYSTEM OF APEX PERFORMANCE.</span>
-        </div>
-      </footer>
+       </div>
+
+       {/* Right Rotation Info */}
+       <div className="absolute right-12 top-1/2 -translate-y-1/2 rotate-90 origin-right hidden lg:block">
+          <span className="text-[10px] font-black uppercase tracking-[0.8em] text-white/5 italic">Unauthorized_Duplication_Of_Cybernetic_Patterns_Is_Strictly_Monitored_By_Global_Cyber_Alliance</span>
+       </div>
     </div>
   )
 }

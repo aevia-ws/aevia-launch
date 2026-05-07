@@ -1,263 +1,500 @@
 "use client"
-import { motion, useScroll, useTransform, useInView } from "framer-motion"
-import { useRef, useState, useEffect } from "react"
+
+import React, { useState, useEffect, useRef } from "react"
+import { 
+  motion, 
+  AnimatePresence, 
+  useScroll, 
+  useTransform, 
+  useInView, 
+  useSpring 
+} from "framer-motion"
 import Image from "next/image"
 import Link from "next/link"
-import { Scale, ArrowRight, Menu, Star, Shield, Gavel, Briefcase, Globe, Award, ChevronRight, PenTool, BookOpen } from "lucide-react"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { 
+  Rocket, Globe, Zap, Radio, 
+  Activity, Terminal, Lock, Eye, 
+  Crosshair, Settings, Power, Info, 
+  AlertTriangle, ChevronRight, ArrowRight, 
+  Share2, Maximize2, Download, ExternalLink, 
+  Archive, Hash, Wifi, BarChart3, 
+  Microscope, Fingerprint, Scan, Brain,
+  Layers, Frame, Droplets, Landmark,
+  Wind, Mountain, Compass, Map, 
+  CloudRain, Thermometer, Sun, Moon,
+  Box, Database, Server, Cpu,
+  Target, ShieldCheck, Gauge, Timer,
+  Orbit, Atom, Satellite, Milestone
+} from "lucide-react"
 
-function Reveal({ children, delay = 0, y = 30 }: { children: React.ReactNode; delay?: number; y?: number }) {
+/* ==========================================================================
+   ORBITAL HABITAT DATASET (ULTRA DENSITY)
+   ========================================================================== */
+
+const MODULES = [
+  {
+    id: "mod-bio",
+    name: "Hydroponic Ring Alpha",
+    purpose: "Life Support & Nutrition",
+    capacity: "4,200kg/cycle",
+    shielding: "Graphene-Lead Composite",
+    desc: "Noyau de production de biomasse et recyclage d'O2 pour 50 résidents permanents.",
+    status: "Optimal"
+  },
+  {
+    id: "mod-hab",
+    name: "Habitation Node 04",
+    purpose: "Residential & Recreation",
+    capacity: "24 Personnel",
+    shielding: "Lunar Regolith Sintered",
+    desc: "Unités d'habitation pressurisées avec simulation de cycle circadien intégré.",
+    status: "Active"
+  },
+  {
+    id: "mod-sci",
+    name: "Deep Space Lab",
+    purpose: "Research & Synthesis",
+    capacity: "12 Scientists",
+    shielding: "Magnetic Field Active",
+    desc: "Laboratoire de microgravité pour la synthèse de matériaux supra-conducteurs.",
+    status: "Standby"
+  }
+]
+
+const TELEMETRY = [
+  { label: "Internal Pressure", value: "101.3 kPa", status: "Stable" },
+  { label: "O2 Concentration", value: "21.4%", status: "Nominal" },
+  { label: "Power Output", value: "1.4 MW", status: "Solar Max" },
+  { label: "Shield Integrity", value: "99.98%", status: "Secure" }
+]
+
+const TRANSIT_LOGS = [
+  { launch: "T-Minus 12d", payload: "Water Ice 40t", destination: "Mars Node B" },
+  { launch: "T-Minus 24d", payload: "Bio-Seeds v4", destination: "Orbital Hub" },
+  { launch: "T-Minus 45d", payload: "Nuclear Core", destination: "Titan Colony" }
+]
+
+/* ==========================================================================
+   TECHNICAL COMPONENTS
+   ========================================================================== */
+
+function Reveal({ children, delay = 0, y = 40, x = 0 }: { children: React.ReactNode, delay?: number, y?: number, x?: number }) {
   const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, margin: "-80px" })
+  const isInView = useInView(ref, { once: true, margin: "-100px" })
   return (
-    <motion.div ref={ref} initial={{ opacity: 0, y }} animate={isInView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 1.2, delay, ease: [0.16, 1, 0.3, 1] }}>
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y, x }}
+      animate={isInView ? { opacity: 1, y: 0, x: 0 } : {}}
+      transition={{ duration: 1.2, delay, ease: [0.16, 1, 0.3, 1] }}
+    >
       {children}
     </motion.div>
   )
 }
 
-function ParallaxImg({ src, alt }: { src: string; alt: string }) {
-  const ref = useRef(null)
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] })
-  const y = useTransform(scrollYProgress, [0, 1], ["-12%", "12%"])
+function GridLine({ vertical = false, position = "50%" }: { vertical?: boolean, position?: string }) {
   return (
-    <div ref={ref} className="relative w-full h-full overflow-hidden rounded-sm">
-      <motion.div style={{ y }} className="absolute inset-[-15%] w-[130%] h-[130%]">
-        <Image src={src} alt={alt} fill className="object-cover grayscale hover:grayscale-0 transition-all duration-1000" />
-      </motion.div>
+    <div 
+      className={`absolute bg-white/5 pointer-events-none ${vertical ? "w-[1px] top-0 bottom-0" : "h-[1px] left-0 right-0"}`}
+      style={{ [vertical ? "left" : "top"]: position }}
+    />
+  )
+}
+
+function InertialScroll({ children, factor = 0.1 }: { children: React.ReactNode, factor?: number }) {
+  const ref = useRef(null)
+  const { scrollYProgress } = useScroll({ target: ref })
+  const y = useTransform(scrollYProgress, [0, 1], [0, 100 * factor])
+  return (
+    <motion.div ref={ref} style={{ y }}>
+      {children}
+    </motion.div>
+  )
+}
+
+/* ==========================================================================
+   THE ORBITAL HABITAT - MAIN APPLICATION
+   ========================================================================== */
+
+export default function OrbitalHabitatPremium() {
+  const [activeTab, setActiveTab] = useState("telemetry")
+  const [isAlertActive, setIsAlertActive] = useState(false)
+  const containerRef = useRef(null)
+  const { scrollYProgress } = useScroll({ target: containerRef })
+
+  // Parallax & Rotation Effects
+  const orbitRotate = useTransform(scrollYProgress, [0, 1], [0, 360])
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.2], [1, 0])
+  const textY = useTransform(scrollYProgress, [0, 0.5], [0, -200])
+
+  return (
+    <div ref={containerRef} className="bg-[#050507] text-[#e0e2e5] font-mono selection:bg-cyan-500/30 selection:text-white min-h-screen overflow-x-hidden">
+      
+      {/* GLOBAL HUD OVERLAY */}
+      <HUD_Overlay isAlertActive={isAlertActive} />
+
+      {/* ==========================================
+          1. LAUNCH SEQUENCE (HERO)
+          ========================================== */}
+      <section className="relative h-screen flex flex-col justify-center items-center px-8 md:px-24 overflow-hidden pt-20">
+        {/* Background Starfield & Orbit Animation */}
+        <div className="absolute inset-0 z-0 bg-[radial-gradient(circle_at_center,#ffffff08_1px,transparent_1px)] bg-[size:40px_40px]" />
+        
+        <motion.div style={{ rotate: orbitRotate, opacity: heroOpacity }} className="absolute inset-0 z-0 flex items-center justify-center pointer-events-none">
+           <div className="w-[80vw] h-[80vw] border border-white/5 rounded-full" />
+           <div className="absolute w-[60vw] h-[60vw] border border-white/5 rounded-full" />
+           <div className="absolute top-0 w-8 h-8 bg-cyan-400 rounded-full blur-xl animate-pulse" />
+           <div className="absolute bottom-1/4 left-1/4 w-4 h-4 bg-red-500 rounded-full blur-lg animate-ping" />
+        </motion.div>
+
+        <div className="relative z-10 text-center max-w-7xl">
+           <Reveal>
+              <div className="inline-flex items-center gap-4 px-4 py-1 border border-cyan-400/30 bg-cyan-400/5 text-[10px] font-bold uppercase tracking-[0.5em] text-cyan-400 mb-12 italic">
+                 <Orbit className="w-3 h-3" /> Station_Status: Geostationary_Sync
+              </div>
+              <motion.h1 style={{ y: textY }} className="text-7xl md:text-[14vw] font-black tracking-tighter uppercase mb-16 leading-[0.75] italic">
+                Orbital <br/> <span className="text-white/5 italic">Habitats.</span>
+              </motion.h1>
+              <p className="max-w-2xl mx-auto text-sm md:text-base text-white/30 leading-relaxed uppercase tracking-widest font-light mb-16 italic">
+                 Ingénierie de survie pour l'expansion multi-planétaire. Nous forgeons les structures pressurisées qui abriteront le prochain siècle de l'humanité.
+              </p>
+              
+              <div className="flex flex-col sm:flex-row gap-8 justify-center items-center">
+                 <button className="px-12 py-5 bg-cyan-600 text-white text-[10px] font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all shadow-[0_0_40px_rgba(8,145,178,0.3)] flex items-center gap-4">
+                    <Rocket className="w-4 h-4" /> Begin Docking
+                 </button>
+                 <button className="px-12 py-5 border border-white/10 text-white text-[10px] font-black uppercase tracking-widest hover:bg-white/5 transition-all flex items-center gap-4">
+                    <Database className="w-4 h-4" /> Technical Blueprint
+                 </button>
+              </div>
+           </Reveal>
+        </div>
+
+        {/* BOTTOM TELEMETRY BAR */}
+        <div className="absolute bottom-12 left-12 right-12 flex justify-between items-end border-t border-white/5 pt-8">
+           <div className="flex flex-col gap-4">
+              <div className="flex items-center gap-4 text-[9px] font-bold text-white/20 uppercase tracking-widest italic">
+                 <div className="w-12 h-px bg-white/10" />
+                 Coord: 0.0000° N, 0.0000° E
+              </div>
+              <div className="flex items-center gap-4 text-[9px] font-bold text-white/20 uppercase tracking-widest italic">
+                 <div className="w-12 h-px bg-white/10" />
+                 Velocity: 7.67 km/s
+              </div>
+           </div>
+           <div className="text-right flex flex-col items-end gap-2">
+              <span className="text-[8px] font-black uppercase tracking-[0.5em] text-cyan-400">Live_Oxygen_Stream</span>
+              <div className="flex gap-2 h-10 items-end">
+                 {[...Array(12)].map((_, i) => (
+                   <motion.div 
+                    key={i}
+                    animate={{ height: ["20%", "100%", "40%", "80%", "20%"] }}
+                    transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.1 }}
+                    className="w-1.5 bg-cyan-400/20"
+                   />
+                 ))}
+              </div>
+           </div>
+        </div>
+      </section>
+
+      {/* ==========================================
+          2. MODULES REGISTRY (DENSE TECHNICAL)
+          ========================================== */}
+      <section className="py-60 bg-[#08080a] relative border-y border-white/5 overflow-hidden">
+         <div className="max-w-[1600px] mx-auto px-8 md:px-24">
+            <div className="flex flex-col md:flex-row items-end justify-between mb-40 gap-12">
+               <Reveal>
+                  <span className="text-[10px] font-black uppercase tracking-[0.6em] text-cyan-400 block mb-6 italic underline underline-offset-8">Pressurized // Modules</span>
+                  <h2 className="text-6xl md:text-[9vw] font-black uppercase tracking-tighter italic leading-none">Registry.</h2>
+               </Reveal>
+               <div className="text-right">
+                  <span className="text-[10px] font-black uppercase tracking-[0.5em] text-white/20 block mb-4 italic">Registry // Structural_Audit</span>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-cyan-400">L'Architecture du Vide</p>
+               </div>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-px bg-white/5 border border-white/5">
+               {MODULES.map((mod, i) => (
+                 <Reveal key={mod.id} delay={i * 0.1}>
+                    <div className="bg-[#050507] p-16 flex flex-col h-full hover:bg-white/5 transition-all group cursor-crosshair">
+                       <div className="flex justify-between items-start mb-16">
+                          <div className="w-12 h-12 bg-white/5 flex items-center justify-center group-hover:bg-cyan-600 transition-all">
+                             <Box className="w-6 h-6 text-cyan-400 group-hover:text-white" />
+                          </div>
+                          <span className="text-[10px] font-black text-white/20 group-hover:text-cyan-400 transition-colors">{mod.id}</span>
+                       </div>
+                       
+                       <h3 className="text-4xl font-black uppercase tracking-tighter mb-8 italic">{mod.name}</h3>
+                       <div className="text-[10px] font-black text-cyan-400/60 uppercase tracking-widest mb-8">{mod.purpose}</div>
+                       <p className="text-sm font-light text-white/40 leading-relaxed uppercase tracking-widest italic mb-12">
+                          {mod.desc}
+                       </p>
+
+                       <div className="space-y-6 mb-16 border-l border-white/10 pl-6">
+                          <div className="flex justify-between items-center text-[9px] font-bold uppercase tracking-widest">
+                             <span className="text-white/20">Capacity</span>
+                             <span className="text-white group-hover:text-cyan-400 transition-colors">{mod.capacity}</span>
+                          </div>
+                          <div className="flex justify-between items-center text-[9px] font-bold uppercase tracking-widest">
+                             <span className="text-white/20">Shielding</span>
+                             <span className="text-white group-hover:text-cyan-400 transition-colors">{mod.shielding}</span>
+                          </div>
+                       </div>
+
+                       <div className="mt-auto flex justify-between items-center pt-8 border-t border-white/5">
+                          <div className="flex items-center gap-3">
+                             <div className={`w-2 h-2 rounded-full ${mod.status === "Optimal" ? "bg-cyan-400" : "bg-yellow-500"} animate-pulse`} />
+                             <span className="text-[9px] font-black uppercase tracking-widest">{mod.status}</span>
+                          </div>
+                          <button className="text-white/20 group-hover:text-cyan-400 transition-colors">
+                             <Maximize2 className="w-4 h-4" />
+                          </button>
+                       </div>
+                    </div>
+                 </Reveal>
+               ))}
+            </div>
+         </div>
+      </section>
+
+      {/* ==========================================
+          3. LIFE SUPPORT HUB (INTERACTIVE)
+          ========================================== */}
+      <section className="py-60 bg-black relative border-y border-white/5 overflow-hidden">
+         <div className="max-w-[1400px] mx-auto px-8 md:px-24">
+            <div className="grid lg:grid-cols-2 gap-32 items-center">
+               <div>
+                  <Reveal>
+                     <span className="text-[10px] font-black uppercase tracking-[0.5em] text-cyan-400 block mb-12 italic underline underline-offset-8">Critical // Survival_Systems</span>
+                     <h2 className="text-6xl md:text-[8vw] font-light italic leading-none text-white mb-12 uppercase tracking-tighter">
+                        The <br/> <span className="not-italic font-black text-white/5 italic">Vital_Core.</span>
+                     </h2>
+                     <p className="text-xl font-light text-white/20 leading-relaxed mb-20 italic uppercase tracking-widest">
+                        Gestion centralisée des ressources. Nos algorithmes prédictifs optimisent la consommation d'O2 et d'énergie solaire pour garantir une autonomie perpétuelle.
+                     </p>
+                     <div className="grid grid-cols-2 gap-8 mb-20">
+                        {TELEMETRY.map((stat, i) => (
+                          <div key={i} className="p-10 bg-[#08080a] border border-white/5 group hover:border-cyan-600/30 transition-all">
+                             <div className="text-[9px] font-black uppercase text-cyan-400 mb-4 tracking-[0.3em]">{stat.label}</div>
+                             <div className="text-4xl font-light text-white italic">{stat.value}</div>
+                             <div className="flex items-center gap-2 text-[8px] font-bold uppercase tracking-widest text-white/20 italic">
+                                <Activity className="w-3 h-3" /> {stat.status}
+                             </div>
+                          </div>
+                        ))}
+                     </div>
+                     <button 
+                      onClick={() => setIsAlertActive(!isAlertActive)}
+                      className="w-full py-6 bg-cyan-600 text-white text-[10px] font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all shadow-2xl flex items-center justify-center gap-4"
+                     >
+                        <Settings className="w-4 h-4" /> Calibrate Life Support
+                     </button>
+                  </Reveal>
+               </div>
+               
+               <div className="relative">
+                  <Reveal delay={0.3} x={40}>
+                     <div className="aspect-square bg-[#08080a] border border-white/10 p-16 flex flex-col justify-between relative group overflow-hidden">
+                        <div className="absolute top-0 right-0 p-60 bg-cyan-600 opacity-[0.03] blur-[120px] rounded-full group-hover:opacity-[0.1] transition-opacity" />
+                        
+                        <div className="flex justify-between items-start z-10">
+                           <div className="flex flex-col gap-2">
+                              <span className="text-[8px] font-black text-white/20 uppercase tracking-widest">Station_ID // HAB-OMEGA</span>
+                              <span className="text-[10px] font-black text-white uppercase tracking-[0.4em]">Atmospheric_Synthesis</span>
+                           </div>
+                           <Wifi className="w-5 h-5 text-cyan-400" />
+                        </div>
+                        
+                        <div className="relative z-10 flex flex-col items-center gap-12">
+                           <div className="w-32 h-32 border-2 border-dashed border-cyan-400/20 rounded-full flex items-center justify-center relative">
+                              <motion.div 
+                                animate={{ rotate: 360 }}
+                                transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
+                                className="absolute inset-0 border-t-2 border-cyan-600 rounded-full" 
+                              />
+                              <Droplets className="w-12 h-12 text-cyan-600" />
+                           </div>
+                           <div className="text-center space-y-4">
+                              <div className="text-4xl font-black italic tracking-tighter text-white">RECYCLING_ACTIVE</div>
+                              <span className="text-[9px] font-bold text-white/10 uppercase tracking-[0.5em]">Auth_Node: EARTH_RELAY_ALPHA</span>
+                           </div>
+                        </div>
+
+                        <div className="relative z-10 flex gap-4">
+                           <div className="flex-1 h-1 bg-white/5 overflow-hidden">
+                              <motion.div 
+                                animate={{ x: ["-100%", "100%"] }} 
+                                transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+                                className="w-1/2 h-full bg-cyan-600"
+                              />
+                           </div>
+                        </div>
+                     </div>
+                  </Reveal>
+               </div>
+            </div>
+         </div>
+      </section>
+
+      {/* ==========================================
+          4. TRANSIT LOG (TIMELINE DENSITY)
+          ========================================== */}
+      <section className="py-60 bg-[#050507] relative border-y border-white/5 overflow-hidden">
+         <div className="max-w-[1400px] mx-auto px-8 md:px-24">
+            <div className="grid lg:grid-cols-2 gap-32 items-center">
+               <div className="relative aspect-[4/5] overflow-hidden group border border-white/10">
+                  <Image 
+                     src="https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?q=80&w=1200&auto=format&fit=crop" 
+                     alt="Earth from Orbit" 
+                     fill 
+                     className="object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-1000"
+                  />
+                  <div className="absolute inset-0 bg-cyan-900/20 mix-blend-color group-hover:opacity-0 transition-opacity" />
+                  <div className="absolute inset-0 p-16 flex flex-col justify-end bg-gradient-to-t from-black to-transparent">
+                     <div className="text-white">
+                        <span className="text-[10px] font-black uppercase tracking-[0.6em] text-cyan-400 mb-6 block italic underline underline-offset-8">Orbital // Logistics // Unit</span>
+                        <h4 className="text-5xl font-black tracking-tighter uppercase italic mb-8">Supply <br/> Chain Zero.</h4>
+                        <button className="flex items-center gap-4 text-[10px] font-black uppercase tracking-widest border-b border-cyan-400 pb-2">
+                           Launch Protocols <ExternalLink className="w-4 h-4" />
+                        </button>
+                     </div>
+                  </div>
+               </div>
+
+               <div>
+                  <Reveal>
+                     <SectionTitle subtitle="Chapitre III // Logistics" title="Transit_Log." alignment="left" />
+                     <p className="text-xl font-light text-white/30 leading-relaxed italic mb-16 uppercase tracking-widest">
+                        La survie spatiale repose sur une chaîne d'approvisionnement millimétrée. Chaque transit est une fenêtre critique pour le maintien de l'habitat et l'expansion des nœuds.
+                     </p>
+                     <div className="space-y-16">
+                        {TRANSIT_LOGS.map((log, i) => (
+                          <div key={i} className="group flex gap-12 border-b border-white/5 pb-12 hover:border-cyan-600/30 transition-all">
+                             <div className="text-5xl font-black text-white/5 group-hover:text-cyan-400/20 transition-colors italic">0{i+1}</div>
+                             <div>
+                                <h5 className="text-2xl font-bold uppercase tracking-tight text-white mb-4 italic group-hover:text-cyan-400 transition-colors">{log.launch}</h5>
+                                <div className="flex gap-8 text-[9px] font-bold text-white/20 uppercase tracking-widest italic">
+                                   <span>Payload: {log.payload}</span>
+                                   <ArrowRight className="w-3 h-3 text-cyan-400" />
+                                   <span>Target: {log.destination}</span>
+                                </div>
+                             </div>
+                          </div>
+                        ))}
+                     </div>
+                  </Reveal>
+               </div>
+            </div>
+         </div>
+      </section>
+
+      {/* MEGA FOOTER */}
+      <footer className="bg-black pt-60 pb-12 px-8 md:px-24 relative z-50">
+         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-32 mb-60 text-white">
+            <div className="lg:col-span-2">
+               <div className="flex items-center gap-4 mb-12">
+                  <div className="w-12 h-12 bg-cyan-600 flex items-center justify-center">
+                    <Orbit className="w-8 h-8 text-white" />
+                  </div>
+                  <span className="text-3xl font-black uppercase tracking-tighter italic">ORBITAL<span className="text-cyan-400">_HABITATS.</span></span>
+               </div>
+               <p className="text-white/20 text-[10px] font-black uppercase tracking-[0.4em] leading-loose max-w-sm mb-16 italic">
+                  "L'espace n'est pas une frontière, c'est notre prochain domicile." — Archive Orbital V.9
+               </p>
+               <div className="flex gap-12">
+                  {["DeepSpaceNet", "MarsRelay", "GitHub", "X_Protocol"].map(s => (
+                    <Link key={s} href="#" className="text-[10px] font-black uppercase tracking-widest text-white/20 hover:text-cyan-400 transition-colors italic">{s}</Link>
+                  ))}
+               </div>
+            </div>
+
+            {[
+              { t: "ARCHITECT", l: ["Pressurized Domes", "Centrifugal Hubs", "Lunar Habitats", "Titan Nodes"] },
+              { t: "SYSTEMS", l: ["Life Support", "Solar Arrays", "Shield Gen", "Airlock v8"] },
+              { t: "FACILITIES", l: ["Station Omega", "Luna Base 1", "Mars Outpost", "Europa Lab"] }
+            ].map((col, i) => (
+              <div key={i} className="flex flex-col gap-12">
+                <h4 className="text-[10px] font-black text-cyan-400 uppercase tracking-[0.5em] italic">{col.t}</h4>
+                <ul className="flex flex-col gap-6">
+                  {col.l.map(link => (
+                    <li key={link} className="text-[10px] font-bold text-white/20 hover:text-white transition-colors cursor-pointer uppercase tracking-widest italic">{link}</li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+         </div>
+
+         <div className="max-w-[1600px] mx-auto border-t border-white/5 pt-12 flex flex-col md:flex-row justify-between items-center gap-12 text-[8px] font-black text-white/10 uppercase tracking-[0.4em] italic">
+            <span>© 2026 ORBITAL HABITAT HEAVY INDUSTRIES AG. // ALL_RIGHTS_RESERVED</span>
+            <div className="flex gap-12">
+               <span>STATUS: PRESSURIZED</span>
+               <span>GRAVITY: 1.0G (CENTRIFUGAL)</span>
+               <span>v9.4.0-STABLE</span>
+            </div>
+         </div>
+      </footer>
     </div>
   )
 }
 
-export default function OnyxLawPage() {
-  const [scrolled, setScrolled] = useState(false)
+/* ==========================================
+   TECHNICAL SUB-COMPONENTS
+   ========================================== */
 
-  useEffect(() => {
-    const h = () => setScrolled(window.scrollY > 60)
-    window.addEventListener("scroll", h)
-    return () => window.removeEventListener("scroll", h)
-  }, [])
-
+function HUD_Overlay({ isAlertActive }: { isAlertActive: boolean }) {
   return (
-    <div className="bg-[#080808] text-[#c0c0c0] font-sans min-h-screen selection:bg-[#c9a96e] selection:text-black overflow-x-hidden">
-      
-      {/* ── NAVBAR ────────────────── */}
-      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-1000 ${scrolled ? "bg-black/95 backdrop-blur-xl border-b border-white/5 py-4" : "bg-transparent py-10"}`}>
-        <div className="max-w-[1400px] mx-auto px-6 md:px-12 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-4 group">
-            <div className="w-10 h-10 border border-[#c9a96e]/40 flex items-center justify-center group-hover:border-[#c9a96e] transition-all duration-700">
-              <Scale className="w-5 h-5 text-[#c9a96e]" />
-            </div>
-            <span className="text-xl font-light tracking-[0.3em] uppercase text-white">Onyx <span className="font-bold">Law</span></span>
-          </Link>
-          <div className="hidden lg:flex gap-12 text-[10px] font-bold uppercase tracking-[0.5em] text-white/30">
-            {["Practice", "Cases", "Advisors", "Legacy"].map(l => (
-              <Link key={l} href="#" className="hover:text-[#c9a96e] transition-colors">{l}</Link>
-            ))}
-          </div>
-          <div className="flex items-center gap-8">
-            <button className="hidden md:block text-[10px] font-bold uppercase tracking-widest text-white/30 hover:text-white transition-colors underline underline-offset-8 decoration-[#c9a96e]/20">Client Access</button>
-            <button className="px-10 py-3.5 border border-[#c9a96e]/40 text-[#c9a96e] text-[10px] font-bold uppercase tracking-[0.3em] hover:bg-[#c9a96e] hover:text-black transition-all duration-700">Inquire</button>
-            <Sheet>
-              <SheetTrigger asChild><button className="lg:hidden p-2"><Menu className="w-6 h-6 text-white" /></button></SheetTrigger>
-              <SheetContent side="right" className="bg-black border-white/5 p-12 text-white">
-                <div className="flex flex-col gap-10 mt-16 text-left">
-                  {["Practice", "Insights", "Company", "Book"].map(l => (
-                    <Link key={l} href="#" className="text-4xl font-light uppercase tracking-widest hover:italic transition-all">{l}</Link>
-                  ))}
-                </div>
-              </SheetContent>
-            </Sheet>
-          </div>
-        </div>
-      </nav>
+    <div className={`fixed inset-0 pointer-events-none z-[100] transition-all duration-1000 ${isAlertActive ? "bg-red-500/5" : ""}`}>
+       {/* Corner Brackets */}
+       <div className={`absolute top-12 left-12 w-16 h-16 border-t border-l transition-colors duration-1000 ${isAlertActive ? "border-red-500" : "border-white/10"}`} />
+       <div className={`absolute top-12 right-12 w-16 h-16 border-t border-r transition-colors duration-1000 ${isAlertActive ? "border-red-500" : "border-white/10"}`} />
+       <div className={`absolute bottom-12 left-12 w-16 h-16 border-b border-l transition-colors duration-1000 ${isAlertActive ? "border-red-500" : "border-white/10"}`} />
+       <div className={`absolute bottom-12 right-12 w-16 h-16 border-b border-r transition-colors duration-1000 ${isAlertActive ? "border-red-500" : "border-white/10"}`} />
 
-      <main>
-        {/* ── HERO ──────────────────── */}
-        <section className="relative h-screen flex items-center justify-center overflow-hidden">
-          <div className="absolute inset-0">
-             <Image src="https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&q=80&w=2400" alt="Law Office" fill className="object-cover opacity-20 scale-105" priority />
-             <div className="absolute inset-0 bg-gradient-to-t from-[#080808] via-transparent to-transparent" />
+       {/* Top Status Bar */}
+       <div className="absolute top-12 left-1/2 -translate-x-1/2 flex items-center gap-16 bg-black/40 backdrop-blur-md px-10 py-3 border border-white/5 rounded-full">
+          <div className="flex items-center gap-4">
+             <div className={`w-2 h-2 rounded-full transition-colors duration-500 ${isAlertActive ? "bg-red-500 animate-ping" : "bg-cyan-400 animate-pulse"}`} />
+             <span className={`text-[9px] font-black uppercase tracking-[0.2em] ${isAlertActive ? "text-red-500" : "text-white/60"}`}>
+                {isAlertActive ? "SYSTEM_ALERT: O2_LEAK_SIMULATED" : "Habitat_Status: Optimal"}
+             </span>
           </div>
-
-          <div className="relative z-10 max-w-[1200px] mx-auto px-6 text-center">
-            <Reveal>
-              <div className="flex items-center justify-center gap-8 mb-16 opacity-30">
-                 <div className="w-16 h-[1px] bg-[#c9a96e]" />
-                 <span className="text-[10px] font-bold uppercase tracking-[0.6em] text-white">The Standard of Litigation</span>
-                 <div className="w-16 h-[1px] bg-[#c9a96e]" />
-              </div>
-            </Reveal>
-            <Reveal delay={0.2} y={70}>
-              <h1 className="text-7xl md:text-[10rem] font-light tracking-tighter leading-[0.8] text-white mb-16 uppercase" style={{ fontFamily: "serif" }}>
-                Power <br/> <span className="italic">Protected.</span>
-              </h1>
-            </Reveal>
-            <Reveal delay={0.4}>
-              <div className="flex flex-col items-center justify-center gap-16">
-                <p className="text-2xl text-white/40 font-light max-w-2xl leading-relaxed italic">
-                  Defending global enterprise and high-net-worth interests through surgical legal precision and unshakeable resolve.
-                </p>
-                <div className="flex flex-wrap justify-center gap-12">
-                  <button className="px-16 py-6 bg-[#c9a96e] text-black font-bold uppercase tracking-widest text-[10px] hover:px-20 transition-all duration-700">
-                    Request Strategic Brief
-                  </button>
-                  <button className="px-16 py-6 border border-white/10 text-white/40 font-bold uppercase tracking-widest text-[10px] hover:text-white transition-all flex items-center gap-4">
-                    <Award className="w-4 h-4 text-[#c9a96e]" /> View Global Record
-                  </button>
-                </div>
-              </div>
-            </Reveal>
+          <div className="h-4 w-px bg-white/10" />
+          <div className="flex items-center gap-4 text-[9px] font-black text-white/20 uppercase tracking-[0.2em]">
+             <Compass className="w-3 h-3" /> Earth_Relay: Active
           </div>
-          
-          <div className="absolute bottom-12 left-12 right-12 flex justify-between items-end text-[9px] font-bold uppercase tracking-[0.4em] text-white/10 italic">
-            <span>OFFICES: LONDON / ZUG / NEW YORK / SINGAPORE</span>
-            <span>EST. 1974</span>
+       </div>
+
+       {/* Bottom Countdown */}
+       <div className="absolute bottom-12 left-12 flex flex-col gap-2">
+          <span className="text-[8px] font-black text-white/10 uppercase tracking-widest italic">Next_Supply_Transit</span>
+          <div className="flex gap-4">
+             {["12d", "14h", "02m", "55s"].map((t, i) => (
+               <div key={i} className="text-xl font-black text-white italic">{t}</div>
+             ))}
           </div>
-        </section>
+       </div>
 
-        {/* ── PRACTICE ──────────────── */}
-        <section className="py-40 bg-[#080808]">
-          <div className="max-w-[1400px] mx-auto px-6 md:px-12">
-            <Reveal>
-              <div className="flex flex-col lg:flex-row items-end justify-between mb-32 gap-8 border-b border-white/5 pb-16">
-                <div className="max-w-2xl">
-                  <span className="text-[10px] font-bold uppercase tracking-[0.5em] text-[#c9a96e] block mb-6">Sectors of Excellence</span>
-                  <h2 className="text-6xl md:text-[9vw] font-light uppercase tracking-tighter text-white leading-none" style={{ fontFamily: "serif" }}>Surgical <br/> <span className="italic font-bold opacity-30">Defense.</span></h2>
-                </div>
-                <Link href="#" className="flex items-center gap-4 text-[10px] font-bold uppercase tracking-widest hover:text-[#c9a96e] text-white/30 transition-colors group italic">
-                  Full Practice List <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
-                </Link>
-              </div>
-            </Reveal>
+       {/* Right Rotation Info */}
+       <div className="absolute right-12 top-1/2 -translate-y-1/2 rotate-90 origin-right hidden lg:block">
+          <span className="text-[8px] font-black uppercase tracking-[0.6em] text-white/5 italic">Unauthorized_Dumping_Of_Waste_Into_Orbit_Is_Strictly_Prohibited_By_Intergalactic_Law</span>
+       </div>
+    </div>
+  )
+}
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-0 border border-white/5">
-              {[
-                { icon: Gavel, t: "Complex Litigation", d: "High-stakes trial advocacy for international corporate disputes and asset recovery." },
-                { icon: Briefcase, t: "M&A Strategy", d: "Surgical execution of multi-jurisdictional acquisitions and structural divestment." },
-                { icon: Shield, t: "Crisis Response", d: "Immediate, high-bandwidth intervention for reputational and structural threats." }
-              ].map((item, i) => (
-                <Reveal key={i} delay={i * 0.1}>
-                  <div className={`p-20 flex flex-col h-full border-white/5 group hover:bg-white/[0.02] transition-all duration-700 ${i < 2 ? "lg:border-r" : ""}`}>
-                    <div className="w-16 h-16 border border-[#c9a96e]/20 flex items-center justify-center mb-16 group-hover:bg-[#c9a96e] group-hover:text-black transition-all duration-700">
-                      <item.icon className="w-6 h-6" />
-                    </div>
-                    <div className="text-[9px] font-bold uppercase tracking-widest text-white/20 mb-4 italic">Branch 0{i+1}</div>
-                    <h3 className="text-3xl font-bold uppercase mb-8 tracking-widest text-white">{item.t}</h3>
-                    <p className="text-white/30 leading-relaxed text-sm font-light mb-12 italic">{item.d}</p>
-                    <Link href="#" className="mt-auto flex items-center gap-4 text-[10px] font-bold uppercase tracking-widest group-hover:gap-8 transition-all hover:text-[#c9a96e]">
-                       Consult Advisor <ChevronRight className="w-4 h-4" />
-                    </Link>
-                  </div>
-                </Reveal>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ── THE RECORD ────────────── */}
-        <section className="py-60 bg-black relative border-y border-white/5">
-           <div className="max-w-[1400px] mx-auto px-6 md:px-12">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-32 items-center">
-                 <Reveal>
-                    <div className="aspect-square relative grayscale group overflow-hidden">
-                       <ParallaxImg src="https://images.unsplash.com/photo-1505664194779-8beaceb93744?auto=format&fit=crop&q=80&w=1200" alt="Legal Library" />
-                       <div className="absolute inset-0 bg-black/40 group-hover:bg-transparent transition-all duration-1000" />
-                    </div>
-                 </Reveal>
-                 <div>
-                    <Reveal>
-                       <span className="text-[10px] font-bold uppercase tracking-[0.5em] text-[#c9a96e] block mb-12">The Track Record</span>
-                       <h2 className="text-6xl md:text-8xl font-light uppercase tracking-tighter text-white leading-tight mb-16 italic" style={{ fontFamily: "serif" }}>Absolute <br/> <span className="not-italic font-bold opacity-30">Precedent.</span></h2>
-                       <div className="space-y-16">
-                          {[
-                            { v: "$4.2B", l: "TOTAL ASSETS RECOVERED", d: "Across 42 international jurisdictions over the last decade." },
-                            { v: "98%", l: "TRIAL SUCCESS RATE", d: "Dedicated to the absolute resolution of complex commercial conflict." }
-                          ].map((stat, i) => (
-                            <div key={i} className="flex gap-12 group">
-                               <div className="text-5xl font-bold text-[#c9a96e] italic shrink-0 w-32">{stat.v}</div>
-                               <div>
-                                  <h4 className="text-xs font-black uppercase tracking-widest mb-4 text-white/40">{stat.l}</h4>
-                                  <p className="text-sm font-light leading-relaxed text-white/20 italic">{stat.d}</p>
-                               </div>
-                            </div>
-                          ))}
-                       </div>
-                    </Reveal>
-                 </div>
-              </div>
-           </div>
-        </section>
-
-        {/* ── CTA ───────────────────── */}
-        <section className="py-60 bg-[#c9a96e] text-black text-center relative overflow-hidden">
-          <div className="absolute inset-0 opacity-[0.05] pointer-events-none">
-             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] border border-black rotate-12" />
-          </div>
-          <div className="max-w-4xl mx-auto px-6 relative z-10">
-            <Reveal>
-              <h2 className="text-7xl md:text-[14vw] font-light uppercase tracking-tighter leading-[0.8] mb-16 italic" style={{ fontFamily: "serif" }}>
-                Begin Your <br/> <span className="font-bold not-italic opacity-20">Advocacy.</span>
-              </h2>
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-12">
-                <button className="px-20 py-8 bg-black text-white font-bold uppercase tracking-[0.2em] text-[10px] hover:px-24 transition-all duration-700 italic">
-                   Request Private Consultation
-                </button>
-                <button className="px-20 py-8 border-2 border-black text-black font-bold uppercase tracking-[0.2em] text-[10px] hover:bg-black hover:text-white transition-all duration-700 italic">
-                   View Client Portal
-                </button>
-              </div>
-            </Reveal>
-          </div>
-        </section>
-      </main>
-
-      {/* ── FOOTER ────────────────── */}
-      <footer className="bg-[#080808] pt-32 pb-12 px-6 border-t border-white/5">
-        <div className="max-w-[1400px] mx-auto grid grid-cols-1 md:grid-cols-5 gap-20 mb-40">
-           <div className="md:col-span-2">
-              <Link href="/" className="flex items-center gap-4 mb-10 group">
-                <div className="w-10 h-10 border border-[#c9a96e]/40 flex items-center justify-center">
-                  <Scale className="w-5 h-5 text-[#c9a96e]" />
-                </div>
-                <span className="text-xl font-light tracking-[0.3em] uppercase text-white">Onyx Law</span>
-              </Link>
-              <p className="text-white/20 max-w-sm leading-relaxed mb-12 text-sm font-light italic">
-                 "Power requires a defense that is as absolute as its exercise. We are the guardians of legacy."
-              </p>
-              <div className="flex gap-10">
-                 {["LinkedIn", "Journal", "Whitepapers", "Contact"].map(s => (
-                   <Link key={s} href="#" className="text-[10px] font-bold uppercase tracking-widest text-white/20 hover:text-[#c9a96e] transition-colors italic">{s}</Link>
-                 ))}
-              </div>
-           </div>
-           
-           {[
-             { t: "PRACTICE", l: ["Litigation", "M&A", "Cyber-Legal", "Private Wealth"] },
-             { t: "ADVISORS", l: ["The Partners", "Our Legacy", "Locations", "Journal"] },
-             { t: "ENTITY", l: ["Terms", "Privacy", "Security Hub", "SLA"] }
-           ].map((col, i) => (
-             <div key={i} className="space-y-12">
-                <h4 className="text-[10px] font-bold uppercase tracking-[0.6em] text-white/20">{col.t}</h4>
-                <ul className="space-y-6">
-                   {col.l.map(link => (
-                     <li key={link} className="text-xs font-bold uppercase tracking-widest text-white/20 hover:text-white transition-colors italic">
-                        <Link href="#">{link}</Link>
-                     </li>
-                   ))}
-                </ul>
-             </div>
-           ))}
-        </div>
-        <div className="max-w-[1400px] mx-auto flex flex-col md:row justify-between items-center gap-8 border-t border-white/5 pt-12 text-[10px] font-bold uppercase tracking-[0.4em] text-white/10 italic">
-           <span>© 2026 ONYX LAW GLOBAL ADVISORS AG. ALL RIGHTS RESERVED.</span>
-           <div className="flex gap-12">
-              <Link href="#" className="hover:text-white transition-all">SLA: VERIFIED</Link>
-              <Link href="#" className="hover:text-white transition-all">GLOBAL_REACH: NOMINAL</Link>
-           </div>
-        </div>
-      </footer>
+function SectionTitle({ subtitle, title, alignment = "center" }: { subtitle: string, title: string, alignment?: "center" | "left" }) {
+  return (
+    <div className={`mb-32 ${alignment === "center" ? "text-center" : "text-left"}`}>
+       <Reveal>
+          <span className="text-[10px] font-black uppercase tracking-[0.6em] text-cyan-400 mb-8 block italic underline underline-offset-8">
+             {subtitle}
+          </span>
+          <h2 className="text-6xl md:text-[8vw] font-black tracking-tighter uppercase text-white italic">
+             {title}
+          </h2>
+       </Reveal>
     </div>
   )
 }

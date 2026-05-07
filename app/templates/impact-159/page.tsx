@@ -1,271 +1,500 @@
 "use client"
-import { motion, useScroll, useTransform, useInView } from "framer-motion"
-import { useRef, useState, useEffect } from "react"
+
+import React, { useState, useEffect, useRef } from "react"
+import { 
+  motion, 
+  AnimatePresence, 
+  useScroll, 
+  useTransform, 
+  useInView, 
+  useSpring 
+} from "framer-motion"
 import Image from "next/image"
 import Link from "next/link"
-import { Zap, ArrowRight, Menu, Star, Activity, Cpu, Globe, Share2, ChevronRight, Layout, Box, Sparkles, Terminal } from "lucide-react"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { 
+  Scissors, Zap, Activity, Thermometer, 
+  Droplets, Wind, Mountain, Compass, 
+  ArrowRight, Menu, X, Plus, 
+  Maximize2, Share2, Download, ExternalLink, 
+  Archive, Hash, Wifi, BarChart3, 
+  Microscope, Fingerprint, Scan, Brain,
+  Layers, Frame, Box, Database, 
+  Server, Cpu, Target, Orbit, 
+  Atom, Satellite, Milestone, Power, 
+  Settings, AlertTriangle, Info, 
+  ChevronRight, Play, Lock, Key, 
+  BookOpen, Radio, PenTool, Sparkles,
+  Heart, Sun, Moon, Wind as WindIcon,
+  Shirt, Palette, Beaker, GitBranch
+} from "lucide-react"
 
-function Reveal({ children, delay = 0, y = 50 }: { children: React.ReactNode; delay?: number; y?: number }) {
+/* ==========================================================================
+   NEURAL WEAVER DATASET (ULTRA DENSITY)
+   ========================================================================== */
+
+const FABRICS = [
+  {
+    id: "fb-graph-01",
+    name: "Graphene-Silk v4",
+    type: "Conductive Smart-Textile",
+    conductivity: "420 S/m",
+    tensile: "2.4 GPa",
+    thermal: "Dynamic",
+    desc: "Soie synthétique infusée de graphène pour une régulation thermique active et une surveillance biométrique.",
+    status: "Production"
+  },
+  {
+    id: "fb-bio-88",
+    name: "Bioluminescent Mesh",
+    type: "Photonic Fabric",
+    conductivity: "N/A",
+    tensile: "0.8 GPa",
+    thermal: "Insulating",
+    desc: "Maillage vivant capable d'émettre de la lumière en réponse aux niveaux de sérotonine du porteur.",
+    status: "R&D"
+  },
+  {
+    id: "fb-poly-09",
+    name: "Shape-Memory Wool",
+    type: "Structural Knit",
+    conductivity: "Low",
+    tensile: "1.2 GPa",
+    thermal: "Adaptive",
+    desc: "Laine à mémoire de forme capable d'ajuster son drapé et sa densité selon l'humidité ambiante.",
+    status: "Prototype"
+  }
+]
+
+const DESIGN_METRICS = [
+  { label: "AI Iterations", value: "12,402", trend: "Optimizing" },
+  { label: "Thread Density", value: "1.2M / cm²", trend: "Stable" },
+  { label: "Pattern Complexity", value: "94.2%", trend: "Maximum" },
+  { label: "Sustainability Score", value: "A++", trend: "Certified" }
+]
+
+const WEAVING_LOGS = [
+  { step: "Loom Calibration", status: "COMPLETE", time: "0.2ms" },
+  { step: "Neural Pattern Sync", status: "ACTIVE", time: "0.5ms" },
+  { step: "Thread Tension Audit", status: "NOMINAL", time: "0.1ms" }
+]
+
+/* ==========================================================================
+   TECHNICAL COMPONENTS
+   ========================================================================== */
+
+function Reveal({ children, delay = 0, y = 40, x = 0 }: { children: React.ReactNode, delay?: number, y?: number, x?: number }) {
   const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, margin: "-80px" })
+  const isInView = useInView(ref, { once: true, margin: "-100px" })
   return (
-    <motion.div ref={ref} initial={{ opacity: 0, y }} animate={isInView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 1, delay, ease: [0.16, 1, 0.3, 1] }}>
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y, x }}
+      animate={isInView ? { opacity: 1, y: 0, x: 0 } : {}}
+      transition={{ duration: 1.2, delay, ease: [0.16, 1, 0.3, 1] }}
+    >
       {children}
     </motion.div>
   )
 }
 
-function GlitchText({ text }: { text: string }) {
+function WovenBackground() {
   return (
-    <div className="relative inline-block group">
-      <span className="relative z-10">{text}</span>
-      <span className="absolute top-0 left-0 -z-10 text-red-500 opacity-0 group-hover:opacity-70 group-hover:translate-x-1 group-hover:-translate-y-1 transition-all duration-75 animate-pulse">{text}</span>
-      <span className="absolute top-0 left-0 -z-10 text-cyan-400 opacity-0 group-hover:opacity-70 group-hover:-translate-x-1 group-hover:translate-y-1 transition-all duration-75 animate-pulse">{text}</span>
+    <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden opacity-10">
+       <svg width="100%" height="100%" className="w-full h-full">
+          <pattern id="weave" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
+             <path d="M0 20 L40 20 M20 0 L20 40" stroke="white" strokeWidth="0.5" fill="none" />
+             <circle cx="20" cy="20" r="1" fill="white" />
+          </pattern>
+          <rect width="100%" height="100%" fill="url(#weave)" />
+       </svg>
     </div>
   )
 }
 
-const PROJECTS = [
-  { id: "01", name: "Cyber-Vogue", cat: "Branding", img: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&q=80&w=1200" },
-  { id: "02", name: "Neon Pulse", cat: "Motion", img: "https://images.unsplash.com/photo-1614728263952-84ea256f9679?auto=format&fit=crop&q=80&w=1200" },
-  { id: "03", name: "Void Echo", cat: "Product", img: "https://images.unsplash.com/photo-1633167606207-d840b5070fc2?auto=format&fit=crop&q=80&w=1200" },
-  { id: "04", name: "Glitch Lab", cat: "R&D", img: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&q=80&w=1200" },
-]
+function ThreadLine({ vertical = false, delay = 0 }: { vertical?: boolean, delay?: number }) {
+  return (
+    <motion.div 
+      initial={{ scaleX: 0, scaleY: 0 }}
+      animate={{ scaleX: 1, scaleY: 1 }}
+      transition={{ duration: 2, delay, ease: "circOut" }}
+      className={`absolute bg-white/10 ${vertical ? "w-px h-full left-1/2" : "h-px w-full top-1/2"}`}
+    />
+  )
+}
 
-export default function GlitchStudioPage() {
-  const [scrolled, setScrolled] = useState(false)
+/* ==========================================================================
+   THE NEURAL WEAVER - MAIN INTERFACE
+   ========================================================================== */
 
-  useEffect(() => {
-    const h = () => setScrolled(window.scrollY > 60)
-    window.addEventListener("scroll", h)
-    return () => window.removeEventListener("scroll", h)
-  }, [])
+export default function NeuralWeaverPremium() {
+  const [activeFabric, setActiveFabric] = useState(0)
+  const [loomSpeed, setLoomSpeed] = useState(1)
+  const containerRef = useRef(null)
+  const { scrollYProgress } = useScroll({ target: containerRef })
+
+  // Woven Transition Effects
+  const threadSpread = useTransform(scrollYProgress, [0, 1], [0, 200])
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.2], [1, 0])
+  const loomRotate = useTransform(scrollYProgress, [0, 1], [0, 45])
 
   return (
-    <div className="bg-[#050505] text-white font-mono min-h-screen selection:bg-cyan-400 selection:text-black overflow-x-hidden">
+    <div ref={containerRef} className="bg-[#0a0a0c] text-[#e0e2e5] font-serif selection:bg-white selection:text-black min-h-screen overflow-x-hidden">
       
-      {/* ── GRAIN OVERLAY ────────── */}
-      <div className="fixed inset-0 pointer-events-none opacity-[0.05] z-50 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]" />
+      {/* GLOBAL HUD OVERLAY */}
+      <HUD_Overlay loomSpeed={loomSpeed} />
 
-      {/* ── NAVBAR ────────────────── */}
-      <nav className={`fixed top-0 left-0 right-0 z-[60] transition-all duration-700 ${scrolled ? "bg-black/90 backdrop-blur-xl border-b border-white/5 py-4" : "bg-transparent py-10"}`}>
-        <div className="max-w-[1400px] mx-auto px-6 md:px-12 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-4 group">
-            <div className="w-10 h-10 bg-white flex items-center justify-center group-hover:bg-cyan-400 transition-colors duration-300 overflow-hidden relative">
-               <motion.div animate={{ x: [-20, 20], opacity: [0, 1, 0] }} transition={{ duration: 0.5, repeat: Infinity }} className="absolute inset-0 bg-red-500/20 mix-blend-screen" />
-               <Zap className="w-6 h-6 text-black relative z-10" />
-            </div>
-            <span className="text-xl font-black tracking-tighter uppercase italic">Glitch<span className="text-white/20">Studio.</span></span>
-          </Link>
-          <div className="hidden lg:flex gap-12 text-[10px] font-bold uppercase tracking-[0.4em] text-white/30">
-            {["Disorder", "Works", "Lab", "Contact"].map(l => (
-              <Link key={l} href="#" className="hover:text-cyan-400 transition-colors">{l}</Link>
-            ))}
-          </div>
-          <div className="flex items-center gap-8">
-            <button className="hidden md:block text-[10px] font-bold uppercase tracking-widest text-white/20 hover:text-white transition-colors">Break System</button>
-            <button className="px-8 py-3 border-2 border-white text-white text-[10px] font-bold uppercase tracking-[0.2em] hover:bg-white hover:text-black transition-all duration-500">Initialize</button>
-            <Sheet>
-              <SheetTrigger asChild><button className="lg:hidden p-2"><Menu className="w-6 h-6 text-white" /></button></SheetTrigger>
-              <SheetContent side="right" className="bg-black border-white/5 p-12 text-white font-mono">
-                <div className="flex flex-col gap-10 mt-16 text-left">
-                  {["Vision", "Chaos", "Work", "Error"].map(l => (
-                    <Link key={l} href="#" className="text-4xl font-black uppercase tracking-tighter hover:text-cyan-400 transition-all italic">{l}</Link>
-                  ))}
+      <main>
+        {/* ==========================================
+            1. SILK IGNITION (HERO)
+            ========================================== */}
+        <section className="relative h-screen flex flex-col justify-center items-center px-8 md:px-24 overflow-hidden pt-20">
+          <WovenBackground />
+          <motion.div style={{ rotate: loomRotate, opacity: heroOpacity }} className="absolute inset-0 z-0 pointer-events-none">
+             {[...Array(12)].map((_, i) => (
+               <ThreadLine key={i} vertical={i % 2 === 0} delay={i * 0.1} />
+             ))}
+          </motion.div>
+
+          <div className="relative z-10 text-center max-w-7xl">
+             <Reveal>
+                <div className="inline-flex items-center gap-4 px-4 py-1 border border-white/10 bg-white/5 text-[10px] font-bold uppercase tracking-[0.5em] text-white/40 mb-12 italic font-sans">
+                   <Palette className="w-3 h-3" /> Season: 2026_Winter // AI_Model: SILK_GEN_v8
                 </div>
-              </SheetContent>
-            </Sheet>
+                <h1 className="text-7xl md:text-[14vw] font-light tracking-tighter uppercase mb-16 leading-[0.75] italic">
+                   Neural <br/> <span className="font-bold not-italic text-white opacity-5 italic">Weaver.</span>
+                </h1>
+                <p className="max-w-2xl mx-auto text-sm md:text-lg text-white/30 leading-relaxed uppercase tracking-widest font-light mb-16 italic font-sans">
+                   L'intersection de la haute couture et du calcul neuronal. Nous tissons les textiles de demain avec une précision algorithmique et une âme artisanale.
+                </p>
+                
+                <div className="flex flex-col sm:flex-row gap-8 justify-center items-center font-sans">
+                   <button className="px-12 py-5 bg-white text-black text-[10px] font-black uppercase tracking-widest hover:bg-black hover:text-white transition-all shadow-2xl flex items-center gap-4">
+                      <Scissors className="w-4 h-4" /> Enter Atelier
+                   </button>
+                   <button className="px-12 py-5 border border-white/10 text-white text-[10px] font-black uppercase tracking-widest hover:bg-white/5 transition-all flex items-center gap-4">
+                      <Beaker className="w-4 h-4" /> Material Archive
+                   </button>
+                </div>
+             </Reveal>
           </div>
-        </div>
-      </nav>
 
-      <main className="relative pt-40 pb-20">
-        {/* ── HERO ──────────────────── */}
-        <section className="max-w-[1400px] mx-auto px-6 md:px-12 mb-60 relative">
-           <div className="absolute top-0 right-0 p-20 opacity-[0.03] pointer-events-none select-none">
-              <span className="text-[30vw] font-black leading-none">ERROR</span>
-           </div>
-           
-           <div className="relative z-10">
-              <Reveal>
-                 <div className="inline-flex items-center gap-4 mb-12 text-cyan-400 text-[10px] font-bold uppercase tracking-[0.5em]">
-                    <Terminal className="w-4 h-4" /> System_Online_v2.0.1
-                 </div>
-              </Reveal>
-              <Reveal delay={0.1} y={100}>
-                 <h1 className="text-7xl md:text-[14vw] font-black tracking-tighter leading-[0.75] uppercase mb-16 italic">
-                    <GlitchText text="CREATIVE" /> <br/> 
-                    <span className="text-white/10 not-italic">CHAOS.</span>
-                 </h1>
-              </Reveal>
-              <Reveal delay={0.3}>
-                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-end">
-                    <p className="text-2xl text-white/40 font-light max-w-xl leading-relaxed italic">
-                       We are a high-fidelity creative lab. We don't design for the consensus; we design for the glitch in the matrix.
-                    </p>
-                    <div className="flex flex-wrap gap-10">
-                       <div className="space-y-4">
-                          <div className="text-[10px] font-bold text-cyan-400 uppercase tracking-widest">Protocol_01</div>
-                          <div className="text-3xl font-black italic">Distort.</div>
-                       </div>
-                       <div className="space-y-4">
-                          <div className="text-[10px] font-bold text-red-500 uppercase tracking-widest">Protocol_02</div>
-                          <div className="text-3xl font-black italic">Amplify.</div>
-                       </div>
-                    </div>
-                 </div>
-              </Reveal>
-           </div>
+          {/* BOTTOM TELEMETRY BAR */}
+          <div className="absolute bottom-12 left-12 right-12 flex justify-between items-end border-t border-white/5 pt-8 font-sans">
+             <div className="flex flex-col gap-4">
+                <div className="flex items-center gap-4 text-[9px] font-bold text-white/20 uppercase tracking-widest italic">
+                   <div className="w-12 h-px bg-white/10" />
+                   Pattern_Seed: 0x4f2a7
+                </div>
+                <div className="flex items-center gap-4 text-[9px] font-bold text-white/20 uppercase tracking-widest italic">
+                   <div className="w-12 h-px bg-white/10" />
+                   Weave_Status: Nominal
+                </div>
+             </div>
+             <div className="text-right flex flex-col items-end gap-4">
+                <span className="text-[8px] font-black uppercase tracking-[0.5em] text-white/20">Thread_Sync_Stream</span>
+                <div className="flex gap-1 h-8 items-end">
+                   {[...Array(16)].map((_, i) => (
+                     <motion.div 
+                        key={i}
+                        animate={{ height: ["20%", "100%", "40%", "80%", "20%"] }}
+                        transition={{ duration: 2, repeat: Infinity, delay: i * 0.1 }}
+                        className="w-1 bg-white/20"
+                     />
+                   ))}
+                </div>
+             </div>
+          </div>
         </section>
 
-        {/* ── DISORDER ──────────────── */}
-        <section className="py-60 bg-[#080808] border-y border-white/5 relative overflow-hidden">
-           <div className="max-w-[1400px] mx-auto px-6 md:px-12">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-40 items-center">
+        {/* ==========================================
+            2. FABRIC REGISTRY (DENSE TECHNICAL)
+            ========================================== */}
+        <section className="py-60 bg-[#08080a] relative border-y border-white/5 overflow-hidden font-sans">
+           <div className="max-w-[1600px] mx-auto px-8 md:px-24">
+              <div className="flex flex-col md:flex-row items-end justify-between mb-40 gap-12">
                  <Reveal>
-                    <div className="aspect-square relative p-2 bg-white/[0.02] border border-white/10 group cursor-crosshair">
-                       <div className="absolute inset-0 bg-cyan-400/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                       <Image src="https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&q=80&w=1200" alt="Chaos" fill className="object-cover grayscale group-hover:grayscale-0 transition-all duration-1000" />
-                       <div className="absolute bottom-10 left-10 p-6 bg-black/80 backdrop-blur-md border border-white/10">
-                          <div className="text-[8px] font-bold text-white/40 mb-2 uppercase tracking-widest">Ref: LAB_SAMPLE_04</div>
-                          <div className="text-xl font-bold italic">Visual Disorder v1</div>
-                       </div>
-                    </div>
+                    <span className="text-[10px] font-black uppercase tracking-[0.6em] text-white/40 block mb-6 italic underline underline-offset-8">Material // Registry</span>
+                    <h2 className="text-6xl md:text-[9vw] font-light uppercase tracking-tighter italic leading-none font-serif text-white">Archives.</h2>
                  </Reveal>
-                 <div className="space-y-16">
-                    <Reveal delay={0.2}>
-                       <span className="text-[10px] font-bold uppercase tracking-[0.5em] text-white/20 block mb-10">The Philosophy</span>
-                       <h2 className="text-6xl md:text-8xl font-black uppercase tracking-tighter leading-none italic">Break <br/> <span className="not-italic font-light opacity-10">The Loop.</span></h2>
-                       <p className="text-xl text-white/30 leading-relaxed font-light italic">
-                          Perfection is the enemy of innovation. We embrace the artifacts, the noise, and the unexpected results that occur when you push technology past its intended limits.
-                       </p>
-                    </Reveal>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-12 pt-16 border-t border-white/5">
-                       {[
-                         { t: "KINETIC TYPE", d: "Dynamic, living typography that reacts to user proximity." },
-                         { t: "NOISE MAPS", d: "Procedural background textures that evolve with every session." }
-                       ].map((item, i) => (
-                         <div key={i} className="group cursor-pointer">
-                            <h4 className="text-xs font-black uppercase tracking-widest mb-4 italic text-cyan-400">{item.t}</h4>
-                            <p className="text-sm font-light text-white/20 leading-relaxed italic">{item.d}</p>
-                         </div>
-                       ))}
-                    </div>
+                 <div className="text-right">
+                    <span className="text-[10px] font-black uppercase tracking-[0.5em] text-white/20 block mb-4 italic">Registry // Textile_Audit</span>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/40">L'Architecture de la Fibre</p>
                  </div>
+              </div>
+
+              <div className="grid md:grid-cols-3 gap-px bg-white/5 border border-white/5">
+                 {FABRICS.map((fab, i) => (
+                   <Reveal key={fab.id} delay={i * 0.1}>
+                      <div className="bg-[#0a0a0c] p-16 flex flex-col h-full hover:bg-white/[0.02] transition-all group cursor-crosshair border-white/5 border-r last:border-r-0">
+                         <div className="flex justify-between items-start mb-16">
+                            <div className="w-12 h-12 bg-white/5 flex items-center justify-center group-hover:bg-white transition-all duration-500">
+                               <Shirt className="w-6 h-6 text-white/40 group-hover:text-black" />
+                            </div>
+                            <span className="px-3 py-1 bg-white/5 text-white/40 text-[8px] font-black uppercase tracking-widest">{fab.status}</span>
+                         </div>
+                         
+                         <h3 className="text-4xl font-light uppercase tracking-tighter mb-8 italic font-serif text-white">{fab.name}</h3>
+                         <div className="text-[10px] font-black text-white/20 uppercase tracking-widest mb-8">{fab.type}</div>
+                         
+                         <div className="space-y-6 mb-16 border-l border-white/10 pl-6">
+                            <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-widest">
+                               <span className="text-white/20">Conductivity</span>
+                               <span className="text-white/60 group-hover:text-white transition-colors">{fab.conductivity}</span>
+                            </div>
+                            <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-widest">
+                               <span className="text-white/20">Tensile</span>
+                               <span className="text-white/60 group-hover:text-white transition-colors">{fab.tensile}</span>
+                            </div>
+                            <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-widest">
+                               <span className="text-white/20">Thermal</span>
+                               <span className="text-white/60 group-hover:text-white transition-colors">{fab.thermal}</span>
+                            </div>
+                         </div>
+
+                         <p className="text-[11px] text-white/20 leading-loose uppercase tracking-[0.2em] font-bold italic mb-12">
+                            {fab.desc}
+                         </p>
+
+                         <div className="mt-auto pt-8 border-t border-white/5 flex justify-between items-center">
+                            <span className="text-[9px] font-black text-white/10 uppercase">Ref: {fab.id}</span>
+                            <button className="text-[9px] font-black uppercase text-white/40 flex items-center gap-2 group-hover:translate-x-2 transition-transform">
+                               Material Analysis <ChevronRight className="w-4 h-4" />
+                            </button>
+                         </div>
+                      </div>
+                   </Reveal>
+                 ))}
               </div>
            </div>
         </section>
 
-        {/* ── WORKS ─────────────────── */}
-        <section className="py-60 bg-black">
-           <div className="max-w-[1400px] mx-auto px-6 md:px-12">
-              <Reveal>
-                 <div className="flex flex-col md:flex-row items-end justify-between mb-32 gap-8 border-b border-white/5 pb-16">
-                    <div className="max-w-2xl">
-                       <span className="text-[10px] font-bold uppercase tracking-[0.5em] text-white/30 block mb-6">Archive_001</span>
-                       <h2 className="text-7xl md:text-9xl font-black uppercase tracking-tighter text-white leading-none italic">The <span className="font-light not-italic opacity-10">Static.</span></h2>
-                    </div>
-                    <Link href="#" className="flex items-center gap-4 text-[10px] font-bold uppercase tracking-widest hover:text-cyan-400 text-white/30 transition-colors group italic">
-                       View Full System <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
-                    </Link>
+        {/* ==========================================
+            3. DESIGN LAB (INTERACTIVE PATTERNS)
+            ========================================== */}
+        <section className="py-60 bg-black relative border-y border-white/5 overflow-hidden">
+           <div className="max-w-[1400px] mx-auto px-8 md:px-24">
+              <div className="grid lg:grid-cols-2 gap-32 items-center">
+                 <div>
+                    <Reveal>
+                       <span className="text-[10px] font-black uppercase tracking-[0.5em] text-white/40 block mb-12 italic underline underline-offset-8 font-sans">Generative // Drafting</span>
+                       <h2 className="text-6xl md:text-[8vw] font-light italic leading-none text-white mb-12 uppercase tracking-tighter">
+                          The <br/> <span className="not-italic font-black text-white/5 italic">Pattern_Loop.</span>
+                       </h2>
+                       <p className="text-xl font-light text-white/20 leading-relaxed mb-20 italic uppercase tracking-widest font-sans">
+                          Nos algorithmes de drafting génèrent des patrons optimisés pour la réduction maximale des déchets textiles, tout en repoussant les limites de l'ergonomie humaine.
+                       </p>
+                       <div className="grid grid-cols-2 gap-8 mb-20 font-sans">
+                          {DESIGN_METRICS.map((metric, i) => (
+                            <div key={i} className="p-10 bg-[#0a0a0c] border border-white/5 group hover:border-white transition-all">
+                               <div className="text-[9px] font-black uppercase text-white/40 mb-4 tracking-[0.3em]">{metric.label}</div>
+                               <div className="text-4xl font-light text-white italic">{metric.value}</div>
+                               <div className="flex items-center gap-2 text-[8px] font-bold uppercase tracking-widest text-white/10 italic">
+                                  <Activity className="w-3 h-3" /> {metric.trend}
+                               </div>
+                            </div>
+                          ))}
+                       </div>
+                       <button 
+                         onClick={() => setLoomSpeed(prev => prev === 1 ? 2 : 1)}
+                         className="w-full py-6 bg-white text-black text-[10px] font-black uppercase tracking-widest hover:bg-black hover:text-white transition-all shadow-2xl flex items-center justify-center gap-4 italic font-sans"
+                       >
+                          <Settings className="w-4 h-4" /> Calibrate Neural Loom
+                       </button>
+                    </Reveal>
                  </div>
-              </Reveal>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-px bg-white/5 border border-white/5">
-                 {PROJECTS.map((item, i) => (
-                    <Reveal key={i} delay={i * 0.1}>
-                       <div className="bg-black aspect-[3/4] p-8 flex flex-col justify-between group cursor-pointer relative overflow-hidden">
-                          <div className="absolute inset-0 opacity-0 group-hover:opacity-40 transition-opacity duration-1000">
-                             <Image src={item.img} alt={item.name} fill className="object-cover scale-110 group-hover:scale-100 transition-transform duration-[3000ms]" />
+                 
+                 <div className="relative">
+                    <Reveal delay={0.3} x={40}>
+                       <div className="aspect-[3/4] bg-[#0a0a0c] border border-white/10 p-16 flex flex-col justify-between relative group overflow-hidden">
+                          <div className="absolute top-0 right-0 p-60 bg-white opacity-[0.03] blur-[120px] rounded-full group-hover:opacity-[0.1] transition-opacity" />
+                          
+                          <div className="flex justify-between items-start z-10 font-sans">
+                             <div className="flex flex-col gap-2">
+                                <span className="text-[8px] font-black text-white/10 uppercase tracking-widest">Model_ID // WEAVE-SYNC-v12</span>
+                                <span className="text-[10px] font-black text-white/40 uppercase tracking-[0.4em]">Drafting_Flow_Analysis</span>
+                             </div>
+                             <Wifi className="w-5 h-5 text-white/20" />
                           </div>
-                          <div className="relative z-10 flex justify-between items-start">
-                             <span className="text-[10px] font-bold text-white/20 uppercase tracking-widest italic">{item.id}</span>
-                             <div className="w-8 h-8 rounded-full border border-white/10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all">
-                                <ArrowRight className="w-4 h-4 rotate-[-45deg]" />
+                          
+                          {/* PATTERN VISUALIZER (SVG) */}
+                          <div className="relative z-10 flex flex-col items-center justify-center h-full">
+                             <svg width="300" height="400" viewBox="0 0 300 400" className="opacity-40">
+                                <motion.path 
+                                   d="M50 50 Q150 0 250 50 L280 350 Q150 400 20 350 Z" 
+                                   stroke="white" 
+                                   strokeWidth="1" 
+                                   fill="none" 
+                                   animate={{ d: [
+                                      "M50 50 Q150 0 250 50 L280 350 Q150 400 20 350 Z",
+                                      "M60 40 Q150 10 240 40 L270 360 Q150 390 30 360 Z",
+                                      "M50 50 Q150 0 250 50 L280 350 Q150 400 20 350 Z"
+                                   ] }}
+                                   transition={{ duration: 4, repeat: Infinity }}
+                                />
+                                <motion.line 
+                                   x1="50" y1="150" x2="250" y2="150" 
+                                   stroke="white" 
+                                   strokeDasharray="5,5" 
+                                   animate={{ y1: [150, 160, 150], y2: [150, 140, 150] }}
+                                   transition={{ duration: 3, repeat: Infinity }}
+                                />
+                             </svg>
+                             <div className="text-center space-y-4 font-sans mt-8">
+                                <div className="text-2xl font-light italic tracking-tighter text-white/60">GENERATING_DRAFT_42</div>
+                                <span className="text-[9px] font-bold text-white/10 uppercase tracking-[0.5em]">Auth_Node: PARIS_ATELIER_01</span>
                              </div>
                           </div>
-                          <div className="relative z-10">
-                             <div className="text-[9px] font-bold text-cyan-400 uppercase tracking-widest mb-2 italic">{item.cat}</div>
-                             <h3 className="text-4xl font-black uppercase tracking-tighter italic group-hover:translate-x-2 transition-transform">{item.name}</h3>
+
+                          <div className="relative z-10 flex gap-4 font-sans">
+                             <div className="w-full h-px bg-white/10 overflow-hidden">
+                                <motion.div 
+                                   animate={{ x: ["-100%", "100%"] }} 
+                                   transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+                                   className="w-1/2 h-full bg-white/60"
+                                />
+                             </div>
                           </div>
                        </div>
                     </Reveal>
-                 ))}
-              </div>
-           </div>
-        </section>
-
-        {/* ── CTA ───────────────────── */}
-        <section className="py-60 bg-white text-black text-center relative overflow-hidden">
-           <div className="absolute inset-0 opacity-[0.05] pointer-events-none text-[20vw] font-black whitespace-nowrap -rotate-6 select-none">
-              GLITCH GLITCH GLITCH GLITCH
-           </div>
-           <div className="max-w-4xl mx-auto px-6 relative z-10">
-              <Reveal>
-                 <h2 className="text-7xl md:text-[14vw] font-black uppercase tracking-tighter leading-[0.8] mb-16 italic">
-                    ABORT <br/> <span className="font-light not-italic opacity-20 italic">THE NORM.</span>
-                 </h2>
-                 <div className="flex flex-col sm:flex-row items-center justify-center gap-12">
-                    <button className="px-20 py-10 bg-black text-white font-black uppercase tracking-[0.3em] text-[10px] hover:px-24 transition-all duration-700 italic relative overflow-hidden group">
-                       <span className="relative z-10">Start Session</span>
-                       <motion.div animate={{ x: [-100, 100], opacity: [0, 0.5, 0] }} transition={{ duration: 1, repeat: Infinity }} className="absolute inset-0 bg-white/20 skew-x-12" />
-                    </button>
-                    <button className="px-20 py-10 border-4 border-black text-black font-black uppercase tracking-[0.3em] text-[10px] hover:bg-black hover:text-white transition-all duration-700 italic">
-                       View Archive
-                    </button>
                  </div>
-              </Reveal>
-           </div>
-        </section>
-      </main>
-
-      {/* ── FOOTER ────────────────── */}
-      <footer className="bg-black pt-40 pb-12 px-6 border-t border-white/5 relative z-[60]">
-        <div className="max-w-[1400px] mx-auto grid grid-cols-1 md:grid-cols-5 gap-20 mb-40">
-           <div className="md:col-span-2">
-              <Link href="/" className="flex items-center gap-4 mb-10 group">
-                <div className="w-10 h-10 bg-white flex items-center justify-center group-hover:bg-cyan-400 transition-colors">
-                  <Zap className="w-6 h-6 text-black" />
-                </div>
-                <span className="text-xl font-black tracking-tighter uppercase text-white italic">Glitch Studio.</span>
-              </Link>
-              <p className="text-white/20 max-w-sm leading-relaxed mb-12 text-[10px] font-bold uppercase italic">
-                 "In the signal, we find the message. In the noise, we find the soul. Disrupt the consensus."
-              </p>
-              <div className="flex gap-10">
-                 {["GitHub", "Vimeo", "Mirror", "Lens"].map(s => (
-                   <Link key={s} href="#" className="text-[10px] font-bold uppercase tracking-widest text-white/20 hover:text-cyan-400 transition-colors italic">{s}</Link>
-                 ))}
               </div>
            </div>
-           
-           {[
-             { t: "PROTOCOLS", l: ["Branding", "Motion", "Product", "R&D Lab"] },
-             { t: "SYSTEM", l: ["The Team", "Archive", "Disorder", "Press"] },
-             { t: "PORTAL", l: ["Client Login", "Status", "Manual", "Contact"] }
-           ].map((col, i) => (
-             <div key={i} className="space-y-12">
-                <h4 className="text-[10px] font-bold uppercase tracking-[0.6em] text-white/30">{col.t}</h4>
-                <ul className="space-y-6">
-                   {col.l.map(link => (
-                     <li key={link} className="text-xs font-bold uppercase tracking-widest text-white/20 hover:text-white transition-colors italic">
-                        <Link href="#">{link}</Link>
-                     </li>
-                   ))}
-                </ul>
-             </div>
-           ))}
-        </div>
-        <div className="max-w-[1400px] mx-auto flex flex-col md:row justify-between items-center gap-8 border-t border-white/5 pt-12 text-[10px] font-bold uppercase tracking-[0.4em] text-white/10 italic">
-           <span>© 2026 GLITCH STUDIO LAB. DISTORTION IS DESIGN.</span>
-           <div className="flex gap-12">
-              <Link href="#" className="hover:text-cyan-400 transition-all underline underline-offset-4 decoration-cyan-400/20">SYSTEM_NOMINAL</Link>
-              <Link href="#" className="hover:text-cyan-400 transition-all underline underline-offset-4 decoration-cyan-400/20">CHAOS_ENABLED</Link>
+        </section>
+
+        {/* ==========================================
+            4. ATELIER STORY (TECH NARRATIVE)
+            ========================================== */}
+        <section className="py-60 bg-[#0a0a0c] relative overflow-hidden font-sans">
+           <div className="max-w-[1400px] mx-auto px-8 md:px-24">
+              <div className="grid lg:grid-cols-2 gap-32 items-center">
+                 <div className="relative aspect-[4/5] overflow-hidden group border border-white/5 shadow-2xl">
+                    <Image 
+                       src="https://images.unsplash.com/photo-1558278226-96a23e593264?q=80&w=1200&auto=format&fit=crop" 
+                       alt="Macro Textile Texture" 
+                       fill 
+                       className="object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-1000"
+                    />
+                    <div className="absolute inset-0 bg-white/5 mix-blend-color group-hover:opacity-0 transition-opacity" />
+                    <div className="absolute inset-0 p-16 flex flex-col justify-end bg-gradient-to-t from-black via-black/40 to-transparent">
+                       <div className="text-white">
+                          <span className="text-[10px] font-black uppercase tracking-[0.6em] text-white/40 mb-6 block italic underline underline-offset-8">Atelier // Philosophy // Unit</span>
+                          <h4 className="text-5xl font-light tracking-tighter uppercase italic mb-8 font-serif">Structural <br/> Elegance.</h4>
+                          <button className="flex items-center gap-4 text-[10px] font-black uppercase tracking-widest border-b border-white/20 pb-2">
+                             Atelier Protocols <ExternalLink className="w-4 h-4" />
+                          </button>
+                       </div>
+                    </div>
+                 </div>
+
+                 <div>
+                    <Reveal>
+                       <div className="mb-24 text-left">
+                          <span className="text-[10px] font-black uppercase tracking-[0.5em] text-white/40 mb-8 block italic">Chapitre III // Craft</span>
+                          <h2 className="text-6xl md:text-[8vw] font-light tracking-tighter uppercase text-white italic leading-none font-serif">Silk_Net.</h2>
+                       </div>
+                       <p className="text-xl font-light text-white/20 leading-relaxed italic mb-16 uppercase tracking-widest">
+                          Le tissage neural n'est pas seulement une technique de production, c'est une nouvelle sémantique du vêtement. Chaque fibre est une information, chaque couture est un calcul.
+                       </p>
+                       <div className="space-y-16">
+                          {[
+                            { t: "Neural Drafting", d: "Optimisation géométrique par IA pour une adaptation morphologique parfaite sans essayage." },
+                            { t: "Sustainable Weave", d: "Suppression totale des chutes de coupe par tissage direct en forme." },
+                            { t: "Smart Integration", d: "Fusion invisible des composants électroniques directement au sein de la structure fibreuse." }
+                          ].map((step, i) => (
+                            <div key={i} className="group flex gap-12 border-b border-white/5 pb-12 hover:border-white/20 transition-all cursor-default">
+                               <div className="text-5xl font-light text-white/5 group-hover:text-white/20 transition-colors italic font-serif">0{i+1}</div>
+                               <div>
+                                  <h5 className="text-2xl font-bold uppercase tracking-tight text-white mb-4 italic group-hover:text-white transition-colors font-serif">{step.t}</h5>
+                                  <p className="text-[10px] text-white/20 uppercase tracking-[0.2em] font-bold leading-relaxed">{step.d}</p>
+                               </div>
+                            </div>
+                          ))}
+                       </div>
+                    </Reveal>
+                 </div>
+              </div>
            </div>
-        </div>
-      </footer>
+        </section>
+
+        {/* MEGA FOOTER */}
+        <footer className="bg-black pt-60 pb-12 px-8 md:px-24 relative z-50 font-sans">
+           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-32 mb-60 text-white">
+              <div className="lg:col-span-2">
+                 <div className="flex items-center gap-4 mb-12">
+                    <div className="w-12 h-12 bg-white flex items-center justify-center">
+                      <Palette className="w-8 h-8 text-black" />
+                    </div>
+                    <span className="text-3xl font-light uppercase tracking-tighter italic font-serif">NEURAL<span className="font-bold not-italic">_WEAVER.</span></span>
+                 </div>
+                 <p className="text-white/20 text-[10px] font-black uppercase tracking-[0.4em] leading-loose max-w-sm mb-16 italic">
+                    "La mode est la programmation de la présence." — Archive Weaver V.12
+                 </p>
+                 <div className="flex gap-12">
+                    {["AtelierLog", "FabricRegistry", "GitHub", "X_Protocol"].map(s => (
+                      <Link key={s} href="#" className="text-[10px] font-black uppercase tracking-widest text-white/20 hover:text-white transition-colors italic">{s}</Link>
+                    ))}
+                 </div>
+              </div>
+
+              {[
+                { t: "TEXTILES", l: ["Smart Silks", "Conductive Mesh", "Adaptive Wool", "Bio Lumens"] },
+                { t: "SYSTEMS", l: ["Neural Drafting", "Loom Sync", "Tension Audit", "Waste Zero"] },
+                { t: "ATELIERS", l: ["Paris Node", "Tokyo Hub", "Milan Lab", "Zürich Synthesis"] }
+              ].map((col, i) => (
+                <div key={i} className="flex flex-col gap-12">
+                  <h4 className="text-[10px] font-black text-white/40 uppercase tracking-[0.5em] italic">{col.t}</h4>
+                  <ul className="flex flex-col gap-6">
+                    {col.l.map(link => (
+                      <li key={link} className="text-[10px] font-bold text-white/20 hover:text-white transition-colors cursor-pointer uppercase tracking-widest italic">{link}</li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+           </div>
+
+           <div className="max-w-[1600px] mx-auto border-t border-white/5 pt-12 flex flex-col md:flex-row justify-between items-center gap-12 text-[8px] font-black text-white/10 uppercase tracking-[0.4em] italic">
+              <span>© 2026 NEURAL WEAVER GENERATIVE ATELIER AG. // ALL_RIGHTS_RESERVED</span>
+              <div className="flex gap-12">
+                 <span>STATUS: WEAVE_NOMINAL</span>
+                 <span>ITERATIONS: 12.4M</span>
+                 <span>v12.0.1-STABLE</span>
+              </div>
+           </div>
+        </footer>
+      </main>
+    </div>
+  )
+}
+
+/* ==========================================
+   TECHNICAL SUB-COMPONENTS
+   ========================================== */
+
+function HUD_Overlay({ loomSpeed }: { loomSpeed: number }) {
+  return (
+    <div className="fixed inset-0 pointer-events-none z-[100] font-sans">
+       {/* Corner Brackets */}
+       <div className="absolute top-12 left-12 w-16 h-16 border-t border-l border-white/10" />
+       <div className="absolute top-12 right-12 w-16 h-16 border-t border-r border-white/10" />
+       <div className="absolute bottom-12 left-12 w-16 h-16 border-b border-l border-white/10" />
+       <div className="absolute bottom-12 right-12 w-16 h-16 border-b border-r border-white/10" />
+
+       {/* Top Status Bar */}
+       <div className="absolute top-12 left-1/2 -translate-x-1/2 flex items-center gap-16 bg-black/40 backdrop-blur-md px-10 py-3 border border-white/5 rounded-full">
+          <div className="flex items-center gap-4">
+             <div className="w-2 h-2 rounded-full bg-white animate-pulse" />
+             <span className="text-[9px] font-black text-white/60 uppercase tracking-[0.2em]">Loom_Speed: {loomSpeed}x // Sync: SECURE</span>
+          </div>
+          <div className="h-4 w-px bg-white/10" />
+          <div className="flex items-center gap-4 text-[9px] font-black text-white/20 uppercase tracking-[0.2em]">
+             <Wifi className="w-3 h-3" /> Paris_Relay: Active
+          </div>
+       </div>
+
+       {/* Right Rotation Info */}
+       <div className="absolute right-12 top-1/2 -translate-y-1/2 rotate-90 origin-right hidden lg:block">
+          <span className="text-[8px] font-black uppercase tracking-[0.6em] text-white/5 italic">Unauthorized_Duplication_Of_Neural_Patterns_Is_Strictly_Prohibited_By_Atelier_Consortium_Law</span>
+       </div>
     </div>
   )
 }

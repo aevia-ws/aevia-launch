@@ -1,643 +1,523 @@
 "use client"
 
-import { motion, useScroll, useTransform, useInView, AnimatePresence, useMotionValue, useSpring } from "framer-motion"
-import { useState, useRef, useEffect } from "react"
+import React, { useState, useEffect, useRef } from "react"
+import { 
+  motion, 
+  AnimatePresence, 
+  useScroll, 
+  useTransform, 
+  useInView, 
+  useSpring 
+} from "framer-motion"
 import Image from "next/image"
 import Link from "next/link"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
-import { Badge } from "@/components/ui/badge"
-import { Card, CardContent } from "@/components/ui/card"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel"
-import { Progress } from "@/components/ui/progress"
-import { Separator } from "@/components/ui/separator"
-import { ArrowRight, Menu, X, Star, ChevronRight, Play, CheckCircle2, Building2, Ruler, PaintBucket, Layers, Home, MapPin, Mail, Phone, Camera, Briefcase, FileText } from "lucide-react"
+import { 
+  Zap, Activity, Microscope, 
+  Target, Layers, Box, Hexagon, 
+  Terminal, Settings, Power, Info, 
+  AlertTriangle, ChevronRight, ArrowRight, 
+  Share2, Maximize2, Download, ExternalLink, 
+  Archive, Hash, Wifi, BarChart3, 
+  Fingerprint, Scan, Brain, Server, 
+  ShieldCheck, ShieldAlert, Award, 
+  Briefcase, Wind, Thermometer, 
+  Flame, Battery, Radio, Gauge, 
+  Timer, Lightbulb, Command, Grid, 
+  Radar, Orbit, Atom, Satellite, 
+  Milestone, FlaskConical, FlaskRound, 
+  Ghost, Binary, Database, Search, 
+  Cpu, HeartPulse, Sun, Magnet, 
+  CircleDot, Waves, Pickaxe, Mountain, 
+  Gem, Rocket, Drill, PlaneTakeoff, 
+  Anchor, WavesIcon, LifeBuoy, Ship, 
+  Compass, ThermometerSnowflake, 
+  CloudRain, Droplets
+} from "lucide-react"
 
-// ─── REVEAL COMPONENT ────────────────────────────────────────────────────────
-function Reveal({ children, delay = 0, className = "" }: { children: React.ReactNode; delay?: number, className?: string }) {
+/* ==========================================================================
+   THE DEEP SEA FORGE DATASET (ULTRA DENSITY)
+   ========================================================================== */
+
+const BENTHIC_ASSETS = [
+  {
+    id: "ben-ext-42",
+    name: "Nodule Extractor v4",
+    type: "Deep Sea Mining Rig",
+    pressure: "1,100 bar",
+    temp: "2°C",
+    integrity: "99.98%",
+    desc: "Unité d'extraction autonome conçue pour la collecte de nodules polymétalliques à des profondeurs dépassant les 10 000 mètres.",
+    status: "Operational"
+  },
+  {
+    id: "ben-sta-08",
+    name: "Thermal Station Alpha",
+    type: "Abyssal Energy Hub",
+    pressure: "850 bar",
+    temp: "350°C (Vent)",
+    integrity: "99.999%",
+    desc: "Station de conversion d'énergie géothermique située sur les dorsales océaniques, alimentant le réseau abyssal global.",
+    status: "Syncing"
+  },
+  {
+    id: "ben-cab-15",
+    name: "Quantum Subsea v5",
+    type: "Hadal Data Link",
+    pressure: "1,200 bar",
+    temp: "1.5°C",
+    integrity: "99.4%",
+    desc: "Câble à fibre optique quantique ultra-résistant permettant une communication instantanée entre les hubs sous-marins.",
+    status: "Active Test"
+  }
+]
+
+const ABYSSAL_METRICS = [
+  { label: "Current Depth", value: "10,924m", trend: "Max" },
+  { label: "Ext. Pressure", value: "1,102 bar", trend: "Stable" },
+  { label: "Hull Integrity", value: "99.8%", trend: "Optimal" },
+  { label: "O2 Saturation", value: "21%", trend: "Normal" }
+]
+
+const DIVE_LOGS = [
+  { timestamp: "09:14:42", unit: "Ballast-Pump", status: "NOMINAL", flow: "420L/m" },
+  { timestamp: "09:14:45", unit: "Sonar-Sweep-X", status: "STABLE", range: "12km" },
+  { timestamp: "09:14:48", unit: "Reactor-Core", status: "SYNCED", power: "4.2GW" }
+]
+
+/* ==========================================
+   TECHNICAL COMPONENTS
+   ========================================== */
+
+function Reveal({ children, delay = 0, y = 40, x = 0 }: { children: React.ReactNode, delay?: number, y?: number, x?: number }) {
   const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, margin: "-80px" })
+  const isInView = useInView(ref, { once: true, margin: "-100px" })
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, y: 32 }}
-      animate={isInView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.6, delay, ease: [0.22, 1, 0.36, 1] }}
-      className={className}
+      initial={{ opacity: 0, y, x }}
+      animate={isInView ? { opacity: 1, y: 0, x: 0 } : {}}
+      transition={{ duration: 1.2, delay, ease: [0.16, 1, 0.3, 1] }}
     >
       {children}
     </motion.div>
   )
 }
 
-// ─── DATA ────────────────────────────────────────────────────────────────────
-const NAV_LINKS = [
-  { label: "Selected Works", href: "#works" },
-  { label: "Studio", href: "#studio" },
-  { label: "Services", href: "#services" },
-  { label: "Contact", href: "#contact" },
-]
-
-const STATS = [
-  { value: "45", label: "Built Projects", suffix: "+" },
-  { value: "12", label: "Design Awards", suffix: "" },
-  { value: "2010", label: "Year Founded", suffix: "" },
-  { value: "4", label: "Global Offices", suffix: "" },
-  { value: "100", label: "Architects", suffix: "+" },
-]
-
-const FEATURES = [
-  {
-    id: "residential",
-    title: "Residential Architecture",
-    icon: <Home className="w-5 h-5" />,
-    description: "Private residences that blur the boundary between shelter and landscape. We design monolithic, brutalist homes that prioritize light, air, and enduring materials.",
-    bullets: [
-      "Custom private homes",
-      "Off-grid coastal retreats",
-      "Adaptive reuse lofts",
-      "Passive house certification"
-    ],
-    image: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&q=80"
-  },
-  {
-    id: "commercial",
-    title: "Cultural & Commercial",
-    icon: <Building2 className="w-5 h-5" />,
-    description: "Public spaces designed to outlast their creators. Museums, galleries, and corporate headquarters constructed with exposed concrete, steel, and structural glass.",
-    bullets: [
-      "Museums & Galleries",
-      "Corporate Headquarters",
-      "Boutique Hospitality",
-      "Urban master planning"
-    ],
-    image: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800&q=80"
-  },
-  {
-    id: "interior",
-    title: "Spatial Design",
-    icon: <Layers className="w-5 h-5" />,
-    description: "Interior architecture stripped to its essential geometries. We focus on raw textures, monumental forms, and the interplay of shadow across austere surfaces.",
-    bullets: [
-      "Bespoke furniture design",
-      "Lighting choreography",
-      "Material sourcing (stone/timber)",
-      "Retail flagship interiors"
-    ],
-    image: "https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=800&q=80"
-  }
-]
-
-const TESTIMONIALS = [
-  {
-    name: "Architectural Digest",
-    role: "Review of The Concrete House",
-    avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&q=80",
-    content: "ArchiTectura has managed to make brutalism feel intimate. The rigorous geometry of their latest residential project is softened by masterful light shafts.",
-    rating: 5
-  },
-  {
-    name: "Marcus T.",
-    role: "Private Client",
-    avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&q=80",
-    content: "Working with the studio was an exercise in reductive thinking. They stripped away all our preconceived notions of a house until only the pure essence remained.",
-    rating: 5
-  },
-  {
-    name: "Dezeen Magazine",
-    role: "Studio Profile",
-    avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&q=80",
-    content: "One of the few contemporary practices that actually understands mass and void. Their public buildings are already feeling like modern ruins in the best way possible.",
-    rating: 5
-  },
-  {
-    name: "Sarah Jenkins",
-    role: "Director, Modern Art Foundation",
-    avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&q=80",
-    content: "The museum gallery they designed for us is functionally perfect, yet aesthetically silent. It never competes with the art, it merely elevates it.",
-    rating: 5
-  }
-]
-
-const PRICING = [
-  {
-    id: "concept",
-    title: "Concept Phase",
-    subtitle: "Ideation & Feasibility",
-    price: "From €25k",
-    duration: "2-3 Months",
-    description: "Initial volumetric studies, site analysis, and conceptual rendering. Establishing the architectural language of your project.",
-    features: [
-      "Topographical site analysis",
-      "Zoning & code review",
-      "Massing studies (physical & digital)",
-      "Moodboards & material palettes",
-      "Preliminary cost estimation"
-    ],
-    recommended: false
-  },
-  {
-    id: "full",
-    title: "Full Commission",
-    subtitle: "Design to Completion",
-    price: "12-15%",
-    duration: "Of Construction Cost",
-    description: "The complete architectural service. From the first sketch to the final punch list, we oversee every millimeter of the build.",
-    features: [
-      "All conceptual deliverables",
-      "Complete construction documents",
-      "Structural engineering coordination",
-      "Contractor bidding & selection",
-      "Weekly site supervision",
-      "Bespoke interior detailing"
-    ],
-    recommended: true
-  },
-  {
-    id: "consulting",
-    title: "Design Advisory",
-    subtitle: "For Developers",
-    price: "Custom",
-    duration: "Retainer",
-    description: "High-level architectural direction and aesthetic oversight for large-scale developments or masterplans.",
-    features: [
-      "Masterplan review",
-      "Facade design & detailing",
-      "Public space choreography",
-      "Design vocabulary guidelines",
-      "Sustainability consulting"
-    ],
-    recommended: false
-  }
-]
-
-const FAQS = [
-  {
-    question: "Do you take on international projects?",
-    answer: "Yes. While our headquarters are in Berlin, we have completed projects in Switzerland, Japan, the US, and Mexico. We frequently partner with local Architects of Record to ensure code compliance."
-  },
-  {
-    question: "What is your typical project timeline?",
-    answer: "For a custom private residence, the design and permitting phase typically takes 6-9 months, followed by 12-18 months of construction. Large cultural projects span 3-5 years."
-  },
-  {
-    question: "Do you offer interior design services?",
-    answer: "We view interior design and architecture as an inseparable discipline. All our full commissions include comprehensive spatial design, custom millwork, and lighting design."
-  },
-  {
-    question: "What is your stance on sustainable architecture?",
-    answer: "True sustainability means building something that lasts 200 years. We prioritize passive thermal mass (concrete/stone), natural ventilation, and hyper-local material sourcing over complex mechanical solutions."
-  },
-  {
-    question: "Do you work with existing structures?",
-    answer: "Adaptive reuse is one of our core passions. We love the tension between an old industrial shell and a razor-sharp modern intervention."
-  },
-  {
-    question: "How do we start the process?",
-    answer: "It begins with a conversation. Contact our studio to arrange an initial meeting where we discuss your site, your program, and your budget to determine if we are the right fit."
-  },
-  {
-    question: "Are your fees negotiable?",
-    answer: "Our fee structure is based on the rigorous amount of time and detail we invest into every project. While we don't negotiate our percentage, we can adjust the scope of services to fit specific budgets."
-  },
-  {
-    question: "Do you provide physical models?",
-    answer: "Yes, physical modeling is a cornerstone of our design process. We craft concrete, wood, and plaster models in our in-house workshop for every major project phase."
-  },
-  {
-    question: "Do you handle the construction management?",
-    answer: "We act as the owner's representative during construction. While we do not hire the sub-contractors directly, we strictly oversee the general contractor to ensure absolute fidelity to our design intent."
-  },
-  {
-    question: "Can we visit one of your completed projects?",
-    answer: "Many of our cultural and commercial projects are open to the public. For private residences, we can arrange guided walk-throughs of select properties with permission from our past clients."
-  }
-]
-
-// ─── MAIN COMPONENT ────────────────────────────────────────────────────────
-export default function ArchitecturaTemplate() {
-  const containerRef = useRef<HTMLDivElement>(null)
-  const { scrollYProgress } = useScroll({ target: containerRef })
-  
-  // Parallax Values
-  const heroY = useTransform(scrollYProgress, [0, 1], ["0%", "40%"])
-  const textY = useTransform(scrollYProgress, [0, 1], ["0%", "15%"])
-
-  // Hover states for grid
-  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
+function PressureHullVisualizer() {
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
+  useEffect(() => {
+    const handleMouse = (e: MouseEvent) => setMousePos({ x: e.clientX, y: e.clientY })
+    window.addEventListener("mousemove", handleMouse)
+    return () => window.removeEventListener("mousemove", handleMouse)
+  }, [])
 
   return (
-    <div ref={containerRef} className="min-h-screen bg-[#111] text-[#EFEFEF] font-sans selection:bg-[#EFEFEF] selection:text-[#111]" style={{ overflowX: "hidden", scrollBehavior: "smooth" }}>
-      
-      {/* ─── 1. NAVBAR (STRUCTURAL GRID) ─── */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-[#111]/80 backdrop-blur-md border-b border-white/10 transition-all duration-300">
-        <div className="flex h-20 max-w-[1800px] mx-auto">
-          <Link href="/" className="flex items-center px-8 border-r border-white/10 group cursor-pointer w-64 shrink-0">
-            <span className="text-xl font-bold tracking-widest uppercase text-white group-hover:text-zinc-400 transition-colors duration-300">
-              ArchiTectura<span className="text-zinc-600">.</span>
-            </span>
-          </Link>
-
-          {/* Desktop Nav */}
-          <div className="hidden md:flex flex-1">
-            {NAV_LINKS.map((link, i) => (
-              <Link 
-                key={link.label} 
-                href={link.href} 
-                className="flex items-center justify-center flex-1 border-r border-white/10 text-xs font-bold tracking-[0.2em] uppercase text-zinc-400 hover:bg-white hover:text-[#111] transition-all duration-300 cursor-pointer"
-              >
-                {link.label}
-              </Link>
-            ))}
-          </div>
-
-          <div className="hidden md:flex shrink-0 w-64">
-            <button className="w-full h-full bg-white text-[#111] text-xs font-bold tracking-[0.2em] uppercase hover:bg-zinc-200 transition-all duration-300 cursor-pointer flex items-center justify-center gap-2">
-              <FileText className="w-4 h-4" /> Start Project
-            </button>
-          </div>
-
-          {/* Mobile Nav */}
-          <Sheet>
-            <SheetTrigger asChild>
-              <button className="md:hidden flex-1 flex items-center justify-end px-6 text-white cursor-pointer">
-                <Menu className="w-6 h-6" />
-              </button>
-            </SheetTrigger>
-            <SheetContent side="right" className="bg-[#111] border-l border-white/10 text-white w-full sm:w-[400px] p-0">
-              <div className="flex flex-col h-full">
-                <div className="h-20 border-b border-white/10 flex items-center px-8">
-                  <span className="text-xl font-bold tracking-widest uppercase">ArchiTectura.</span>
-                </div>
-                {NAV_LINKS.map((link) => (
-                  <Link 
-                    key={link.label} 
-                    href={link.href} 
-                    className="flex-1 border-b border-white/10 flex items-center px-8 text-xl font-light tracking-widest uppercase hover:bg-white hover:text-[#111] transition-colors cursor-pointer"
-                  >
-                    {link.label}
-                  </Link>
-                ))}
-              </div>
-            </SheetContent>
-          </Sheet>
-        </div>
-      </nav>
-
-      {/* ─── 2. HERO PARALLAX (BRUTALIST GRID) ─── */}
-      <section className="relative pt-20 h-[100vh] flex flex-col overflow-hidden bg-[#111]">
-        <div className="grid grid-cols-1 md:grid-cols-[1fr_1.5fr] h-full max-w-[1800px] mx-auto w-full border-x border-white/10">
-          
-          {/* Left Text Block */}
-          <div className="flex flex-col justify-end p-8 md:p-16 border-b md:border-b-0 md:border-r border-white/10 relative z-10 bg-[#111]">
-            <motion.div style={{ y: textY }}>
-              <Reveal>
-                <div className="w-12 h-1 bg-white mb-12" />
-              </Reveal>
-              
-              <Reveal delay={0.1}>
-                <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tighter text-white mb-8 leading-[1.1] uppercase">
-                  Form <br />
-                  <span className="text-zinc-500">Follows</span> <br />
-                  Material.
-                </h1>
-              </Reveal>
-
-              <Reveal delay={0.2}>
-                <p className="text-sm md:text-base text-zinc-400 font-medium max-w-sm mb-12 leading-relaxed tracking-wide">
-                  An architecture studio dedicated to the poetics of raw materials, rigorous geometry, and the interplay of light and shadow.
-                </p>
-              </Reveal>
-
-              <Reveal delay={0.3} className="flex flex-col sm:flex-row gap-4">
-                <button className="px-8 py-4 bg-white text-[#111] font-bold uppercase tracking-widest text-xs hover:bg-zinc-200 transition-colors duration-300 cursor-pointer">
-                  View Projects
-                </button>
-              </Reveal>
-            </motion.div>
-          </div>
-
-          {/* Right Image Grid Block */}
-          <div className="relative overflow-hidden hidden md:block">
-            <motion.div style={{ y: heroY }} className="absolute inset-[-10%] w-[120%] h-[120%]">
-              <Image 
-                src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1600&q=80" 
-                alt="Brutalist concrete house" 
-                fill 
-                className="object-cover grayscale hover:grayscale-0 transition-all duration-1000"
-                priority
-              />
-              <div className="absolute inset-0 bg-black/20" />
-            </motion.div>
-          </div>
-
-        </div>
-      </section>
-
-      {/* ─── 3. STATS BAR ─── */}
-      <section className="border-y border-white/10 bg-[#111] relative z-10 max-w-[1800px] mx-auto w-full border-x">
-        <div className="grid grid-cols-2 md:grid-cols-5 divide-x divide-y md:divide-y-0 divide-white/10">
-          {STATS.map((stat, i) => (
-            <Reveal key={i} delay={i * 0.1}>
-              <div className="flex flex-col items-center justify-center text-center p-12 hover:bg-white hover:text-[#111] transition-colors duration-500 group cursor-default">
-                <div className="text-4xl lg:text-5xl font-light mb-2">
-                  {stat.value}<span className="text-zinc-500 group-hover:text-zinc-400">{stat.suffix}</span>
-                </div>
-                <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500 group-hover:text-zinc-800">
-                  {stat.label}
-                </div>
-              </div>
-            </Reveal>
+    <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden opacity-10">
+       <svg width="100%" height="100%" className="w-full h-full">
+          {[...Array(20)].map((_, i) => (
+            <motion.circle 
+               key={i}
+               cx={`${10 + i * 5}%`} 
+               cy="50%" 
+               r="2" 
+               fill="#3b82f6" 
+               animate={{ r: [2, 10, 2], opacity: [0.2, 0.8, 0.2] }}
+               transition={{ duration: 2 + Math.random() * 2, repeat: Infinity }}
+            />
           ))}
-        </div>
-      </section>
+          {[...Array(40)].map((_, i) => (
+            <motion.path 
+               key={`wave-${i}`}
+               d={`M 0 ${Math.random() * 1000} Q 500 ${Math.random() * 1000} 2000 ${Math.random() * 1000}`}
+               stroke="#3b82f6" 
+               strokeWidth="0.5" 
+               fill="none"
+               animate={{ d: `M 0 ${mousePos.y + (i * 10)} Q 1000 ${mousePos.y - (i * 20)} 2000 ${mousePos.y + (i * 10)}` }}
+               transition={{ type: "spring", damping: 30, stiffness: 50 }}
+            />
+          ))}
+       </svg>
+    </div>
+  )
+}
 
-      {/* ─── 4. FEATURES (SERVICES TABS) ─── */}
-      <section id="services" className="relative bg-[#111] border-b border-white/10 max-w-[1800px] mx-auto w-full border-x">
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] divide-x divide-white/10 min-h-[80vh]">
-          
-          <div className="p-8 md:p-16 flex flex-col justify-center">
-            <Reveal>
-              <h2 className="text-[10px] font-bold text-zinc-500 mb-6 uppercase tracking-[0.3em]">Practice</h2>
-              <h3 className="text-4xl md:text-6xl font-bold text-white mb-8 leading-[1.1] tracking-tighter uppercase">Disci<br/>plines.</h3>
-              <p className="text-sm font-medium text-zinc-400 max-w-sm leading-relaxed border-t border-white/10 pt-8">
-                We operate across multiple scales, from bespoke furniture to urban masterplans, applying the same rigorous methodology to every commission.
-              </p>
-            </Reveal>
+function SubmarineModel({ progress }: { progress: any }) {
+  const rotate = useTransform(progress, [0, 1], [0, 360])
+  const scale = useTransform(progress, [0, 0.5, 1], [1, 1.2, 1])
+
+  return (
+    <motion.div style={{ rotate, scale }} className="relative w-80 h-80 flex items-center justify-center">
+       <div className="absolute inset-0 border border-blue-500/10 rounded-full animate-spin-slow shadow-[0_0_80px_rgba(59,130,246,0.05)]" />
+       <Anchor className="w-40 h-40 text-blue-500/10 animate-pulse" />
+       <div className="absolute inset-8 border border-blue-500/5 rounded-full" />
+    </motion.div>
+  )
+}
+
+/* ==========================================
+   THE DEEP SEA FORGE - MAIN INTERFACE
+   ========================================== */
+
+export default function DeepSeaForgePremium() {
+  const [activeAsset, setActiveAsset] = useState(0)
+  const [isIntegrityAlertActive, setIsIntegrityAlertActive] = useState(false)
+  const containerRef = useRef(null)
+  const { scrollYProgress } = useScroll({ target: containerRef })
+
+  // Sea Scroll Effects
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.2], [1, 0])
+  const textX = useTransform(scrollYProgress, [0, 0.5], [0, 100])
+
+  return (
+    <div ref={containerRef} className="bg-[#020408] text-[#e0e8ed] font-mono selection:bg-blue-500/30 selection:text-white min-h-screen overflow-x-hidden transition-colors duration-1000">
+      
+      {/* GLOBAL HUD OVERLAY */}
+      <HUD_Overlay isIntegrityAlertActive={isIntegrityAlertActive} />
+
+      <main>
+        {/* ==========================================
+            1. ABYSSAL IGNITION (HERO)
+            ========================================== */}
+        <section className="relative h-screen flex flex-col justify-center items-center px-8 md:px-24 overflow-hidden pt-20">
+          <PressureHullVisualizer />
+          <motion.div style={{ opacity: heroOpacity }} className="absolute z-0 pointer-events-none flex items-center justify-center">
+             <SubmarineModel progress={scrollYProgress} />
+          </motion.div>
+
+          <div className="relative z-10 text-center max-w-7xl">
+             <Reveal>
+                <div className="inline-flex items-center gap-4 px-6 py-2 border border-blue-500/30 bg-blue-500/5 text-[10px] font-black uppercase tracking-[0.5em] text-blue-500 mb-12 italic">
+                   <WavesIcon className="w-4 h-4" /> Dive_Sync: NOMINAL // Pressure: 1,102 bar
+                </div>
+                <motion.h1 style={{ x: textX }} className="text-7xl md:text-[14vw] font-black tracking-tighter uppercase mb-16 leading-[0.75] italic">
+                   Deep Sea <br/> <span className="text-white/5 italic">Forge.</span>
+                </motion.h1>
+                <p className="max-w-3xl mx-auto text-sm md:text-lg text-white/30 leading-relaxed uppercase tracking-widest font-light mb-16 italic">
+                   L'ingénierie des profondeurs extrêmes. Nous forgeons l'infrastructure sous-marine de demain, capable de résister aux pressions hadales pour sécuriser les ressources et les données du futur.
+                </p>
+                
+                <div className="flex flex-col sm:flex-row gap-8 justify-center items-center">
+                   <button className="px-12 py-6 bg-blue-800 text-white text-[10px] font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all shadow-[0_0_40px_rgba(59,130,246,0.2)] flex items-center gap-4 italic">
+                      <LifeBuoy className="w-5 h-5" /> Initialize Dive
+                   </button>
+                   <button className="px-12 py-6 border border-white/10 text-white text-[10px] font-black uppercase tracking-widest hover:bg-white/5 transition-all flex items-center gap-4 italic">
+                      <Database className="w-5 h-5" /> Benthic Registry
+                   </button>
+                </div>
+             </Reveal>
           </div>
 
-          <Tabs defaultValue="residential" className="w-full flex flex-col bg-[#111]">
-            <TabsList className="flex flex-col sm:flex-row h-auto bg-[#111] border-b border-white/10 p-0 rounded-none gap-0">
-              {FEATURES.map((feature, i) => (
-                <TabsTrigger 
-                  key={feature.id} 
-                  value={feature.id}
-                  className={`flex-1 justify-center px-6 py-8 text-center data-[state=active]:bg-white data-[state=active]:text-[#111] text-zinc-500 hover:bg-white/5 transition-all duration-300 cursor-pointer rounded-none border-none border-r border-white/10 last:border-r-0`}
-                >
-                  <span className="text-xs font-bold uppercase tracking-widest">{feature.title}</span>
-                </TabsTrigger>
-              ))}
-            </TabsList>
+          <div className="absolute bottom-12 left-12 right-12 flex justify-between items-end border-t border-white/5 pt-12">
+             <div className="flex flex-col gap-6">
+                <div className="flex items-center gap-4 text-[9px] font-bold text-white/20 uppercase tracking-widest italic">
+                   <div className="w-16 h-px bg-white/10" />
+                   Vessel_ID: HADAL-FORGE-01
+                </div>
+                <div className="flex items-center gap-4 text-[9px] font-bold text-white/20 uppercase tracking-widest italic">
+                   <div className="w-16 h-px bg-white/10" />
+                   Status: PRESSURE_LOCKED
+                </div>
+             </div>
+             <div className="text-right flex flex-col items-end gap-4">
+                <span className="text-[8px] font-black uppercase tracking-[0.5em] text-blue-500">Hull_Stability_Stream</span>
+                <div className="flex gap-2 h-12 items-end">
+                   {[...Array(16)].map((_, i) => (
+                     <motion.div 
+                        key={i}
+                        animate={{ height: ["10%", "100%", "30%", "80%", "10%"] }}
+                        transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.1 }}
+                        className="w-2 bg-blue-500/20"
+                     />
+                   ))}
+                </div>
+             </div>
+          </div>
+        </section>
 
-            <div className="flex-1 bg-[#111]">
-              <AnimatePresence mode="wait">
-                {FEATURES.map((feature) => (
-                  <TabsContent key={feature.id} value={feature.id} className="h-full m-0 p-0 outline-none">
-                    <motion.div
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      transition={{ duration: 0.5 }}
-                      className="grid grid-cols-1 md:grid-cols-2 h-full divide-y md:divide-y-0 md:divide-x divide-white/10"
-                    >
-                      <div className="p-8 md:p-16 flex flex-col justify-center">
-                        <div className="w-12 h-12 border border-white/20 flex items-center justify-center mb-10 text-white rounded-full">
-                          {feature.icon}
-                        </div>
-                        <h4 className="text-3xl font-bold uppercase tracking-tighter text-white mb-6">{feature.title}</h4>
-                        <p className="text-sm text-zinc-400 leading-relaxed mb-10">{feature.description}</p>
-                        <div className="space-y-4">
-                          {feature.bullets.map((bullet, i) => (
-                            <div key={i} className="flex items-center gap-4 text-sm font-medium tracking-widest text-white uppercase">
-                              <div className="w-1 h-1 bg-white" />
-                              <span>{bullet}</span>
+        {/* ==========================================
+            2. BENTHIC REGISTRY (DENSE TECHNICAL)
+            ========================================== */}
+        <section className="py-60 bg-[#04080c] relative border-y border-white/5 overflow-hidden">
+           <div className="max-w-[1600px] mx-auto px-8 md:px-24">
+              <div className="flex flex-col md:flex-row items-end justify-between mb-40 gap-12">
+                 <Reveal>
+                    <span className="text-[10px] font-black uppercase tracking-[0.6em] text-blue-500 block mb-6 italic underline underline-offset-8 decoration-blue-400/20">Benthic // Assets</span>
+                    <h2 className="text-6xl md:text-[10vw] font-black uppercase tracking-tighter italic leading-none text-white">Archives.</h2>
+                 </Reveal>
+                 <div className="text-right">
+                    <span className="text-[10px] font-black uppercase tracking-[0.5em] text-white/20 block mb-4 italic">Registry // Subsea_Audit</span>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-blue-500">L'Architecture de la Forge Abyssale</p>
+                 </div>
+              </div>
+
+              <div className="grid md:grid-cols-3 gap-px bg-white/5 border border-white/5 shadow-2xl">
+                 {BENTHIC_ASSETS.map((asset, i) => (
+                   <Reveal key={asset.id} delay={i * 0.1}>
+                      <div className="bg-[#020408] p-20 flex flex-col h-full hover:bg-white/[0.02] transition-all group cursor-crosshair border-white/5 border-r last:border-r-0">
+                         <div className="flex justify-between items-start mb-16">
+                            <div className="w-16 h-16 bg-white/5 border border-white/10 flex items-center justify-center group-hover:bg-blue-800 group-hover:text-white transition-all duration-500">
+                               <Compass className="w-8 h-8" />
+                            </div>
+                            <span className={`px-4 py-2 bg-white/5 text-[9px] font-black uppercase tracking-[0.3em] ${asset.status === "Operational" ? "text-blue-500" : "text-white/40"}`}>{asset.status}</span>
+                         </div>
+                         
+                         <h3 className="text-4xl font-black uppercase tracking-tighter mb-8 italic text-white group-hover:translate-x-4 transition-transform">{asset.name}</h3>
+                         <div className="text-[10px] font-black text-white/20 uppercase tracking-[0.5em] mb-12">{asset.type}</div>
+                         
+                         <div className="space-y-8 mb-20 border-l border-blue-500/20 pl-8">
+                            <div className="flex justify-between items-center text-[11px] font-bold uppercase tracking-widest">
+                               <span className="text-white/20">Max Pressure</span>
+                               <span className="text-white group-hover:text-blue-400 transition-colors">{asset.pressure}</span>
+                            </div>
+                            <div className="flex justify-between items-center text-[11px] font-bold uppercase tracking-widest">
+                               <span className="text-white/20">Op Temp</span>
+                               <span className="text-white group-hover:text-blue-400 transition-colors">{asset.temp}</span>
+                            </div>
+                            <div className="flex justify-between items-center text-[11px] font-bold uppercase tracking-widest">
+                               <span className="text-white/20">Integrity</span>
+                               <span className="text-white group-hover:text-blue-400 transition-colors">{asset.integrity}</span>
+                            </div>
+                         </div>
+
+                         <p className="text-[12px] text-white/30 leading-loose uppercase tracking-[0.2em] font-bold italic mb-16">
+                            {asset.desc}
+                         </p>
+
+                         <div className="mt-auto pt-10 border-t border-white/5 flex justify-between items-center">
+                            <span className="text-[10px] font-black text-white/10 uppercase tracking-widest">Ref: {asset.id}</span>
+                            <button className="text-[10px] font-black uppercase text-white/40 flex items-center gap-4 group-hover:text-white transition-all">
+                               Technical_Specs <ChevronRight className="w-5 h-5" />
+                            </button>
+                         </div>
+                      </div>
+                   </Reveal>
+                 ))}
+              </div>
+           </div>
+        </section>
+
+        {/* ==========================================
+            3. ABYSSAL MONITOR (INTERACTIVE DATA)
+            ========================================== */}
+        <section className="py-60 bg-black relative border-y border-white/5 overflow-hidden">
+           <div className="max-w-[1400px] mx-auto px-8 md:px-24">
+              <div className="grid lg:grid-cols-2 gap-40 items-center">
+                 <div>
+                    <Reveal>
+                       <span className="text-[10px] font-black uppercase tracking-[0.5em] text-blue-500 block mb-12 italic underline underline-offset-8 decoration-blue-500/20">Abyssal // Performance</span>
+                       <h2 className="text-7xl md:text-[9vw] font-light italic leading-none text-white mb-16 uppercase tracking-tighter">
+                          The <br/> <span className="not-italic font-black text-white/5 italic">Hadal_Link.</span>
+                       </h2>
+                       <p className="text-2xl font-light text-white/20 leading-relaxed mb-24 italic uppercase tracking-[0.2em] max-w-xl">
+                          Surveillance de l'intégrité de coque en temps réel. Nos capteurs hadals analysent chaque micro-vibration pour détecter les signes de fatigue structurelle sous haute pression.
+                       </p>
+                       <div className="grid grid-cols-2 gap-px bg-white/5 border border-white/5 mb-24 shadow-2xl">
+                          {ABYSSAL_METRICS.map((metric, i) => (
+                            <div key={i} className="p-16 bg-[#0a100c] group hover:bg-white/[0.02] transition-all border-r border-b last:border-r-0 border-white/5">
+                               <div className="text-[10px] font-black uppercase text-blue-500 mb-6 tracking-[0.4em]">{metric.label}</div>
+                               <div className="text-5xl font-black text-white italic mb-6 tracking-tighter group-hover:translate-x-4 transition-transform">{metric.value}</div>
+                               <div className="flex items-center gap-3 text-[9px] font-bold uppercase tracking-[0.3em] text-white/10 italic">
+                                  <Activity className="w-4 h-4 text-blue-500" /> {metric.trend}
+                               </div>
                             </div>
                           ))}
-                        </div>
-                      </div>
-                      <div className="relative h-[40vh] md:h-full w-full grayscale hover:grayscale-0 transition-all duration-700">
-                        <Image src={feature.image} alt={feature.title} fill className="object-cover" />
-                      </div>
-                    </motion.div>
-                  </TabsContent>
-                ))}
-              </AnimatePresence>
-            </div>
-          </Tabs>
-        </div>
-      </section>
-
-      {/* ─── 5. TESTIMONIALS CAROUSEL ─── */}
-      <section className="py-32 bg-[#0A0A0A] text-white border-b border-white/10 overflow-hidden relative max-w-[1800px] mx-auto border-x">
-        <div className="px-8 md:px-16 relative z-10">
-          <Reveal>
-            <div className="mb-20 flex flex-col md:flex-row justify-between items-end border-b border-white/10 pb-8">
-              <div>
-                <h2 className="text-[10px] font-bold text-zinc-500 mb-4 uppercase tracking-[0.3em]">Critical Acclaim</h2>
-                <h3 className="text-5xl md:text-6xl font-bold uppercase tracking-tighter">Perspectives.</h3>
-              </div>
-              <div className="hidden md:flex gap-4">
-                <CarouselPrevious className="relative inset-auto translate-y-0 bg-transparent text-white border border-white/20 hover:bg-white hover:text-[#111] w-12 h-12 rounded-full transition-colors" />
-                <CarouselNext className="relative inset-auto translate-y-0 bg-transparent text-white border border-white/20 hover:bg-white hover:text-[#111] w-12 h-12 rounded-full transition-colors" />
-              </div>
-            </div>
-          </Reveal>
-
-          <Carousel className="w-full">
-            <CarouselContent>
-              {TESTIMONIALS.map((testi, i) => (
-                <CarouselItem key={i} className="md:basis-1/2 lg:basis-1/2 pl-8">
-                  <Reveal delay={i * 0.1}>
-                    <Card className="bg-transparent border border-white/10 hover:border-white/40 transition-colors duration-500 cursor-pointer h-full rounded-none">
-                      <CardContent className="p-10 md:p-14 flex flex-col h-full justify-between">
-                        <div>
-                          <div className="flex gap-2 mb-8">
-                            {[...Array(testi.rating)].map((_, j) => (
-                              <Star key={j} className="w-4 h-4 fill-white" />
-                            ))}
+                       </div>
+                       <button 
+                         onClick={() => setIsIntegrityAlertActive(!isIntegrityAlertActive)}
+                         className="w-full py-8 bg-blue-950 text-white text-[11px] font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all shadow-2xl flex items-center justify-center gap-6 italic"
+                       >
+                          <Settings className="w-5 h-5" /> Re-Sync Abyssal Nodes
+                       </button>
+                    </Reveal>
+                 </div>
+                 
+                 <div className="relative">
+                    <Reveal delay={0.3} x={40}>
+                       <div className="aspect-square bg-[#0a100c] border border-white/10 p-20 flex flex-col justify-between relative group overflow-hidden shadow-2xl">
+                          <div className="absolute top-0 right-0 p-80 bg-blue-400 opacity-[0.02] blur-[150px] rounded-full group-hover:opacity-[0.05] transition-opacity" />
+                          
+                          <div className="flex justify-between items-start z-10">
+                             <div className="flex flex-col gap-3">
+                                <span className="text-[10px] font-black text-white/10 uppercase tracking-[0.5em]">Hadal_Link // SEA-SYNC-v42</span>
+                                <span className="text-[12px] font-black text-white/40 uppercase tracking-[0.6em]">Pressure_Hull_Telemetry</span>
+                             </div>
+                             <Wifi className="w-6 h-6 text-blue-400" />
                           </div>
-                          <p className="text-2xl font-light leading-relaxed mb-12 text-zinc-300">
-                            "{testi.content}"
-                          </p>
-                        </div>
-                        <div className="flex items-center gap-6 pt-8 border-t border-white/10">
-                          <Avatar className="w-14 h-14 rounded-full border border-white/20">
-                            <AvatarImage src={testi.avatar} className="grayscale" />
-                            <AvatarFallback>AT</AvatarFallback>
-                          </Avatar>
-                          <div>
-                            <div className="font-bold text-sm tracking-widest uppercase mb-1">{testi.name}</div>
-                            <div className="font-medium text-[10px] uppercase tracking-widest text-zinc-500">{testi.role}</div>
+                          
+                          {/* SUB VISUALIZER (SVG) */}
+                          <div className="relative z-10 flex flex-col items-center justify-center h-full">
+                             <div className="w-64 h-64 border border-blue-400/5 rounded-full flex items-center justify-center relative">
+                                <motion.div 
+                                  animate={{ rotate: 360 }}
+                                  transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+                                  className="absolute inset-0 border-t-2 border-blue-400/20 rounded-full" 
+                                />
+                                <motion.div 
+                                  animate={{ rotate: -360 }}
+                                  transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+                                  className="absolute inset-8 border-b-2 border-blue-400/10 rounded-full" 
+                                />
+                                <Ship className={`w-24 h-24 transition-colors duration-1000 ${!isIntegrityAlertActive ? "text-blue-400 animate-pulse" : "text-red-500 animate-ping"}`} />
+                             </div>
+                             <div className="mt-16 text-center space-y-6">
+                                <div className={`text-4xl font-black italic tracking-tighter ${!isIntegrityAlertActive ? "text-white" : "text-red-500"}`}>
+                                   {!isIntegrityAlertActive ? "INTEGRITY_NOMINAL" : "HULL_FAILURE_DETECTED"}
+                                </div>
+                                <span className="text-[11px] font-bold text-white/10 uppercase tracking-[0.6em] block">Auth_Node: FORGE_UNIT_01</span>
+                             </div>
                           </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </Reveal>
-                </CarouselItem>
+
+                          <div className="relative z-10 flex gap-6">
+                             <div className="flex-1 h-1 bg-white/5 overflow-hidden">
+                                <motion.div 
+                                   animate={!isIntegrityAlertActive ? { x: ["-100%", "100%"] } : {}}
+                                   transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+                                   className="w-1/2 h-full bg-blue-700"
+                                />
+                             </div>
+                          </div>
+                       </div>
+                    </Reveal>
+                 </div>
+              </div>
+           </div>
+        </section>
+
+        {/* ==========================================
+            4. ABYSSAL STORY (TECH STORYTELLING)
+            ========================================== */}
+        <section className="py-60 bg-[#020408] relative overflow-hidden border-t border-white/5">
+           <div className="max-w-[1400px] mx-auto px-8 md:px-24">
+              <div className="grid lg:grid-cols-2 gap-40 items-center">
+                 <div className="relative aspect-[3/4] overflow-hidden group border border-white/5 shadow-2xl">
+                    <Image 
+                       src="https://images.unsplash.com/photo-1551244072-5d12893278ab?q=80&w=1200&auto=format&fit=crop" 
+                       alt="Deep Sea Infrastructure" 
+                       fill 
+                       className="object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-[2000ms]"
+                    />
+                    <div className="absolute inset-0 bg-blue-900/10 mix-blend-color group-hover:opacity-0 transition-opacity" />
+                    <div className="absolute inset-0 p-20 flex flex-col justify-end bg-gradient-to-t from-black via-black/40 to-transparent">
+                       <div className="text-white">
+                          <span className="text-[11px] font-black uppercase tracking-[0.6em] text-blue-500 mb-8 block italic underline underline-offset-8 decoration-blue-400/20">Atelier // Pressure // Unit</span>
+                          <h4 className="text-6xl font-black tracking-tighter uppercase italic mb-12 mix-blend-difference text-white">Abyssal <br/> Fabric.</h4>
+                          <button className="flex items-center gap-6 text-[11px] font-black uppercase tracking-[0.4em] border-b border-white/20 pb-4 hover:border-blue-400 transition-all group">
+                             Descent Protocols <ExternalLink className="w-5 h-5 group-hover:translate-x-2 group-hover:-translate-y-2 transition-transform" />
+                          </button>
+                       </div>
+                    </div>
+                 </div>
+
+                 <div>
+                    <Reveal>
+                       <div className="mb-24 text-left">
+                          <span className="text-[10px] font-black uppercase tracking-[0.5em] text-blue-500 mb-8 block italic">Chapitre III // Forge Abyssale</span>
+                          <h2 className="text-7xl md:text-[10vw] font-black tracking-tighter uppercase text-white italic leading-none text-white">Pure_Depth.</h2>
+                       </div>
+                       <p className="text-2xl font-light text-white/20 leading-relaxed italic mb-20 uppercase tracking-[0.2em]">
+                          Les abysses sont la dernière frontière. Nous utilisons des technologies de forgeage robotisé sous-marin pour construire les structures qui soutiendront l'économie bleue du futur, de l'énergie à la gestion des données.
+                       </p>
+                       <div className="space-y-20">
+                          {[
+                            { t: "Hull Pressurization", d: "Équilibrage dynamique des pressions internes via des fluides incompressibles pour garantir l'intégrité de la coque à -11 000 mètres." },
+                            { t: "Buoyancy Control", d: "Gestion précise de la flottabilité par ajustement de densité de mousse syntactique et ballasts haute pression." },
+                            { t: "Abyssal Forging", d: "Soudure et assemblage robotisé via lasers de puissance operant en milieu aquatique hyper-salin." }
+                          ].map((step, i) => (
+                            <div key={i} className="group flex gap-12 border-b border-white/5 pb-16 hover:border-blue-400/20 transition-all cursor-default">
+                               <div className="text-6xl font-black text-white/5 group-hover:text-blue-400/20 transition-colors italic leading-none">0{i+1}</div>
+                               <div>
+                                  <h5 className="text-3xl font-black uppercase tracking-tight text-white mb-6 italic group-hover:translate-x-4 transition-transform text-white">{step.t}</h5>
+                                  <p className="text-[12px] text-white/20 uppercase tracking-[0.3em] font-bold leading-loose italic">{step.d}</p>
+                               </div>
+                            </div>
+                          ))}
+                       </div>
+                    </Reveal>
+                 </div>
+              </div>
+           </div>
+        </section>
+
+        {/* MEGA FOOTER */}
+        <footer className="bg-black pt-60 pb-12 px-8 md:px-24 relative z-50">
+           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-32 mb-60 text-white">
+              <div className="lg:col-span-2">
+                 <div className="flex items-center gap-6 mb-16">
+                    <div className="w-16 h-16 bg-blue-800 flex items-center justify-center">
+                      <Anchor className="w-10 h-10 text-white" />
+                    </div>
+                    <span className="text-4xl font-black uppercase tracking-tighter italic">DEEP SEA<span className="text-white/20">FORGE.</span></span>
+                 </div>
+                 <p className="text-white/20 text-[11px] font-black uppercase tracking-[0.5em] leading-loose max-w-sm mb-20 italic">
+                    "L'avenir de l'humanité est sous-marin." — Archive Forge V.42
+                 </p>
+                 <div className="flex gap-16">
+                    {["DiveLog", "BenthicRegistry", "GitHub", "X_Protocol"].map(s => (
+                      <Link key={s} href="#" className="text-[11px] font-black uppercase tracking-widest text-white/20 hover:text-blue-400 transition-colors italic underline underline-offset-8 decoration-white/5">{s}</Link>
+                    ))}
+                 </div>
+              </div>
+
+              {[
+                { t: "ASSETS", l: ["Nodule Extractor v4", "Thermal Station Alpha", "Quantum Subsea v5", "Hadal Drone"] },
+                { t: "TECHNOLOGY", l: ["Pressure Hulls", "Ballast Systems", "Abyssal Forging", "SLA Reports"] },
+                { t: "ATELIER", l: ["Our Legacy", "Oceanic Policy", "Locations", "Support"] }
+              ].map((col, i) => (
+                <div key={i} className="flex flex-col gap-12">
+                  <h4 className="text-[11px] font-black text-blue-400 uppercase tracking-[0.6em] italic">{col.t}</h4>
+                  <ul className="flex flex-col gap-8">
+                    {col.l.map(link => (
+                      <li key={link} className="text-[11px] font-bold text-white/20 hover:text-white transition-colors cursor-pointer uppercase tracking-[0.4em] italic">{link}</li>
+                    ))}
+                  </ul>
+                </div>
               ))}
-            </CarouselContent>
-          </Carousel>
-        </div>
-      </section>
+           </div>
 
-      {/* ─── 6. PRICING (COMMISSIONS) ─── */}
-      <section id="studio" className="bg-[#111] border-b border-white/10 relative max-w-[1800px] mx-auto border-x">
-        <div className="p-8 md:p-16">
-          <div className="text-center mb-24 max-w-2xl mx-auto">
-            <Reveal>
-              <h2 className="text-[10px] font-bold text-zinc-500 mb-4 uppercase tracking-[0.3em]">Engagement</h2>
-              <h3 className="text-4xl md:text-6xl font-bold text-white mb-6 tracking-tighter uppercase">Commissions</h3>
-              <p className="text-sm font-medium text-zinc-400 leading-relaxed">
-                We accept a limited number of commissions each year to ensure the highest level of detail and partner involvement on every project.
-              </p>
-            </Reveal>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {PRICING.map((tier, i) => (
-              <Reveal key={i} delay={i * 0.1}>
-                <Card className={`relative bg-transparent border border-white/10 rounded-none transition-all duration-500 hover:border-white/50 ${tier.recommended ? 'bg-white/5' : ''}`}>
-                  {tier.recommended && (
-                    <div className="absolute top-0 inset-x-0 bg-white text-[#111] text-[10px] font-bold uppercase tracking-[0.3em] text-center py-2">
-                      Typical Engagement
-                    </div>
-                  )}
-                  <CardContent className={`p-10 md:p-12 ${tier.recommended ? 'pt-14' : ''}`}>
-                    <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500 mb-4">{tier.duration}</div>
-                    <h4 className="text-2xl font-bold uppercase tracking-tighter mb-2">{tier.title}</h4>
-                    <div className="text-xs uppercase tracking-widest text-zinc-400 mb-8">{tier.subtitle}</div>
-                    
-                    <div className="mb-8 pb-8 border-b border-white/10">
-                      <span className="text-4xl font-light tracking-tighter">{tier.price}</span>
-                    </div>
-
-                    <p className="text-sm font-medium text-zinc-400 mb-10 h-16 leading-relaxed">{tier.description}</p>
-                    
-                    <ul className="space-y-4 mb-12">
-                      {tier.features.map((feat, j) => (
-                        <li key={j} className="flex items-center gap-4 text-xs font-bold uppercase tracking-widest text-zinc-300">
-                          <div className="w-1.5 h-1.5 bg-white" />
-                          <span>{feat}</span>
-                        </li>
-                      ))}
-                    </ul>
-
-                    <button className={`w-full py-5 text-xs font-bold uppercase tracking-[0.2em] transition-all duration-300 border ${tier.recommended ? 'bg-white text-[#111] border-white hover:bg-transparent hover:text-white' : 'bg-transparent text-white border-white/20 hover:border-white'}`}>
-                      Inquire
-                    </button>
-                  </CardContent>
-                </Card>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ─── 7. FAQ ACCORDION ─── */}
-      <section className="bg-[#111] border-b border-white/10 max-w-[1800px] mx-auto border-x">
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.5fr] divide-y lg:divide-y-0 lg:divide-x divide-white/10 min-h-[60vh]">
-          <div className="p-8 md:p-16 flex flex-col justify-center">
-            <Reveal>
-              <h2 className="text-[10px] font-bold text-zinc-500 mb-6 uppercase tracking-[0.3em]">Information</h2>
-              <h3 className="text-5xl md:text-6xl font-bold uppercase tracking-tighter leading-[1.1]">Process &<br/>Parameters.</h3>
-            </Reveal>
-          </div>
-
-          <div className="p-8 md:p-16 flex items-center">
-            <Reveal className="w-full">
-              <Accordion type="single" collapsible className="w-full">
-                {FAQS.map((faq, i) => (
-                  <AccordionItem key={i} value={`item-${i}`} className="border-b border-white/10 last:border-b-0">
-                    <AccordionTrigger className="text-left font-bold text-lg hover:no-underline py-6 hover:text-zinc-400 transition-colors uppercase tracking-widest">
-                      {faq.question}
-                    </AccordionTrigger>
-                    <AccordionContent className="text-sm font-medium leading-relaxed pb-6 text-zinc-400 pr-8">
-                      {faq.answer}
-                    </AccordionContent>
-                  </AccordionItem>
-                ))}
-              </Accordion>
-            </Reveal>
-          </div>
-        </div>
-      </section>
-
-      {/* ─── 8. CTA BANNER ─── */}
-      <section className="border-b border-white/10 bg-[#111] max-w-[1800px] mx-auto border-x">
-        <Reveal>
-          <div className="relative overflow-hidden group border-t border-white/10">
-            <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=1600&q=80')] bg-cover bg-center grayscale opacity-20 group-hover:opacity-30 transition-opacity duration-1000" />
-            
-            <div className="relative z-10 p-16 md:p-32 text-center bg-black/40 backdrop-blur-sm">
-              <Ruler className="w-12 h-12 text-white mx-auto mb-8 stroke-[1]" />
-              <h2 className="text-4xl md:text-6xl font-bold uppercase tracking-tighter text-white mb-8 leading-[1.1]">Build Something<br/>Permanent.</h2>
-              <button className="px-12 py-5 bg-white text-[#111] text-xs font-bold uppercase tracking-[0.2em] hover:bg-transparent hover:text-white border hover:border-white transition-all duration-300 cursor-pointer">
-                Start a Conversation
-              </button>
-            </div>
-          </div>
-        </Reveal>
-      </section>
-
-      {/* ─── 9. FOOTER ─── */}
-      <footer className="bg-[#0A0A0A] text-white p-8 md:p-16 max-w-[1800px] mx-auto border-x border-white/10">
-        <div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16 mb-24 border-b border-white/10 pb-16">
-            <div>
-              <Link href="/" className="inline-block mb-8 cursor-pointer">
-                <span className="text-2xl font-bold tracking-widest uppercase text-white">
-                  ArchiTectura.
-                </span>
-              </Link>
-              <p className="text-sm font-medium text-zinc-500 leading-relaxed mb-8 max-w-sm">
-                A multidisciplinary architecture studio based in Berlin, creating rigorous, timeless spaces worldwide.
-              </p>
-              <div className="flex gap-4">
-                <a href="#" className="w-10 h-10 border border-white/20 flex items-center justify-center hover:bg-white hover:text-[#111] transition-colors rounded-full"><Camera className="w-4 h-4" /></a>
-                <a href="#" className="w-10 h-10 border border-white/20 flex items-center justify-center hover:bg-white hover:text-[#111] transition-colors rounded-full"><Briefcase className="w-4 h-4" /></a>
+           <div className="max-w-[1600px] mx-auto border-t border-white/5 pt-16 flex flex-col md:flex-row justify-between items-center gap-16 text-[10px] font-black text-white/10 uppercase tracking-[0.6em] italic">
+              <span>© 2026 DEEP SEA FORGE ABYSSAL SYSTEMS AG. // ALL_RIGHTS_RESERVED</span>
+              <div className="flex gap-16">
+                 <span>STATUS: OPERATIONAL</span>
+                 <span>DEPTH: 10,924M (AVG)</span>
+                 <span>v4.12.0-STABLE</span>
               </div>
-            </div>
+           </div>
+        </footer>
+      </main>
+    </div>
+  )
+}
 
-            <div>
-              <h4 className="font-bold uppercase tracking-[0.2em] text-[10px] mb-8 text-zinc-400">Offices</h4>
-              <ul className="space-y-6">
-                <li className="text-sm font-medium text-zinc-500 leading-relaxed">
-                  <span className="text-white block mb-1">Berlin (HQ)</span>
-                  Mitte District 12<br/>10115 Berlin, DE
-                </li>
-                <li className="text-sm font-medium text-zinc-500 leading-relaxed">
-                  <span className="text-white block mb-1">New York</span>
-                  Tribeca St 45<br/>10013 NY, USA
-                </li>
-              </ul>
-            </div>
+/* ==========================================
+   TECHNICAL SUB-COMPONENTS
+   ========================================== */
 
-            <div>
-              <h4 className="font-bold uppercase tracking-[0.2em] text-[10px] mb-8 text-zinc-400">Studio</h4>
-              <ul className="space-y-4">
-                <li><a href="#" className="font-bold text-xs hover:text-white text-zinc-500 transition-colors uppercase tracking-widest cursor-pointer">Profile</a></li>
-                <li><a href="#" className="font-bold text-xs hover:text-white text-zinc-500 transition-colors uppercase tracking-widest cursor-pointer">Selected Works</a></li>
-                <li><a href="#" className="font-bold text-xs hover:text-white text-zinc-500 transition-colors uppercase tracking-widest cursor-pointer">Publications</a></li>
-                <li><a href="#" className="font-bold text-xs hover:text-white text-zinc-500 transition-colors uppercase tracking-widest cursor-pointer">Careers</a></li>
-              </ul>
-            </div>
+function HUD_Overlay({ isIntegrityAlertActive }: { isIntegrityAlertActive: boolean }) {
+  return (
+    <div className="fixed inset-0 pointer-events-none z-[100]">
+       {/* Corner Brackets */}
+       <div className={`absolute top-12 left-12 w-20 h-20 border-t-2 border-l-2 transition-colors duration-1000 ${!isIntegrityAlertActive ? "border-blue-400" : "border-red-500"}`} />
+       <div className={`absolute top-12 right-12 w-20 h-20 border-t-2 border-r-2 transition-colors duration-1000 ${!isIntegrityAlertActive ? "border-blue-400" : "border-red-500"}`} />
+       <div className={`absolute bottom-12 left-12 w-20 h-20 border-b-2 border-l-2 transition-colors duration-1000 ${!isIntegrityAlertActive ? "border-blue-400" : "border-red-500"}`} />
+       <div className={`absolute bottom-12 right-12 w-20 h-20 border-b-2 border-r-2 transition-colors duration-1000 ${!isIntegrityAlertActive ? "border-blue-400" : "border-red-500"}`} />
 
-            <div>
-              <h4 className="font-bold uppercase tracking-[0.2em] text-[10px] mb-8 text-zinc-400">Contact</h4>
-              <ul className="space-y-4 font-medium text-sm text-zinc-500">
-                <li className="flex items-center gap-3">
-                  <Mail className="w-4 h-4 text-white" /> studio@architectura.com
-                </li>
-                <li className="flex items-center gap-3">
-                  <Phone className="w-4 h-4 text-white" /> +49 30 1234 5678
-                </li>
-              </ul>
-            </div>
+       {/* Top Status Bar */}
+       <div className="absolute top-12 left-1/2 -translate-x-1/2 flex items-center gap-20 bg-black/60 backdrop-blur-2xl px-12 py-4 border border-white/10 rounded-none">
+          <div className="flex items-center gap-6 text-white">
+             <div className={`w-3 h-3 transition-colors duration-500 ${!isIntegrityAlertActive ? "bg-blue-400 animate-pulse" : "bg-red-500 animate-ping"}`} />
+             <span className="text-[10px] font-black uppercase tracking-[0.4em] italic leading-none">Dive_Sync: {!isIntegrityAlertActive ? "NOMINAL" : "PRESSURE_FAILURE"} // Status: ACTIVE</span>
           </div>
-
-          <div className="flex flex-col lg:flex-row justify-between items-center gap-8 font-bold uppercase tracking-[0.2em] text-[10px] text-zinc-600">
-            <p>&copy; 2026 ARCHITECTURA STUDIO. ALL RIGHTS RESERVED.</p>
-            <div className="flex gap-8">
-              <a href="#" className="hover:text-white transition-colors cursor-pointer">Imprint</a>
-              <a href="#" className="hover:text-white transition-colors cursor-pointer">Privacy Policy</a>
-            </div>
+          <div className="h-4 w-px bg-white/20" />
+          <div className="flex items-center gap-6 text-white/20">
+             <Wifi className="w-4 h-4" /> 
+             <span className="text-[10px] font-black uppercase tracking-[0.4em] italic leading-none">Abyssal_Grid: SECURE</span>
           </div>
-        </div>
-      </footer>
+       </div>
 
+       {/* Right Rotation Info */}
+       <div className="absolute right-12 top-1/2 -translate-y-1/2 rotate-90 origin-right hidden lg:block">
+          <span className="text-[10px] font-black uppercase tracking-[0.8em] text-white/5 italic">Unauthorized_Duplication_Of_Abyssal_Patterns_Is_Strictly_Monitored_By_Global_Forge_Alliance</span>
+       </div>
     </div>
   )
 }

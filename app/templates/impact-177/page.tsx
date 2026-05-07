@@ -1,310 +1,508 @@
 "use client"
-import { motion, useScroll, useTransform, useInView, AnimatePresence } from "framer-motion"
-import { useRef, useState, useEffect } from "react"
+
+import React, { useState, useEffect, useRef } from "react"
+import { 
+  motion, 
+  AnimatePresence, 
+  useScroll, 
+  useTransform, 
+  useInView, 
+  useSpring 
+} from "framer-motion"
 import Image from "next/image"
 import Link from "next/link"
-import { Mic2, Play, Pause, Headphones, Star, ArrowRight, Rss, Clock, Users, Menu, ChevronRight, Mail, Globe } from "lucide-react"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { 
+  Dna, Zap, Activity, Microscope, 
+  Target, Layers, Box, Hexagon, 
+  Terminal, Settings, Power, Info, 
+  AlertTriangle, ChevronRight, ArrowRight, 
+  Share2, Maximize2, Download, ExternalLink, 
+  Archive, Hash, Wifi, BarChart3, 
+  Fingerprint, Scan, Brain, Server, 
+  ShieldCheck, ShieldAlert, Award, 
+  Briefcase, Wind, Thermometer, 
+  Flame, Battery, Radio, Gauge, 
+  Timer, Lightbulb, Command, Grid, 
+  Radar, Orbit, Atom, Satellite, 
+  Milestone, FlaskConical, FlaskRound, 
+  Ghost, Droplets, Leaf, TreePine, 
+  Bug, Database, Search, Codesandbox, 
+  Binary, FileText
+} from "lucide-react"
 
-function Reveal({ children, delay = 0, y = 40 }: { children: React.ReactNode; delay?: number; y?: number }) {
+/* ==========================================================================
+   THE BIO-DIGITAL CORE DATASET (ULTRA DENSITY)
+   ========================================================================== */
+
+const GENETIC_ASSETS = [
+  {
+    id: "gen-arc-42",
+    name: "Global Seed Archive v4",
+    type: "Plant Biodiversity",
+    density: "1.4 Exabytes/g",
+    fidelity: "99.9999%",
+    stability: "50,000 Years",
+    desc: "Stockage de données génétiques pour 12 millions de variétés de plantes, encodé en ADN synthétique et encapsulé dans des microsphères de silice.",
+    status: "Encrypted"
+  },
+  {
+    id: "gen-hst-08",
+    name: "Human History Index",
+    type: "Digital Heritage",
+    density: "800 Petabytes/g",
+    fidelity: "99.9842%",
+    stability: "12,000 Years",
+    desc: "Archive complète de la littérature mondiale et des données historiques, convertie en séquences de nucléotides pour une conservation millénaire.",
+    status: "Online"
+  },
+  {
+    id: "gen-bio-15",
+    name: "Species Recovery X",
+    type: "Endangered Genomes",
+    density: "2.1 Exabytes/g",
+    fidelity: "100%",
+    stability: "Unlimited (Cooling)",
+    desc: "Génomes complets d'espèces en voie d'extinction, prêts pour des protocoles de restauration biologique future.",
+    status: "Locked"
+  }
+]
+
+const BIO_METRICS = [
+  { label: "Storage Temp", value: "-18°C", trend: "Stable" },
+  { label: "Sequencing Speed", value: "4.2 Tb/s", trend: "Optimal" },
+  { label: "Substrate Purity", value: "Grade 12", trend: "High" },
+  { label: "Encoding Error", value: "0.0001%", trend: "Decreasing" }
+]
+
+const BIO_LOGS = [
+  { timestamp: "16:14:42", unit: "Synth-Core-01", status: "ACTIVE", oligos: "4.2B" },
+  { timestamp: "16:14:45", unit: "PCR-Free-Reader", status: "SYNCED", fidelity: "100%" },
+  { timestamp: "16:14:48", unit: "Silica-Vault-Z", status: "STABLE", pressure: "1.2 ATM" }
+]
+
+/* ==========================================
+   TECHNICAL COMPONENTS
+   ========================================== */
+
+function Reveal({ children, delay = 0, y = 40, x = 0 }: { children: React.ReactNode, delay?: number, y?: number, x?: number }) {
   const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, margin: "-80px" })
+  const isInView = useInView(ref, { once: true, margin: "-100px" })
   return (
-    <motion.div ref={ref} initial={{ opacity: 0, y }} animate={isInView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 1, delay, ease: [0.16, 1, 0.3, 1] }}>
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y, x }}
+      animate={isInView ? { opacity: 1, y: 0, x: 0 } : {}}
+      transition={{ duration: 1.2, delay, ease: [0.16, 1, 0.3, 1] }}
+    >
       {children}
     </motion.div>
   )
 }
 
-function AudioWave({ playing = false }: { playing?: boolean }) {
+function NucleotideStreamVisualizer() {
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
+  useEffect(() => {
+    const handleMouse = (e: MouseEvent) => setMousePos({ x: e.clientX, y: e.clientY })
+    window.addEventListener("mousemove", handleMouse)
+    return () => window.removeEventListener("mousemove", handleMouse)
+  }, [])
+
   return (
-    <div className="flex items-center gap-[3px] h-8">
-      {Array.from({ length: 20 }).map((_, i) => (
-        <motion.div
-          key={i}
-          className="w-[3px] rounded-full bg-amber-400"
-          animate={playing
-            ? { height: ["15%", "90%", "30%", "70%", "15%"] }
-            : { height: "20%" }
-          }
-          transition={playing
-            ? { duration: 1.2 + Math.random() * 0.5, repeat: Infinity, ease: "easeInOut", delay: i * 0.08 }
-            : { duration: 0.3 }
-          }
-        />
-      ))}
+    <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden opacity-10">
+       <svg width="100%" height="100%" className="w-full h-full">
+          {[...Array(10)].map((_, i) => (
+            <motion.path 
+               key={i}
+               d={`M ${100 + i * 100} 0 Q ${200 + i * 100} 400 ${100 + i * 100} 800`}
+               stroke="#22c55e" 
+               strokeWidth="0.5" 
+               fill="none"
+               animate={{ d: `M ${100 + i * 100} 0 Q ${mousePos.x + (i * 20)} ${mousePos.y} ${100 + i * 100} 800` }}
+               transition={{ type: "spring", damping: 20, stiffness: 40 }}
+            />
+          ))}
+       </svg>
     </div>
   )
 }
 
-const EPISODES = [
-  { num: "127", title: "The Loneliness Economy", guest: "Dr. Vivian Cross", duration: "1:42:15", date: "May 2, 2026", desc: "Why isolation became the biggest market opportunity of the decade — and what it means for society.", tags: ["Society", "Economy"] },
-  { num: "126", title: "How CRISPR Rewrites History", guest: "Prof. Raj Patel", duration: "1:18:30", date: "Apr 25, 2026", desc: "Gene editing's leap from lab curiosity to civilization-altering tool. The ethics no one is discussing.", tags: ["Biotech", "Ethics"] },
-  { num: "125", title: "The Architecture of Decisions", guest: "Sarah Blackwood", duration: "58:45", date: "Apr 18, 2026", desc: "Behavioral science in product design. How tech companies nudge billions of daily choices.", tags: ["Design", "Psychology"] },
-  { num: "124", title: "Post-Internet Art", guest: "Kai Müller", duration: "1:05:10", date: "Apr 11, 2026", desc: "Digital-native artists redefining what it means to create when AI can generate anything.", tags: ["Art", "AI"] },
-]
-
-const STATS = [
-  { value: "2.4M", label: "Weekly listeners" },
-  { value: "127", label: "Episodes aired" },
-  { value: "#3", label: "Global rank" },
-  { value: "4.9★", label: "Average rating" },
-]
-
-export default function EssentialPodcastPage() {
-  const [scrolled, setScrolled] = useState(false)
-  const [playing, setPlaying] = useState<string | null>(null)
-  const heroRef = useRef(null)
-
-  const { scrollYProgress } = useScroll()
-  const heroY = useTransform(scrollYProgress, [0, 0.2], ["0%", "30%"])
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.12], [1, 0])
-
-  useEffect(() => {
-    const h = () => setScrolled(window.scrollY > 60)
-    window.addEventListener("scroll", h)
-    return () => window.removeEventListener("scroll", h)
-  }, [])
+function BioCoreModel({ progress }: { progress: any }) {
+  const rotate = useTransform(progress, [0, 1], [0, 360])
+  const scale = useTransform(progress, [0, 0.5, 1], [1, 1.2, 1])
 
   return (
-    <div className="bg-[#0c0c0c] text-white font-sans min-h-screen selection:bg-amber-400 selection:text-black overflow-x-hidden">
+    <motion.div style={{ rotate, scale }} className="relative w-80 h-80 flex items-center justify-center">
+       <div className="absolute inset-0 border border-green-500/10 rounded-full animate-spin-slow shadow-[0_0_80px_rgba(34,197,94,0.05)]" />
+       <Dna className="w-40 h-40 text-green-500/10 animate-pulse" />
+       <div className="absolute inset-8 border border-green-500/5 rounded-full" />
+    </motion.div>
+  )
+}
 
-      {/* ── NAVBAR ─────────────────────────────────────────────── */}
-      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-700 ${scrolled ? "bg-[#0c0c0c]/90 backdrop-blur-xl border-b border-amber-400/10 py-4" : "bg-transparent py-8"}`}>
-        <div className="max-w-[1600px] mx-auto px-6 md:px-12 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-amber-400 flex items-center justify-center">
-              <Mic2 className="w-5 h-5 text-black" />
-            </div>
-            <div className="flex flex-col">
-              <span className="text-lg font-black tracking-tight">SIGNAL</span>
-              <span className="text-[8px] font-bold uppercase tracking-[0.4em] text-amber-400 -mt-1">Podcast</span>
-            </div>
-          </Link>
-          <div className="hidden lg:flex gap-10 text-[10px] font-bold uppercase tracking-[0.3em] text-white/40">
-            {["Episodes", "About", "Guests", "Subscribe"].map(l => (
-              <Link key={l} href="#" className="hover:text-amber-400 transition-colors">{l}</Link>
-            ))}
-          </div>
-          <div className="flex items-center gap-6">
-            <button className="hidden md:block px-8 py-3 bg-amber-400 text-black text-[10px] font-bold uppercase tracking-[0.2em] rounded-full hover:bg-white transition-colors duration-500">
-              Subscribe Free
-            </button>
-            <Sheet>
-              <SheetTrigger asChild>
-                <button className="lg:hidden"><Menu className="w-6 h-6 text-white" /></button>
-              </SheetTrigger>
-              <SheetContent side="right" className="bg-[#0c0c0c] border-amber-400/10 p-12">
-                <div className="flex flex-col gap-8 mt-16">
-                  {["Episodes", "About", "Guests", "Subscribe"].map(l => (
-                    <Link key={l} href="#" className="text-3xl font-light uppercase tracking-widest hover:text-amber-400 transition-colors">{l}</Link>
-                  ))}
-                </div>
-              </SheetContent>
-            </Sheet>
-          </div>
-        </div>
-      </nav>
+/* ==========================================
+   THE BIO-DIGITAL CORE - MAIN INTERFACE
+   ========================================== */
+
+export default function BioDigitalCorePremium() {
+  const [activeAsset, setActiveAsset] = useState(0)
+  const [isBioSyncActive, setIsBioSyncActive] = useState(true)
+  const containerRef = useRef(null)
+  const { scrollYProgress } = useScroll({ target: containerRef })
+
+  // Bio Scroll Effects
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.2], [1, 0])
+  const textX = useTransform(scrollYProgress, [0, 0.5], [0, -100])
+
+  return (
+    <div ref={containerRef} className="bg-[#020804] text-[#e0e8ed] font-mono selection:bg-green-500/30 selection:text-white min-h-screen overflow-x-hidden transition-colors duration-1000">
+      
+      {/* GLOBAL HUD OVERLAY */}
+      <HUD_Overlay isBioSyncActive={isBioSyncActive} />
 
       <main>
-        {/* ── HERO ─────────────────────────────────────────────── */}
-        <section className="relative min-h-screen flex items-center overflow-hidden pt-32 pb-20" ref={heroRef}>
-          <div className="absolute inset-0 bg-gradient-to-b from-amber-400/5 via-transparent to-transparent pointer-events-none" />
-          
-          <motion.div style={{ opacity: heroOpacity }} className="relative z-10 max-w-[1600px] mx-auto px-6 md:px-12 w-full grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-            <div>
-              <Reveal>
-                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-amber-400/20 bg-amber-400/10 text-amber-400 text-[10px] font-bold uppercase tracking-widest mb-8">
-                  <Star className="w-3 h-3 fill-current" /> #3 Technology Podcast Worldwide
+        {/* ==========================================
+            1. GENETIC IGNITION (HERO)
+            ========================================== */}
+        <section className="relative h-screen flex flex-col justify-center items-center px-8 md:px-24 overflow-hidden pt-20">
+          <NucleotideStreamVisualizer />
+          <motion.div style={{ opacity: heroOpacity }} className="absolute z-0 pointer-events-none flex items-center justify-center">
+             <BioCoreModel progress={scrollYProgress} />
+          </motion.div>
+
+          <div className="relative z-10 text-center max-w-7xl">
+             <Reveal>
+                <div className="inline-flex items-center gap-4 px-6 py-2 border border-green-500/30 bg-green-500/5 text-[10px] font-black uppercase tracking-[0.5em] text-green-500 mb-12 italic">
+                   <Dna className="w-4 h-4" /> Bio_Sync: NOMINAL // Density: 1.4 Exabytes/g
                 </div>
-              </Reveal>
-              <Reveal delay={0.1} y={60}>
-                <h1 className="text-6xl md:text-8xl font-black tracking-tighter leading-[0.9] mb-8">
-                  Cut Through<br/>The <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-orange-300">Noise.</span>
-                </h1>
-              </Reveal>
-              <Reveal delay={0.2}>
-                <p className="text-xl text-white/50 font-light leading-relaxed mb-10 max-w-lg">
-                  Long-form conversations with the minds shaping our future. No ads, no fluff — just the signal.
+                <motion.h1 style={{ x: textX }} className="text-7xl md:text-[14vw] font-black tracking-tighter uppercase mb-16 leading-[0.75] italic">
+                   Bio-Digital <br/> <span className="text-white/5 italic">Core.</span>
+                </motion.h1>
+                <p className="max-w-3xl mx-auto text-sm md:text-lg text-white/30 leading-relaxed uppercase tracking-widest font-light mb-16 italic">
+                   L'évolution du stockage de données par la synthèse d'ADN. Nous préservons l'information mondiale dans le code le plus résilient de l'univers : la vie.
                 </p>
-              </Reveal>
-              <Reveal delay={0.3}>
-                <div className="flex flex-wrap gap-4">
-                  <button onClick={() => setPlaying(playing ? null : "127")} className="px-8 py-4 bg-amber-400 text-black font-bold rounded-full hover:bg-white transition-colors flex items-center gap-3">
-                    {playing ? <Pause className="w-5 h-5 fill-current" /> : <Play className="w-5 h-5 fill-current" />}
-                    Listen to Latest
-                  </button>
-                  <button className="px-8 py-4 border border-white/20 text-white font-bold rounded-full hover:bg-white/10 transition-colors flex items-center gap-3">
-                    <Rss className="w-5 h-5" /> All Platforms
-                  </button>
+                
+                <div className="flex flex-col sm:flex-row gap-8 justify-center items-center">
+                   <button className="px-12 py-6 bg-green-800 text-white text-[10px] font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all shadow-[0_0_40px_rgba(34,197,94,0.2)] flex items-center gap-4 italic">
+                      <Microscope className="w-5 h-5" /> Initialize Sync
+                   </button>
+                   <button className="px-12 py-6 border border-white/10 text-white text-[10px] font-black uppercase tracking-widest hover:bg-white/5 transition-all flex items-center gap-4 italic">
+                      <Database className="w-5 h-5" /> Genetic Registry
+                   </button>
                 </div>
-              </Reveal>
-            </div>
+             </Reveal>
+          </div>
 
-            <Reveal delay={0.2}>
-              <div className="relative hidden lg:block">
-                <div className="aspect-square relative rounded-3xl overflow-hidden shadow-[0_20px_80px_rgba(0,0,0,0.8)] border border-white/10">
-                  <Image src="https://images.unsplash.com/photo-1590602847861-f357a9332bbc?auto=format&fit=crop&q=80&w=800" alt="Podcast Studio" fill className="object-cover" priority />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-                  <div className="absolute bottom-8 left-8 right-8">
-                    <div className="text-amber-400 font-black text-3xl tracking-tighter mb-2">SIGNAL</div>
-                    <div className="text-white/60 text-sm font-bold uppercase tracking-widest">Hosted by Alex Chen</div>
-                    <div className="mt-4"><AudioWave playing={!!playing} /></div>
-                  </div>
+          <div className="absolute bottom-12 left-12 right-12 flex justify-between items-end border-t border-white/5 pt-12">
+             <div className="flex flex-col gap-6">
+                <div className="flex items-center gap-4 text-[9px] font-bold text-white/20 uppercase tracking-widest italic">
+                   <div className="w-16 h-px bg-white/10" />
+                   Storage_Node: CORE-VAULT-42
                 </div>
-                <motion.div animate={{ y: [-8, 8, -8] }} transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-                  className="absolute -bottom-6 -left-6 bg-[#1a1a1a] border border-white/10 p-5 rounded-2xl shadow-2xl flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-full bg-amber-400/20 flex items-center justify-center">
-                    <Headphones className="w-6 h-6 text-amber-400" />
-                  </div>
-                  <div>
-                    <div className="text-xs text-white/40 uppercase tracking-widest font-bold">Audio Quality</div>
-                    <div className="font-mono text-sm font-bold">48kHz / 24-bit</div>
-                  </div>
-                </motion.div>
-              </div>
-            </Reveal>
-          </motion.div>
-        </section>
-
-        {/* ── STATS ────────────────────────────────────────────── */}
-        <section className="py-16 border-y border-white/5">
-          <div className="max-w-[1400px] mx-auto px-6 md:px-12 grid grid-cols-2 md:grid-cols-4 gap-8">
-            {STATS.map((s, i) => (
-              <Reveal key={i} delay={i * 0.08}>
-                <div className="text-center">
-                  <div className="text-3xl md:text-4xl font-black text-amber-400 mb-1">{s.value}</div>
-                  <div className="text-[10px] font-bold uppercase tracking-widest text-white/30">{s.label}</div>
+                <div className="flex items-center gap-4 text-[9px] font-bold text-white/20 uppercase tracking-widest italic">
+                   <div className="w-16 h-px bg-white/10" />
+                   Substrate_Status: STABLE_ENCAPSULATION
                 </div>
-              </Reveal>
-            ))}
+             </div>
+             <div className="text-right flex flex-col items-end gap-4">
+                <span className="text-[8px] font-black uppercase tracking-[0.5em] text-green-500">Nucleotide_Vibration_Stream</span>
+                <div className="flex gap-2 h-12 items-end">
+                   {[...Array(16)].map((_, i) => (
+                     <motion.div 
+                        key={i}
+                        animate={{ height: ["10%", "100%", "30%", "80%", "10%"] }}
+                        transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.1 }}
+                        className="w-2 bg-green-500/20"
+                     />
+                   ))}
+                </div>
+             </div>
           </div>
         </section>
 
-        {/* ── EPISODES ─────────────────────────────────────────── */}
-        <section className="py-32 bg-[#0c0c0c]">
-          <div className="max-w-[1000px] mx-auto px-6 md:px-12">
-            <Reveal>
-              <div className="flex justify-between items-end mb-16 border-b border-white/10 pb-8">
-                <h2 className="text-4xl md:text-5xl font-black tracking-tighter">Recent Episodes</h2>
-                <Link href="#" className="hidden md:flex items-center gap-2 text-amber-400 text-[10px] font-bold uppercase tracking-widest">
-                  View All <ArrowRight className="w-4 h-4" />
-                </Link>
+        {/* ==========================================
+            2. GENETIC REGISTRY (DENSE TECHNICAL)
+            ========================================== */}
+        <section className="py-60 bg-[#040c06] relative border-y border-white/5 overflow-hidden">
+           <div className="max-w-[1600px] mx-auto px-8 md:px-24">
+              <div className="flex flex-col md:flex-row items-end justify-between mb-40 gap-12">
+                 <Reveal>
+                    <span className="text-[10px] font-black uppercase tracking-[0.6em] text-green-500 block mb-6 italic underline underline-offset-8 decoration-green-500/20">Genetic // Assets</span>
+                    <h2 className="text-6xl md:text-[10vw] font-black uppercase tracking-tighter italic leading-none text-white">Archives.</h2>
+                 </Reveal>
+                 <div className="text-right">
+                    <span className="text-[10px] font-black uppercase tracking-[0.5em] text-white/20 block mb-4 italic">Registry // Genomic_Audit</span>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-green-500">L'Architecture du Code Bio</p>
+                 </div>
               </div>
-            </Reveal>
 
-            <div className="space-y-6">
-              {EPISODES.map((ep, i) => {
-                const isPlaying = playing === ep.num
-                return (
-                  <Reveal key={ep.num} delay={i * 0.08}>
-                    <div className={`p-8 rounded-2xl border transition-all duration-300 group ${isPlaying ? "bg-[#1a1a1a] border-amber-400/30" : "bg-[#1a1a1a]/50 border-white/5 hover:border-white/20"}`}>
-                      <div className="flex flex-col md:flex-row gap-6">
-                        <div className="md:w-24 flex md:flex-col justify-between items-start shrink-0">
-                          <div className="text-[10px] font-mono text-white/30 mb-2">EP {ep.num}</div>
-                          <button onClick={() => setPlaying(isPlaying ? null : ep.num)}
-                            className={`w-14 h-14 rounded-full flex items-center justify-center transition-all shadow-lg ${isPlaying ? "bg-amber-400 text-black" : "bg-white/10 text-white group-hover:bg-amber-400 group-hover:text-black"}`}>
-                            {isPlaying ? <Pause className="w-5 h-5 fill-current" /> : <Play className="w-5 h-5 fill-current ml-1" />}
-                          </button>
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex flex-wrap gap-2 mb-3">
-                            {ep.tags.map(t => (
-                              <span key={t} className="px-3 py-1 bg-white/5 text-white/50 text-[10px] font-bold uppercase tracking-widest rounded-full">{t}</span>
-                            ))}
-                          </div>
-                          <h3 className={`text-xl md:text-2xl font-bold mb-2 transition-colors ${isPlaying ? "text-amber-400" : "group-hover:text-amber-400"}`}>{ep.title}</h3>
-                          <div className="text-sm text-white/30 mb-4 flex items-center gap-4">
-                            <span>Guest: {ep.guest}</span>
-                            <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {ep.duration}</span>
-                          </div>
-                          <p className="text-sm text-white/40 leading-relaxed">{ep.desc}</p>
-                          {isPlaying && <div className="mt-4"><AudioWave playing /></div>}
-                        </div>
+              <div className="grid md:grid-cols-3 gap-px bg-white/5 border border-white/5 shadow-2xl">
+                 {GENETIC_ASSETS.map((asset, i) => (
+                   <Reveal key={asset.id} delay={i * 0.1}>
+                      <div className="bg-[#020804] p-20 flex flex-col h-full hover:bg-white/[0.02] transition-all group cursor-crosshair border-white/5 border-r last:border-r-0">
+                         <div className="flex justify-between items-start mb-16">
+                            <div className="w-16 h-16 bg-white/5 border border-white/10 flex items-center justify-center group-hover:bg-green-800 group-hover:text-white transition-all duration-500">
+                               <Codesandbox className="w-8 h-8" />
+                            </div>
+                            <span className={`px-4 py-2 bg-white/5 text-[9px] font-black uppercase tracking-[0.3em] ${asset.status === "Online" ? "text-green-500" : "text-white/40"}`}>{asset.status}</span>
+                         </div>
+                         
+                         <h3 className="text-4xl font-black uppercase tracking-tighter mb-8 italic text-white group-hover:translate-x-4 transition-transform">{asset.name}</h3>
+                         <div className="text-[10px] font-black text-white/20 uppercase tracking-[0.5em] mb-12">{asset.type}</div>
+                         
+                         <div className="space-y-8 mb-20 border-l border-green-500/20 pl-8">
+                            <div className="flex justify-between items-center text-[11px] font-bold uppercase tracking-widest">
+                               <span className="text-white/20">Density</span>
+                               <span className="text-white group-hover:text-green-400 transition-colors">{asset.density}</span>
+                            </div>
+                            <div className="flex justify-between items-center text-[11px] font-bold uppercase tracking-widest">
+                               <span className="text-white/20">Fidelity</span>
+                               <span className="text-white group-hover:text-green-400 transition-colors">{asset.fidelity}</span>
+                            </div>
+                            <div className="flex justify-between items-center text-[11px] font-bold uppercase tracking-widest">
+                               <span className="text-white/20">Stability</span>
+                               <span className="text-white group-hover:text-green-400 transition-colors">{asset.stability}</span>
+                            </div>
+                         </div>
+
+                         <p className="text-[12px] text-white/30 leading-loose uppercase tracking-[0.2em] font-bold italic mb-16">
+                            {asset.desc}
+                         </p>
+
+                         <div className="mt-auto pt-10 border-t border-white/5 flex justify-between items-center">
+                            <span className="text-[10px] font-black text-white/10 uppercase tracking-widest">Ref: {asset.id}</span>
+                            <button className="text-[10px] font-black uppercase text-white/40 flex items-center gap-4 group-hover:text-white transition-all">
+                               Technical_Specs <ChevronRight className="w-5 h-5" />
+                            </button>
+                         </div>
                       </div>
+                   </Reveal>
+                 ))}
+              </div>
+           </div>
+        </section>
+
+        {/* ==========================================
+            3. BIO MONITOR (INTERACTIVE DATA)
+            ========================================== */}
+        <section className="py-60 bg-black relative border-y border-white/5 overflow-hidden">
+           <div className="max-w-[1400px] mx-auto px-8 md:px-24">
+              <div className="grid lg:grid-cols-2 gap-40 items-center">
+                 <div>
+                    <Reveal>
+                       <span className="text-[10px] font-black uppercase tracking-[0.5em] text-green-500 block mb-12 italic underline underline-offset-8 decoration-green-500/20">Bio // Performance</span>
+                       <h2 className="text-7xl md:text-[9vw] font-light italic leading-none text-white mb-16 uppercase tracking-tighter">
+                          The <br/> <span className="not-italic font-black text-white/5 italic">Synthesis_Link.</span>
+                       </h2>
+                       <p className="text-2xl font-light text-white/20 leading-relaxed mb-24 italic uppercase tracking-[0.2em] max-w-xl">
+                          Surveillance de la synthèse en temps réel. Nos capteurs analysent la pureté des oligonucléotides et ajustent les paramètres d'encapsulation pour garantir une longévité millénaire.
+                       </p>
+                       <div className="grid grid-cols-2 gap-px bg-white/5 border border-white/5 mb-24 shadow-2xl">
+                          {BIO_METRICS.map((metric, i) => (
+                            <div key={i} className="p-16 bg-[#0a100c] group hover:bg-white/[0.02] transition-all border-r border-b last:border-r-0 border-white/5">
+                               <div className="text-[10px] font-black uppercase text-green-500 mb-6 tracking-[0.4em]">{metric.label}</div>
+                               <div className="text-5xl font-black text-white italic mb-6 tracking-tighter group-hover:translate-x-4 transition-transform">{metric.value}</div>
+                               <div className="flex items-center gap-3 text-[9px] font-bold uppercase tracking-[0.3em] text-white/10 italic">
+                                  <Activity className="w-4 h-4 text-green-500" /> {metric.trend}
+                               </div>
+                            </div>
+                          ))}
+                       </div>
+                       <button 
+                         onClick={() => setIsBioSyncActive(!isBioSyncActive)}
+                         className="w-full py-8 bg-green-900 text-white text-[11px] font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all shadow-2xl flex items-center justify-center gap-6 italic"
+                       >
+                          <Settings className="w-5 h-5" /> Re-Sync Synthesis Nodes
+                       </button>
+                    </Reveal>
+                 </div>
+                 
+                 <div className="relative">
+                    <Reveal delay={0.3} x={40}>
+                       <div className="aspect-square bg-[#0a100c] border border-white/10 p-20 flex flex-col justify-between relative group overflow-hidden shadow-2xl">
+                          <div className="absolute top-0 right-0 p-80 bg-green-400 opacity-[0.02] blur-[150px] rounded-full group-hover:opacity-[0.05] transition-opacity" />
+                          
+                          <div className="flex justify-between items-start z-10">
+                             <div className="flex flex-col gap-3">
+                                <span className="text-[10px] font-black text-white/10 uppercase tracking-[0.5em]">Bio_Link // SYN-SYNC-v42</span>
+                                <span className="text-[12px] font-black text-white/40 uppercase tracking-[0.6em]">Nucleotide_Fidelity_Map</span>
+                             </div>
+                             <Wifi className="w-6 h-6 text-green-400" />
+                          </div>
+                          
+                          {/* BIO VISUALIZER (SVG) */}
+                          <div className="relative z-10 flex flex-col items-center justify-center h-full">
+                             <div className="w-64 h-64 border border-green-400/5 rounded-full flex items-center justify-center relative">
+                                <motion.div 
+                                  animate={{ rotate: 360 }}
+                                  transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+                                  className="absolute inset-0 border-t-2 border-green-400/20 rounded-full" 
+                                />
+                                <motion.div 
+                                  animate={{ rotate: -360 }}
+                                  transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+                                  className="absolute inset-8 border-b-2 border-green-400/10 rounded-full" 
+                                />
+                                <Dna className={`w-24 h-24 transition-colors duration-1000 ${isBioSyncActive ? "text-green-400 animate-pulse" : "text-white/5"}`} />
+                             </div>
+                             <div className="mt-16 text-center space-y-6">
+                                <div className={`text-4xl font-black italic tracking-tighter ${isBioSyncActive ? "text-white" : "text-white/20"}`}>
+                                   {isBioSyncActive ? "SYNC_ACTIVE" : "SYNC_LOST"}
+                                </div>
+                                <span className="text-[11px] font-bold text-white/10 uppercase tracking-[0.6em] block">Auth_Node: BIO_UNIT_01</span>
+                             </div>
+                          </div>
+
+                          <div className="relative z-10 flex gap-6">
+                             <div className="flex-1 h-1 bg-white/5 overflow-hidden">
+                                <motion.div 
+                                   animate={isBioSyncActive ? { x: ["-100%", "100%"] } : {}}
+                                   transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+                                   className="w-1/2 h-full bg-green-700"
+                                />
+                             </div>
+                          </div>
+                       </div>
+                    </Reveal>
+                 </div>
+              </div>
+           </div>
+        </section>
+
+        {/* ==========================================
+            4. BIO STORY (TECH STORYTELLING)
+            ========================================== */}
+        <section className="py-60 bg-[#020804] relative overflow-hidden border-t border-white/5">
+           <div className="max-w-[1400px] mx-auto px-8 md:px-24">
+              <div className="grid lg:grid-cols-2 gap-40 items-center">
+                 <div className="relative aspect-[3/4] overflow-hidden group border border-white/5 shadow-2xl">
+                    <Image 
+                       src="https://images.unsplash.com/photo-1530210124550-912dc1381cb8?q=80&w=1200&auto=format&fit=crop" 
+                       alt="Bio-Storage Infrastructure" 
+                       fill 
+                       className="object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-[2000ms]"
+                    />
+                    <div className="absolute inset-0 bg-green-900/10 mix-blend-color group-hover:opacity-0 transition-opacity" />
+                    <div className="absolute inset-0 p-20 flex flex-col justify-end bg-gradient-to-t from-black via-black/40 to-transparent">
+                       <div className="text-white">
+                          <span className="text-[11px] font-black uppercase tracking-[0.6em] text-green-500 mb-8 block italic underline underline-offset-8 decoration-green-500/20">Atelier // Purity // Unit</span>
+                          <h4 className="text-6xl font-black tracking-tighter uppercase italic mb-12 mix-blend-difference text-white">Bio <br/> Fabric.</h4>
+                          <button className="flex items-center gap-6 text-[11px] font-black uppercase tracking-[0.4em] border-b border-white/20 pb-4 hover:border-green-400 transition-all group">
+                             Synthesis Protocols <ExternalLink className="w-5 h-5 group-hover:translate-x-2 group-hover:-translate-y-2 transition-transform" />
+                          </button>
+                       </div>
                     </div>
-                  </Reveal>
-                )
-              })}
-            </div>
-          </div>
+                 </div>
+
+                 <div>
+                    <Reveal>
+                       <div className="mb-24 text-left">
+                          <span className="text-[10px] font-black uppercase tracking-[0.5em] text-green-500 mb-8 block italic">Chapitre III // Synthesis</span>
+                          <h2 className="text-7xl md:text-[10vw] font-black tracking-tighter uppercase text-white italic leading-none text-white">Pure_Code.</h2>
+                       </div>
+                       <p className="text-2xl font-light text-white/20 leading-relaxed italic mb-20 uppercase tracking-[0.2em]">
+                          L'ADN est le support de stockage ultime. Nous utilisons la synthèse chimique pour écrire des données numériques dans des chaînes de nucléotides, offrant une densité et une longévité inégalées.
+                       </p>
+                       <div className="space-y-20">
+                          {[
+                            { t: "Binary to DNA Mapping", d: "Conversion des bits (0,1) en bases azotées (A, C, G, T) via des algorithmes de correction d'erreurs avancés." },
+                            { t: "Oligo Synthesis", d: "Fabrication de brins d'ADN synthétiques d'une pureté exceptionnelle pour un stockage haute fidélité." },
+                            { t: "Silica Encapsulation", d: "Protection de l'ADN dans des microsphères de verre synthétique pour résister aux facteurs environnementaux pendant des millénaires." }
+                          ].map((step, i) => (
+                            <div key={i} className="group flex gap-12 border-b border-white/5 pb-16 hover:border-green-400/20 transition-all cursor-default">
+                               <div className="text-6xl font-black text-white/5 group-hover:text-green-400/20 transition-colors italic leading-none">0{i+1}</div>
+                               <div>
+                                  <h5 className="text-3xl font-black uppercase tracking-tight text-white mb-6 italic group-hover:translate-x-4 transition-transform text-white">{step.t}</h5>
+                                  <p className="text-[12px] text-white/20 uppercase tracking-[0.3em] font-bold leading-loose italic">{step.d}</p>
+                               </div>
+                            </div>
+                          ))}
+                       </div>
+                    </Reveal>
+                 </div>
+              </div>
+           </div>
         </section>
 
-        {/* ── SUBSCRIBE CTA ────────────────────────────────────── */}
-        <section className="py-32 bg-gradient-to-b from-[#0c0c0c] to-[#1a1a1a]">
-          <div className="max-w-[800px] mx-auto px-6 text-center">
-            <Reveal>
-              <div className="w-20 h-20 rounded-2xl bg-amber-400 flex items-center justify-center mx-auto mb-8">
-                <Mic2 className="w-10 h-10 text-black" />
+        {/* MEGA FOOTER */}
+        <footer className="bg-black pt-60 pb-12 px-8 md:px-24 relative z-50">
+           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-32 mb-60 text-white">
+              <div className="lg:col-span-2">
+                 <div className="flex items-center gap-6 mb-16">
+                    <div className="w-16 h-16 bg-green-800 flex items-center justify-center">
+                      <Dna className="w-10 h-10 text-white" />
+                    </div>
+                    <span className="text-4xl font-black uppercase tracking-tighter italic">BIO-DIGITAL<span className="text-white/20">CORE.</span></span>
+                 </div>
+                 <p className="text-white/20 text-[11px] font-black uppercase tracking-[0.5em] leading-loose max-w-sm mb-20 italic">
+                    "La conservation de l'information par la vie." — Archive Core V.42
+                 </p>
+                 <div className="flex gap-16">
+                    {["SynthesisLog", "GeneticRegistry", "GitHub", "X_Protocol"].map(s => (
+                      <Link key={s} href="#" className="text-[11px] font-black uppercase tracking-widest text-white/20 hover:text-green-400 transition-colors italic underline underline-offset-8 decoration-white/5">{s}</Link>
+                    ))}
+                 </div>
               </div>
-              <h2 className="text-5xl md:text-7xl font-black tracking-tighter mb-6">Never Miss<br/>An <span className="text-amber-400">Episode.</span></h2>
-              <p className="text-lg text-white/40 font-light max-w-md mx-auto mb-10">
-                Subscribe for free and get new episodes, show notes, and exclusive content delivered weekly.
-              </p>
-              <form onSubmit={e => e.preventDefault()} className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
-                <input type="email" placeholder="Your email address" className="flex-1 bg-white/5 border border-white/10 rounded-full px-6 py-4 text-sm outline-none focus:border-amber-400 transition-colors" />
-                <button className="px-8 py-4 bg-amber-400 text-black font-bold rounded-full hover:bg-white transition-colors">Subscribe</button>
-              </form>
-            </Reveal>
-          </div>
-        </section>
+
+              {[
+                { t: "ARCHIVES", l: ["Global Seed Bank", "History Index", "Species Recovery", "Encrypted Vault"] },
+                { t: "TECHNOLOGY", l: ["DNA Encoding", "Oligo Synthesis", "Encapsulation", "SLA Reports"] },
+                { t: "ATELIER", l: ["Our Legacy", "Sustainability", "Locations", "Support"] }
+              ].map((col, i) => (
+                <div key={i} className="flex flex-col gap-12">
+                  <h4 className="text-[11px] font-black text-green-400 uppercase tracking-[0.6em] italic">{col.t}</h4>
+                  <ul className="flex flex-col gap-8">
+                    {col.l.map(link => (
+                      <li key={link} className="text-[11px] font-bold text-white/20 hover:text-white transition-colors cursor-pointer uppercase tracking-[0.4em] italic">{link}</li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+           </div>
+
+           <div className="max-w-[1600px] mx-auto border-t border-white/5 pt-16 flex flex-col md:flex-row justify-between items-center gap-16 text-[10px] font-black text-white/10 uppercase tracking-[0.6em] italic">
+              <span>© 2026 BIO-DIGITAL CORE DATA STORAGE AG. // ALL_RIGHTS_RESERVED</span>
+              <div className="flex gap-16">
+                 <span>STATUS: OPERATIONAL</span>
+                 <span>DENSITY: 1.4 EB/g (AVG)</span>
+                 <span>v4.12.0-STABLE</span>
+              </div>
+           </div>
+        </footer>
       </main>
+    </div>
+  )
+}
 
-      {/* ── FOOTER ─────────────────────────────────────────────── */}
-      <footer className="bg-[#050505] pt-24 pb-12 px-6">
-        <div className="max-w-[1400px] mx-auto grid grid-cols-1 md:grid-cols-4 gap-16 mb-20">
-          <div>
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-8 h-8 rounded-lg bg-amber-400 flex items-center justify-center">
-                <Mic2 className="w-4 h-4 text-black" />
-              </div>
-              <span className="font-black tracking-tight">SIGNAL</span>
-            </div>
-            <p className="text-sm text-white/30 leading-relaxed">Independent long-form journalism through conversation.</p>
+/* ==========================================
+   TECHNICAL SUB-COMPONENTS
+   ========================================== */
+
+function HUD_Overlay({ isBioSyncActive }: { isBioSyncActive: boolean }) {
+  return (
+    <div className="fixed inset-0 pointer-events-none z-[100]">
+       {/* Corner Brackets */}
+       <div className={`absolute top-12 left-12 w-20 h-20 border-t-2 border-l-2 transition-colors duration-1000 ${isBioSyncActive ? "border-green-400" : "border-white/10"}`} />
+       <div className={`absolute top-12 right-12 w-20 h-20 border-t-2 border-r-2 transition-colors duration-1000 ${isBioSyncActive ? "border-green-400" : "border-white/10"}`} />
+       <div className={`absolute bottom-12 left-12 w-20 h-20 border-b-2 border-l-2 transition-colors duration-1000 ${isBioSyncActive ? "border-green-400" : "border-white/10"}`} />
+       <div className={`absolute bottom-12 right-12 w-20 h-20 border-b-2 border-r-2 transition-colors duration-1000 ${isBioSyncActive ? "border-green-400" : "border-white/10"}`} />
+
+       {/* Top Status Bar */}
+       <div className="absolute top-12 left-1/2 -translate-x-1/2 flex items-center gap-20 bg-black/60 backdrop-blur-2xl px-12 py-4 border border-white/10 rounded-none">
+          <div className="flex items-center gap-6 text-white">
+             <div className={`w-3 h-3 transition-colors duration-500 ${isBioSyncActive ? "bg-green-400 animate-pulse" : "bg-red-500 animate-ping"}`} />
+             <span className="text-[10px] font-black uppercase tracking-[0.4em] italic leading-none">Bio_Sync: {isBioSyncActive ? "NOMINAL" : "DATA_LOSS"} // Status: ACTIVE</span>
           </div>
-          {[
-            { title: "Show", links: ["All Episodes", "Guests A-Z", "Topics", "Transcripts"] },
-            { title: "Network", links: ["About Us", "Sponsorship", "Pitch a Guest", "Merch"] },
-            { title: "Listen On", links: ["Apple Podcasts", "Spotify", "YouTube", "Overcast"] },
-          ].map((col, i) => (
-            <div key={i}>
-              <h4 className="text-[10px] font-bold uppercase tracking-[0.3em] text-amber-400 mb-6">{col.title}</h4>
-              <ul className="space-y-3 text-sm text-white/30">
-                {col.links.map(l => <li key={l}><Link href="#" className="hover:text-white transition-colors">{l}</Link></li>)}
-              </ul>
-            </div>
-          ))}
-        </div>
-        <div className="max-w-[1400px] mx-auto pt-8 border-t border-white/5 text-[10px] font-bold uppercase tracking-widest text-white/20 flex justify-between">
-          <span>© 2026 SIGNAL MEDIA.</span>
-          <span>48KHZ / 24-BIT AUDIO.</span>
-        </div>
-      </footer>
+          <div className="h-4 w-px bg-white/20" />
+          <div className="flex items-center gap-6 text-white/20">
+             <Wifi className="w-4 h-4" /> 
+             <span className="text-[10px] font-black uppercase tracking-[0.4em] italic leading-none">Bio_Grid: SECURE</span>
+          </div>
+       </div>
 
-      {/* ── STICKY PLAYER ──────────────────────────────────────── */}
-      <AnimatePresence>
-        {playing && (
-          <motion.div initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }}
-            className="fixed bottom-0 left-0 right-0 z-[100] bg-[#1a1a1a]/95 backdrop-blur-xl border-t border-white/10 p-4 flex items-center justify-between gap-4">
-            <div className="absolute top-0 left-0 h-1 bg-white/5 w-full">
-              <motion.div className="h-full bg-amber-400" animate={{ width: "100%" }} transition={{ duration: 3600, ease: "linear" }} />
-            </div>
-            <div className="flex items-center gap-4">
-              <div className="w-10 h-10 rounded-lg bg-amber-400/20 flex items-center justify-center shrink-0">
-                <Mic2 className="w-5 h-5 text-amber-400" />
-              </div>
-              <div className="min-w-0">
-                <div className="text-xs text-amber-400 font-bold">Now Playing</div>
-                <div className="text-sm font-bold truncate">{EPISODES.find(e => e.num === playing)?.title}</div>
-              </div>
-            </div>
-            <button onClick={() => setPlaying(null)} className="w-10 h-10 rounded-full bg-amber-400 text-black flex items-center justify-center shrink-0">
-              <Pause className="w-4 h-4 fill-current" />
-            </button>
-          </motion.div>
-        )}
-      </AnimatePresence>
+       {/* Right Rotation Info */}
+       <div className="absolute right-12 top-1/2 -translate-y-1/2 rotate-90 origin-right hidden lg:block">
+          <span className="text-[10px] font-black uppercase tracking-[0.8em] text-white/5 italic">Unauthorized_Duplication_Of_Genomic_Patterns_Is_Strictly_Monitored_By_Global_Bio_Alliance</span>
+       </div>
     </div>
   )
 }

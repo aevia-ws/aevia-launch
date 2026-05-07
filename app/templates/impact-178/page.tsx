@@ -1,865 +1,523 @@
-"use client";
+"use client"
 
-import React, { useState, useEffect, useRef } from "react";
-import {
-  motion,
-  useScroll,
-  useTransform,
-  AnimatePresence,
-  useInView,
-  useSpring,
-} from "framer-motion";
-import Image from "next/image";
-import Link from "next/link";
-import { Sparkles, Shield, Clock, Menu, X, Star, CheckCircle2, Home, Droplets, Leaf, ArrowRight, ChevronRight, MapPin, Phone, Mail, Globe, Wind } from "lucide-react";
-
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-
-import "../premium.css";
+import React, { useState, useEffect, useRef } from "react"
+import { 
+  motion, 
+  AnimatePresence, 
+  useScroll, 
+  useTransform, 
+  useInView, 
+  useSpring 
+} from "framer-motion"
+import Image from "next/image"
+import Link from "next/link"
+import { 
+  Radar, Zap, Activity, Microscope, 
+  Target, Layers, Box, Hexagon, 
+  Terminal, Settings, Power, Info, 
+  AlertTriangle, ChevronRight, ArrowRight, 
+  Share2, Maximize2, Download, ExternalLink, 
+  Archive, Hash, Wifi, BarChart3, 
+  Fingerprint, Scan, Brain, Server, 
+  ShieldCheck, ShieldAlert, Award, 
+  Briefcase, Wind, Thermometer, 
+  Flame, Battery, Radio, Gauge, 
+  Timer, Lightbulb, Command, Grid, 
+  Orbit, Atom, Satellite, Milestone, 
+  FlaskConical, FlaskRound, Ghost, 
+  Globe, MapPin, Database, Search, 
+  Scan as ScanIcon, Map, Signal, 
+  Crosshair, Monitor, Cpu
+} from "lucide-react"
 
 /* ==========================================================================
-   DATA STRUCTURES
+   THE PULSE ARRAY DATASET (ULTRA DENSITY)
    ========================================================================== */
 
-const SERVICES = [
+const SATELLITE_ASSETS = [
   {
-    id: "deep-clean",
-    icon: <Home className="w-8 h-8" />,
-    title: "Deep Home Clean",
-    desc: "A meticulous, top-to-bottom sanitization of every room, targeting hidden dust and allergens.",
-    features: [
-      "Baseboards & moldings",
-      "Inside appliances",
-      "Deep carpet extraction",
-      "Air vent purification",
-    ],
-    image:
-      "https://images.unsplash.com/photo-1581578731548-c64695cc6952?q=80&w=1200&auto=format&fit=crop",
+    id: "sat-sar-42",
+    name: "Aegis Radar-1",
+    type: "Synthetic Aperture Radar",
+    resolution: "25cm / pixel",
+    revisit: "1.2 Days",
+    throughput: "4.2 Gbps",
+    desc: "Satellite SAR haute résolution capable de pénétrer la couverture nuageuse et de détecter des déformations millimétriques de la surface terrestre.",
+    status: "Operational"
   },
   {
-    id: "maintenance",
-    icon: <Sparkles className="w-8 h-8" />,
-    title: "Regular Upkeep",
-    desc: "Weekly or bi-weekly visits designed to maintain a flawless, stress-free environment.",
-    features: [
-      "Surface sanitization",
-      "Floor polishing",
-      "Bathroom descaling",
-      "Trash & recycling",
-    ],
-    image:
-      "https://images.unsplash.com/photo-1527515637462-cff94eecc1ac?q=80&w=1200&auto=format&fit=crop",
+    id: "sat-hs-08",
+    name: "Spectra-Link X",
+    type: "Hyperspectral Imaging",
+    resolution: "1.2m / pixel",
+    revisit: "4.5 Days",
+    throughput: "2.8 Gbps",
+    desc: "Capteur hyperspectral analysant 240 bandes spectrales pour la détection de minéraux et le suivi de la santé végétale globale.",
+    status: "Scanning"
   },
   {
-    id: "eco-pure",
-    icon: <Leaf className="w-8 h-8" />,
-    title: "Eco-Pure Sanitization",
-    desc: "100% natural, non-toxic cleaning protocols safe for infants, pets, and the planet.",
-    features: [
-      "Plant-based solvents",
-      "Essential oil finishes",
-      "Zero harsh chemicals",
-      "Allergen reduction",
-    ],
-    image:
-      "https://images.unsplash.com/photo-1610526978438-e67c85ffb4cd?q=80&w=1200&auto=format&fit=crop",
-  },
-];
+    id: "sat-ld-15",
+    name: "Lidar-Forge v5",
+    type: "Topographic LiDAR",
+    resolution: "5cm / pixel",
+    revisit: "12 Days",
+    throughput: "8.5 Gbps",
+    desc: "Array LiDAR de nouvelle génération pour la cartographie 3D ultra-précise des zones urbaines et forestières.",
+    status: "Active Link"
+  }
+]
 
-const TESTIMONIALS = [
-  {
-    name: "Eleanor Vance",
-    role: "Architect",
-    quote:
-      "As someone obsessed with details, Pristine surpassed my expectations. The level of care they apply to the subtle surfaces in my home is simply extraordinary.",
-    avatar:
-      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=200&auto=format&fit=crop",
-    rating: 5,
-  },
-  {
-    name: "Jonathan Harker",
-    role: "Estate Manager",
-    quote:
-      "We entrust Pristine with maintaining our entire portfolio of luxury rentals. Their consistency, discretion, and flawless execution are unmatched in the industry.",
-    avatar:
-      "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=200&auto=format&fit=crop",
-    rating: 5,
-  },
-  {
-    name: "Sofia Rossi",
-    role: "Working Mother",
-    quote:
-      "Coming home to a perfectly organized, beautifully smelling home after a chaotic week feels like checking into a luxury hotel. Truly life-changing.",
-    avatar:
-      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=200&auto=format&fit=crop",
-    rating: 5,
-  },
-  {
-    name: "Marcus Thorne",
-    role: "Gallery Director",
-    quote:
-      "They handle our gallery spaces with the same reverence we give our art. The eco-friendly products ensure no damage to sensitive works.",
-    avatar:
-      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=200&auto=format&fit=crop",
-    rating: 5,
-  },
-];
+const RADAR_METRICS = [
+  { label: "Scan Coverage", value: "98.4%", trend: "Stable" },
+  { label: "Data Latency", value: "42ms", trend: "Optimal" },
+  { label: "Target Lock", value: "Level 9", trend: "High" },
+  { label: "Signal Purity", value: "99.98%", trend: "Constant" }
+]
 
-const PRICING = [
-  {
-    name: "Essential",
-    price: "$149",
-    period: "/visit",
-    desc: "Perfect for apartments and smaller homes needing consistent, high-quality upkeep.",
-    features: [
-      "Up to 2 Bedrooms",
-      "1 Bathroom",
-      "Kitchen & Living Areas",
-      "Standard Dusting & Mopping",
-      "2 Hours Duration",
-    ],
-    highlight: false,
-    cta: "Book Essential",
-  },
-  {
-    name: "Pristine",
-    price: "$289",
-    period: "/visit",
-    desc: "Our most popular tier for medium to large homes requiring deep attention to detail.",
-    features: [
-      "Up to 4 Bedrooms",
-      "3 Bathrooms",
-      "Appliance Interiors",
-      "Baseboard & Window Sills",
-      "Premium Eco-Products",
-      "4 Hours Duration",
-    ],
-    highlight: true,
-    cta: "Book Pristine",
-  },
-  {
-    name: "Estate",
-    price: "Custom",
-    period: "",
-    desc: "Bespoke cleaning protocols for luxury estates, requiring specialized surface care.",
-    features: [
-      "Unlimited Rooms",
-      "Dedicated Team of 3+",
-      "Chandelier & Art Dusting",
-      "Marble & Stone Polishing",
-      "On-Demand Scheduling",
-      "NDA Included",
-    ],
-    highlight: false,
-    cta: "Request Consultation",
-  },
-];
+const TELEMETRY_LOGS = [
+  { timestamp: "18:14:42", unit: "SAR-Array-01", status: "LOCKED", angle: "42.0°" },
+  { timestamp: "18:14:45", unit: "Downlink-Node", status: "SYNCED", rate: "4.2 Gbps" },
+  { timestamp: "18:14:48", unit: "Orbital-Bus", status: "STABLE", temp: "285K" }
+]
 
-const FAQS = [
-  {
-    q: "Are your cleaning products truly safe for pets and infants?",
-    a: "Absolutely. We exclusively use hospital-grade, plant-based sanitizers and aromatherapeutic essential oils. Our products are rigorously vetted to ensure zero toxic residue, volatile organic compounds (VOCs), or harsh fumes.",
-  },
-  {
-    q: "Do I need to be home during the cleaning service?",
-    a: "No, many of our clients prefer to provide us with a spare key, door code, or alarm access. Our staff are fully bonded, insured, and undergo comprehensive background checks to guarantee absolute security and peace of mind.",
-  },
-  {
-    q: "How do you handle delicate surfaces like marble or antique wood?",
-    a: "Our technicians are trained in specialized surface care. We use pH-neutral cleaners for natural stone and specific nourishing oils for antique woodwork. Prior to our first visit, we catalog all delicate surfaces to ensure the correct protocol is followed.",
-  },
-  {
-    q: "What is your cancellation or rescheduling policy?",
-    a: "We ask for a minimum of 48 hours notice for any cancellations or rescheduling requests. This allows us to reallocate our teams efficiently. Cancellations made within 24 hours may be subject to a nominal fee.",
-  },
-];
+/* ==========================================
+   TECHNICAL COMPONENTS
+   ========================================== */
 
-/* ==========================================================================
-   UTILITY COMPONENTS
-   ========================================================================== */
-
-function Reveal({
-  children,
-  delay = 0,
-  direction = "up",
-}: {
-  children: React.ReactNode;
-  delay?: number;
-  direction?: "up" | "left" | "right" | "down";
-}) {
-  const ref = useRef(null);
-  const inView = useInView(ref, { once: true, margin: "-50px" });
-
-  const getInitial = () => {
-    switch (direction) {
-      case "up":
-        return { opacity: 0, y: 40 };
-      case "down":
-        return { opacity: 0, y: -40 };
-      case "left":
-        return { opacity: 0, x: 40 };
-      case "right":
-        return { opacity: 0, x: -40 };
-      default:
-        return { opacity: 0, y: 40 };
-    }
-  };
-
+function Reveal({ children, delay = 0, y = 40, x = 0 }: { children: React.ReactNode, delay?: number, y?: number, x?: number }) {
+  const ref = useRef(null)
+  const isInView = useInView(ref, { once: true, margin: "-100px" })
   return (
     <motion.div
       ref={ref}
-      initial={getInitial()}
-      animate={inView ? { opacity: 1, y: 0, x: 0 } : {}}
-      transition={{
-        duration: 1,
-        delay,
-        ease: [0.25, 0.1, 0.25, 1], // Custom spring-like easing
-      }}
+      initial={{ opacity: 0, y, x }}
+      animate={isInView ? { opacity: 1, y: 0, x: 0 } : {}}
+      transition={{ duration: 1.2, delay, ease: [0.16, 1, 0.3, 1] }}
     >
       {children}
     </motion.div>
-  );
+  )
 }
 
-function Counter({ to, suffix = "" }: { to: number; suffix?: string }) {
-  const ref = useRef(null);
-  const inView = useInView(ref, { once: true });
-  const [count, setCount] = useState(0);
-
+function RadarSweepVisualizer() {
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
   useEffect(() => {
-    if (!inView) return;
-    let current = 0;
-    const step = to / 50;
-    const timer = setInterval(() => {
-      current += step;
-      if (current >= to) {
-        setCount(to);
-        clearInterval(timer);
-      } else {
-        setCount(Math.floor(current));
-      }
-    }, 30);
-    return () => clearInterval(timer);
-  }, [inView, to]);
+    const handleMouse = (e: MouseEvent) => setMousePos({ x: e.clientX, y: e.clientY })
+    window.addEventListener("mousemove", handleMouse)
+    return () => window.removeEventListener("mousemove", handleMouse)
+  }, [])
 
   return (
-    <span ref={ref} className="tabular-nums">
-      {count}
-      {suffix}
-    </span>
-  );
-}
-
-/* ==========================================================================
-   MAIN PAGE COMPONENT
-   ========================================================================== */
-
-export default function PristineCleaningPage() {
-  const [scrolled, setScrolled] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
-  // Parallax Setup
-  const heroRef = useRef(null);
-  const { scrollYProgress } = useScroll({
-    target: heroRef,
-    offset: ["start start", "end start"],
-  });
-  
-  // Smooth spring physics for parallax
-  const smoothY = useSpring(scrollYProgress, { stiffness: 100, damping: 30, restDelta: 0.001 });
-  const heroY = useTransform(smoothY, [0, 1], ["0%", "40%"]);
-  const heroScale = useTransform(smoothY, [0, 1], [1, 1.1]);
-  const heroOpacity = useTransform(smoothY, [0, 0.8], [1, 0]);
-
-  useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 50);
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  return (
-    <div
-      className="premium-theme min-h-screen bg-[#fcfcfc] text-[#0f2419] font-sans selection:bg-[#10b981] selection:text-white overflow-x-hidden"
-      style={{ scrollBehavior: "smooth" }}
-    >
-      {/* ==========================================
-          1. STICKY NAVBAR & MOBILE SHEET
-          ========================================== */}
-      <nav
-        className={`fixed top-0 left-0 w-full z-50 transition-all duration-700 ease-in-out ${
-          scrolled
-            ? "bg-white/80 backdrop-blur-xl py-4 border-b border-[#0f2419]/5 shadow-sm"
-            : "bg-transparent py-8"
-        }`}
-      >
-        <div className="max-w-[1400px] mx-auto px-6 md:px-12 flex items-center justify-between">
-          <Link
-            href="/"
-            className="group flex items-center gap-3 text-2xl font-black tracking-tighter"
-          >
-            <div className="w-10 h-10 bg-[#10b981] rounded-2xl flex items-center justify-center text-white shadow-lg shadow-[#10b981]/30 group-hover:scale-105 transition-transform">
-              <Sparkles className="w-5 h-5" />
-            </div>
-            <span className="group-hover:text-[#10b981] transition-colors">
-              PRISTINE
-            </span>
-          </Link>
-
-          <div className="hidden lg:flex items-center gap-10 text-[11px] font-bold uppercase tracking-[0.2em] text-[#0f2419]/60">
-            {["Services", "Approach", "Testimonials", "Pricing"].map((link) => (
-              <Link
-                key={link}
-                href={`#${link.toLowerCase()}`}
-                className="hover:text-[#10b981] transition-colors relative after:absolute after:bottom-[-4px] after:left-0 after:w-full after:h-[2px] after:bg-[#10b981] after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:origin-left"
-              >
-                {link}
-              </Link>
-            ))}
-          </div>
-
-          <div className="hidden lg:flex items-center gap-6">
-            <span className="flex items-center gap-2 text-sm font-medium text-[#0f2419]/70">
-              <Phone className="w-4 h-4" /> 1-800-PRISTINE
-            </span>
-            <button className="px-8 py-3.5 bg-[#0f2419] text-white text-[11px] font-bold uppercase tracking-widest rounded-full hover:bg-[#10b981] transition-all hover:shadow-xl hover:shadow-[#10b981]/20 transform hover:-translate-y-1">
-              Book Now
-            </button>
-          </div>
-
-          {/* Mobile Menu Sheet */}
-          <div className="lg:hidden">
-            <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
-              <SheetTrigger asChild>
-                <button className="p-2 text-[#0f2419]">
-                  <Menu className="w-7 h-7" />
-                </button>
-              </SheetTrigger>
-              <SheetContent side="right" className="bg-white border-l-0 w-full sm:w-[400px] p-10">
-                <div className="flex flex-col h-full">
-                  <div className="flex items-center gap-3 text-2xl font-black tracking-tighter mb-16">
-                    <div className="w-10 h-10 bg-[#10b981] rounded-2xl flex items-center justify-center text-white">
-                      <Sparkles className="w-5 h-5" />
-                    </div>
-                    <span>PRISTINE</span>
-                  </div>
-
-                  <div className="flex flex-col gap-8 text-3xl font-bold tracking-tight">
-                    {["Services", "Approach", "Testimonials", "Pricing"].map((link) => (
-                      <Link
-                        key={link}
-                        href={`#${link.toLowerCase()}`}
-                        onClick={() => setIsMobileMenuOpen(false)}
-                        className="hover:text-[#10b981] transition-colors"
-                      >
-                        {link}
-                      </Link>
-                    ))}
-                  </div>
-
-                  <div className="mt-auto pt-10 border-t border-[#0f2419]/10">
-                    <button className="w-full py-5 bg-[#10b981] text-white text-sm font-bold uppercase tracking-widest rounded-2xl mb-6">
-                      Book a Cleaning
-                    </button>
-                    <p className="flex items-center justify-center gap-2 text-sm font-medium text-[#0f2419]/50">
-                      <Phone className="w-4 h-4" /> 1-800-PRISTINE
-                    </p>
-                  </div>
-                </div>
-              </SheetContent>
-            </Sheet>
-          </div>
-        </div>
-      </nav>
-
-      {/* ==========================================
-          2. HERO (Parallax & Split Layout)
-          ========================================== */}
-      <section
-        ref={heroRef}
-        className="relative min-h-[100svh] flex flex-col justify-center overflow-hidden bg-[#f0faf5] pt-20"
-      >
-        <div className="max-w-[1400px] w-full mx-auto px-6 md:px-12 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center relative z-10">
-          <div className="pt-20 lg:pt-0">
-            <Reveal>
-              <Badge
-                variant="outline"
-                className="mb-8 px-4 py-1.5 border-[#10b981]/30 bg-[#10b981]/10 text-[#10b981] hover:bg-[#10b981]/20 font-bold tracking-widest uppercase text-[10px]"
-              >
-                <Star className="w-3 h-3 mr-2 inline" /> Top Rated Service 2026
-              </Badge>
-              <h1 className="text-6xl md:text-8xl lg:text-[7rem] font-black leading-[0.85] tracking-tighter mb-8">
-                The Art <br /> of <span className="text-[#10b981]">Clean.</span>
-              </h1>
-              <p className="max-w-md text-lg text-[#0f2419]/60 leading-relaxed font-medium mb-10">
-                Experience the luxury of a flawless environment. We provide 
-                meticulous, eco-friendly cleaning services tailored to the most 
-                exacting standards.
-              </p>
-              
-              <div className="flex flex-col sm:flex-row gap-4">
-                <button className="px-8 py-5 bg-[#0f2419] text-white text-[11px] font-bold uppercase tracking-widest rounded-2xl hover:bg-[#10b981] transition-all shadow-xl shadow-[#0f2419]/10 flex items-center justify-center gap-2 group">
-                  Get an Estimate
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </button>
-                <button className="px-8 py-5 bg-white border border-[#0f2419]/10 text-[#0f2419] text-[11px] font-bold uppercase tracking-widest rounded-2xl hover:bg-[#f0faf5] transition-all flex items-center justify-center gap-2">
-                  View Services
-                </button>
-              </div>
-
-              <div className="mt-12 flex items-center gap-6">
-                <div className="flex -space-x-3">
-                  {[1, 2, 3, 4].map((i) => (
-                    <div
-                      key={i}
-                      className="w-10 h-10 rounded-full border-2 border-[#f0faf5] overflow-hidden"
-                    >
-                      <Image
-                        src={`https://images.unsplash.com/photo-${1500000000000 + i * 1000000}?q=80&w=100&auto=format&fit=crop`}
-                        alt={`Customer ${i}`}
-                        width={40}
-                        height={40}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                  ))}
-                </div>
-                <div>
-                  <div className="flex gap-1 mb-1">
-                    {[1, 2, 3, 4, 5].map((i) => (
-                      <Star
-                        key={i}
-                        className="w-4 h-4 fill-[#10b981] text-[#10b981]"
-                      />
-                    ))}
-                  </div>
-                  <p className="text-[11px] font-bold text-[#0f2419]/50 uppercase tracking-widest">
-                    Trusted by 2,500+ Homes
-                  </p>
-                </div>
-              </div>
-            </Reveal>
-          </div>
-
-          <motion.div
-            style={{ y: heroY, scale: heroScale, opacity: heroOpacity }}
-            className="relative h-[600px] lg:h-[800px] w-full rounded-3xl overflow-hidden shadow-2xl hidden lg:block"
-          >
-            <Image
-              src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1200&auto=format&fit=crop"
-              alt="Immaculate living room"
-              fill
-              className="object-cover"
-              priority
-            />
-            {/* Glassmorphism float tag */}
-            <div className="absolute bottom-10 left-10 p-6 bg-white/20 backdrop-blur-xl border border-white/30 rounded-2xl text-white max-w-xs shadow-2xl">
-              <div className="flex items-center gap-4 mb-3">
-                <div className="w-12 h-12 bg-[#10b981] rounded-full flex items-center justify-center">
-                  <Shield className="w-6 h-6" />
-                </div>
-                <div>
-                  <h4 className="font-bold text-sm">Bonded & Insured</h4>
-                  <p className="text-xs text-white/70">100% Satisfaction Guarantee</p>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* ==========================================
-          3. STATS BAR
-          ========================================== */}
-      <section className="py-16 bg-[#0f2419] text-white">
-        <div className="max-w-[1400px] mx-auto px-6 md:px-12">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12 divide-x divide-white/10">
-            {[
-              { value: 12, suffix: "K+", label: "Cleans Completed" },
-              { value: 99, suffix: "%", label: "Client Retention" },
-              { value: 50, suffix: "+", label: "Certified Staff" },
-              { value: 100, suffix: "%", label: "Eco-Friendly" },
-            ].map((stat, i) => (
-              <Reveal key={i} delay={i * 0.1} direction="up">
-                <div className="flex flex-col items-center text-center pl-0 md:pl-8 first:pl-0 border-none md:border-solid">
-                  <div className="text-4xl md:text-5xl font-black text-[#10b981] mb-2">
-                    <Counter to={stat.value} suffix={stat.suffix} />
-                  </div>
-                  <div className="text-[10px] md:text-xs font-bold uppercase tracking-[0.2em] text-white/50">
-                    {stat.label}
-                  </div>
-                </div>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ==========================================
-          4. SERVICES / FEATURES (Shadcn Tabs)
-          ========================================== */}
-      <section id="services" className="py-32 bg-white">
-        <div className="max-w-[1400px] mx-auto px-6 md:px-12">
-          <div className="text-center max-w-3xl mx-auto mb-20">
-            <Reveal>
-              <Badge variant="outline" className="mb-6 border-[#10b981] text-[#10b981]">
-                Our Protocols
-              </Badge>
-              <h2 className="text-5xl md:text-7xl font-black tracking-tighter leading-[0.9] mb-8">
-                Beyond Surface <br /> <span className="text-[#0f2419]/30">Level.</span>
-              </h2>
-              <p className="text-lg text-[#0f2419]/50">
-                We don't just clean; we restore the harmony of your space. Select a protocol to discover our meticulous methodology.
-              </p>
-            </Reveal>
-          </div>
-
-          <Tabs defaultValue="deep-clean" className="w-full">
-            <div className="flex justify-center mb-16">
-              <TabsList className="bg-[#f0faf5] p-2 rounded-2xl">
-                {SERVICES.map((svc) => (
-                  <TabsTrigger
-                    key={svc.id}
-                    value={svc.id}
-                    className="px-6 py-3 rounded-xl data-[state=active]:bg-white data-[state=active]:text-[#10b981] data-[state=active]:shadow-md font-bold text-sm transition-all"
-                  >
-                    {svc.title}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
-            </div>
-
-            {SERVICES.map((svc) => (
-              <TabsContent key={svc.id} value={svc.id}>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-                  <Reveal direction="left">
-                    <div className="relative aspect-[4/3] rounded-3xl overflow-hidden shadow-2xl">
-                      <Image
-                        src={svc.image}
-                        alt={svc.title}
-                        fill
-                        className="object-cover"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-tr from-[#0f2419]/40 to-transparent" />
-                      <div className="absolute bottom-8 left-8 bg-white/90 backdrop-blur-md p-4 rounded-2xl">
-                        {svc.icon}
-                      </div>
-                    </div>
-                  </Reveal>
-
-                  <Reveal direction="right">
-                    <h3 className="text-4xl font-black tracking-tight mb-6">
-                      {svc.title}
-                    </h3>
-                    <p className="text-[#0f2419]/60 text-lg mb-10 leading-relaxed">
-                      {svc.desc}
-                    </p>
-                    
-                    <div className="space-y-6 mb-12">
-                      {svc.features.map((feature, idx) => (
-                        <div key={idx} className="flex items-center gap-4">
-                          <div className="w-8 h-8 rounded-full bg-[#10b981]/10 flex items-center justify-center text-[#10b981]">
-                            <CheckCircle2 className="w-5 h-5" />
-                          </div>
-                          <span className="font-medium text-lg">{feature}</span>
-                        </div>
-                      ))}
-                    </div>
-
-                    <button className="px-8 py-4 bg-[#f0faf5] text-[#10b981] font-bold uppercase tracking-widest rounded-xl hover:bg-[#10b981] hover:text-white transition-colors flex items-center gap-2">
-                      Schedule Service <ChevronRight className="w-5 h-5" />
-                    </button>
-                  </Reveal>
-                </div>
-              </TabsContent>
-            ))}
-          </Tabs>
-        </div>
-      </section>
-
-      {/* ==========================================
-          5. TESTIMONIALS (Shadcn Carousel)
-          ========================================== */}
-      <section id="testimonials" className="py-32 bg-[#0f2419] text-white relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-[#10b981]/10 rounded-full blur-[120px] pointer-events-none" />
-        
-        <div className="max-w-[1400px] mx-auto px-6 md:px-12 relative z-10">
-          <div className="flex flex-col md:flex-row justify-between items-end mb-20 gap-8">
-            <Reveal>
-              <h2 className="text-5xl md:text-7xl font-black tracking-tighter leading-[0.9]">
-                Spotless <br /> <span className="text-[#10b981]">Reputation.</span>
-              </h2>
-            </Reveal>
-          </div>
-
-          <Carousel
-            opts={{
-              align: "start",
-              loop: true,
-            }}
-            className="w-full"
-          >
-            <CarouselContent className="-ml-4 md:-ml-8">
-              {TESTIMONIALS.map((testimonial, index) => (
-                <CarouselItem key={index} className="pl-4 md:pl-8 md:basis-1/2 lg:basis-1/3">
-                  <div className="p-10 bg-white/5 border border-white/10 rounded-3xl h-full flex flex-col hover:bg-white/10 transition-colors">
-                    <div className="flex gap-1 mb-8">
-                      {[...Array(testimonial.rating)].map((_, i) => (
-                        <Star key={i} className="w-5 h-5 fill-[#10b981] text-[#10b981]" />
-                      ))}
-                    </div>
-                    <p className="text-lg text-white/80 leading-relaxed font-medium mb-10 flex-1">
-                      "{testimonial.quote}"
-                    </p>
-                    <div className="flex items-center gap-4 mt-auto pt-8 border-t border-white/10">
-                      <Avatar className="w-12 h-12 border-2 border-[#10b981]">
-                        <AvatarImage src={testimonial.avatar} />
-                        <AvatarFallback>{testimonial.name[0]}</AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <div className="font-bold">{testimonial.name}</div>
-                        <div className="text-xs text-[#10b981] uppercase tracking-widest mt-1">
-                          {testimonial.role}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-            <div className="flex justify-end gap-4 mt-12 relative lg:absolute lg:top-[-100px] lg:right-12">
-              <CarouselPrevious className="relative inset-auto translate-x-0 translate-y-0 bg-white/10 border-white/20 hover:bg-white hover:text-[#0f2419] text-white" />
-              <CarouselNext className="relative inset-auto translate-x-0 translate-y-0 bg-white/10 border-white/20 hover:bg-white hover:text-[#0f2419] text-white" />
-            </div>
-          </Carousel>
-        </div>
-      </section>
-
-      {/* ==========================================
-          6. PRICING (3 Tiers with Cards)
-          ========================================== */}
-      <section id="pricing" className="py-32 bg-[#f0faf5]">
-        <div className="max-w-[1400px] mx-auto px-6 md:px-12">
-          <div className="text-center max-w-3xl mx-auto mb-20">
-            <Reveal>
-              <h2 className="text-5xl md:text-7xl font-black tracking-tighter leading-[0.9] mb-8">
-                Transparent <br /> <span className="text-[#10b981]">Investment.</span>
-              </h2>
-              <p className="text-lg text-[#0f2419]/50">
-                Simple, predictable pricing for unparalleled quality. No hidden fees, just immaculate results.
-              </p>
-            </Reveal>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
-            {PRICING.map((tier, i) => (
-              <Reveal key={i} delay={i * 0.1}>
-                <Card className={`relative overflow-hidden transition-all duration-300 ${
-                  tier.highlight 
-                    ? "border-[#10b981] shadow-2xl shadow-[#10b981]/20 scale-100 md:scale-105 z-10 bg-[#0f2419] text-white" 
-                    : "border-[#0f2419]/10 hover:border-[#10b981]/50 bg-white"
-                }`}>
-                  {tier.highlight && (
-                    <div className="absolute top-0 right-0 bg-[#10b981] text-white text-[10px] font-bold uppercase tracking-widest px-4 py-1.5 rounded-bl-xl">
-                      Most Popular
-                    </div>
-                  )}
-                  <CardHeader className="p-8 pb-4">
-                    <CardTitle className="text-2xl font-black mb-2">{tier.name}</CardTitle>
-                    <CardDescription className={tier.highlight ? "text-white/60" : "text-[#0f2419]/50"}>
-                      {tier.desc}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="p-8 pt-0">
-                    <div className="mb-8">
-                      <span className="text-5xl font-black">{tier.price}</span>
-                      <span className={`text-lg font-medium ml-2 ${tier.highlight ? "text-white/50" : "text-[#0f2419]/40"}`}>
-                        {tier.period}
-                      </span>
-                    </div>
-                    <div className="space-y-4">
-                      {tier.features.map((feature, idx) => (
-                        <div key={idx} className="flex items-center gap-3">
-                          <CheckCircle2 className={`w-5 h-5 ${tier.highlight ? "text-[#10b981]" : "text-[#10b981]"}`} />
-                          <span className="text-sm font-medium">{feature}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                  <CardFooter className="p-8 pt-0">
-                    <button className={`w-full py-4 rounded-xl text-xs font-bold uppercase tracking-widest transition-all ${
-                      tier.highlight 
-                        ? "bg-[#10b981] hover:bg-white hover:text-[#0f2419] text-white" 
-                        : "bg-[#f0faf5] text-[#0f2419] hover:bg-[#10b981] hover:text-white"
-                    }`}>
-                      {tier.cta}
-                    </button>
-                  </CardFooter>
-                </Card>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ==========================================
-          7. FAQ (Shadcn Accordion)
-          ========================================== */}
-      <section className="py-32 bg-white">
-        <div className="max-w-4xl mx-auto px-6 md:px-12">
-          <Reveal>
-            <div className="text-center mb-16">
-              <Badge variant="outline" className="mb-6">Clarity</Badge>
-              <h2 className="text-4xl md:text-5xl font-black tracking-tighter">
-                Common Inquiries
-              </h2>
-            </div>
-          </Reveal>
-
-          <Reveal delay={0.2}>
-            <Accordion type="single" collapsible className="w-full">
-              {FAQS.map((faq, i) => (
-                <AccordionItem key={i} value={`item-${i}`} className="border-[#0f2419]/10">
-                  <AccordionTrigger className="text-left text-lg md:text-xl font-bold hover:text-[#10b981] hover:no-underline py-6">
-                    {faq.q}
-                  </AccordionTrigger>
-                  <AccordionContent className="text-[#0f2419]/60 text-base leading-relaxed pb-6">
-                    {faq.a}
-                  </AccordionContent>
-                </AccordionItem>
-              ))}
-            </Accordion>
-          </Reveal>
-        </div>
-      </section>
-
-      {/* ==========================================
-          8. CTA BANNER
-          ========================================== */}
-      <section className="py-32 relative overflow-hidden">
-        <div className="absolute inset-0 bg-[#0f2419]">
-          <Image
-            src="https://images.unsplash.com/photo-1527515637462-cff94eecc1ac?q=80&w=2000&auto=format&fit=crop"
-            alt="Cleaning details"
-            fill
-            className="object-cover opacity-20 mix-blend-overlay"
+    <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden opacity-10">
+       <svg width="100%" height="100%" className="w-full h-full">
+          <motion.line 
+             x1="50%" 
+             y1="50%" 
+             x2={mousePos.x} 
+             y2={mousePos.y} 
+             stroke="cyan" 
+             strokeWidth="1" 
+             strokeDasharray="4 8"
           />
-        </div>
-        <div className="max-w-[1400px] mx-auto px-6 md:px-12 relative z-10 text-center">
-          <Reveal>
-            <div className="w-20 h-20 bg-[#10b981] rounded-3xl flex items-center justify-center mx-auto mb-10 rotate-12 shadow-2xl">
-              <Sparkles className="w-10 h-10 text-white" />
-            </div>
-            <h2 className="text-5xl md:text-8xl font-black tracking-tighter text-white uppercase mb-8">
-              Ready for <br /> Perfection?
-            </h2>
-            <p className="text-xl text-white/60 mb-12 max-w-2xl mx-auto">
-              Join thousands of satisfied homeowners who have upgraded to the Pristine standard. Your first deep clean includes a complimentary aromatherapy treatment.
-            </p>
-            <button className="px-12 py-6 bg-[#10b981] text-white text-sm font-bold uppercase tracking-widest rounded-full hover:bg-white hover:text-[#0f2419] transition-all transform hover:scale-105 shadow-2xl shadow-[#10b981]/20">
-              Book Your First Clean
-            </button>
-          </Reveal>
-        </div>
-      </section>
-
-      {/* ==========================================
-          9. MEGA FOOTER
-          ========================================== */}
-      <footer className="bg-white border-t border-[#0f2419]/10 pt-32 pb-12">
-        <div className="max-w-[1400px] mx-auto px-6 md:px-12">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-16 mb-24">
-            <div className="lg:col-span-4">
-              <Link
-                href="/"
-                className="flex items-center gap-3 text-2xl font-black tracking-tighter mb-8"
-              >
-                <div className="w-10 h-10 bg-[#10b981] rounded-2xl flex items-center justify-center text-white">
-                  <Sparkles className="w-5 h-5" />
-                </div>
-                <span>PRISTINE</span>
-              </Link>
-              <p className="text-[#0f2419]/50 mb-8 max-w-sm leading-relaxed">
-                Elevating the standard of residential and commercial cleaning through eco-conscious practices and uncompromising attention to detail.
-              </p>
-              <div className="flex gap-4">
-                {[Globe, Globe, Globe].map((Icon, i) => (
-                  <a key={i} href="#" className="w-10 h-10 rounded-full bg-[#f0faf5] flex items-center justify-center text-[#0f2419] hover:bg-[#10b981] hover:text-white transition-colors">
-                    <Icon className="w-4 h-4" />
-                  </a>
-                ))}
-              </div>
-            </div>
-
-            <div className="lg:col-span-2 lg:col-start-7">
-              <h4 className="font-bold uppercase tracking-widest text-xs text-[#10b981] mb-6">Services</h4>
-              <ul className="space-y-4 text-sm font-medium text-[#0f2419]/70">
-                {["Deep Cleaning", "Regular Upkeep", "Move In/Out", "Post-Construction", "Eco-Pure"].map((item) => (
-                  <li key={item}><Link href="#" className="hover:text-[#10b981] transition-colors">{item}</Link></li>
-                ))}
-              </ul>
-            </div>
-
-            <div className="lg:col-span-2">
-              <h4 className="font-bold uppercase tracking-widest text-xs text-[#10b981] mb-6">Company</h4>
-              <ul className="space-y-4 text-sm font-medium text-[#0f2419]/70">
-                {["About Us", "Our Standards", "Careers", "Franchise", "Contact"].map((item) => (
-                  <li key={item}><Link href="#" className="hover:text-[#10b981] transition-colors">{item}</Link></li>
-                ))}
-              </ul>
-            </div>
-
-            <div className="lg:col-span-2">
-              <h4 className="font-bold uppercase tracking-widest text-xs text-[#10b981] mb-6">Contact</h4>
-              <ul className="space-y-4 text-sm font-medium text-[#0f2419]/70">
-                <li className="flex items-center gap-3">
-                  <MapPin className="w-4 h-4 text-[#10b981]" />
-                  <span>100 Clean Ave, NY</span>
-                </li>
-                <li className="flex items-center gap-3">
-                  <Phone className="w-4 h-4 text-[#10b981]" />
-                  <span>1-800-PRISTINE</span>
-                </li>
-                <li className="flex items-center gap-3">
-                  <Mail className="w-4 h-4 text-[#10b981]" />
-                  <span>hello@pristine.com</span>
-                </li>
-              </ul>
-            </div>
-          </div>
-
-          <div className="pt-8 border-t border-[#0f2419]/10 flex flex-col md:flex-row justify-between items-center gap-4 text-xs font-medium text-[#0f2419]/40">
-            <div>&copy; 2026 Pristine Cleaning Services. All rights reserved.</div>
-            <div className="flex gap-8">
-              <Link href="#" className="hover:text-[#10b981]">Privacy Policy</Link>
-              <Link href="#" className="hover:text-[#10b981]">Terms of Service</Link>
-            </div>
-          </div>
-        </div>
-      </footer>
+          {[...Array(6)].map((_, i) => (
+            <circle 
+               key={i}
+               cx="50%" 
+               cy="50%" 
+               r={100 + i * 150} 
+               stroke="cyan" 
+               strokeWidth="0.5" 
+               fill="none"
+               opacity={0.3}
+            />
+          ))}
+          <motion.div 
+             animate={{ rotate: 360 }}
+             transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+             className="absolute top-1/2 left-1/2 w-full h-1 bg-gradient-to-r from-cyan-400/0 to-cyan-400/50 origin-left"
+          />
+       </svg>
     </div>
-  );
+  )
+}
+
+function SatelliteModel({ progress }: { progress: any }) {
+  const rotate = useTransform(progress, [0, 1], [0, 360])
+  const scale = useTransform(progress, [0, 0.5, 1], [1, 1.2, 1])
+
+  return (
+    <motion.div style={{ rotate, scale }} className="relative w-80 h-80 flex items-center justify-center">
+       <div className="absolute inset-0 border border-cyan-500/10 rounded-full animate-spin-slow shadow-[0_0_80px_rgba(34,211,238,0.05)]" />
+       <Satellite className="w-40 h-40 text-cyan-500/10 animate-pulse" />
+       <div className="absolute inset-8 border border-cyan-500/5 rounded-full" />
+    </motion.div>
+  )
+}
+
+/* ==========================================
+   THE PULSE ARRAY - MAIN INTERFACE
+   ========================================== */
+
+export default function PulseArrayPremium() {
+  const [activeSat, setActiveSat] = useState(0)
+  const [isRadarLockActive, setIsRadarLockActive] = useState(true)
+  const containerRef = useRef(null)
+  const { scrollYProgress } = useScroll({ target: containerRef })
+
+  // Pulse Scroll Effects
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.2], [1, 0])
+  const textX = useTransform(scrollYProgress, [0, 0.5], [0, 100])
+
+  return (
+    <div ref={containerRef} className="bg-[#020508] text-[#e0e8ed] font-mono selection:bg-cyan-500/30 selection:text-white min-h-screen overflow-x-hidden transition-colors duration-1000">
+      
+      {/* GLOBAL HUD OVERLAY */}
+      <HUD_Overlay isRadarLockActive={isRadarLockActive} />
+
+      <main>
+        {/* ==========================================
+            1. RADAR IGNITION (HERO)
+            ========================================== */}
+        <section className="relative h-screen flex flex-col justify-center items-center px-8 md:px-24 overflow-hidden pt-20">
+          <RadarSweepVisualizer />
+          <motion.div style={{ opacity: heroOpacity }} className="absolute z-0 pointer-events-none flex items-center justify-center">
+             <SatelliteModel progress={scrollYProgress} />
+          </motion.div>
+
+          <div className="relative z-10 text-center max-w-7xl">
+             <Reveal>
+                <div className="inline-flex items-center gap-4 px-6 py-2 border border-cyan-500/30 bg-cyan-500/5 text-[10px] font-black uppercase tracking-[0.5em] text-cyan-500 mb-12 italic">
+                   <Radar className="w-4 h-4" /> Radar_Sync: NOMINAL // Resol: 25cm/px
+                </div>
+                <motion.h1 style={{ x: textX }} className="text-7xl md:text-[14vw] font-black tracking-tighter uppercase mb-16 leading-[0.75] italic">
+                   Pulse <br/> <span className="text-white/5 italic">Array.</span>
+                </motion.h1>
+                <p className="max-w-3xl mx-auto text-sm md:text-lg text-white/30 leading-relaxed uppercase tracking-widest font-light mb-16 italic">
+                   La télédétection par satellite de nouvelle génération. Nous capturons chaque pulsation de la Terre avec une précision radar inégalée pour une analyse globale en temps réel.
+                </p>
+                
+                <div className="flex flex-col sm:flex-row gap-8 justify-center items-center">
+                   <button className="px-12 py-6 bg-cyan-800 text-white text-[10px] font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all shadow-[0_0_40px_rgba(34,211,238,0.2)] flex items-center gap-4 italic">
+                      <Signal className="w-5 h-5" /> Initialize Scan
+                   </button>
+                   <button className="px-12 py-6 border border-white/10 text-white text-[10px] font-black uppercase tracking-widest hover:bg-white/5 transition-all flex items-center gap-4 italic">
+                      <Database className="w-5 h-5" /> Satellite Registry
+                   </button>
+                </div>
+             </Reveal>
+          </div>
+
+          <div className="absolute bottom-12 left-12 right-12 flex justify-between items-end border-t border-white/5 pt-12">
+             <div className="flex flex-col gap-6">
+                <div className="flex items-center gap-4 text-[9px] font-bold text-white/20 uppercase tracking-widest italic">
+                   <div className="w-16 h-px bg-white/10" />
+                   Station_ID: PULSE-MASTER-01
+                </div>
+                <div className="flex items-center gap-4 text-[9px] font-bold text-white/20 uppercase tracking-widest italic">
+                   <div className="w-16 h-px bg-white/10" />
+                   Lock_Status: SAR_STABLE
+                </div>
+             </div>
+             <div className="text-right flex flex-col items-end gap-4">
+                <span className="text-[8px] font-black uppercase tracking-[0.5em] text-cyan-500">Radar_Reflectivity_Stream</span>
+                <div className="flex gap-2 h-12 items-end">
+                   {[...Array(16)].map((_, i) => (
+                     <motion.div 
+                        key={i}
+                        animate={{ height: ["10%", "100%", "30%", "80%", "10%"] }}
+                        transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.1 }}
+                        className="w-2 bg-cyan-500/20"
+                     />
+                   ))}
+                </div>
+             </div>
+          </div>
+        </section>
+
+        {/* ==========================================
+            2. SATELLITE REGISTRY (DENSE TECHNICAL)
+            ========================================== */}
+        <section className="py-60 bg-[#04080c] relative border-y border-white/5 overflow-hidden">
+           <div className="max-w-[1600px] mx-auto px-8 md:px-24">
+              <div className="flex flex-col md:flex-row items-end justify-between mb-40 gap-12">
+                 <Reveal>
+                    <span className="text-[10px] font-black uppercase tracking-[0.6em] text-cyan-500 block mb-6 italic underline underline-offset-8 decoration-cyan-400/20">Satellite // Assets</span>
+                    <h2 className="text-6xl md:text-[10vw] font-black uppercase tracking-tighter italic leading-none text-white">Archives.</h2>
+                 </Reveal>
+                 <div className="text-right">
+                    <span className="text-[10px] font-black uppercase tracking-[0.5em] text-white/20 block mb-4 italic">Registry // Orbital_Audit</span>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-cyan-400">L'Architecture de la Surveillance</p>
+                 </div>
+              </div>
+
+              <div className="grid md:grid-cols-3 gap-px bg-white/5 border border-white/5 shadow-2xl">
+                 {SATELLITE_ASSETS.map((sat, i) => (
+                   <Reveal key={sat.id} delay={i * 0.1}>
+                      <div className="bg-[#020508] p-20 flex flex-col h-full hover:bg-white/[0.02] transition-all group cursor-crosshair border-white/5 border-r last:border-r-0">
+                         <div className="flex justify-between items-start mb-16">
+                            <div className="w-16 h-16 bg-white/5 border border-white/10 flex items-center justify-center group-hover:bg-cyan-800 group-hover:text-white transition-all duration-500">
+                               <Radar className="w-8 h-8" />
+                            </div>
+                            <span className={`px-4 py-2 bg-white/5 text-[9px] font-black uppercase tracking-[0.3em] ${sat.status === "Operational" ? "text-cyan-500" : "text-white/40"}`}>{sat.status}</span>
+                         </div>
+                         
+                         <h3 className="text-4xl font-black uppercase tracking-tighter mb-8 italic text-white group-hover:translate-x-4 transition-transform">{sat.name}</h3>
+                         <div className="text-[10px] font-black text-white/20 uppercase tracking-[0.5em] mb-12">{sat.type}</div>
+                         
+                         <div className="space-y-8 mb-20 border-l border-cyan-500/20 pl-8">
+                            <div className="flex justify-between items-center text-[11px] font-bold uppercase tracking-widest">
+                               <span className="text-white/20">Resolution</span>
+                               <span className="text-white group-hover:text-cyan-400 transition-colors">{sat.resolution}</span>
+                            </div>
+                            <div className="flex justify-between items-center text-[11px] font-bold uppercase tracking-widest">
+                               <span className="text-white/20">Revisit</span>
+                               <span className="text-white group-hover:text-cyan-400 transition-colors">{sat.revisit}</span>
+                            </div>
+                            <div className="flex justify-between items-center text-[11px] font-bold uppercase tracking-widest">
+                               <span className="text-white/20">Throughput</span>
+                               <span className="text-white group-hover:text-cyan-400 transition-colors">{sat.throughput}</span>
+                            </div>
+                         </div>
+
+                         <p className="text-[12px] text-white/30 leading-loose uppercase tracking-[0.2em] font-bold italic mb-16">
+                            {sat.desc}
+                         </p>
+
+                         <div className="mt-auto pt-10 border-t border-white/5 flex justify-between items-center">
+                            <span className="text-[10px] font-black text-white/10 uppercase tracking-widest">Ref: {sat.id}</span>
+                            <button className="text-[10px] font-black uppercase text-white/40 flex items-center gap-4 group-hover:text-white transition-all">
+                               Technical_Specs <ChevronRight className="w-5 h-5" />
+                            </button>
+                         </div>
+                      </div>
+                   </Reveal>
+                 ))}
+              </div>
+           </div>
+        </section>
+
+        {/* ==========================================
+            3. PULSE MONITOR (INTERACTIVE DATA)
+            ========================================== */}
+        <section className="py-60 bg-black relative border-y border-white/5 overflow-hidden">
+           <div className="max-w-[1400px] mx-auto px-8 md:px-24">
+              <div className="grid lg:grid-cols-2 gap-40 items-center">
+                 <div>
+                    <Reveal>
+                       <span className="text-[10px] font-black uppercase tracking-[0.5em] text-cyan-500 block mb-12 italic underline underline-offset-8 decoration-cyan-400/20">Pulse // Performance</span>
+                       <h2 className="text-7xl md:text-[9vw] font-light italic leading-none text-white mb-16 uppercase tracking-tighter">
+                          The <br/> <span className="not-italic font-black text-white/5 italic">Scan_Link.</span>
+                       </h2>
+                       <p className="text-2xl font-light text-white/20 leading-relaxed mb-24 italic uppercase tracking-[0.2em] max-w-xl">
+                          Surveillance radar en temps réel. Nos flottes SAR balaient la planète toutes les heures pour détecter des changements de surface et surveiller les infrastructures critiques.
+                       </p>
+                       <div className="grid grid-cols-2 gap-px bg-white/5 border border-white/5 mb-24 shadow-2xl">
+                          {RADAR_METRICS.map((metric, i) => (
+                            <div key={i} className="p-16 bg-[#0a100c] group hover:bg-white/[0.02] transition-all border-r border-b last:border-r-0 border-white/5">
+                               <div className="text-[10px] font-black uppercase text-cyan-400 mb-6 tracking-[0.4em]">{metric.label}</div>
+                               <div className="text-5xl font-black text-white italic mb-6 tracking-tighter group-hover:translate-x-4 transition-transform">{metric.value}</div>
+                               <div className="flex items-center gap-3 text-[9px] font-bold uppercase tracking-[0.3em] text-white/10 italic">
+                                  <Activity className="w-4 h-4 text-cyan-400" /> {metric.trend}
+                               </div>
+                            </div>
+                          ))}
+                       </div>
+                       <button 
+                         onClick={() => setIsRadarLockActive(!isRadarLockActive)}
+                         className="w-full py-8 bg-cyan-900 text-white text-[11px] font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all shadow-2xl flex items-center justify-center gap-6 italic"
+                       >
+                          <Settings className="w-5 h-5" /> Re-Sync Orbital Nodes
+                       </button>
+                    </Reveal>
+                 </div>
+                 
+                 <div className="relative">
+                    <Reveal delay={0.3} x={40}>
+                       <div className="aspect-square bg-[#0a100c] border border-white/10 p-20 flex flex-col justify-between relative group overflow-hidden shadow-2xl">
+                          <div className="absolute top-0 right-0 p-80 bg-cyan-400 opacity-[0.02] blur-[150px] rounded-full group-hover:opacity-[0.05] transition-opacity" />
+                          
+                          <div className="flex justify-between items-start z-10">
+                             <div className="flex flex-col gap-3">
+                                <span className="text-[10px] font-black text-white/10 uppercase tracking-[0.5em]">Pulse_Link // SAR-SYNC-v42</span>
+                                <span className="text-[12px] font-black text-white/40 uppercase tracking-[0.6em]">Orbital_Ground_Map</span>
+                             </div>
+                             <Wifi className="w-6 h-6 text-cyan-400" />
+                          </div>
+                          
+                          {/* RADAR VISUALIZER (SVG) */}
+                          <div className="relative z-10 flex flex-col items-center justify-center h-full">
+                             <div className="w-64 h-64 border border-cyan-400/5 rounded-full flex items-center justify-center relative">
+                                <motion.div 
+                                  animate={{ rotate: 360 }}
+                                  transition={{ duration: 5, repeat: Infinity, ease: "linear" }}
+                                  className="absolute inset-0 border-t-2 border-cyan-400/20 rounded-full" 
+                                />
+                                <motion.div 
+                                  animate={{ rotate: -360 }}
+                                  transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+                                  className="absolute inset-8 border-b-2 border-cyan-400/10 rounded-full" 
+                                />
+                                <Crosshair className={`w-24 h-24 transition-colors duration-1000 ${isRadarLockActive ? "text-cyan-400 animate-pulse" : "text-white/5"}`} />
+                             </div>
+                             <div className="mt-16 text-center space-y-6">
+                                <div className={`text-4xl font-black italic tracking-tighter ${isRadarLockActive ? "text-white" : "text-white/20"}`}>
+                                   {isRadarLockActive ? "TARGET_LOCKED" : "TARGET_LOST"}
+                                </div>
+                                <span className="text-[11px] font-bold text-white/10 uppercase tracking-[0.6em] block">Auth_Node: PULSE_UNIT_01</span>
+                             </div>
+                          </div>
+
+                          <div className="relative z-10 flex gap-6">
+                             <div className="flex-1 h-1 bg-white/5 overflow-hidden">
+                                <motion.div 
+                                   animate={isRadarLockActive ? { x: ["-100%", "100%"] } : {}}
+                                   transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+                                   className="w-1/2 h-full bg-cyan-700"
+                                />
+                             </div>
+                          </div>
+                       </div>
+                    </Reveal>
+                 </div>
+              </div>
+           </div>
+        </section>
+
+        {/* ==========================================
+            4. PULSE STORY (TECH STORYTELLING)
+            ========================================== */}
+        <section className="py-60 bg-[#020508] relative overflow-hidden border-t border-white/5">
+           <div className="max-w-[1400px] mx-auto px-8 md:px-24">
+              <div className="grid lg:grid-cols-2 gap-40 items-center">
+                 <div className="relative aspect-[3/4] overflow-hidden group border border-white/5 shadow-2xl">
+                    <Image 
+                       src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1200&auto=format&fit=crop" 
+                       alt="Orbital Radar Infrastructure" 
+                       fill 
+                       className="object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-[2000ms]"
+                    />
+                    <div className="absolute inset-0 bg-cyan-900/10 mix-blend-color group-hover:opacity-0 transition-opacity" />
+                    <div className="absolute inset-0 p-20 flex flex-col justify-end bg-gradient-to-t from-black via-black/40 to-transparent">
+                       <div className="text-white">
+                          <span className="text-[11px] font-black uppercase tracking-[0.6em] text-cyan-400 mb-8 block italic underline underline-offset-8 decoration-cyan-400/20">Atelier // Purity // Unit</span>
+                          <h4 className="text-6xl font-black tracking-tighter uppercase italic mb-12 mix-blend-difference text-white">Orbital <br/> Fabric.</h4>
+                          <button className="flex items-center gap-6 text-[11px] font-black uppercase tracking-[0.4em] border-b border-white/20 pb-4 hover:border-cyan-400 transition-all group">
+                             Scan Protocols <ExternalLink className="w-5 h-5 group-hover:translate-x-2 group-hover:-translate-y-2 transition-transform" />
+                          </button>
+                       </div>
+                    </div>
+                 </div>
+
+                 <div>
+                    <Reveal>
+                       <div className="mb-24 text-left">
+                          <span className="text-[10px] font-black uppercase tracking-[0.5em] text-cyan-500 mb-8 block italic">Chapitre III // Analyse</span>
+                          <h2 className="text-7xl md:text-[10vw] font-black tracking-tighter uppercase text-white italic leading-none text-white">Pure_Scan.</h2>
+                       </div>
+                       <p className="text-2xl font-light text-white/20 leading-relaxed italic mb-20 uppercase tracking-[0.2em]">
+                          L'espace est notre point de vue. Nous utilisons des micro-ondes pour voir à travers la nuit et les nuages, offrant une clarté absolue sur l'évolution de notre planète.
+                       </p>
+                       <div className="space-y-20">
+                          {[
+                            { t: "SAR Signal Capture", d: "Réception de l'écho radar et traitement par synthèse d'ouverture pour une résolution spatiale extrême." },
+                            { t: "Geometric Correction", d: "Alignement précis des données orbitales avec les modèles de terrain globaux via des éphémérides GNSS." },
+                            { t: "AI Classification", d: "Extraction automatique de caractéristiques (bâtiments, eau, végétation) par réseaux de neurones profonds." }
+                          ].map((step, i) => (
+                            <div key={i} className="group flex gap-12 border-b border-white/5 pb-16 hover:border-cyan-400/20 transition-all cursor-default">
+                               <div className="text-6xl font-black text-white/5 group-hover:text-cyan-400/20 transition-colors italic leading-none">0{i+1}</div>
+                               <div>
+                                  <h5 className="text-3xl font-black uppercase tracking-tight text-white mb-6 italic group-hover:translate-x-4 transition-transform text-white">{step.t}</h5>
+                                  <p className="text-[12px] text-white/20 uppercase tracking-[0.3em] font-bold leading-loose italic">{step.d}</p>
+                               </div>
+                            </div>
+                          ))}
+                       </div>
+                    </Reveal>
+                 </div>
+              </div>
+           </div>
+        </section>
+
+        {/* MEGA FOOTER */}
+        <footer className="bg-black pt-60 pb-12 px-8 md:px-24 relative z-50">
+           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-32 mb-60 text-white">
+              <div className="lg:col-span-2">
+                 <div className="flex items-center gap-6 mb-16">
+                    <div className="w-16 h-16 bg-cyan-800 flex items-center justify-center">
+                      <Satellite className="w-10 h-10 text-white" />
+                    </div>
+                    <span className="text-4xl font-black uppercase tracking-tighter italic">PULSE<span className="text-white/20">ARRAY.</span></span>
+                 </div>
+                 <p className="text-white/20 text-[11px] font-black uppercase tracking-[0.5em] leading-loose max-w-sm mb-20 italic">
+                    "La vision orbitale au service de la précision terrestre." — Archive Pulse V.42
+                 </p>
+                 <div className="flex gap-16">
+                    {["ScanLog", "SatelliteRegistry", "GitHub", "X_Protocol"].map(s => (
+                      <Link key={s} href="#" className="text-[11px] font-black uppercase tracking-widest text-white/20 hover:text-cyan-400 transition-colors italic underline underline-offset-8 decoration-white/5">{s}</Link>
+                    ))}
+                 </div>
+              </div>
+
+              {[
+                { t: "FLEET", l: ["Aegis Radar-1", "Spectra-Link X", "Lidar-Forge v5", "Orbital Bus"] },
+                { t: "TECHNOLOGY", l: ["SAR Processing", "Geometric Sync", "AI Classification", "SLA Reports"] },
+                { t: "ATELIER", l: ["Our Legacy", "Orbital Mapping", "Locations", "Support"] }
+              ].map((col, i) => (
+                <div key={i} className="flex flex-col gap-12">
+                  <h4 className="text-[11px] font-black text-cyan-400 uppercase tracking-[0.6em] italic">{col.t}</h4>
+                  <ul className="flex flex-col gap-8">
+                    {col.l.map(link => (
+                      <li key={link} className="text-[11px] font-bold text-white/20 hover:text-white transition-colors cursor-pointer uppercase tracking-[0.4em] italic">{link}</li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+           </div>
+
+           <div className="max-w-[1600px] mx-auto border-t border-white/5 pt-16 flex flex-col md:flex-row justify-between items-center gap-16 text-[10px] font-black text-white/10 uppercase tracking-[0.6em] italic">
+              <span>© 2026 PULSE ARRAY ORBITAL REMOTE SENSING AG. // ALL_RIGHTS_RESERVED</span>
+              <div className="flex gap-16">
+                 <span>STATUS: OPERATIONAL</span>
+                 <span>RESOL: 25CM (SAR)</span>
+                 <span>v4.12.0-STABLE</span>
+              </div>
+           </div>
+        </footer>
+      </main>
+    </div>
+  )
+}
+
+/* ==========================================
+   TECHNICAL SUB-COMPONENTS
+   ========================================== */
+
+function HUD_Overlay({ isRadarLockActive }: { isRadarLockActive: boolean }) {
+  return (
+    <div className="fixed inset-0 pointer-events-none z-[100]">
+       {/* Corner Brackets */}
+       <div className={`absolute top-12 left-12 w-20 h-20 border-t-2 border-l-2 transition-colors duration-1000 ${isRadarLockActive ? "border-cyan-400" : "border-white/10"}`} />
+       <div className={`absolute top-12 right-12 w-20 h-20 border-t-2 border-r-2 transition-colors duration-1000 ${isRadarLockActive ? "border-cyan-400" : "border-white/10"}`} />
+       <div className={`absolute bottom-12 left-12 w-20 h-20 border-b-2 border-l-2 transition-colors duration-1000 ${isRadarLockActive ? "border-cyan-400" : "border-white/10"}`} />
+       <div className={`absolute bottom-12 right-12 w-20 h-20 border-b-2 border-r-2 transition-colors duration-1000 ${isRadarLockActive ? "border-cyan-400" : "border-white/10"}`} />
+
+       {/* Top Status Bar */}
+       <div className="absolute top-12 left-1/2 -translate-x-1/2 flex items-center gap-20 bg-black/60 backdrop-blur-2xl px-12 py-4 border border-white/10 rounded-none">
+          <div className="flex items-center gap-6 text-white">
+             <div className={`w-3 h-3 transition-colors duration-500 ${isRadarLockActive ? "bg-cyan-400 animate-pulse" : "bg-red-500 animate-ping"}`} />
+             <span className="text-[10px] font-black uppercase tracking-[0.4em] italic leading-none">Radar_Sync: {isRadarLockActive ? "NOMINAL" : "SYNC_LOSS"} // Status: ACTIVE</span>
+          </div>
+          <div className="h-4 w-px bg-white/20" />
+          <div className="flex items-center gap-6 text-white/20">
+             <Wifi className="w-4 h-4" /> 
+             <span className="text-[10px] font-black uppercase tracking-[0.4em] italic leading-none">Pulse_Grid: SECURE</span>
+          </div>
+       </div>
+
+       {/* Right Rotation Info */}
+       <div className="absolute right-12 top-1/2 -translate-y-1/2 rotate-90 origin-right hidden lg:block">
+          <span className="text-[10px] font-black uppercase tracking-[0.8em] text-white/5 italic">Unauthorized_Duplication_Of_Orbital_Patterns_Is_Strictly_Monitored_By_Global_Pulse_Alliance</span>
+       </div>
+    </div>
+  )
 }

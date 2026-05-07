@@ -1,679 +1,525 @@
 "use client"
 
-import { motion, useScroll, useTransform, useInView, AnimatePresence, useMotionValue, useSpring } from "framer-motion"
-import { useState, useRef, useEffect } from "react"
+import React, { useState, useEffect, useRef } from "react"
+import { 
+  motion, 
+  AnimatePresence, 
+  useScroll, 
+  useTransform, 
+  useInView, 
+  useSpring 
+} from "framer-motion"
 import Image from "next/image"
 import Link from "next/link"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
-import { Badge } from "@/components/ui/badge"
-import { Card, CardContent } from "@/components/ui/card"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel"
-import { Progress } from "@/components/ui/progress"
-import { Separator } from "@/components/ui/separator"
-import { ArrowRight, Menu, X, Star, ChevronRight, Play, Terminal, Cpu, Database, Network, Key, Layers, Globe, Zap, TerminalSquare, Lock, Server, CheckCircle2,  MessageCircle, MessageSquare, Brain, LineChart, Cpu as Chip, Sparkles } from "lucide-react"
+import { 
+  Zap, Activity, Microscope, 
+  Target, Layers, Box, Hexagon, 
+  Terminal, Settings, Power, Info, 
+  AlertTriangle, ChevronRight, ArrowRight, 
+  Share2, Maximize2, Download, ExternalLink, 
+  Archive, Hash, Wifi, BarChart3, 
+  Fingerprint, Scan, Brain, Server, 
+  ShieldCheck, ShieldAlert, Award, 
+  Briefcase, Wind, Thermometer, 
+  Flame, Battery, Radio, Gauge, 
+  Timer, Lightbulb, Command, Grid, 
+  Radar, Orbit, Atom, Satellite, 
+  Milestone, FlaskConical, FlaskRound, 
+  Ghost, Binary, Database, Search, 
+  Cpu, HeartPulse, Sun, Magnet, 
+  CircleDot, Waves, Pickaxe, Mountain, 
+  Gem, Rocket, Drill, PlaneTakeoff, 
+  Dna, Biohazard, TestTube2, FlaskConicalIcon, 
+  Pipette, Sprout, Leaf, TreeDeciduous
+} from "lucide-react"
 
-// ─── REVEAL COMPONENT ────────────────────────────────────────────────────────
-function Reveal({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
+/* ==========================================================================
+   THE BIO-HACKER DATASET (ULTRA DENSITY)
+   ========================================================================== */
+
+const SYNTHETIC_ORGANISMS = [
+  {
+    id: "org-bac-42",
+    name: "Carbon-Eater v4",
+    type: "Synthetic Bacteria",
+    stability: "99.98%",
+    growth: "200% / hour",
+    biosecurity: "Level 4",
+    desc: "Bactérie modifiée pour la capture directe du CO2 atmosphérique et sa conversion en biopolymères biodégradables.",
+    status: "Cultivating"
+  },
+  {
+    id: "org-tis-08",
+    name: "Regen-Skin X",
+    type: "Self-Healing Tissue",
+    stability: "99.999%",
+    growth: "45% / day",
+    biosecurity: "Level 2",
+    desc: "Tissu épithélial synthétique capable d'auto-réparation instantanée via une libération contrôlée de facteurs de croissance.",
+    status: "Stable State"
+  },
+  {
+    id: "org-yea-15",
+    name: "Fuel-Yeast v5",
+    type: "Biosynthetic Yeast",
+    stability: "99.4%",
+    growth: "120% / hour",
+    biosecurity: "Level 3",
+    desc: "Levure optimisée pour la production de kérosène vert à partir de déchets agricoles cellulosiques.",
+    status: "Syncing Flow"
+  }
+]
+
+const GENETIC_METRICS = [
+  { label: "Mutation Rate", value: "0.0001%", trend: "Optimal" },
+  { label: "Sequencing Fidelity", value: "99.99%", trend: "Stable" },
+  { label: "Metabolic Yield", value: "85%", trend: "Increasing" },
+  { label: "Bio-Safety", value: "NOMINAL", trend: "High" }
+]
+
+const BIO_LOGS = [
+  { timestamp: "03:14:42", unit: "CRISPR-Module", status: "EDITED", gene: "CO2-FIX" },
+  { timestamp: "03:14:45", unit: "Bio-Reactor-01", status: "ACTIVE", temp: "310K" },
+  { timestamp: "03:14:48", unit: "Purity-Check", status: "SUCCESS", match: "99.99%" }
+]
+
+/* ==========================================
+   TECHNICAL COMPONENTS
+   ========================================== */
+
+function Reveal({ children, delay = 0, y = 40, x = 0 }: { children: React.ReactNode, delay?: number, y?: number, x?: number }) {
   const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, margin: "-80px" })
+  const isInView = useInView(ref, { once: true, margin: "-100px" })
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, y: 32 }}
-      animate={isInView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.6, delay, ease: [0.22, 1, 0.36, 1] }}
+      initial={{ opacity: 0, y, x }}
+      animate={isInView ? { opacity: 1, y: 0, x: 0 } : {}}
+      transition={{ duration: 1.2, delay, ease: [0.16, 1, 0.3, 1] }}
     >
       {children}
     </motion.div>
   )
 }
 
-// ─── DATA ────────────────────────────────────────────────────────────────────
-const NAV_LINKS = [
-  { label: "Platform", href: "#platform" },
-  { label: "Models", href: "#models" },
-  { label: "Solutions", href: "#solutions" },
-  { label: "Pricing", href: "#pricing" },
-]
-
-const STATS = [
-  { value: "99.99", label: "Uptime SLA", suffix: "%" },
-  { value: "50", label: "API Requests / day", suffix: "M+" },
-  { value: "<40", label: "Global Latency", suffix: "ms" },
-  { value: "15", label: "Proprietary LLMs", suffix: "+" },
-  { value: "256", label: "Bit Encryption", suffix: "" },
-]
-
-const FEATURES = [
-  {
-    id: "nlp",
-    title: "Natural Language",
-    icon: <Brain className="w-6 h-6" />,
-    description: "Our core NLP engine understands context, nuance, and sentiment across 95 languages. Easily embed human-like reasoning into your existing applications.",
-    bullets: [
-      "Zero-shot classification",
-      "Semantic search & RAG ready",
-      "Real-time translation & sentiment",
-      "Custom vocabulary fine-tuning"
-    ],
-    image: "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=800&q=80"
-  },
-  {
-    id: "predictive",
-    title: "Predictive Analytics",
-    icon: <LineChart className="w-6 h-6" />,
-    description: "Ingest massive datasets and let Cognix generate high-accuracy predictive models automatically. Uncover hidden correlations in your business data without writing Python.",
-    bullets: [
-      "Automated feature engineering",
-      "Time-series forecasting",
-      "Anomaly detection engine",
-      "Exportable ML pipelines"
-    ],
-    image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&q=80"
-  },
-  {
-    id: "automation",
-    title: "Agentic Workflows",
-    icon: <Chip className="w-6 h-6" />,
-    description: "Deploy autonomous AI agents that can chain tools, read APIs, and complete complex multi-step tasks. Transform static scripts into dynamic, thinking workflows.",
-    bullets: [
-      "Visual agent builder",
-      "Pre-built tool integrations",
-      "Human-in-the-loop approvals",
-      "Full execution audit logs"
-    ],
-    image: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800&q=80"
-  }
-]
-
-const TESTIMONIALS = [
-  {
-    name: "David Schwartz",
-    role: "CTO, FinTech Global",
-    avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&q=80",
-    content: "We replaced our entire legacy NLP pipeline with Cognix's APIs. We saw a 40% reduction in cloud costs and a massive bump in entity extraction accuracy.",
-    rating: 5
-  },
-  {
-    name: "Dr. Amira Patel",
-    role: "Lead Data Scientist",
-    avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&q=80",
-    content: "The ability to spin up agentic workflows without worrying about underlying compute infrastructure is brilliant. Cognix handles the scaling seamlessly.",
-    rating: 5
-  },
-  {
-    name: "Michael Chang",
-    role: "VP Engineering",
-    avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&q=80",
-    content: "Security was our main concern. Cognix's VPC peering and SOC2 compliance made it the only generative AI platform our infosec team would approve.",
-    rating: 5
-  },
-  {
-    name: "Sarah Jenkins",
-    role: "Product Manager",
-    avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&q=80",
-    content: "The RAG (Retrieval-Augmented Generation) endpoint works out of the box. We built an internal knowledge bot in exactly 2 days.",
-    rating: 5
-  }
-]
-
-const PRICING = [
-  {
-    id: "startup",
-    title: "Startup",
-    subtitle: "For agile teams building MVPs",
-    price: "$49",
-    duration: "/ month",
-    description: "Access to our base models and enough API credits to get your AI-powered application off the ground.",
-    features: [
-      "1M API Tokens included",
-      "Access to standard NLP models",
-      "Community Discord support",
-      "5 Agentic workflows",
-      "Standard rate limits"
-    ],
-    recommended: false
-  },
-  {
-    id: "pro",
-    title: "Professional",
-    subtitle: "For scaling applications",
-    price: "$199",
-    duration: "/ month",
-    description: "Higher rate limits, advanced predictive models, and RAG capabilities for production deployments.",
-    features: [
-      "10M API Tokens included",
-      "Access to advanced & predictive models",
-      "Priority email support",
-      "Unlimited workflows",
-      "Custom vector database integration"
-    ],
-    recommended: true
-  },
-  {
-    id: "enterprise",
-    title: "Enterprise",
-    subtitle: "For security-first organizations",
-    price: "Custom",
-    duration: "Annual",
-    description: "Dedicated instances, zero data retention policies, and custom model fine-tuning.",
-    features: [
-      "Unlimited Tokens (Volume pricing)",
-      "Zero Data Retention (ZDR)",
-      "VPC Peering & Single Tenant",
-      "Dedicated Solutions Architect",
-      "Custom model fine-tuning",
-      "SOC2 & HIPAA Compliance"
-    ],
-    recommended: false
-  }
-]
-
-const FAQS = [
-  {
-    question: "Do you train your models on customer data?",
-    answer: "No. By default, customer data sent via the API is not used to train our base models. For Enterprise customers, we offer a strict Zero Data Retention (ZDR) policy."
-  },
-  {
-    question: "How does the token pricing work?",
-    answer: "A token is roughly equivalent to 4 characters of text. You are billed for both input (prompt) tokens and output (completion) tokens. Images and data files are converted to token equivalents based on size."
-  },
-  {
-    question: "Can I deploy Cognix models on-premise?",
-    answer: "Yes, our Enterprise tier offers Virtual Private Cloud (VPC) peering or fully air-gapped on-premise deployments for highly regulated industries like defense and healthcare."
-  },
-  {
-    question: "What languages do your NLP models support?",
-    answer: "Our latest models (Cognix-v4) natively understand and generate text in 95 languages, with near-human accuracy in English, Spanish, French, German, Mandarin, and Japanese."
-  },
-  {
-    question: "Is there a rate limit on the APIs?",
-    answer: "Startup plans are limited to 60 requests per minute (RPM). Professional plans increase this to 500 RPM. Enterprise plans have custom limits based on provisioned infrastructure."
-  },
-  {
-    question: "Do you support RAG out of the box?",
-    answer: "Yes, our platform includes built-in vector storage and retrieval endpoints. You can upload PDFs, connect your Notion, or sync your Confluence, and the API will automatically handle the chunking, embedding, and retrieval."
-  }
-]
-
-// ─── MAIN COMPONENT ────────────────────────────────────────────────────────
-export default function CognixAITemplate() {
-  const containerRef = useRef<HTMLDivElement>(null)
-  const { scrollYProgress } = useScroll({ target: containerRef })
-  
-  // Parallax Values
-  const heroY = useTransform(scrollYProgress, [0, 1], ["0%", "40%"])
-  const textY = useTransform(scrollYProgress, [0, 1], ["0%", "15%"])
-  const opacityHero = useTransform(scrollYProgress, [0, 0.25], [1, 0])
-
-  // Mouse Parallax for Floating Card
-  const mouseX = useMotionValue(0)
-  const mouseY = useMotionValue(0)
-  const springX = useSpring(mouseX, { stiffness: 100, damping: 30 })
-  const springY = useSpring(mouseY, { stiffness: 100, damping: 30 })
-
+function HelixRecombVisualizer() {
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
   useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      const { innerWidth, innerHeight } = window
-      mouseX.set((e.clientX - innerWidth / 2) / 25)
-      mouseY.set((e.clientY - innerHeight / 2) / 25)
-    }
-    window.addEventListener("mousemove", handleMouseMove)
-    return () => window.removeEventListener("mousemove", handleMouseMove)
-  }, [mouseX, mouseY])
+    const handleMouse = (e: MouseEvent) => setMousePos({ x: e.clientX, y: e.clientY })
+    window.addEventListener("mousemove", handleMouse)
+    return () => window.removeEventListener("mousemove", handleMouse)
+  }, [])
 
   return (
-    <div ref={containerRef} className="min-h-screen bg-[#020204] text-[#E2E8F0] font-sans selection:bg-[#7000FF] selection:text-white" style={{ overflowX: "hidden", scrollBehavior: "smooth" }}>
+    <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden opacity-10">
+       <svg width="100%" height="100%" className="w-full h-full">
+          {[...Array(20)].map((_, i) => (
+            <motion.path 
+               key={i}
+               d={`M ${100 + i * 100} 0 Q ${200 + i * 100} 400 ${100 + i * 100} 800`}
+               stroke="#22c55e" 
+               strokeWidth="0.5" 
+               fill="none"
+               animate={{ d: `M ${100 + i * 100} 0 Q ${mousePos.x + (i * 10)} ${mousePos.y} ${100 + i * 100} 800` }}
+               transition={{ type: "spring", damping: 30, stiffness: 50 }}
+            />
+          ))}
+          {[...Array(30)].map((_, i) => (
+            <motion.circle 
+               key={`bio-${i}`}
+               r="2"
+               fill="#22c55e"
+               initial={{ opacity: 0 }}
+               animate={{ 
+                  cx: [Math.random() * 2000, Math.random() * 2000],
+                  cy: [0, 1000],
+                  opacity: [0, 1, 0]
+               }}
+               transition={{ duration: 3 + Math.random() * 4, repeat: Infinity, delay: Math.random() * 5 }}
+            />
+          ))}
+       </svg>
+    </div>
+  )
+}
+
+function BioCoreModel({ progress }: { progress: any }) {
+  const rotate = useTransform(progress, [0, 1], [0, 360])
+  const scale = useTransform(progress, [0, 0.5, 1], [1, 1.2, 1])
+
+  return (
+    <motion.div style={{ rotate, scale }} className="relative w-80 h-80 flex items-center justify-center">
+       <div className="absolute inset-0 border border-green-500/10 rounded-full animate-spin-slow shadow-[0_0_80px_rgba(34,197,94,0.05)]" />
+       <Dna className="w-40 h-40 text-green-500/10 animate-pulse" />
+       <div className="absolute inset-8 border border-green-500/5 rounded-full" />
+    </motion.div>
+  )
+}
+
+/* ==========================================
+   THE BIO-HACKER - MAIN INTERFACE
+   ========================================== */
+
+export default function BioHackerPremium() {
+  const [activeOrg, setActiveOrg] = useState(0)
+  const [isGeneticLockActive, setIsGeneticLockActive] = useState(true)
+  const containerRef = useRef(null)
+  const { scrollYProgress } = useScroll({ target: containerRef })
+
+  // Bio Scroll Effects
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.2], [1, 0])
+  const textX = useTransform(scrollYProgress, [0, 0.5], [0, -100])
+
+  return (
+    <div ref={containerRef} className="bg-[#020604] text-[#e0e8ed] font-mono selection:bg-green-500/30 selection:text-white min-h-screen overflow-x-hidden transition-colors duration-1000">
       
-      {/* ─── 1. NAVBAR STICKY ─── */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-[#020204]/80 backdrop-blur-xl border-b border-white/5 transition-all duration-300">
-        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-3 group cursor-pointer">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#7000FF] to-[#00F0FF] flex items-center justify-center shadow-[0_0_15px_rgba(112,0,255,0.4)] group-hover:shadow-[0_0_25px_rgba(112,0,255,0.6)] transition-all duration-300">
-              <Brain className="w-5 h-5 text-white" />
-            </div>
-            <span className="text-xl font-bold tracking-tight text-white transition-colors duration-300">
-              Cognix AI
-            </span>
-          </Link>
+      {/* GLOBAL HUD OVERLAY */}
+      <HUD_Overlay isGeneticLockActive={isGeneticLockActive} />
 
-          {/* Desktop Nav */}
-          <div className="hidden md:flex items-center gap-8">
-            {NAV_LINKS.map((link) => (
-              <Link 
-                key={link.label} 
-                href={link.href} 
-                className="text-sm font-medium text-slate-400 hover:text-white transition-all duration-200 cursor-pointer"
-              >
-                {link.label}
-              </Link>
-            ))}
+      <main>
+        {/* ==========================================
+            1. BIO IGNITION (HERO)
+            ========================================== */}
+        <section className="relative h-screen flex flex-col justify-center items-center px-8 md:px-24 overflow-hidden pt-20">
+          <HelixRecombVisualizer />
+          <motion.div style={{ opacity: heroOpacity }} className="absolute z-0 pointer-events-none flex items-center justify-center">
+             <BioCoreModel progress={scrollYProgress} />
+          </motion.div>
+
+          <div className="relative z-10 text-center max-w-7xl">
+             <Reveal>
+                <div className="inline-flex items-center gap-4 px-6 py-2 border border-green-500/30 bg-green-500/5 text-[10px] font-black uppercase tracking-[0.5em] text-green-500 mb-12 italic">
+                   <Dna className="w-4 h-4" /> Genetic_Sync: NOMINAL // Stability: 99.98%
+                </div>
+                <motion.h1 style={{ x: textX }} className="text-7xl md:text-[14vw] font-black tracking-tighter uppercase mb-16 leading-[0.75] italic">
+                   Bio <br/> <span className="text-white/5 italic">Hacker.</span>
+                </motion.h1>
+                <p className="max-w-3xl mx-auto text-sm md:text-lg text-white/30 leading-relaxed uppercase tracking-widest font-light mb-16 italic">
+                   L'ingénierie de la vie pour un futur durable. Nous codons les organismes de demain pour restaurer les écosystèmes et redéfinir la production industrielle.
+                </p>
+                
+                <div className="flex flex-col sm:flex-row gap-8 justify-center items-center">
+                   <button className="px-12 py-6 bg-green-800 text-white text-[10px] font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all shadow-[0_0_40px_rgba(34,197,94,0.2)] flex items-center gap-4 italic">
+                      <Pipette className="w-5 h-5" /> Initialize Recomb
+                   </button>
+                   <button className="px-12 py-6 border border-white/10 text-white text-[10px] font-black uppercase tracking-widest hover:bg-white/5 transition-all flex items-center gap-4 italic">
+                      <Database className="w-5 h-5" /> Organism Registry
+                   </button>
+                </div>
+             </Reveal>
           </div>
 
-          <div className="hidden md:flex items-center gap-4">
-            <button className="text-sm font-medium text-slate-300 hover:text-white transition-colors cursor-pointer">
-              Login
-            </button>
-            <button className="px-5 py-2.5 bg-white text-black text-sm font-bold rounded-lg hover:shadow-[0_0_20px_rgba(255,255,255,0.3)] transition-all duration-300 cursor-pointer">
-              Get API Key
-            </button>
+          <div className="absolute bottom-12 left-12 right-12 flex justify-between items-end border-t border-white/5 pt-12">
+             <div className="flex flex-col gap-6">
+                <div className="flex items-center gap-4 text-[9px] font-bold text-white/20 uppercase tracking-widest italic">
+                   <div className="w-16 h-px bg-white/10" />
+                   Lab_ID: BIO-SYNTH-01
+                </div>
+                <div className="flex items-center gap-4 text-[9px] font-bold text-white/20 uppercase tracking-widest italic">
+                   <div className="w-16 h-px bg-white/10" />
+                   Status: CULTURE_STABLE
+                </div>
+             </div>
+             <div className="text-right flex flex-col items-end gap-4">
+                <span className="text-[8px] font-black uppercase tracking-[0.5em] text-green-500">Genetic_Fire_Stream</span>
+                <div className="flex gap-2 h-12 items-end">
+                   {[...Array(16)].map((_, i) => (
+                     <motion.div 
+                        key={i}
+                        animate={{ height: ["10%", "100%", "30%", "80%", "10%"] }}
+                        transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.1 }}
+                        className="w-2 bg-green-500/20"
+                     />
+                   ))}
+                </div>
+             </div>
           </div>
+        </section>
 
-          {/* Mobile Nav */}
-          <Sheet>
-            <SheetTrigger asChild>
-              <button className="md:hidden p-2 text-slate-300 hover:text-white cursor-pointer">
-                <Menu className="w-6 h-6" />
-              </button>
-            </SheetTrigger>
-            <SheetContent side="right" className="bg-[#0A0A0F] border-l border-white/10 text-white w-[300px]">
-              <div className="flex flex-col gap-6 mt-12">
-                {NAV_LINKS.map((link) => (
-                  <Link 
-                    key={link.label} 
-                    href={link.href} 
-                    className="text-lg font-medium text-slate-400 hover:text-white transition-colors cursor-pointer"
-                  >
-                    {link.label}
-                  </Link>
-                ))}
-                <Separator className="bg-white/10 my-4" />
-                <button className="px-6 py-3 bg-white text-black text-sm font-bold rounded-lg cursor-pointer">
-                  Get API Key
-                </button>
+        {/* ==========================================
+            2. ORGANISM REGISTRY (DENSE TECHNICAL)
+            ========================================== */}
+        <section className="py-60 bg-[#040c08] relative border-y border-white/5 overflow-hidden">
+           <div className="max-w-[1600px] mx-auto px-8 md:px-24">
+              <div className="flex flex-col md:flex-row items-end justify-between mb-40 gap-12">
+                 <Reveal>
+                    <span className="text-[10px] font-black uppercase tracking-[0.6em] text-green-500 block mb-6 italic underline underline-offset-8 decoration-green-400/20">Synthetic // Assets</span>
+                    <h2 className="text-6xl md:text-[10vw] font-black uppercase tracking-tighter italic leading-none text-white">Archives.</h2>
+                 </Reveal>
+                 <div className="text-right">
+                    <span className="text-[10px] font-black uppercase tracking-[0.5em] text-white/20 block mb-4 italic">Registry // Bio_Audit</span>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-green-500">L'Architecture du Code Organique</p>
+                 </div>
               </div>
-            </SheetContent>
-          </Sheet>
-        </div>
-      </nav>
 
-      {/* ─── 2. HERO PARALLAX ─── */}
-      <section className="relative h-[100vh] flex items-center justify-center overflow-hidden">
-        {/* Background Gradients */}
-        <motion.div style={{ y: heroY, opacity: opacityHero }} className="absolute inset-0 z-0">
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-[1000px] h-[600px] bg-[#7000FF] opacity-[0.15] blur-[120px] rounded-full mix-blend-screen pointer-events-none" />
-          <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-[#00F0FF] opacity-[0.1] blur-[100px] rounded-full mix-blend-screen pointer-events-none" />
-          <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] mix-blend-overlay pointer-events-none" />
-        </motion.div>
+              <div className="grid md:grid-cols-3 gap-px bg-white/5 border border-white/5 shadow-2xl">
+                 {SYNTHETIC_ORGANISMS.map((org, i) => (
+                   <Reveal key={org.id} delay={i * 0.1}>
+                      <div className="bg-[#020604] p-20 flex flex-col h-full hover:bg-white/[0.02] transition-all group cursor-crosshair border-white/5 border-r last:border-r-0">
+                         <div className="flex justify-between items-start mb-16">
+                            <div className="w-16 h-16 bg-white/5 border border-white/10 flex items-center justify-center group-hover:bg-green-800 group-hover:text-white transition-all duration-500">
+                               <FlaskRound className="w-8 h-8" />
+                            </div>
+                            <span className={`px-4 py-2 bg-white/5 text-[9px] font-black uppercase tracking-[0.3em] ${org.status === "Stable State" ? "text-green-500" : "text-white/40"}`}>{org.status}</span>
+                         </div>
+                         
+                         <h3 className="text-4xl font-black uppercase tracking-tighter mb-8 italic text-white group-hover:translate-x-4 transition-transform">{org.name}</h3>
+                         <div className="text-[10px] font-black text-white/20 uppercase tracking-[0.5em] mb-12">{org.type}</div>
+                         
+                         <div className="space-y-8 mb-20 border-l border-green-500/20 pl-8">
+                            <div className="flex justify-between items-center text-[11px] font-bold uppercase tracking-widest">
+                               <span className="text-white/20">Stability</span>
+                               <span className="text-white group-hover:text-green-400 transition-colors">{org.stability}</span>
+                            </div>
+                            <div className="flex justify-between items-center text-[11px] font-bold uppercase tracking-widest">
+                               <span className="text-white/20">Growth Rate</span>
+                               <span className="text-white group-hover:text-green-400 transition-colors">{org.growth}</span>
+                            </div>
+                            <div className="flex justify-between items-center text-[11px] font-bold uppercase tracking-widest">
+                               <span className="text-white/20">Bio-Safety</span>
+                               <span className="text-white group-hover:text-green-400 transition-colors">{org.biosecurity}</span>
+                            </div>
+                         </div>
 
-        <motion.div style={{ y: textY }} className="relative z-10 max-w-5xl mx-auto px-6 text-center mt-20">
-          <Reveal>
-            <Badge className="bg-white/5 text-[#00F0FF] hover:bg-white/10 border border-[#00F0FF]/30 mb-8 px-4 py-1.5 cursor-pointer transition-all duration-300 font-mono text-xs">
-              <Sparkles className="w-3 h-3 mr-2 inline" /> Introducing Cognix-v4 Models
-            </Badge>
-          </Reveal>
-          
-          <Reveal delay={0.1}>
-            <h1 className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tight text-white mb-6 leading-[1.05]">
-              Intelligence <br className="hidden md:block" />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#7000FF] to-[#00F0FF]">
-                as an API.
-              </span>
-            </h1>
-          </Reveal>
+                         <p className="text-[12px] text-white/30 leading-loose uppercase tracking-[0.2em] font-bold italic mb-16">
+                            {org.desc}
+                         </p>
 
-          <Reveal delay={0.2}>
-            <p className="text-lg md:text-xl text-slate-400 font-medium max-w-2xl mx-auto mb-10 leading-relaxed">
-              Embed state-of-the-art NLP, predictive analytics, and autonomous agents into your software with just 3 lines of code. Enterprise-grade security out of the box.
-            </p>
-          </Reveal>
-
-          <Reveal delay={0.3} className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <button className="w-full sm:w-auto px-8 py-4 bg-white text-black font-bold text-sm rounded-lg hover:scale-105 hover:shadow-[0_0_30px_rgba(255,255,255,0.2)] transition-all duration-300 cursor-pointer flex items-center justify-center gap-2">
-              Start for Free <ArrowRight className="w-4 h-4" />
-            </button>
-            <Dialog>
-              <DialogTrigger asChild>
-                <button className="w-full sm:w-auto px-8 py-4 border border-white/10 bg-white/5 backdrop-blur-md text-white font-bold text-sm rounded-lg hover:bg-white/10 transition-all duration-300 cursor-pointer flex items-center justify-center gap-3">
-                  <Play className="w-4 h-4 text-[#7000FF]" /> Watch Demo
-                </button>
-              </DialogTrigger>
-              <DialogContent className="bg-[#0A0A0F] border-white/10 text-white sm:max-w-[800px] p-0 overflow-hidden">
-                <div className="aspect-video relative w-full bg-black flex items-center justify-center">
-                  <div className="w-12 h-12 rounded-full border-t-2 border-[#7000FF] animate-spin" />
-                </div>
-              </DialogContent>
-            </Dialog>
-          </Reveal>
-        </motion.div>
-
-        {/* Floating Code Snippet Card */}
-        <motion.div 
-          style={{ x: springX, y: springY }}
-          className="hidden lg:block absolute bottom-20 left-20 z-20 p-5 rounded-2xl border border-white/10 bg-black/60 backdrop-blur-xl shadow-2xl cursor-pointer hover:border-[#7000FF]/50 transition-colors duration-300"
-        >
-          <div className="flex gap-2 mb-3">
-            <div className="w-3 h-3 rounded-full bg-red-500" />
-            <div className="w-3 h-3 rounded-full bg-yellow-500" />
-            <div className="w-3 h-3 rounded-full bg-green-500" />
-          </div>
-          <pre className="font-mono text-xs text-slate-300">
-            <span className="text-[#7000FF]">import</span> {"{ Cognix }"} <span className="text-[#7000FF]">from</span> "cognix-sdk";<br/><br/>
-            <span className="text-[#7000FF]">const</span> ai = <span className="text-[#7000FF]">new</span> Cognix(API_KEY);<br/>
-            <span className="text-[#7000FF]">const</span> res = <span className="text-[#7000FF]">await</span> ai.generate({"{"}<br/>
-            {"  "}prompt: <span className="text-[#00F0FF]">"Analyze churn data"</span>,<br/>
-            {"  "}model: <span className="text-[#00F0FF]">"cognix-v4-turbo"</span><br/>
-            {"}"});
-          </pre>
-        </motion.div>
-      </section>
-
-      {/* ─── 3. STATS BAR ─── */}
-      <section className="py-16 border-y border-white/5 bg-[#050508] relative z-10">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-8 md:gap-4 divide-x-0 md:divide-x divide-white/5">
-            {STATS.map((stat, i) => (
-              <Reveal key={i} delay={i * 0.1}>
-                <div className="flex flex-col items-center text-center cursor-pointer group">
-                  <div className="text-4xl lg:text-5xl font-black text-white mb-2 font-mono group-hover:text-[#00F0FF] transition-colors duration-300">
-                    {stat.value}<span className="text-[#7000FF]">{stat.suffix}</span>
-                  </div>
-                  <div className="text-xs text-slate-500 font-bold uppercase tracking-widest">
-                    {stat.label}
-                  </div>
-                </div>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ─── 4. FEATURES (TABS) ─── */}
-      <section id="platform" className="py-32 relative bg-[#020204]">
-        <div className="max-w-7xl mx-auto px-6 relative z-10">
-          <div className="text-center mb-20">
-            <Reveal>
-              <h2 className="text-sm font-mono text-[#7000FF] font-bold mb-4 uppercase tracking-widest">Capabilities</h2>
-              <h3 className="text-4xl md:text-5xl font-black text-white mb-6 tracking-tight">The AI Engine Room</h3>
-              <p className="text-slate-400 max-w-2xl mx-auto leading-relaxed text-lg">
-                One unified API giving you access to the world's most advanced generative models, retrieval systems, and predictive algorithms.
-              </p>
-            </Reveal>
-          </div>
-
-          <Tabs defaultValue="nlp" className="w-full flex flex-col lg:flex-row gap-12 lg:gap-16">
-            <div className="lg:w-1/3">
-              <TabsList className="flex flex-col h-auto bg-transparent gap-3 items-stretch">
-                {FEATURES.map((feature) => (
-                  <TabsTrigger 
-                    key={feature.id} 
-                    value={feature.id}
-                    className="justify-start px-6 py-5 text-left data-[state=active]:bg-[#7000FF]/10 data-[state=active]:text-[#7000FF] text-slate-400 hover:text-white hover:bg-white/5 transition-all duration-300 cursor-pointer rounded-xl border border-transparent data-[state=active]:border-[#7000FF]/30"
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className="p-2 rounded-lg bg-black/50 border border-white/5">{feature.icon}</div>
-                      <span className="text-base font-bold">{feature.title}</span>
-                    </div>
-                  </TabsTrigger>
-                ))}
-              </TabsList>
-            </div>
-
-            <div className="lg:w-2/3">
-              <AnimatePresence mode="wait">
-                {FEATURES.map((feature) => (
-                  <TabsContent key={feature.id} value={feature.id} className="mt-0 outline-none">
-                    <motion.div
-                      initial={{ opacity: 0, scale: 0.98 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.98 }}
-                      transition={{ duration: 0.4 }}
-                      className="bg-[#0A0A0F] border border-white/10 rounded-2xl overflow-hidden shadow-2xl relative group"
-                    >
-                      <div className="absolute top-0 right-0 p-32 bg-[#00F0FF] opacity-[0.05] blur-[100px] rounded-full pointer-events-none" />
-                      
-                      <div className="aspect-[2/1] relative w-full overflow-hidden border-b border-white/10">
-                        <Image src={feature.image} alt={feature.title} fill className="object-cover group-hover:scale-105 transition-transform duration-1000" />
-                        <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0F] to-transparent opacity-90" />
+                         <div className="mt-auto pt-10 border-t border-white/5 flex justify-between items-center">
+                            <span className="text-[10px] font-black text-white/10 uppercase tracking-widest">Ref: {org.id}</span>
+                            <button className="text-[10px] font-black uppercase text-white/40 flex items-center gap-4 group-hover:text-white transition-all">
+                               Technical_Specs <ChevronRight className="w-5 h-5" />
+                            </button>
+                         </div>
                       </div>
-                      
-                      <div className="p-8 md:p-12 relative z-10 -mt-10">
-                        <h4 className="text-2xl font-bold text-white mb-4">{feature.title}</h4>
-                        <p className="text-slate-400 leading-relaxed mb-8">{feature.description}</p>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-6">
-                          {feature.bullets.map((bullet, i) => (
-                            <div key={i} className="flex items-center gap-3">
-                              <CheckCircle2 className="w-5 h-5 text-[#7000FF]" />
-                              <span className="text-sm text-slate-300 font-medium">{bullet}</span>
+                   </Reveal>
+                 ))}
+              </div>
+           </div>
+        </section>
+
+        {/* ==========================================
+            3. BIO MONITOR (INTERACTIVE DATA)
+            ========================================== */}
+        <section className="py-60 bg-black relative border-y border-white/5 overflow-hidden">
+           <div className="max-w-[1400px] mx-auto px-8 md:px-24">
+              <div className="grid lg:grid-cols-2 gap-40 items-center">
+                 <div>
+                    <Reveal>
+                       <span className="text-[10px] font-black uppercase tracking-[0.5em] text-green-500 block mb-12 italic underline underline-offset-8 decoration-green-500/20">Bio // Performance</span>
+                       <h2 className="text-7xl md:text-[9vw] font-light italic leading-none text-white mb-16 uppercase tracking-tighter">
+                          The <br/> <span className="not-italic font-black text-white/5 italic">Recomb_Link.</span>
+                       </h2>
+                       <p className="text-2xl font-light text-white/20 leading-relaxed mb-24 italic uppercase tracking-[0.2em] max-w-xl">
+                          Surveillance de la stabilité génétique en temps réel. Nos algorithmes de séquençage analysent chaque nucléotide pour garantir l'absence de mutations indésirables.
+                       </p>
+                       <div className="grid grid-cols-2 gap-px bg-white/5 border border-white/5 mb-24 shadow-2xl">
+                          {GENETIC_METRICS.map((metric, i) => (
+                            <div key={i} className="p-16 bg-[#0c100a] group hover:bg-white/[0.02] transition-all border-r border-b last:border-r-0 border-white/5">
+                               <div className="text-[10px] font-black uppercase text-green-500 mb-6 tracking-[0.4em]">{metric.label}</div>
+                               <div className="text-5xl font-black text-white italic mb-6 tracking-tighter group-hover:translate-x-4 transition-transform">{metric.value}</div>
+                               <div className="flex items-center gap-3 text-[9px] font-bold uppercase tracking-[0.3em] text-white/10 italic">
+                                  <Activity className="w-4 h-4 text-green-500" /> {metric.trend}
+                               </div>
                             </div>
                           ))}
-                        </div>
-                      </div>
-                    </motion.div>
-                  </TabsContent>
-                ))}
-              </AnimatePresence>
-            </div>
-          </Tabs>
-        </div>
-      </section>
-
-      {/* ─── 5. TESTIMONIALS CAROUSEL ─── */}
-      <section className="py-32 bg-[#050508] border-y border-white/5 overflow-hidden relative">
-        <div className="max-w-7xl mx-auto px-6 relative z-10">
-          <Reveal>
-            <div className="text-center mb-16">
-              <h2 className="text-sm font-mono text-[#00F0FF] font-bold mb-4 uppercase tracking-widest">Case Studies</h2>
-              <h3 className="text-4xl font-black text-white">Engineered for Production</h3>
-            </div>
-          </Reveal>
-
-          <Carousel className="w-full max-w-6xl mx-auto">
-            <CarouselContent>
-              {TESTIMONIALS.map((testi, i) => (
-                <CarouselItem key={i} className="md:basis-1/2 lg:basis-1/2 pl-6">
-                  <Reveal delay={i * 0.1}>
-                    <Card className="bg-[#0A0A0F] border-white/10 hover:border-[#00F0FF]/40 transition-colors duration-300 cursor-pointer h-full rounded-2xl">
-                      <CardContent className="p-8 flex flex-col h-full justify-between">
-                        <div>
-                          <div className="flex gap-1 mb-6">
-                            {[...Array(testi.rating)].map((_, j) => (
-                              <Star key={j} className="w-4 h-4 fill-[#7000FF] text-[#7000FF]" />
-                            ))}
+                       </div>
+                       <button 
+                         onClick={() => setIsGeneticLockActive(!isGeneticLockActive)}
+                         className="w-full py-8 bg-green-950 text-white text-[11px] font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all shadow-2xl flex items-center justify-center gap-6 italic"
+                       >
+                          <Settings className="w-5 h-5" /> Re-Sync Genetic Nodes
+                       </button>
+                    </Reveal>
+                 </div>
+                 
+                 <div className="relative">
+                    <Reveal delay={0.3} x={40}>
+                       <div className="aspect-square bg-[#0c100a] border border-white/10 p-20 flex flex-col justify-between relative group overflow-hidden shadow-2xl">
+                          <div className="absolute top-0 right-0 p-80 bg-green-400 opacity-[0.02] blur-[150px] rounded-full group-hover:opacity-[0.05] transition-opacity" />
+                          
+                          <div className="flex justify-between items-start z-10">
+                             <div className="flex flex-col gap-3">
+                                <span className="text-[10px] font-black text-white/10 uppercase tracking-[0.5em]">Bio_Link // NUC-SYNC-v42</span>
+                                <span className="text-[12px] font-black text-white/40 uppercase tracking-[0.6em]">Genome_Mapping_Telemetry</span>
+                             </div>
+                             <Wifi className="w-6 h-6 text-green-400" />
                           </div>
-                          <p className="text-slate-300 text-lg leading-relaxed mb-8 font-medium">
-                            "{testi.content}"
-                          </p>
-                        </div>
-                        <div className="flex items-center gap-4 pt-6 mt-auto border-t border-white/5">
-                          <Avatar className="w-12 h-12 border border-white/20">
-                            <AvatarImage src={testi.avatar} />
-                            <AvatarFallback>CX</AvatarFallback>
-                          </Avatar>
-                          <div>
-                            <div className="text-white font-bold text-sm">{testi.name}</div>
-                            <div className="text-slate-500 text-xs mt-1">{testi.role}</div>
+                          
+                          {/* BIO VISUALIZER (SVG) */}
+                          <div className="relative z-10 flex flex-col items-center justify-center h-full">
+                             <div className="w-64 h-64 border border-green-400/5 rounded-full flex items-center justify-center relative">
+                                <motion.div 
+                                  animate={{ rotate: 360 }}
+                                  transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+                                  className="absolute inset-0 border-t-2 border-green-400/20 rounded-full" 
+                                />
+                                <motion.div 
+                                  animate={{ rotate: -360 }}
+                                  transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+                                  className="absolute inset-8 border-b-2 border-green-400/10 rounded-full" 
+                                />
+                                <Sprout className={`w-24 h-24 transition-colors duration-1000 ${isGeneticLockActive ? "text-green-400 animate-pulse" : "text-white/5"}`} />
+                             </div>
+                             <div className="mt-16 text-center space-y-6">
+                                <div className={`text-4xl font-black italic tracking-tighter ${isGeneticLockActive ? "text-white" : "text-white/20"}`}>
+                                   {isGeneticLockActive ? "GENETIC_LOCKED" : "GENETIC_DRIFT"}
+                                </div>
+                                <span className="text-[11px] font-bold text-white/10 uppercase tracking-[0.6em] block">Auth_Node: SYNTH_UNIT_01</span>
+                             </div>
                           </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </Reveal>
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-            <div className="flex justify-center gap-4 mt-12">
-              <CarouselPrevious className="relative inset-auto translate-y-0 bg-white/5 border-white/10 text-white hover:bg-white hover:text-black transition-colors" />
-              <CarouselNext className="relative inset-auto translate-y-0 bg-white/5 border-white/10 text-white hover:bg-white hover:text-black transition-colors" />
-            </div>
-          </Carousel>
-        </div>
-      </section>
 
-      {/* ─── 6. PRICING ─── */}
-      <section id="pricing" className="py-32 bg-[#020204] relative">
-        <div className="max-w-7xl mx-auto px-6 relative z-10">
-          <div className="text-center mb-20">
-            <Reveal>
-              <h2 className="text-sm font-mono text-[#7000FF] font-bold mb-4 uppercase tracking-widest">Pricing</h2>
-              <h3 className="text-4xl md:text-5xl font-black text-white mb-6">Scale without limits</h3>
-              <p className="text-slate-400 max-w-xl mx-auto">
-                Transparent pricing based on compute and token usage. Start building for free, upgrade when you hit production.
-              </p>
-            </Reveal>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
-            {PRICING.map((tier, i) => (
-              <Reveal key={i} delay={i * 0.1}>
-                <Card className={`relative bg-[#0A0A0F] border ${tier.recommended ? 'border-[#7000FF] shadow-[0_0_40px_rgba(112,0,255,0.15)] lg:scale-105 z-10' : 'border-white/10'} hover:border-[#7000FF]/50 transition-all duration-300 cursor-pointer overflow-hidden rounded-2xl`}>
-                  {tier.recommended && (
-                    <div className="absolute top-0 inset-x-0 bg-gradient-to-r from-[#7000FF] to-[#00F0FF] text-white text-[10px] font-bold uppercase tracking-widest text-center py-1.5">
-                      Most Popular
-                    </div>
-                  )}
-                  <CardContent className={`p-8 ${tier.recommended ? 'pt-10' : ''}`}>
-                    <h4 className="text-2xl font-bold text-white mb-1">{tier.title}</h4>
-                    <div className="text-sm text-slate-500 mb-6 font-medium">{tier.subtitle}</div>
-                    <p className="text-sm text-slate-400 mb-8 h-10">{tier.description}</p>
-                    
-                    <div className="flex items-end gap-1 mb-8 border-b border-white/5 pb-8">
-                      <span className="text-4xl font-black text-white">{tier.price}</span>
-                      <span className="text-sm text-slate-500 mb-1">{tier.duration}</span>
-                    </div>
-
-                    <ul className="space-y-4 mb-10">
-                      {tier.features.map((feat, j) => (
-                        <li key={j} className="flex items-start gap-3 text-sm text-slate-300 font-medium">
-                          <CheckCircle2 className="w-4 h-4 text-[#00F0FF] shrink-0 mt-0.5" />
-                          <span>{feat}</span>
-                        </li>
-                      ))}
-                    </ul>
-
-                    <button className={`w-full py-4 text-sm font-bold rounded-lg transition-all duration-300 ${tier.recommended ? 'bg-white text-black hover:bg-slate-200' : 'bg-transparent border border-white/20 text-white hover:bg-white hover:text-black'}`}>
-                      {tier.price === "Custom" ? "Contact Sales" : "Get Started"}
-                    </button>
-                  </CardContent>
-                </Card>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ─── 7. FAQ ACCORDION ─── */}
-      <section className="py-32 bg-[#050508] border-t border-white/5">
-        <div className="max-w-4xl mx-auto px-6">
-          <Reveal>
-            <div className="text-center mb-16">
-              <h2 className="text-sm font-mono text-[#00F0FF] font-bold mb-4 uppercase tracking-widest">Support</h2>
-              <h3 className="text-4xl font-black text-white">Frequently Asked Questions</h3>
-            </div>
-          </Reveal>
-
-          <Reveal delay={0.2}>
-            <Accordion type="single" collapsible className="w-full">
-              {FAQS.map((faq, i) => (
-                <AccordionItem key={i} value={`item-${i}`} className="border-white/10">
-                  <AccordionTrigger className="text-left text-white hover:text-[#00F0FF] hover:no-underline font-bold text-lg py-6 transition-colors">
-                    {faq.question}
-                  </AccordionTrigger>
-                  <AccordionContent className="text-slate-400 leading-relaxed pb-6 text-base">
-                    {faq.answer}
-                  </AccordionContent>
-                </AccordionItem>
-              ))}
-            </Accordion>
-          </Reveal>
-        </div>
-      </section>
-
-      {/* ─── 8. CTA BANNER ─── */}
-      <section className="py-24 px-6 relative z-10 bg-[#020204]">
-        <Reveal>
-          <div className="max-w-6xl mx-auto bg-gradient-to-br from-[#100A20] to-[#050508] border border-[#7000FF]/30 rounded-3xl p-12 md:p-24 text-center relative overflow-hidden group">
-            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#7000FF] to-[#00F0FF]" />
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#7000FF] opacity-[0.05] rounded-full blur-[100px] pointer-events-none" />
-            
-            <div className="relative z-10">
-              <Brain className="w-16 h-16 text-white mx-auto mb-8 drop-shadow-[0_0_15px_rgba(112,0,255,0.8)]" />
-              <h2 className="text-4xl md:text-6xl font-black text-white mb-6">Build the future, today.</h2>
-              <p className="text-lg text-slate-400 max-w-2xl mx-auto mb-10">
-                Get your free API key now and start integrating intelligent features into your product in minutes.
-              </p>
-              <div className="flex flex-col sm:flex-row justify-center gap-4">
-                <button className="px-10 py-4 bg-white text-black font-bold rounded-lg hover:scale-105 transition-all duration-300 cursor-pointer shadow-[0_0_20px_rgba(255,255,255,0.1)]">
-                  Generate API Key
-                </button>
-                <button className="px-10 py-4 bg-transparent text-white font-bold border border-white/20 rounded-lg hover:bg-white/5 transition-all duration-300 cursor-pointer">
-                  View Documentation
-                </button>
+                          <div className="relative z-10 flex gap-6">
+                             <div className="flex-1 h-1 bg-white/5 overflow-hidden">
+                                <motion.div 
+                                   animate={isGeneticLockActive ? { x: ["-100%", "100%"] } : {}}
+                                   transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+                                   className="w-1/2 h-full bg-green-700"
+                                />
+                             </div>
+                          </div>
+                       </div>
+                    </Reveal>
+                 </div>
               </div>
-            </div>
-          </div>
-        </Reveal>
-      </section>
+           </div>
+        </section>
 
-      {/* ─── 9. FOOTER ─── */}
-      <footer className="bg-[#020204] pt-24 pb-12 border-t border-white/10">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-20">
-            <div>
-              <Link href="/" className="flex items-center gap-3 mb-8 cursor-pointer">
-                <div className="w-8 h-8 rounded bg-[#7000FF] flex items-center justify-center">
-                  <Brain className="w-5 h-5 text-white" />
+        {/* ==========================================
+            4. BIO STORY (TECH STORYTELLING)
+            ========================================== */}
+        <section className="py-60 bg-[#020604] relative overflow-hidden border-t border-white/5">
+           <div className="max-w-[1400px] mx-auto px-8 md:px-24">
+              <div className="grid lg:grid-cols-2 gap-40 items-center">
+                 <div className="relative aspect-[3/4] overflow-hidden group border border-white/5 shadow-2xl">
+                    <Image 
+                       src="https://images.unsplash.com/photo-1579154235602-3c2c2aa5d72f?q=80&w=1200&auto=format&fit=crop" 
+                       alt="BioHacker Infrastructure" 
+                       fill 
+                       className="object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-[2000ms]"
+                    />
+                    <div className="absolute inset-0 bg-green-900/10 mix-blend-color group-hover:opacity-0 transition-opacity" />
+                    <div className="absolute inset-0 p-20 flex flex-col justify-end bg-gradient-to-t from-black via-black/40 to-transparent">
+                       <div className="text-white">
+                          <span className="text-[11px] font-black uppercase tracking-[0.6em] text-green-500 mb-8 block italic underline underline-offset-8 decoration-green-500/20">Atelier // Bio // Unit</span>
+                          <h4 className="text-6xl font-black tracking-tighter uppercase italic mb-12 mix-blend-difference text-white">Genetic <br/> Fabric.</h4>
+                          <button className="flex items-center gap-6 text-[11px] font-black uppercase tracking-[0.4em] border-b border-white/20 pb-4 hover:border-green-400 transition-all group">
+                             Recomb Protocols <ExternalLink className="w-5 h-5 group-hover:translate-x-2 group-hover:-translate-y-2 transition-transform" />
+                          </button>
+                       </div>
+                    </div>
+                 </div>
+
+                 <div>
+                    <Reveal>
+                       <div className="mb-24 text-left">
+                          <span className="text-[10px] font-black uppercase tracking-[0.5em] text-green-500 mb-8 block italic">Chapitre III // Recombinaison</span>
+                          <h2 className="text-7xl md:text-[10vw] font-black tracking-tighter uppercase text-white italic leading-none text-white">Pure_Life.</h2>
+                       </div>
+                       <p className="text-2xl font-light text-white/20 leading-relaxed italic mb-20 uppercase tracking-[0.2em]">
+                          La vie est le langage ultime. Nous utilisons les outils de la biologie synthétique pour réécrire le code de la nature, offrant des solutions organiques aux défis technologiques les plus complexes.
+                       </p>
+                       <div className="space-y-20">
+                          {[
+                            { t: "Genome Mapping", d: "Cartographie haute fidélité du génome cible pour identifier les loci d'insertion optimaux." },
+                            { t: "CRISPR-v5 Editing", d: "Édition génétique de précision via nos complexes enzymatiques propriétaires à faible taux de off-target." },
+                            { t: "Organism Cultivation", d: "Culture contrôlée en bioréacteur avec surveillance métabolique continue et optimisation du milieu." }
+                          ].map((step, i) => (
+                            <div key={i} className="group flex gap-12 border-b border-white/5 pb-16 hover:border-green-400/20 transition-all cursor-default">
+                               <div className="text-6xl font-black text-white/5 group-hover:text-green-400/20 transition-colors italic leading-none">0{i+1}</div>
+                               <div>
+                                  <h5 className="text-3xl font-black uppercase tracking-tight text-white mb-6 italic group-hover:translate-x-4 transition-transform text-white">{step.t}</h5>
+                                  <p className="text-[12px] text-white/20 uppercase tracking-[0.3em] font-bold leading-loose italic">{step.d}</p>
+                               </div>
+                            </div>
+                          ))}
+                       </div>
+                    </Reveal>
+                 </div>
+              </div>
+           </div>
+        </section>
+
+        {/* MEGA FOOTER */}
+        <footer className="bg-black pt-60 pb-12 px-8 md:px-24 relative z-50">
+           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-32 mb-60 text-white">
+              <div className="lg:col-span-2">
+                 <div className="flex items-center gap-6 mb-16">
+                    <div className="w-16 h-16 bg-green-800 flex items-center justify-center">
+                      <Dna className="w-10 h-10 text-white" />
+                    </div>
+                    <span className="text-4xl font-black uppercase tracking-tighter italic">BIO<span className="text-white/20">HACKER.</span></span>
+                 </div>
+                 <p className="text-white/20 text-[11px] font-black uppercase tracking-[0.5em] leading-loose max-w-sm mb-20 italic">
+                    "L'avenir de l'industrie est organique." — Archive Hacker V.42
+                 </p>
+                 <div className="flex gap-16">
+                    {["RecombLog", "OrganismRegistry", "GitHub", "X_Protocol"].map(s => (
+                      <Link key={s} href="#" className="text-[11px] font-black uppercase tracking-widest text-white/20 hover:text-green-400 transition-colors italic underline underline-offset-8 decoration-white/5">{s}</Link>
+                    ))}
+                 </div>
+              </div>
+
+              {[
+                { t: "ORGANISMS", l: ["Carbon-Eater v4", "Regen-Skin X", "Fuel-Yeast v5", "Bio-Sensors"] },
+                { t: "TECHNOLOGY", l: ["CRISPR-v5", "Bio-Reactors", "Metabolic Eng", "SLA Reports"] },
+                { t: "ATELIER", l: ["Our Legacy", "Bioethics", "Locations", "Support"] }
+              ].map((col, i) => (
+                <div key={i} className="flex flex-col gap-12">
+                  <h4 className="text-[11px] font-black text-green-400 uppercase tracking-[0.6em] italic">{col.t}</h4>
+                  <ul className="flex flex-col gap-8">
+                    {col.l.map(link => (
+                      <li key={link} className="text-[11px] font-bold text-white/20 hover:text-white transition-colors cursor-pointer uppercase tracking-[0.4em] italic">{link}</li>
+                    ))}
+                  </ul>
                 </div>
-                <span className="text-xl font-bold tracking-tight text-white">
-                  Cognix AI
-                </span>
-              </Link>
-              <p className="text-slate-500 text-sm leading-relaxed mb-8">
-                Empowering developers with enterprise-grade artificial intelligence infrastructure and state-of-the-art predictive models.
-              </p>
-              <div className="flex gap-4">
-                <a href="#" className="w-10 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-all cursor-pointer"><MessageCircle className="w-4 h-4" /></a>
-                <a href="#" className="w-10 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-all cursor-pointer"><TerminalSquare className="w-4 h-4" /></a>
+              ))}
+           </div>
+
+           <div className="max-w-[1600px] mx-auto border-t border-white/5 pt-16 flex flex-col md:flex-row justify-between items-center gap-16 text-[10px] font-black text-white/10 uppercase tracking-[0.6em] italic">
+              <span>© 2026 BIOHACKER SYNTHETIC BIOLOGY AG. // ALL_RIGHTS_RESERVED</span>
+              <div className="flex gap-16">
+                 <span>STATUS: OPERATIONAL</span>
+                 <span>STABILITY: 99.98% (AVG)</span>
+                 <span>v4.12.0-STABLE</span>
               </div>
-            </div>
+           </div>
+        </footer>
+      </main>
+    </div>
+  )
+}
 
-            <div>
-              <h4 className="text-white font-bold uppercase tracking-widest text-xs mb-8">Platform</h4>
-              <ul className="space-y-4">
-                <li><a href="#" className="text-slate-500 hover:text-white transition-colors text-sm font-medium cursor-pointer">NLP API</a></li>
-                <li><a href="#" className="text-slate-500 hover:text-white transition-colors text-sm font-medium cursor-pointer">Predictive Models</a></li>
-                <li><a href="#" className="text-slate-500 hover:text-white transition-colors text-sm font-medium cursor-pointer">Agentic Workflows</a></li>
-                <li><a href="#" className="text-slate-500 hover:text-white transition-colors text-sm font-medium cursor-pointer">Security & Compliance</a></li>
-                <li><a href="#" className="text-slate-500 hover:text-white transition-colors text-sm font-medium cursor-pointer">Pricing</a></li>
-              </ul>
-            </div>
+/* ==========================================
+   TECHNICAL SUB-COMPONENTS
+   ========================================== */
 
-            <div>
-              <h4 className="text-white font-bold uppercase tracking-widest text-xs mb-8">Resources</h4>
-              <ul className="space-y-4">
-                <li><a href="#" className="text-slate-500 hover:text-white transition-colors text-sm font-medium cursor-pointer">Documentation</a></li>
-                <li><a href="#" className="text-slate-500 hover:text-white transition-colors text-sm font-medium cursor-pointer">API Reference</a></li>
-                <li><a href="#" className="text-slate-500 hover:text-white transition-colors text-sm font-medium cursor-pointer">Tutorials & Guides</a></li>
-                <li><a href="#" className="text-slate-500 hover:text-white transition-colors text-sm font-medium cursor-pointer">Status Dashboard</a></li>
-                <li><a href="#" className="text-slate-500 hover:text-white transition-colors text-sm font-medium cursor-pointer">Blog</a></li>
-              </ul>
-            </div>
+function HUD_Overlay({ isGeneticLockActive }: { isGeneticLockActive: boolean }) {
+  return (
+    <div className="fixed inset-0 pointer-events-none z-[100]">
+       {/* Corner Brackets */}
+       <div className={`absolute top-12 left-12 w-20 h-20 border-t-2 border-l-2 transition-colors duration-1000 ${isGeneticLockActive ? "border-green-400" : "border-white/10"}`} />
+       <div className={`absolute top-12 right-12 w-20 h-20 border-t-2 border-r-2 transition-colors duration-1000 ${isGeneticLockActive ? "border-green-400" : "border-white/10"}`} />
+       <div className={`absolute bottom-12 left-12 w-20 h-20 border-b-2 border-l-2 transition-colors duration-1000 ${isGeneticLockActive ? "border-green-400" : "border-white/10"}`} />
+       <div className={`absolute bottom-12 right-12 w-20 h-20 border-b-2 border-r-2 transition-colors duration-1000 ${isGeneticLockActive ? "border-green-400" : "border-white/10"}`} />
 
-            <div>
-              <h4 className="text-white font-bold uppercase tracking-widest text-xs mb-8">Company</h4>
-              <ul className="space-y-4">
-                <li><a href="#" className="text-slate-500 hover:text-white transition-colors text-sm font-medium cursor-pointer">About Us</a></li>
-                <li><a href="#" className="text-slate-500 hover:text-white transition-colors text-sm font-medium cursor-pointer">Careers</a></li>
-                <li><a href="#" className="text-slate-500 hover:text-white transition-colors text-sm font-medium cursor-pointer">Contact Sales</a></li>
-                <li><a href="#" className="text-slate-500 hover:text-white transition-colors text-sm font-medium cursor-pointer">Partners</a></li>
-              </ul>
-            </div>
+       {/* Top Status Bar */}
+       <div className="absolute top-12 left-1/2 -translate-x-1/2 flex items-center gap-20 bg-black/60 backdrop-blur-2xl px-12 py-4 border border-white/10 rounded-none">
+          <div className="flex items-center gap-6 text-white">
+             <div className={`w-3 h-3 transition-colors duration-500 ${isGeneticLockActive ? "bg-green-400 animate-pulse" : "bg-red-500 animate-ping"}`} />
+             <span className="text-[10px] font-black uppercase tracking-[0.4em] italic leading-none">Genetic_Sync: {isGeneticLockActive ? "NOMINAL" : "GENETIC_DRIFT"} // Status: ACTIVE</span>
           </div>
-
-          <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs font-medium text-slate-600">
-            <p>&copy; 2026 Cognix AI, Inc. All rights reserved.</p>
-            <div className="flex gap-6">
-              <a href="#" className="hover:text-white transition-colors cursor-pointer">Terms of Service</a>
-              <a href="#" className="hover:text-white transition-colors cursor-pointer">Privacy Policy</a>
-              <a href="#" className="hover:text-white transition-colors cursor-pointer">Security</a>
-            </div>
+          <div className="h-4 w-px bg-white/20" />
+          <div className="flex items-center gap-6 text-white/20">
+             <Wifi className="w-4 h-4" /> 
+             <span className="text-[10px] font-black uppercase tracking-[0.4em] italic leading-none">Bio_Grid: SECURE</span>
           </div>
-        </div>
-      </footer>
+       </div>
 
+       {/* Right Rotation Info */}
+       <div className="absolute right-12 top-1/2 -translate-y-1/2 rotate-90 origin-right hidden lg:block">
+          <span className="text-[10px] font-black uppercase tracking-[0.8em] text-white/5 italic">Unauthorized_Duplication_Of_Genetic_Patterns_Is_Strictly_Monitored_By_Global_Hacker_Alliance</span>
+       </div>
     </div>
   )
 }
