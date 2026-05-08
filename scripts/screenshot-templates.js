@@ -30,23 +30,27 @@ const SITE_BUILDER = [
   "marketplace", "livestream",
 ];
 
-// Impact templates currently visible (550+ lines original + full 157-176 batch)
+// Impact templates currently visible after quality audit (650+ lines, all loading)
 const IMPACT_VISIBLE = [
-  "impact-01", "impact-03",
-  "impact-60", "impact-61", "impact-64", "impact-65", "impact-66",
-  "impact-68", "impact-69", "impact-80", "impact-81", "impact-82",
-  "impact-83", "impact-85", "impact-116", "impact-134",
-  // Recently elevated (agents + Antigravity)
-  "impact-02", "impact-94", "impact-132",
-  // Recent rewrite batch
-  "impact-157", "impact-158", "impact-159", "impact-160", "impact-161",
-  "impact-162", "impact-163", "impact-164", "impact-165", "impact-166",
+  // Originals / early elevated
+  "impact-01", "impact-02", "impact-03", "impact-04", "impact-05",
+  // Elevated batch (700-1100 lines)
+  "impact-57", "impact-58", "impact-61", "impact-63", "impact-64",
+  "impact-68", "impact-69", "impact-72",
+  "impact-81", "impact-82", "impact-83", "impact-84", "impact-85", "impact-86",
+  "impact-88", "impact-89", "impact-90", "impact-91",
+  "impact-94", "impact-95", "impact-96",
+  "impact-112", "impact-114", "impact-115",
+  // Antigravity batch
+  "impact-126", "impact-130", "impact-131", "impact-132", "impact-133", "impact-134", "impact-135",
+  // Recent rewrite batch (visible minus duplicates)
+  "impact-157", "impact-158",
+  "impact-161", "impact-162", "impact-163", "impact-164", "impact-165", "impact-166",
   "impact-167", "impact-168", "impact-169", "impact-170", "impact-171",
   "impact-172", "impact-173", "impact-174", "impact-175", "impact-176",
 ];
 
 const ALL_TEMPLATES = [
-  ...SITE_BUILDER.map((id) => ({ id, href: `/themes/${id}` })),
   ...IMPACT_VISIBLE.map((id) => ({ id, href: `/templates/${id}` })),
 ];
 
