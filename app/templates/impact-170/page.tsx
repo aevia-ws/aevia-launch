@@ -1,504 +1,327 @@
 "use client"
 
-import React, { useState, useEffect, useRef } from "react"
-import { 
-  motion, 
-  AnimatePresence, 
-  useScroll, 
-  useTransform, 
-  useInView, 
-  useSpring 
-} from "framer-motion"
-import Image from "next/image"
-import Link from "next/link"
-import { 
-  Snowflake, Shield, Activity, Microscope, 
-  Zap, Cpu, Globe, Target, Layers, 
-  Box, Hexagon, Terminal, Settings, 
-  Power, Info, AlertTriangle, ChevronRight, 
-  ArrowRight, Share2, Maximize2, 
-  Download, ExternalLink, Archive, 
-  Hash, Wifi, BarChart3, Fingerprint, 
-  Scan, Brain, Server, ShieldCheck, 
-  ShieldAlert, Award, Briefcase, 
-  Wind, Thermometer, Droplets, Mountain, 
-  Lock, Key, Eye, Radar, Gauge, 
-  Timer, Lightbulb, Command, Grid, 
-  Dna, Leaf, Trees, Sprout
-} from "lucide-react"
+import React, { useState, useRef } from "react"
+import { motion, useScroll, useTransform, useInView, AnimatePresence } from "framer-motion"
 
-/* ==========================================================================
-   THE GLACIAL ARK DATASET (ULTRA DENSITY)
-   ========================================================================== */
+// RAFAËL MOREAU — Personal portfolio / CV. Dark terminal aesthetic, monospace throughout, vertical timeline scroll.
+// Unique: green-on-black terminal, skills as animated bars, timeline career scroll, hover reveals for projects.
 
-const ARK_SPECIMENS = [
-  {
-    id: "specimen-s-42",
-    name: "Heirloom Rice Variant",
-    category: "Seed Bank",
-    temp: "-18.2°C",
-    viability: "99.98%",
-    origin: "South-East Asia",
-    desc: "Variété de riz sauvage résistante à la salinité extrême, conservée pour garantir la sécurité alimentaire future.",
-    status: "Vaulted"
-  },
-  {
-    id: "specimen-e-09",
-    name: "Arctic Lynx Embryo",
-    category: "Mammal Embryo",
-    temp: "-196.4°C",
-    viability: "98.42%",
-    origin: "Siberian Tundra",
-    desc: "Échantillon cryogénisé pour la préservation de la diversité génétique des grands prédateurs du Nord.",
-    status: "Cryo-Stasis"
-  },
-  {
-    id: "specimen-f-15",
-    name: "Sub-Glacial Fungi",
-    category: "Mycology Unit",
-    temp: "-12.0°C",
-    viability: "100%",
-    origin: "Antarctica Core",
-    desc: "Spores de champignons anciens extraits de carottes de glace, essentiels pour l'équilibre des sols futurs.",
-    status: "Active-Monitor"
+const SKILLS = [
+  { name: "TypeScript / JavaScript", level: 97, category: "dev" },
+  { name: "React / Next.js", level: 95, category: "dev" },
+  { name: "Node.js / NestJS", level: 90, category: "dev" },
+  { name: "PostgreSQL / Prisma", level: 85, category: "dev" },
+  { name: "System Design", level: 88, category: "arch" },
+  { name: "API Design (REST/GraphQL)", level: 92, category: "arch" },
+  { name: "DevOps (Docker, Render, Vercel)", level: 78, category: "ops" },
+  { name: "UI/UX Prototyping", level: 80, category: "design" },
+]
+
+const TIMELINE = [
+  { year: "2023–Présent", role: "Lead Engineer", company: "Arkéo SaaS", desc: "Architecture full-stack d'une plateforme de gestion documentaire. Équipe de 8 ingénieurs. 0 → 3 200 clients en 18 mois.", tags: ["Next.js 15", "NestJS", "Prisma", "Postgres"], accent: "#00e5b8" },
+  { year: "2021–2023", role: "Senior Frontend Engineer", company: "Volta Finance", desc: "Refonte complète du dashboard d'investissement. Réduction de 65% du temps de chargement. Conformité MiFID II.", tags: ["React", "TypeScript", "D3.js", "Jest"], accent: "#818cf8" },
+  { year: "2019–2021", role: "Fullstack Developer", company: "Agence Pixel & Co", desc: "Développement de 14 projets web pour des clients PME. Spécialisation e-commerce Shopify + Headless.", tags: ["Vue.js", "Shopify", "PHP", "MySQL"], accent: "#f59e0b" },
+  { year: "2018", role: "Freelance", company: "Indépendant", desc: "Premiers projets client — sites vitrine, APIs REST, intégrations tierces.", tags: ["React", "Express", "MongoDB"], accent: "#a3a3a3" },
+]
+
+const PROJECTS = [
+  { name: "Arkéo Platform", desc: "SaaS B2B de gestion documentaire avec IA. 3 200+ clients, €2.4M ARR.", tech: ["Next.js", "NestJS", "OpenAI"], link: "#", accent: "#00e5b8" },
+  { name: "Volta Dashboard", desc: "Dashboard d'investissement temps réel. 120K+ requêtes/jour, latence <80ms.", tech: ["React", "D3.js", "WebSockets"], link: "#", accent: "#818cf8" },
+  { name: "Open Source: use-scroll-animation", desc: "Hook React pour animations scroll. 1.4K stars GitHub, 230K téléchargements npm.", tech: ["TypeScript", "Framer Motion"], link: "#", accent: "#f59e0b" },
+  { name: "CLI Tool: dbmigrate", desc: "Outil CLI de migration DB safe avec rollback automatique et dry-run.", tech: ["Go", "PostgreSQL"], link: "#", accent: "#10b981" },
+]
+
+const TESTIMONIALS = [
+  { quote: "Rafaël a livré une architecture qui tiendra 5 ans. Rare de trouver quelqu'un qui pense à la fois en produit et en ingénierie.", name: "Thomas Marchand", role: "CTO, Arkéo SaaS" },
+  { quote: "Un développeur qui comprend le business. Il a restructuré notre API en 2 semaines — sans toucher au reste du code.", name: "Léa Fontaine", role: "VP Engineering, Volta Finance" },
+]
+
+const FAQS = [
+  { q: "Êtes-vous disponible pour des missions freelance ?", a: "Oui, pour des projets d'architecture, de code review ou de développement en parallèle de mon poste principal. Délai de réponse : 24h." },
+  { q: "Quelle est votre spécialité technique ?", a: "Architecture full-stack TypeScript (Next.js + NestJS), design systèmes distribués, et refonte de bases de code legacy." },
+  { q: "Travaillez-vous en remote ?", a: "Exclusivement. Timezone Paris (CET). Disponible pour des sessions synchrones 9h–18h." },
+  { q: "Acceptez-vous les projets court terme ?", a: "Minimum 4 semaines. Pour les revues de code ou audits, je peux intervenir dès 1 semaine." },
+]
+
+export default function Page() {
+  const [activeSkillCat, setActiveSkillCat] = useState<string | null>(null)
+  const [openFaq, setOpenFaq] = useState<number | null>(null)
+  const [hoveredProject, setHoveredProject] = useState<number | null>(null)
+  const { scrollY } = useScroll()
+
+  const terminalY = useTransform(scrollY, [0, 400], [0, -30])
+
+  const skillsRef = useRef(null)
+  const skillsInView = useInView(skillsRef, { once: true, margin: "-100px" })
+
+  const C = {
+    bg: "#0a0f0a",
+    green: "#00e5b8",
+    greenDim: "#00b892",
+    text: "#c8d8c8",
+    muted: "#4a6a4a",
+    card: "#0f160f",
+    border: "#1a2a1a",
+    mono: "'JetBrains Mono', 'Courier New', monospace",
   }
-]
 
-const GEOLOGICAL_METRICS = [
-  { label: "Permafrost Depth", value: "420m", trend: "Stable" },
-  { label: "Seismic Activity", value: "0.02 Mw", trend: "Low" },
-  { label: "Vault Pressure", value: "1.02 atm", trend: "Nominal" },
-  { label: "Storage Capacity", value: "4.2M Samples", trend: "Increasing" }
-]
+  const cats = ["dev", "arch", "ops", "design"]
 
-const VAULT_LOGS = [
-  { timestamp: "20:14:42", sector: "Vault-Alpha", status: "NOMINAL", temp: "-18.21°C" },
-  { timestamp: "20:14:45", sector: "Seismic-Core", status: "STABLE", delta: "0.001" },
-  { timestamp: "20:14:48", sector: "Access-Gate", status: "SECURE", auth: "LEVEL-5" }
-]
-
-/* ==========================================
-   TECHNICAL COMPONENTS
-   ========================================== */
-
-function Reveal({ children, delay = 0, y = 40, x = 0 }: { children: React.ReactNode, delay?: number, y?: number, x?: number }) {
-  const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, margin: "-100px" })
   return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, y, x }}
-      animate={isInView ? { opacity: 1, y: 0, x: 0 } : {}}
-      transition={{ duration: 1.2, delay, ease: [0.16, 1, 0.3, 1] }}
-    >
-      {children}
-    </motion.div>
-  )
-}
-
-function SnowVisualizer() {
-  return (
-    <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden opacity-20">
-       <svg width="100%" height="100%" className="w-full h-full">
-          {[...Array(50)].map((_, i) => (
-            <motion.circle 
-               key={i}
-               cx={`${Math.random() * 100}%`} 
-               cy={`${Math.random() * -10}%`} 
-               r={Math.random() * 2 + 1} 
-               fill="white"
-               animate={{ 
-                 cy: ["0%", "110%"],
-                 cx: [`${Math.random() * 100}%`, `${Math.random() * 100 + (Math.random() - 0.5) * 10}%`]
-               }}
-               transition={{ duration: 5 + Math.random() * 10, repeat: Infinity, ease: "linear" }}
-            />
+    <div style={{ background: C.bg, color: C.text, fontFamily: C.mono, overflowX: "hidden" }}>
+      {/* NAV — terminal prompt style */}
+      <nav style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 100, background: "rgba(10,15,10,0.95)", borderBottom: `1px solid ${C.border}`, padding: "0 60px", height: 52, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <span style={{ color: C.muted }}>~/</span>
+          <span style={{ color: C.green, fontWeight: 700 }}>rafael-moreau</span>
+          <motion.span animate={{ opacity: [1, 0, 1] }} transition={{ repeat: Infinity, duration: 1 }} style={{ color: C.green }}>_</motion.span>
+        </div>
+        <div style={{ display: "flex", gap: 32, alignItems: "center" }}>
+          {[".skills", ".timeline", ".projects", ".contact"].map(l => (
+            <a key={l} href={`#${l.slice(1)}`} style={{ fontSize: 12, color: C.muted, letterSpacing: 1, textDecoration: "none", transition: "color 0.2s" }}
+              onMouseEnter={e => (e.currentTarget.style.color = C.green)}
+              onMouseLeave={e => (e.currentTarget.style.color = C.muted)}>
+              {l}
+            </a>
           ))}
-       </svg>
-    </div>
-  )
-}
+          <a href="mailto:rafael@moreau.dev"
+            style={{ padding: "6px 16px", background: "transparent", color: C.green, border: `1px solid ${C.green}`, fontSize: 11, letterSpacing: 2, textDecoration: "none", transition: "all 0.2s" }}
+            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = C.green; (e.currentTarget as HTMLElement).style.color = C.bg }}
+            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = "transparent"; (e.currentTarget as HTMLElement).style.color = C.green }}>
+            $ contact
+          </a>
+        </div>
+      </nav>
 
-function VaultEntranceModel({ progress }: { progress: any }) {
-  const rotate = useTransform(progress, [0, 1], [0, 10])
-  const scale = useTransform(progress, [0, 0.5, 1], [1, 1.05, 1])
+      {/* HERO — terminal window */}
+      <section style={{ minHeight: "100vh", display: "flex", alignItems: "center", paddingTop: 52, padding: "80px 60px" }}>
+        <motion.div style={{ y: terminalY }}>
+          <div style={{ fontFamily: C.mono, marginBottom: 40 }}>
+            <div style={{ color: C.muted, fontSize: 12, marginBottom: 8 }}>$ whoami</div>
+            <div style={{ fontSize: "clamp(48px, 8vw, 120px)", fontWeight: 700, color: C.green, letterSpacing: -3, lineHeight: 0.95, marginBottom: 20 }}>
+              Rafaël<br />Moreau
+            </div>
+            <div style={{ fontSize: 14, color: C.muted, marginBottom: 4 }}>→ Lead Engineer · Full-Stack TypeScript</div>
+            <div style={{ fontSize: 14, color: C.muted, marginBottom: 40 }}>→ Paris, France · Remote only</div>
+          </div>
 
-  return (
-    <motion.div style={{ rotate, scale }} className="relative w-96 h-96 flex items-center justify-center">
-       <div className="absolute inset-0 border-[10px] border-white/5 skew-x-12 animate-pulse" />
-       <Mountain className="w-64 h-64 text-white/5" />
-       <div className="absolute inset-0 flex items-center justify-center">
-          <div className="w-[120%] h-px bg-gradient-to-r from-transparent via-white/10 to-transparent rotate-12" />
-          <div className="w-[120%] h-px bg-gradient-to-r from-transparent via-white/10 to-transparent -rotate-12" />
-       </div>
-    </motion.div>
-  )
-}
-
-/* ==========================================
-   THE GLACIAL ARK - MAIN INTERFACE
-   ========================================== */
-
-export default function GlacialArkPremium() {
-  const [activeSpecimen, setActiveSpecimen] = useState(0)
-  const [isPermafrostStable, setIsPermafrostStable] = useState(true)
-  const containerRef = useRef(null)
-  const { scrollYProgress } = useScroll({ target: containerRef })
-
-  // Glacial Scroll Effects
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.2], [1, 0])
-  const bgX = useTransform(scrollYProgress, [0, 1], [0, -200])
-
-  return (
-    <div ref={containerRef} className="bg-[#050608] text-[#e0e8ed] font-mono selection:bg-white/10 selection:text-white min-h-screen overflow-x-hidden transition-colors duration-1000">
-      
-      {/* GLOBAL HUD OVERLAY */}
-      <HUD_Overlay isPermafrostStable={isPermafrostStable} />
-
-      <main>
-        {/* ==========================================
-            1. FROZEN IGNITION (HERO)
-            ========================================== */}
-        <section className="relative h-screen flex flex-col justify-center items-center px-8 md:px-24 overflow-hidden pt-20">
-          <SnowVisualizer />
-          <motion.div style={{ opacity: heroOpacity }} className="absolute z-0 pointer-events-none flex items-center justify-center">
-             <VaultEntranceModel progress={scrollYProgress} />
+          {/* Terminal block */}
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5, duration: 0.8 }}
+            style={{ background: C.card, border: `1px solid ${C.border}`, padding: "32px 40px", maxWidth: 680 }}>
+            <div style={{ display: "flex", gap: 8, marginBottom: 24 }}>
+              {["#e5534b", "#e3b341", "#3fb950"].map(c => <div key={c} style={{ width: 12, height: 12, borderRadius: "50%", background: c }} />)}
+            </div>
+            {[
+              { prompt: "$ node --version", out: "v22.11.0" },
+              { prompt: "$ cat about.txt", out: "6 ans d'expérience · 3 200+ clients livrés · 0 incidents production majeurs" },
+              { prompt: "$ npx rafael --speciality", out: "Architecture TypeScript, SaaS B2B, Performance & Scalabilité" },
+              { prompt: "$ rafael --available", out: "true · Délai: 2 semaines · Open à nouvelles opportunités" },
+            ].map((line, i) => (
+              <motion.div key={i} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.8 + i * 0.3 }}>
+                <div style={{ color: C.green, fontSize: 13, marginBottom: 4 }}>{line.prompt}</div>
+                <div style={{ color: C.text, fontSize: 13, marginBottom: 16, paddingLeft: 16 }}>{line.out}</div>
+              </motion.div>
+            ))}
+            <motion.span animate={{ opacity: [1, 0, 1] }} transition={{ repeat: Infinity, duration: 1 }} style={{ color: C.green }}>_</motion.span>
           </motion.div>
 
-          <div className="relative z-10 text-center max-w-7xl">
-             <Reveal>
-                <div className="inline-flex items-center gap-4 px-6 py-2 border border-white/20 bg-white/5 text-[10px] font-black uppercase tracking-[0.5em] text-white/60 mb-12 italic">
-                   <Snowflake className="w-4 h-4" /> Thermal_Sync: -18.0°C // Permafrost: LOCKED
-                </div>
-                <h1 className="text-7xl md:text-[14vw] font-black tracking-tighter uppercase mb-16 leading-[0.75] italic">
-                   Glacial <br/> <span className="text-white/5 italic">Ark.</span>
-                </h1>
-                <p className="max-w-3xl mx-auto text-sm md:text-lg text-white/20 leading-relaxed uppercase tracking-widest font-light mb-16 italic">
-                   La forteresse mondiale de la biodiversité. Nous préservons l'héritage génétique de notre planète au cœur des montagnes éternelles du Grand Nord.
-                </p>
-                
-                <div className="flex flex-col sm:flex-row gap-8 justify-center items-center">
-                   <button className="px-12 py-6 bg-white text-black text-[10px] font-black uppercase tracking-widest hover:bg-black hover:text-white border border-transparent hover:border-white/20 transition-all shadow-[0_0_40px_rgba(255,255,255,0.1)] flex items-center gap-4 italic">
-                      <Lock className="w-5 h-5" /> Secure Deposit
-                   </button>
-                   <button className="px-12 py-6 border border-white/10 text-white text-[10px] font-black uppercase tracking-widest hover:bg-white/5 transition-all flex items-center gap-4 italic">
-                      <Archive className="w-5 h-5" /> Ark Registry
-                   </button>
-                </div>
-             </Reveal>
+          <div style={{ display: "flex", gap: 24, marginTop: 48 }}>
+            <motion.a href="#contact" whileHover={{ background: C.green, color: C.bg }} whileTap={{ scale: 0.97 }}
+              style={{ padding: "14px 32px", background: "transparent", color: C.green, border: `1px solid ${C.green}`, fontSize: 12, letterSpacing: 2, textTransform: "uppercase", textDecoration: "none", transition: "all 0.2s", display: "inline-block" }}>
+              $ ./contact.sh
+            </motion.a>
+            <motion.a href="#projects" whileHover={{ color: C.green }} whileTap={{ scale: 0.97 }}
+              style={{ padding: "14px 32px", color: C.muted, fontSize: 12, letterSpacing: 2, textTransform: "uppercase", textDecoration: "none", transition: "color 0.2s", display: "inline-block" }}>
+              ls ./projects →
+            </motion.a>
           </div>
+        </motion.div>
+      </section>
 
-          <div className="absolute bottom-12 left-12 right-12 flex justify-between items-end border-t border-white/5 pt-12">
-             <div className="flex flex-col gap-6">
-                <div className="flex items-center gap-4 text-[9px] font-bold text-white/10 uppercase tracking-widest italic">
-                   <div className="w-16 h-px bg-white/10" />
-                   Vault_ID: ARK-SVAL-01
-                </div>
-                <div className="flex items-center gap-4 text-[9px] font-bold text-white/10 uppercase tracking-widest italic">
-                   <div className="w-16 h-px bg-white/10" />
-                   Storage_Condition: DEEP_FREEZE
-                </div>
-             </div>
-             <div className="text-right flex flex-col items-end gap-4">
-                <span className="text-[8px] font-black uppercase tracking-[0.5em] text-white/40">Seismic_Vibration_Stream</span>
-                <div className="flex gap-2 h-12 items-end">
-                   {[...Array(16)].map((_, i) => (
-                     <motion.div 
-                        key={i}
-                        animate={{ height: ["5%", "50%", "10%", "30%", "5%"] }}
-                        transition={{ duration: 2, repeat: Infinity, delay: i * 0.15 }}
-                        className="w-2 bg-white/10"
-                     />
-                   ))}
-                </div>
-             </div>
+      {/* SKILLS */}
+      <section ref={skillsRef} id="skills" style={{ padding: "80px 60px", borderTop: `1px solid ${C.border}` }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 48 }}>
+          <div style={{ fontSize: 13, color: C.muted, marginBottom: 8 }}>$ cat skills.json</div>
+          <div style={{ display: "flex", gap: 8 }}>
+            {["Tout", ...cats].map((cat, i) => (
+              <button key={cat} onClick={() => setActiveSkillCat(cat === "Tout" ? null : cat)}
+                style={{ padding: "4px 14px", background: (cat === "Tout" && !activeSkillCat) || activeSkillCat === cat ? C.green : "transparent", color: (cat === "Tout" && !activeSkillCat) || activeSkillCat === cat ? C.bg : C.muted, border: `1px solid ${C.border}`, fontSize: 11, letterSpacing: 1, textTransform: "uppercase", cursor: "pointer", transition: "all 0.15s", fontFamily: C.mono }}>
+                .{cat}
+              </button>
+            ))}
           </div>
-        </section>
-
-        {/* ==========================================
-            2. ARK REGISTRY (DENSE TECHNICAL)
-            ========================================== */}
-        <section className="py-60 bg-[#080a0c] relative border-y border-white/5 overflow-hidden">
-           <div className="max-w-[1600px] mx-auto px-8 md:px-24">
-              <div className="flex flex-col md:flex-row items-end justify-between mb-40 gap-12">
-                 <Reveal>
-                    <span className="text-[10px] font-black uppercase tracking-[0.6em] text-white/40 block mb-6 italic underline underline-offset-8 decoration-white/10">Ark // Specimens</span>
-                    <h2 className="text-6xl md:text-[10vw] font-black uppercase tracking-tighter italic leading-none text-white">Archives.</h2>
-                 </Reveal>
-                 <div className="text-right">
-                    <span className="text-[10px] font-black uppercase tracking-[0.5em] text-white/20 block mb-4 italic">Registry // Biodiversity_Audit</span>
-                    <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/40">L'Architecture de la Préservation</p>
-                 </div>
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 20, maxWidth: 800 }}>
+          {SKILLS.filter(s => !activeSkillCat || s.category === activeSkillCat).map((skill, i) => (
+            <motion.div key={skill.name} initial={{ opacity: 0, x: -20 }} animate={skillsInView ? { opacity: 1, x: 0 } : {}} transition={{ delay: i * 0.06 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
+                <span style={{ fontSize: 13, color: C.text }}>{skill.name}</span>
+                <span style={{ fontSize: 12, color: C.green }}>{skill.level}%</span>
               </div>
-
-              <div className="grid md:grid-cols-3 gap-px bg-white/5 border border-white/5 shadow-2xl">
-                 {ARK_SPECIMENS.map((specimen, i) => (
-                   <Reveal key={specimen.id} delay={i * 0.1}>
-                      <div className="bg-[#050608] p-20 flex flex-col h-full hover:bg-white/[0.02] transition-all group cursor-crosshair border-white/5 border-r last:border-r-0">
-                         <div className="flex justify-between items-start mb-16">
-                            <div className="w-16 h-16 bg-white/5 border border-white/10 flex items-center justify-center group-hover:bg-white group-hover:text-black transition-all duration-500">
-                               <Leaf className="w-8 h-8" />
-                            </div>
-                            <span className={`px-4 py-2 bg-white/5 text-[9px] font-black uppercase tracking-[0.3em] ${specimen.status === "Vaulted" ? "text-white" : "text-white/40"}`}>{specimen.status}</span>
-                         </div>
-                         
-                         <h3 className="text-4xl font-black uppercase tracking-tighter mb-8 italic text-white group-hover:translate-x-4 transition-transform">{specimen.name}</h3>
-                         <div className="text-[10px] font-black text-white/20 uppercase tracking-[0.5em] mb-12">{specimen.category}</div>
-                         
-                         <div className="space-y-8 mb-20 border-l border-white/10 pl-8">
-                            <div className="flex justify-between items-center text-[11px] font-bold uppercase tracking-widest">
-                               <span className="text-white/20">Temperature</span>
-                               <span className="text-white group-hover:text-white transition-colors">{specimen.temp}</span>
-                            </div>
-                            <div className="flex justify-between items-center text-[11px] font-bold uppercase tracking-widest">
-                               <span className="text-white/20">Viability</span>
-                               <span className="text-white group-hover:text-white transition-colors">{specimen.viability}</span>
-                            </div>
-                            <div className="flex justify-between items-center text-[11px] font-bold uppercase tracking-widest">
-                               <span className="text-white/20">Origin</span>
-                               <span className="text-white group-hover:text-white transition-colors">{specimen.origin}</span>
-                            </div>
-                         </div>
-
-                         <p className="text-[12px] text-white/30 leading-loose uppercase tracking-[0.2em] font-bold italic mb-16">
-                            {specimen.desc}
-                         </p>
-
-                         <div className="mt-auto pt-10 border-t border-white/5 flex justify-between items-center">
-                            <span className="text-[10px] font-black text-white/10 uppercase tracking-widest">Ref: {specimen.id}</span>
-                            <button className="text-[10px] font-black uppercase text-white/40 flex items-center gap-4 group-hover:text-white transition-all">
-                               Technical_Specs <ChevronRight className="w-5 h-5" />
-                            </button>
-                         </div>
-                      </div>
-                   </Reveal>
-                 ))}
+              <div style={{ height: 2, background: C.border, position: "relative" }}>
+                <motion.div initial={{ width: 0 }} animate={skillsInView ? { width: `${skill.level}%` } : {}} transition={{ duration: 1.2, delay: i * 0.06, ease: "easeOut" }}
+                  style={{ position: "absolute", top: 0, left: 0, height: "100%", background: C.green }} />
               </div>
-           </div>
-        </section>
+            </motion.div>
+          ))}
+        </div>
+      </section>
 
-        {/* ==========================================
-            3. GEOLOGICAL MONITOR (INTERACTIVE DATA)
-            ========================================== */}
-        <section className="py-60 bg-black relative border-y border-white/5 overflow-hidden">
-           <div className="max-w-[1400px] mx-auto px-8 md:px-24">
-              <div className="grid lg:grid-cols-2 gap-40 items-center">
-                 <div>
-                    <Reveal>
-                       <span className="text-[10px] font-black uppercase tracking-[0.5em] text-white/40 block mb-12 italic underline underline-offset-8 decoration-white/10">Geological // Stability</span>
-                       <h2 className="text-7xl md:text-[9vw] font-light italic leading-none text-white mb-16 uppercase tracking-tighter">
-                          The <br/> <span className="not-italic font-black text-white/5 italic">Mountain_Core.</span>
-                       </h2>
-                       <p className="text-2xl font-light text-white/20 leading-relaxed mb-24 italic uppercase tracking-[0.2em] max-w-xl">
-                          Surveillance sismique en temps réel. La stabilité structurelle de notre réserve est garantie par l'ancrage profond dans le socle rocheux arctique, à l'abri des séismes et des inondations.
-                       </p>
-                       <div className="grid grid-cols-2 gap-px bg-white/5 border border-white/5 mb-24 shadow-2xl">
-                          {GEOLOGICAL_METRICS.map((metric, i) => (
-                            <div key={i} className="p-16 bg-[#0a0c0e] group hover:bg-white/[0.02] transition-all border-r border-b last:border-r-0 border-white/5">
-                               <div className="text-[10px] font-black uppercase text-white/40 mb-6 tracking-[0.4em]">{metric.label}</div>
-                               <div className="text-5xl font-black text-white italic mb-6 tracking-tighter group-hover:translate-x-4 transition-transform">{metric.value}</div>
-                               <div className="flex items-center gap-3 text-[9px] font-bold uppercase tracking-[0.3em] text-white/10 italic">
-                                  <Activity className="w-4 h-4 text-white/40" /> {metric.trend}
-                               </div>
-                            </div>
-                          ))}
-                       </div>
-                       <button 
-                         onClick={() => setIsPermafrostStable(!isPermafrostStable)}
-                         className="w-full py-8 bg-white text-black text-[11px] font-black uppercase tracking-widest hover:bg-white/90 transition-all shadow-2xl flex items-center justify-center gap-6 italic"
-                       >
-                          <Settings className="w-5 h-5" /> Re-Calibrate Seismic Nodes
-                       </button>
-                    </Reveal>
-                 </div>
-                 
-                 <div className="relative">
-                    <Reveal delay={0.3} x={40}>
-                       <div className="aspect-square bg-[#0a0c0e] border border-white/10 p-20 flex flex-col justify-between relative group overflow-hidden shadow-2xl">
-                          <div className="absolute top-0 right-0 p-80 bg-white opacity-[0.01] blur-[150px] rounded-full group-hover:opacity-[0.03] transition-opacity" />
-                          
-                          <div className="flex justify-between items-start z-10">
-                             <div className="flex flex-col gap-3">
-                                <span className="text-[10px] font-black text-white/10 uppercase tracking-[0.5em]">Geologic_Link // SVAL-SYNC-v4</span>
-                                <span className="text-[12px] font-black text-white/40 uppercase tracking-[0.6em]">Seismic_Vibration_Map</span>
-                             </div>
-                             <Wifi className="w-6 h-6 text-white/20" />
-                          </div>
-                          
-                          {/* GEOLOGIC VISUALIZER (SVG) */}
-                          <div className="relative z-10 flex flex-col items-center justify-center h-full">
-                             <div className="w-64 h-64 border border-white/5 rounded-full flex items-center justify-center relative">
-                                <motion.div 
-                                  animate={{ rotate: 360 }}
-                                  transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-                                  className="absolute inset-0 border-t-2 border-white/20 rounded-full" 
-                                />
-                                <motion.div 
-                                  animate={{ rotate: -360 }}
-                                  transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-                                  className="absolute inset-8 border-b-2 border-white/10 rounded-full" 
-                                />
-                                <Mountain className={`w-24 h-24 transition-colors duration-1000 ${isPermafrostStable ? "text-white animate-pulse" : "text-white/5"}`} />
-                             </div>
-                             <div className="mt-16 text-center space-y-6">
-                                <div className={`text-4xl font-black italic tracking-tighter ${isPermafrostStable ? "text-white" : "text-white/20"}`}>
-                                   {isPermafrostStable ? "STRUCT_STABLE" : "STRUCT_WARNING"}
-                                </div>
-                                <span className="text-[11px] font-bold text-white/10 uppercase tracking-[0.6em] block">Auth_Node: SVALBARD_CORE_01</span>
-                             </div>
-                          </div>
-
-                          <div className="relative z-10 flex gap-6">
-                             <div className="flex-1 h-1 bg-white/5 overflow-hidden">
-                                <motion.div 
-                                   animate={isPermafrostStable ? { x: ["-100%", "100%"] } : {}}
-                                   transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-                                   className="w-1/2 h-full bg-white/40"
-                                />
-                             </div>
-                          </div>
-                       </div>
-                    </Reveal>
-                 </div>
+      {/* TIMELINE */}
+      <section id="timeline" style={{ padding: "80px 60px", borderTop: `1px solid ${C.border}` }}>
+        <div style={{ fontSize: 13, color: C.muted, marginBottom: 48 }}>$ git log --oneline --career</div>
+        <div style={{ position: "relative" }}>
+          <div style={{ position: "absolute", left: 140, top: 0, bottom: 0, width: 1, background: C.border }} />
+          {TIMELINE.map((item, i) => (
+            <motion.div key={i}
+              initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }} transition={{ delay: i * 0.12, duration: 0.6 }}
+              style={{ display: "grid", gridTemplateColumns: "140px 1fr", gap: 40, marginBottom: 56, position: "relative" }}>
+              <div>
+                <div style={{ fontSize: 11, color: item.accent, letterSpacing: 1, lineHeight: 1.5 }}>{item.year}</div>
               </div>
-           </div>
-        </section>
-
-        {/* ==========================================
-            4. CONSERVATION STORY (TECH STORYTELLING)
-            ========================================== */}
-        <section className="py-60 bg-[#050608] relative overflow-hidden border-t border-white/5">
-           <div className="max-w-[1400px] mx-auto px-8 md:px-24">
-              <div className="grid lg:grid-cols-2 gap-40 items-center">
-                 <div className="relative aspect-[3/4] overflow-hidden group border border-white/5 shadow-2xl">
-                    <Image 
-                       src="https://images.unsplash.com/photo-1518173946687-a4c8892bbd9f?q=80&w=1200&auto=format&fit=crop" 
-                       alt="Arctic Landscape" 
-                       fill 
-                       className="object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-[2000ms]"
-                    />
-                    <div className="absolute inset-0 bg-white/5 mix-blend-overlay group-hover:opacity-0 transition-opacity" />
-                    <div className="absolute inset-0 p-20 flex flex-col justify-end bg-gradient-to-t from-black via-black/40 to-transparent">
-                       <div className="text-white">
-                          <span className="text-[11px] font-black uppercase tracking-[0.6em] text-white/60 mb-8 block italic underline underline-offset-8 decoration-white/20">Conservation // Heritage // Unit</span>
-                          <h4 className="text-6xl font-black tracking-tighter uppercase italic mb-12 mix-blend-difference text-white">Frozen <br/> Heritage.</h4>
-                          <button className="flex items-center gap-6 text-[11px] font-black uppercase tracking-[0.4em] border-b border-white/20 pb-4 hover:border-white transition-all group">
-                             Security Protocols <ExternalLink className="w-5 h-5 group-hover:translate-x-2 group-hover:-translate-y-2 transition-transform" />
-                          </button>
-                       </div>
-                    </div>
-                 </div>
-
-                 <div>
-                    <Reveal>
-                       <div className="mb-24 text-left">
-                          <span className="text-[10px] font-black uppercase tracking-[0.5em] text-white/40 mb-8 block italic">Chapitre III // Preservation</span>
-                          <h2 className="text-7xl md:text-[10vw] font-black tracking-tighter uppercase text-white italic leading-none text-white">Deep_Ark.</h2>
-                       </div>
-                       <p className="text-2xl font-light text-white/20 leading-relaxed italic mb-20 uppercase tracking-[0.2em]">
-                          La banque mondiale de semences est le filet de sécurité de l'humanité. Nous stockons les gènes de notre biodiversité pour les générations futures.
-                       </p>
-                       <div className="space-y-20">
-                          {[
-                            { t: "Desiccation mastery", d: "Réduction contrôlée du taux d'humidité des semences pour maximiser leur viabilité à long terme." },
-                            { t: "Thermal Redundancy", d: "Protection thermique naturelle par le pergélisol, complétée par un système de refroidissement actif." },
-                            { t: "Genomic Integrity", d: "Surveillance constante des altérations génétiques induites par le temps et les rayonnements naturels." }
-                          ].map((step, i) => (
-                            <div key={i} className="group flex gap-12 border-b border-white/5 pb-16 hover:border-white/20 transition-all cursor-default">
-                               <div className="text-6xl font-black text-white/5 group-hover:text-white/10 transition-colors italic leading-none">0{i+1}</div>
-                               <div>
-                                  <h5 className="text-3xl font-black uppercase tracking-tight text-white mb-6 italic group-hover:translate-x-4 transition-transform text-white">{step.t}</h5>
-                                  <p className="text-[12px] text-white/20 uppercase tracking-[0.3em] font-bold leading-loose italic">{step.d}</p>
-                               </div>
-                            </div>
-                          ))}
-                       </div>
-                    </Reveal>
-                 </div>
-              </div>
-           </div>
-        </section>
-
-        {/* MEGA FOOTER */}
-        <footer className="bg-black pt-60 pb-12 px-8 md:px-24 relative z-50">
-           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-32 mb-60 text-white">
-              <div className="lg:col-span-2">
-                 <div className="flex items-center gap-6 mb-16">
-                    <div className="w-16 h-16 bg-white flex items-center justify-center">
-                      <Snowflake className="w-10 h-10 text-black" />
-                    </div>
-                    <span className="text-4xl font-black uppercase tracking-tighter italic">GLACIAL<span className="text-white/20">ARK.</span></span>
-                 </div>
-                 <p className="text-white/20 text-[11px] font-black uppercase tracking-[0.5em] leading-loose max-w-sm mb-20 italic">
-                    "La mémoire de la Terre conservée dans la glace." — Archive Glacial V.42
-                 </p>
-                 <div className="flex gap-16">
-                    {["ArkLog", "ArchiveRegistry", "GitHub", "X_Protocol"].map(s => (
-                      <Link key={s} href="#" className="text-[11px] font-black uppercase tracking-widest text-white/20 hover:text-white transition-colors italic underline underline-offset-8 decoration-white/5">{s}</Link>
-                    ))}
-                 </div>
-              </div>
-
-              {[
-                { t: "CONSERVATION", l: ["Seed Bank", "Embryo Stasis", "Mycology Unit", "Botanical Heritage"] },
-                { t: "TECHNOLOGY", l: ["Cryo Storage", "Seismic Sync", "Thermal Shield", "SLA Reports"] },
-                { t: "FACILITY", l: ["Our Legacy", "Arctic Station", "Locations", "Support"] }
-              ].map((col, i) => (
-                <div key={i} className="flex flex-col gap-12">
-                  <h4 className="text-[11px] font-black text-white/40 uppercase tracking-[0.6em] italic">{col.t}</h4>
-                  <ul className="flex flex-col gap-8">
-                    {col.l.map(link => (
-                      <li key={link} className="text-[11px] font-bold text-white/20 hover:text-white transition-colors cursor-pointer uppercase tracking-[0.4em] italic">{link}</li>
-                    ))}
-                  </ul>
+              <div style={{ paddingLeft: 40, position: "relative" }}>
+                <div style={{ position: "absolute", left: -5, top: 5, width: 10, height: 10, background: item.accent, borderRadius: "50%", boxShadow: `0 0 12px ${item.accent}60` }} />
+                <div style={{ fontSize: 13, color: item.accent, marginBottom: 4 }}>{item.company}</div>
+                <div style={{ fontSize: 17, fontWeight: 700, color: C.text, marginBottom: 12 }}>{item.role}</div>
+                <div style={{ fontSize: 13, color: C.muted, lineHeight: 1.7, marginBottom: 16, maxWidth: 560 }}>{item.desc}</div>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                  {item.tags.map(t => (
+                    <span key={t} style={{ padding: "3px 10px", border: `1px solid ${C.border}`, fontSize: 11, color: C.muted, letterSpacing: 1 }}>{t}</span>
+                  ))}
                 </div>
-              ))}
-           </div>
-
-           <div className="max-w-[1600px] mx-auto border-t border-white/5 pt-16 flex flex-col md:flex-row justify-between items-center gap-16 text-[10px] font-black text-white/10 uppercase tracking-[0.6em] italic">
-              <span>© 2026 GLACIAL ARK BIODIVERSITY CONSERVATION AG. // ALL_RIGHTS_RESERVED</span>
-              <div className="flex gap-16">
-                 <span>STATUS: FROZEN</span>
-                 <span>TEMPERATURE: -18.2°C (AVG)</span>
-                 <span>v4.20.0-STABLE</span>
               </div>
-           </div>
-        </footer>
-      </main>
-    </div>
-  )
-}
+            </motion.div>
+          ))}
+        </div>
+      </section>
 
-/* ==========================================
-   TECHNICAL SUB-COMPONENTS
-   ========================================== */
+      {/* PROJECTS */}
+      <section id="projects" style={{ padding: "80px 60px", borderTop: `1px solid ${C.border}` }}>
+        <div style={{ fontSize: 13, color: C.muted, marginBottom: 48 }}>$ ls ./projects --details</div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 2 }}>
+          {PROJECTS.map((p, i) => (
+            <motion.div key={i}
+              onHoverStart={() => setHoveredProject(i)}
+              onHoverEnd={() => setHoveredProject(null)}
+              initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }} transition={{ delay: i * 0.1 }}
+              style={{ background: hoveredProject === i ? C.card : "transparent", border: `1px solid ${hoveredProject === i ? p.accent + "40" : C.border}`, padding: "36px 40px", cursor: "pointer", transition: "all 0.2s" }}>
+              <div style={{ fontSize: 11, color: p.accent, letterSpacing: 2, textTransform: "uppercase", marginBottom: 12 }}>project_{String(i + 1).padStart(2, "0")}</div>
+              <div style={{ fontSize: 18, fontWeight: 700, color: C.text, marginBottom: 12 }}>{p.name}</div>
+              <div style={{ fontSize: 13, color: C.muted, lineHeight: 1.7, marginBottom: 20 }}>{p.desc}</div>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 20 }}>
+                {p.tech.map(t => <span key={t} style={{ padding: "3px 10px", border: `1px solid ${C.border}`, fontSize: 11, color: p.accent, letterSpacing: 1 }}>{t}</span>)}
+              </div>
+              <AnimatePresence>
+                {hoveredProject === i && (
+                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                    style={{ fontSize: 12, color: p.accent, letterSpacing: 2 }}>
+                    → Voir le projet
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
+          ))}
+        </div>
+      </section>
 
-function HUD_Overlay({ isPermafrostStable }: { isPermafrostStable: boolean }) {
-  return (
-    <div className="fixed inset-0 pointer-events-none z-[100]">
-       {/* Corner Brackets */}
-       <div className={`absolute top-12 left-12 w-20 h-20 border-t-2 border-l-2 transition-colors duration-1000 ${isPermafrostStable ? "border-white" : "border-white/10"}`} />
-       <div className={`absolute top-12 right-12 w-20 h-20 border-t-2 border-r-2 transition-colors duration-1000 ${isPermafrostStable ? "border-white" : "border-white/10"}`} />
-       <div className={`absolute bottom-12 left-12 w-20 h-20 border-b-2 border-l-2 transition-colors duration-1000 ${isPermafrostStable ? "border-white" : "border-white/10"}`} />
-       <div className={`absolute bottom-12 right-12 w-20 h-20 border-b-2 border-r-2 transition-colors duration-1000 ${isPermafrostStable ? "border-white" : "border-white/10"}`} />
+      {/* TESTIMONIALS */}
+      <section style={{ padding: "80px 60px", borderTop: `1px solid ${C.border}` }}>
+        <div style={{ fontSize: 13, color: C.muted, marginBottom: 48 }}>$ cat testimonials.log</div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 32 }}>
+          {TESTIMONIALS.map((t, i) => (
+            <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }} transition={{ delay: i * 0.2 }}
+              style={{ border: `1px solid ${C.border}`, padding: "36px 40px" }}>
+              <div style={{ fontSize: 13, color: C.text, lineHeight: 1.8, marginBottom: 24, borderLeft: `2px solid ${C.green}`, paddingLeft: 20 }}>"{t.quote}"</div>
+              <div style={{ fontSize: 11, color: C.muted, letterSpacing: 1 }}>— {t.name} · {t.role}</div>
+            </motion.div>
+          ))}
+        </div>
+      </section>
 
-       {/* Top Status Bar */}
-       <div className="absolute top-12 left-1/2 -translate-x-1/2 flex items-center gap-20 bg-black/60 backdrop-blur-2xl px-12 py-4 border border-white/10 rounded-none">
-          <div className="flex items-center gap-6 text-white">
-             <div className={`w-3 h-3 transition-colors duration-500 ${isPermafrostStable ? "bg-white animate-pulse" : "bg-red-500 animate-ping"}`} />
-             <span className="text-[10px] font-black uppercase tracking-[0.4em] italic leading-none">Geologic_Sync: {isPermafrostStable ? "STABLE" : "WARNING"} // Status: ACTIVE</span>
+      {/* PRICING / RATES */}
+      <section style={{ padding: "80px 60px", borderTop: `1px solid ${C.border}` }}>
+        <div style={{ fontSize: 13, color: C.muted, marginBottom: 48 }}>$ cat rates.json</div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 2 }}>
+          {[
+            { type: "Code Review", rate: "500 €", unit: "/ session", desc: "Audit complet de votre codebase. Rapport détaillé + session Q&A 2h." },
+            { type: "Architecture", rate: "1 200 €", unit: "/ jour", desc: "Design système, ADR, migration plan. Remote ou présentiel Paris.", highlight: true },
+            { type: "Développement", rate: "720 €", unit: "/ jour", desc: "Développement full-stack TypeScript. Minimum 4 semaines de mission." },
+          ].map((r, i) => (
+            <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }} transition={{ delay: i * 0.12 }}
+              style={{ border: `1px solid ${r.highlight ? C.green + "40" : C.border}`, padding: "48px 40px", background: r.highlight ? "#0a160a" : "transparent" }}>
+              <div style={{ fontSize: 11, color: r.highlight ? C.green : C.muted, letterSpacing: 3, textTransform: "uppercase", marginBottom: 24 }}>{r.type}</div>
+              <div style={{ fontSize: 40, fontWeight: 700, color: C.text, letterSpacing: -1, lineHeight: 1 }}>{r.rate}</div>
+              <div style={{ fontSize: 12, color: C.muted, marginBottom: 24 }}>{r.unit}</div>
+              <div style={{ fontSize: 13, color: C.muted, lineHeight: 1.7 }}>{r.desc}</div>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section style={{ maxWidth: 800, margin: "0 auto", padding: "80px 60px" }}>
+        <div style={{ fontSize: 13, color: C.muted, marginBottom: 48 }}>$ cat faq.txt</div>
+        {FAQS.map((f, i) => (
+          <div key={i} style={{ borderBottom: `1px solid ${C.border}` }}>
+            <button onClick={() => setOpenFaq(openFaq === i ? null : i)}
+              style={{ width: "100%", display: "flex", justifyContent: "space-between", alignItems: "center", padding: "20px 0", background: "none", border: "none", color: C.text, cursor: "pointer", textAlign: "left", fontFamily: C.mono }}>
+              <span style={{ fontSize: 14 }}>{f.q}</span>
+              <motion.span animate={{ rotate: openFaq === i ? 45 : 0 }} style={{ fontSize: 20, color: C.green, minWidth: 20 }}>+</motion.span>
+            </button>
+            <AnimatePresence>
+              {openFaq === i && (
+                <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }}>
+                  <p style={{ paddingBottom: 20, fontSize: 13, color: C.muted, lineHeight: 1.8 }}>{f.a}</p>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
-          <div className="h-4 w-px bg-white/20" />
-          <div className="flex items-center gap-6 text-white/20">
-             <Wifi className="w-4 h-4" /> 
-             <span className="text-[10px] font-black uppercase tracking-[0.4em] italic leading-none">Arctic_Relay: SECURE</span>
-          </div>
-       </div>
+        ))}
+      </section>
 
-       {/* Right Rotation Info */}
-       <div className="absolute right-12 top-1/2 -translate-y-1/2 rotate-90 origin-right hidden lg:block">
-          <span className="text-[10px] font-black uppercase tracking-[0.8em] text-white/5 italic">Unauthorized_Duplication_Of_Glacial_Patterns_Is_Strictly_Monitored_By_Global_Ark_Alliance</span>
-       </div>
+      {/* CTA */}
+      <section id="contact" style={{ borderTop: `2px solid ${C.green}`, padding: "80px 60px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 80, alignItems: "center" }}>
+        <div>
+          <div style={{ fontSize: 13, color: C.muted, marginBottom: 16 }}>$ rafael --contact</div>
+          <div style={{ fontSize: "clamp(36px, 5vw, 64px)", fontWeight: 700, color: C.green, letterSpacing: -2, lineHeight: 1.1, marginBottom: 24 }}>
+            Parlons de<br />votre projet.
+          </div>
+          <div style={{ fontSize: 13, color: C.muted, lineHeight: 1.8 }}>
+            Réponse sous 24h.<br />
+            rafael@moreau.dev
+          </div>
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          {[{ ph: "$ nom --required", type: "text" }, { ph: "$ email --required", type: "email" }, { ph: "$ budget approximatif", type: "text" }].map((inp, i) => (
+            <input key={i} placeholder={inp.ph} type={inp.type}
+              style={{ padding: "14px 20px", background: C.card, border: `1px solid ${C.border}`, color: C.text, fontFamily: C.mono, fontSize: 13, outline: "none", letterSpacing: 1, transition: "border-color 0.2s" }}
+              onFocus={e => (e.currentTarget.style.borderColor = C.green)}
+              onBlur={e => (e.currentTarget.style.borderColor = C.border)} />
+          ))}
+          <textarea placeholder="$ message --your-project" rows={4}
+            style={{ padding: "14px 20px", background: C.card, border: `1px solid ${C.border}`, color: C.text, fontFamily: C.mono, fontSize: 13, outline: "none", resize: "none", letterSpacing: 1 }}
+            onFocus={e => (e.currentTarget.style.borderColor = C.green)}
+            onBlur={e => (e.currentTarget.style.borderColor = C.border)} />
+          <motion.button whileHover={{ background: C.green, color: C.bg }} whileTap={{ scale: 0.97 }}
+            style={{ padding: "14px", background: "transparent", color: C.green, border: `1px solid ${C.green}`, fontFamily: C.mono, fontSize: 12, letterSpacing: 3, textTransform: "uppercase", cursor: "pointer", transition: "all 0.2s" }}>
+            $ ./send-message.sh →
+          </motion.button>
+        </div>
+      </section>
+
+      {/* FOOTER */}
+      <footer style={{ borderTop: `1px solid ${C.border}`, padding: "28px 60px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <span style={{ fontSize: 12, color: C.muted }}>~/rafael-moreau · © 2025</span>
+        <div style={{ display: "flex", gap: 24 }}>
+          {["GitHub", "LinkedIn", "Twitter"].map(l => (
+            <span key={l} style={{ fontSize: 11, color: C.muted, letterSpacing: 2, textTransform: "uppercase", cursor: "pointer" }}>{l}</span>
+          ))}
+        </div>
+      </footer>
     </div>
   )
 }

@@ -1,516 +1,267 @@
 "use client"
 
-import React, { useState, useEffect, useRef } from "react"
-import { 
-  motion, 
-  AnimatePresence, 
-  useScroll, 
-  useTransform, 
-  useInView, 
-  useSpring 
-} from "framer-motion"
-import Image from "next/image"
-import Link from "next/link"
-import { 
-  Cpu, Zap, Activity, Microscope, 
-  Target, Layers, Box, Hexagon, 
-  Terminal, Settings, Power, Info, 
-  AlertTriangle, ChevronRight, ArrowRight, 
-  Share2, Maximize2, Download, ExternalLink, 
-  Archive, Hash, Wifi, BarChart3, 
-  Fingerprint, Scan, Brain, Server, 
-  ShieldCheck, ShieldAlert, Award, 
-  Briefcase, Wind, Thermometer, 
-  Droplets, Flame, Battery, Radio, 
-  Gauge, Timer, Lightbulb, Command, 
-  Grid, Radar, Orbit, Atom, 
-  Satellite, Milestone, FlaskConical, 
-  FlaskRound, Ghost, Code, Binary, 
-  Microchip, Factory, HardDrive, 
-  Blocks, Search, Database
-} from "lucide-react"
+import React, { useState, useRef } from "react"
+import { motion, useScroll, useTransform, useInView, AnimatePresence } from "framer-motion"
 
-/* ==========================================================================
-   THE NEURAL FORGE DATASET (ULTRA DENSITY)
-   ========================================================================== */
+// STRUCTURE BÂTISSEURS — Construction company. Industrial dark + safety orange, extra bold weight, count-up stats.
+// Unique: massive number hero, diagonal stripe divider, project cards with progress bars.
 
-const PROCESSOR_ASSETS = [
-  {
-    id: "chip-npu-42",
-    name: "Neural Unit X-1",
-    type: "AI Accelerator",
-    lithography: "2nm (EUV)",
-    frequency: "4.2 THz",
-    tdp: "12W",
-    desc: "Processeur neuronal haute densité optimisé pour l'inférence IA en temps réel avec une architecture de mémoire intégrée.",
-    status: "In Production"
-  },
-  {
-    id: "chip-qm-08",
-    name: "Quantum-Core Z",
-    type: "Quantum Memory",
-    lithography: "Cryo-Etched",
-    frequency: "N/A (Entangled)",
-    tdp: "250W (Cooling)",
-    desc: "Unité de mémoire quantique utilisant des ions piégés pour un stockage de données persistant sans décohésion.",
-    status: "R&D Alpha"
-  },
-  {
-    id: "chip-ph-15",
-    name: "Photon-Link v5",
-    type: "Optical I/O",
-    lithography: "Silicon Photonics",
-    frequency: "12.8 THz",
-    tdp: "5W",
-    desc: "Accélérateur photonique permettant une communication inter-puces à la vitesse de la lumière avec une latence quasi nulle.",
-    status: "Approved"
+const PROJECTS = [
+  { name: "Résidence Les Cèdres", type: "Logements collectifs", location: "Grenoble", units: 84, progress: 100, status: "Livré — 2024" },
+  { name: "Campus Tech Sud", type: "Bureaux & salles de formation", location: "Montpellier", units: null, progress: 73, status: "En cours" },
+  { name: "Centre Commercial Avenir", type: "Commerce & loisirs", location: "Nantes", units: null, progress: 40, status: "En chantier" },
+  { name: "Ilôt Vert — Phase 2", type: "Réhabilitation & extension", location: "Toulouse", units: 32, progress: 100, status: "Livré — 2023" },
+]
+
+const SERVICES = [
+  { name: "Construction Neuve", desc: "Logements, bureaux, équipements publics. De la fondation à la remise des clés, clé en main ou en entreprise générale.", icon: "◼" },
+  { name: "Réhabilitation", desc: "Mise aux normes, extension, surélévation. Respect du bâti existant et des riverains. Chantier propre garanti.", icon: "◫" },
+  { name: "Gros Œuvre", desc: "Terrassement, fondations, béton armé, charpente. Équipes internes spécialisées, zéro sous-traitance non maîtrisée.", icon: "◧" },
+  { name: "Promotion Immobilière", desc: "MOA, AMO, coordination de programmes. Partenariats avec promoteurs, bailleurs sociaux et collectivités.", icon: "◨" },
+]
+
+const TESTIMONIALS = [
+  { quote: "Livré 3 semaines avant le délai contractuel. 84 logements, zéro malfaçon à la réception. Du jamais-vu sur un chantier de cette envergure.", name: "Laurent Duchamp", role: "Directeur de programmes, Foncière du Sud" },
+  { quote: "La coordination intervenants a été exemplaire. Nous avons pu ouvrir le campus aux étudiants dès septembre, conformément à notre calendrier académique.", name: "Isabelle Renard", role: "Directrice immobilière, Campus Tech" },
+  { quote: "Prix ferme tenu, interlocuteur unique tout au long du projet. C'est tout ce qu'on demande — et c'est rare.", name: "Pierre Moreau", role: "DAF, Groupe Avenir Retail" },
+]
+
+const FAQS = [
+  { q: "Quel est votre rayon d'intervention ?", a: "Principalement Sud et Centre de la France (Rhône-Alpes, Occitanie, Pays de la Loire). Nous étudions tous les projets >10M€ sur l'ensemble du territoire." },
+  { q: "Proposez-vous des contrats clé en main ?", a: "Oui — forfait global et définitif (GD), conception-réalisation, et contrats en entreprise générale selon la nature du projet." },
+  { q: "Comment gérez-vous les délais ?", a: "Planning hebdomadaire partagé avec le maître d'ouvrage, réunion de chantier systématique, système d'alerte interne sur les écarts de planning >3 jours." },
+  { q: "Vos matériaux sont-ils certifiés ?", a: "100% fournitures avec certificats CE et fiches techniques. Traçabilité complète disponible sur demande pour chaque lot." },
+  { q: "Intervenez-vous sur les marchés publics ?", a: "Oui — références en marchés publics disponibles sur demande. Habilitations et attestations fiscales à jour, KBIS récent fourni." },
+]
+
+const PLANS = [
+  { name: "AMO & Conseil", price: "Sur devis", note: "% du montant travaux", features: ["Assistance maîtrise d'ouvrage", "Montage opération", "Sélection intervenants", "Suivi de chantier"] },
+  { name: "Entreprise Générale", price: "Forfait GD", note: "prix ferme & définitif", features: ["Mission complète corps d'état", "Coordination tous lots", "Garanties décennale + DO", "Interlocuteur unique MOA", "Planning hebdomadaire partagé"], highlight: true },
+  { name: "Conception-Réalisation", price: "Sur mesure", note: "mission globale intégrée", features: ["Design + Construction en one-stop", "Optimisation coûts dès conception", "Délai réduit vs procédures classiques", "Référent projet dédié"] },
+]
+
+export default function Page() {
+  const [openFaq, setOpenFaq] = useState<number | null>(null)
+  const { scrollY } = useScroll()
+
+  const heroScale = useTransform(scrollY, [0, 400], [1, 1.04])
+
+  const statsRef = useRef(null)
+  const projectsRef = useRef(null)
+  const pricingRef = useRef(null)
+  const statsInView = useInView(statsRef, { once: true, margin: "-100px" })
+  const projectsInView = useInView(projectsRef, { once: true, margin: "-100px" })
+  const pricingInView = useInView(pricingRef, { once: true, margin: "-100px" })
+
+  const C = {
+    bg: "#111210",
+    orange: "#f97316",
+    orangeDark: "#c45f0a",
+    text: "#e8e6e0",
+    muted: "#6b6a64",
+    card: "#18170f",
+    border: "#222218",
+    sans: "system-ui, -apple-system, sans-serif",
   }
-]
 
-const FABRICATION_METRICS = [
-  { label: "Wafer Yield", value: "99.98%", trend: "Stable" },
-  { label: "Purity Level", value: "Level 12", trend: "Optimal" },
-  { label: "Output Rate", value: "1.4M Units/m", trend: "High" },
-  { label: "Error Margin", value: "0.001nm", trend: "Decreasing" }
-]
-
-const FABRICATION_LOGS = [
-  { timestamp: "02:14:42", unit: "EUV-Chamber-01", status: "ACTIVE", vacuum: "10^-9 Torr" },
-  { timestamp: "02:14:45", unit: "Ion-Implanter", status: "STABLE", dose: "4.2e15/cm²" },
-  { timestamp: "02:14:48", unit: "Chemical-Wash", status: "SUCCESS", ph: "7.02" }
-]
-
-/* ==========================================
-   TECHNICAL COMPONENTS
-   ========================================== */
-
-function Reveal({ children, delay = 0, y = 40, x = 0 }: { children: React.ReactNode, delay?: number, y?: number, x?: number }) {
-  const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, margin: "-100px" })
-  return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, y, x }}
-      animate={isInView ? { opacity: 1, y: 0, x: 0 } : {}}
-      transition={{ duration: 1.2, delay, ease: [0.16, 1, 0.3, 1] }}
-    >
-      {children}
-    </motion.div>
-  )
-}
-
-function MicroGridVisualizer() {
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
-  useEffect(() => {
-    const handleMouse = (e: MouseEvent) => setMousePos({ x: e.clientX, y: e.clientY })
-    window.addEventListener("mousemove", handleMouse)
-    return () => window.removeEventListener("mousemove", handleMouse)
-  }, [])
+  const STATS = [
+    { val: "340+", label: "Projets réalisés" },
+    { val: "2.4B€", label: "Volume construit depuis 1989" },
+    { val: "98%", label: "Délais tenus" },
+    { val: "35 ans", label: "D'expertise" },
+  ]
 
   return (
-    <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden opacity-5">
-       <svg width="100%" height="100%" className="w-full h-full">
-          <pattern id="microgrid" width="40" height="40" patternUnits="userSpaceOnUse">
-             <path d="M 40 0 L 0 0 0 40" fill="none" stroke="white" strokeWidth="0.5" />
-          </pattern>
-          <rect width="100%" height="100%" fill="url(#microgrid)" />
-          {/* Scanning Beam */}
-          <motion.rect 
-             animate={{ x: ["-100%", "200%"] }}
-             transition={{ duration: 5, repeat: Infinity, ease: "linear" }}
-             width="50%" height="100%" 
-             fill="white" 
-             className="opacity-10 blur-[100px]"
-          />
-          <motion.circle 
-             animate={{ cx: mousePos.x, cy: mousePos.y }}
-             transition={{ type: "spring", damping: 30, stiffness: 100 }}
-             r="150" 
-             fill="white" 
-             className="opacity-20 blur-[120px]"
-          />
-       </svg>
-    </div>
-  )
-}
+    <div style={{ background: C.bg, color: C.text, fontFamily: C.sans, overflowX: "hidden" }}>
+      {/* NAV */}
+      <nav style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 100, background: "rgba(17,18,16,0.97)", borderBottom: `2px solid ${C.orange}`, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 60px", height: 60 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <div style={{ width: 32, height: 32, background: C.orange, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, fontSize: 16, color: "#fff" }}>S</div>
+          <div style={{ fontWeight: 900, fontSize: 15, letterSpacing: 2, textTransform: "uppercase" }}>Structure Bâtisseurs</div>
+        </div>
+        <div style={{ display: "flex", gap: 36, alignItems: "center" }}>
+          {["Projets", "Services", "Équipe", "Contact"].map(l => (
+            <a key={l} href="#" style={{ fontSize: 12, color: C.muted, letterSpacing: 2, textTransform: "uppercase", textDecoration: "none", transition: "color 0.15s" }}
+              onMouseEnter={e => (e.currentTarget.style.color = C.orange)}
+              onMouseLeave={e => (e.currentTarget.style.color = C.muted)}>
+              {l}
+            </a>
+          ))}
+          <motion.button whileHover={{ background: C.orange }} whileTap={{ scale: 0.97 }}
+            style={{ padding: "10px 24px", background: "transparent", color: C.orange, border: `2px solid ${C.orange}`, fontSize: 12, letterSpacing: 2, textTransform: "uppercase", cursor: "pointer", transition: "all 0.2s", fontFamily: C.sans, fontWeight: 700 }}>
+            Devis →
+          </motion.button>
+        </div>
+      </nav>
 
-function WaferModel({ progress }: { progress: any }) {
-  const rotate = useTransform(progress, [0, 1], [0, 360])
-  const scale = useTransform(progress, [0, 0.5, 1], [1, 1.1, 1])
+      {/* HERO — oversized bold numbers + diagonal stripe */}
+      <section style={{ minHeight: "100vh", paddingTop: 60, position: "relative", overflow: "hidden", display: "flex", alignItems: "center" }}>
+        {/* Diagonal stripe */}
+        <div style={{ position: "absolute", top: 0, right: 0, width: "45%", height: "100%", background: C.orange, clipPath: "polygon(15% 0, 100% 0, 100% 100%, 0% 100%)", zIndex: 0 }} />
 
-  return (
-    <motion.div style={{ rotate, scale }} className="relative w-80 h-80 flex items-center justify-center">
-       <div className="absolute inset-0 border border-blue-400/10 rounded-full animate-spin-slow shadow-[0_0_80px_rgba(59,130,246,0.05)]" />
-       <Cpu className="w-40 h-40 text-blue-400/10 animate-pulse" />
-       <div className="absolute inset-8 border border-blue-400/5 rounded-full" />
-    </motion.div>
-  )
-}
-
-/* ==========================================
-   THE NEURAL FORGE - MAIN INTERFACE
-   ========================================== */
-
-export default function NeuralForgePremium() {
-  const [activeChip, setActiveChip] = useState(0)
-  const [isLithographyActive, setIsLithographyActive] = useState(true)
-  const containerRef = useRef(null)
-  const { scrollYProgress } = useScroll({ target: containerRef })
-
-  // Forge Scroll Effects
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.2], [1, 0])
-  const textY = useTransform(scrollYProgress, [0, 0.5], [0, 100])
-
-  return (
-    <div ref={containerRef} className="bg-[#020408] text-[#e0e8ed] font-mono selection:bg-blue-500/30 selection:text-white min-h-screen overflow-x-hidden transition-colors duration-1000">
-      
-      {/* GLOBAL HUD OVERLAY */}
-      <HUD_Overlay isLithographyActive={isLithographyActive} />
-
-      <main>
-        {/* ==========================================
-            1. SILICON IGNITION (HERO)
-            ========================================== */}
-        <section className="relative h-screen flex flex-col justify-center items-center px-8 md:px-24 overflow-hidden pt-20">
-          <MicroGridVisualizer />
-          <motion.div style={{ opacity: heroOpacity }} className="absolute z-0 pointer-events-none flex items-center justify-center">
-             <WaferModel progress={scrollYProgress} />
+        <div style={{ position: "relative", zIndex: 1, padding: "0 60px", width: "100%" }}>
+          <motion.div initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.9 }}>
+            <div style={{ fontSize: 11, letterSpacing: 5, color: C.orange, textTransform: "uppercase", marginBottom: 32 }}>Depuis 1989 · Construire l'avenir</div>
+            <h1 style={{ fontSize: "clamp(64px, 11vw, 160px)", fontWeight: 900, letterSpacing: "-4px", lineHeight: 0.88, textTransform: "uppercase", color: C.text, marginBottom: 0 }}>
+              ON<br />BÂTIT.
+            </h1>
+            <div style={{ fontSize: "clamp(64px, 11vw, 160px)", fontWeight: 900, letterSpacing: "-4px", lineHeight: 0.88, textTransform: "uppercase", color: "#fff", WebkitTextStroke: `3px ${C.orange}`, WebkitTextFillColor: "transparent" }}>
+              SOLIDE.
+            </div>
+            <div style={{ marginTop: 56, display: "flex", gap: 20 }}>
+              <motion.button whileHover={{ background: "#fff", color: C.bg }} whileTap={{ scale: 0.97 }}
+                style={{ padding: "18px 48px", background: C.orange, color: "#fff", border: "none", fontWeight: 900, fontSize: 14, letterSpacing: 2, textTransform: "uppercase", cursor: "pointer", transition: "all 0.2s", fontFamily: C.sans }}>
+                Voir nos chantiers
+              </motion.button>
+              <motion.button whileHover={{ borderColor: "#fff", color: "#fff" }} whileTap={{ scale: 0.97 }}
+                style={{ padding: "18px 48px", background: "transparent", color: C.muted, border: `2px solid ${C.border}`, fontWeight: 700, fontSize: 14, letterSpacing: 2, textTransform: "uppercase", cursor: "pointer", transition: "all 0.2s", fontFamily: C.sans }}>
+                Demander un devis
+              </motion.button>
+            </div>
           </motion.div>
+        </div>
+      </section>
 
-          <div className="relative z-10 text-center max-w-7xl">
-             <Reveal>
-                <div className="inline-flex items-center gap-4 px-6 py-2 border border-blue-400/30 bg-blue-400/5 text-[10px] font-black uppercase tracking-[0.5em] text-blue-400 mb-12 italic">
-                   <Zap className="w-4 h-4" /> Lithography_Link: NOMINAL // Yield_Rate: 99.98%
+      {/* STATS — count-up on scroll */}
+      <section ref={statsRef} style={{ background: C.orange }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)" }}>
+          {STATS.map((s, i) => (
+            <motion.div key={i} initial={{ opacity: 0, y: 30 }} animate={statsInView ? { opacity: 1, y: 0 } : {}} transition={{ delay: i * 0.1 }}
+              style={{ padding: "60px 48px", borderRight: i < 3 ? "2px solid rgba(255,255,255,0.2)" : undefined, textAlign: "center" }}>
+              <div style={{ fontSize: "clamp(36px, 5vw, 64px)", fontWeight: 900, color: "#fff", letterSpacing: -2, lineHeight: 1 }}>{s.val}</div>
+              <div style={{ fontSize: 12, color: "rgba(255,255,255,0.7)", marginTop: 10, letterSpacing: 1, textTransform: "uppercase" }}>{s.label}</div>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      {/* PROJECTS */}
+      <section ref={projectsRef} style={{ padding: "80px 60px", borderBottom: `1px solid ${C.border}` }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 56 }}>
+          <h2 style={{ fontSize: "clamp(36px, 5vw, 64px)", fontWeight: 900, letterSpacing: -2, textTransform: "uppercase", lineHeight: 1 }}>NOS CHANTIERS</h2>
+          <a href="#" style={{ fontSize: 12, color: C.orange, letterSpacing: 2, textTransform: "uppercase", textDecoration: "none", fontWeight: 700 }}>Voir tous →</a>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 16 }}>
+          {PROJECTS.map((p, i) => (
+            <motion.div key={i} initial={{ opacity: 0, y: 30 }} animate={projectsInView ? { opacity: 1, y: 0 } : {}} transition={{ delay: i * 0.12 }}
+              whileHover={{ borderColor: C.orange }}
+              style={{ border: `1px solid ${C.border}`, padding: "40px", cursor: "pointer", transition: "border-color 0.2s" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
+                <div>
+                  <div style={{ fontSize: 11, color: p.status.includes("Livré") ? C.muted : C.orange, letterSpacing: 2, textTransform: "uppercase", marginBottom: 8 }}>{p.status}</div>
+                  <div style={{ fontSize: 22, fontWeight: 800, color: C.text, letterSpacing: -0.5 }}>{p.name}</div>
                 </div>
-                <motion.h1 style={{ y: textY }} className="text-7xl md:text-[14vw] font-black tracking-tighter uppercase mb-16 leading-[0.75] italic">
-                   Neural <br/> <span className="text-white/5 italic">Forge.</span>
-                </motion.h1>
-                <p className="max-w-3xl mx-auto text-sm md:text-lg text-white/30 leading-relaxed uppercase tracking-widest font-light mb-16 italic">
-                   L'excellence du silicium par la lithographie extrême. Nous concevons les micro-architectures les plus puissantes au monde pour alimenter l'intelligence du futur.
-                </p>
-                
-                <div className="flex flex-col sm:flex-row gap-8 justify-center items-center">
-                   <button className="px-12 py-6 bg-blue-700 text-white text-[10px] font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all shadow-[0_0_40px_rgba(59,130,246,0.2)] flex items-center gap-4 italic">
-                      <Power className="w-5 h-5" /> Start Fabrication
-                   </button>
-                   <button className="px-12 py-6 border border-white/10 text-white text-[10px] font-black uppercase tracking-widest hover:bg-white/5 transition-all flex items-center gap-4 italic">
-                      <Archive className="w-5 h-5" /> Chip Registry
-                   </button>
-                </div>
-             </Reveal>
+                {p.units && <div style={{ fontSize: 32, fontWeight: 900, color: C.orange, letterSpacing: -1 }}>{p.units}<span style={{ fontSize: 14, fontWeight: 400, color: C.muted }}>u</span></div>}
+              </div>
+              <div style={{ fontSize: 13, color: C.muted, marginBottom: 24 }}>{p.type} · {p.location}</div>
+              <div style={{ height: 4, background: C.border, borderRadius: 2 }}>
+                <motion.div initial={{ width: 0 }} animate={projectsInView ? { width: `${p.progress}%` } : {}} transition={{ duration: 1.5, delay: i * 0.12 + 0.3, ease: "easeOut" }}
+                  style={{ height: "100%", background: p.progress === 100 ? C.muted : C.orange, borderRadius: 2 }} />
+              </div>
+              <div style={{ fontSize: 11, color: C.muted, marginTop: 8, letterSpacing: 1 }}>{p.progress}% réalisé</div>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      {/* SERVICES */}
+      <section style={{ padding: "80px 60px", borderBottom: `1px solid ${C.border}` }}>
+        <h2 style={{ fontSize: "clamp(36px, 5vw, 64px)", fontWeight: 900, letterSpacing: -2, textTransform: "uppercase", marginBottom: 56, lineHeight: 1 }}>NOS MÉTIERS</h2>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 2 }}>
+          {SERVICES.map((s, i) => (
+            <motion.div key={i} initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}
+              whileHover={{ borderColor: C.orange, background: "#1a1910" }}
+              style={{ border: `1px solid ${C.border}`, padding: "40px 32px", transition: "all 0.2s", cursor: "pointer" }}>
+              <div style={{ fontSize: 28, color: C.orange, marginBottom: 24, fontWeight: 900 }}>{s.icon}</div>
+              <div style={{ fontSize: 17, fontWeight: 800, color: C.text, marginBottom: 16, letterSpacing: -0.3 }}>{s.name}</div>
+              <p style={{ fontSize: 13, color: C.muted, lineHeight: 1.75 }}>{s.desc}</p>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      {/* TESTIMONIALS */}
+      <section style={{ padding: "80px 60px", borderBottom: `1px solid ${C.border}`, background: "#0d0c0a" }}>
+        <h2 style={{ fontSize: "clamp(36px, 5vw, 64px)", fontWeight: 900, letterSpacing: -2, textTransform: "uppercase", marginBottom: 56, lineHeight: 1 }}>ILS NOUS FONT<br />CONFIANCE</h2>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 32 }}>
+          {TESTIMONIALS.map((t, i) => (
+            <motion.div key={i} initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.15 }}
+              style={{ borderTop: `3px solid ${C.orange}`, paddingTop: 32 }}>
+              <p style={{ fontSize: 15, color: "rgba(232,230,224,0.75)", lineHeight: 1.75, marginBottom: 24 }}>« {t.quote} »</p>
+              <div style={{ fontSize: 13, fontWeight: 700, color: C.text }}>{t.name}</div>
+              <div style={{ fontSize: 12, color: C.muted }}>{t.role}</div>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      {/* PRICING */}
+      <section ref={pricingRef} style={{ padding: "80px 60px", borderBottom: `1px solid ${C.border}` }}>
+        <h2 style={{ fontSize: "clamp(36px, 5vw, 64px)", fontWeight: 900, letterSpacing: -2, textTransform: "uppercase", marginBottom: 56, lineHeight: 1 }}>NOS FORMULES</h2>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16 }}>
+          {PLANS.map((p, i) => (
+            <motion.div key={i} initial={{ opacity: 0, y: 36 }} animate={pricingInView ? { opacity: 1, y: 0 } : {}} transition={{ delay: i * 0.15 }}
+              style={{ background: p.highlight ? "#1a1910" : C.card, border: `2px solid ${p.highlight ? C.orange : C.border}`, padding: "48px 40px", position: "relative" }}>
+              {p.highlight && <div style={{ position: "absolute", top: -1, left: 0, right: 0, height: 3, background: C.orange }} />}
+              <div style={{ fontSize: 11, color: p.highlight ? C.orange : C.muted, letterSpacing: 3, textTransform: "uppercase", marginBottom: 20 }}>{p.name}</div>
+              <div style={{ fontSize: 32, fontWeight: 900, color: C.text, letterSpacing: -1, lineHeight: 1, marginBottom: 6 }}>{p.price}</div>
+              <div style={{ fontSize: 12, color: C.muted, marginBottom: 36 }}>{p.note}</div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 14, marginBottom: 40 }}>
+                {p.features.map((f, j) => (
+                  <div key={j} style={{ display: "flex", gap: 10, fontSize: 13, color: p.highlight ? "rgba(232,230,224,0.8)" : C.muted, alignItems: "flex-start" }}>
+                    <span style={{ color: C.orange, fontWeight: 900, marginTop: 1 }}>→</span> {f}
+                  </div>
+                ))}
+              </div>
+              <motion.button whileHover={{ background: C.orange, color: "#fff", borderColor: C.orange }} whileTap={{ scale: 0.97 }}
+                style={{ width: "100%", padding: "16px", background: p.highlight ? C.orange : "transparent", color: p.highlight ? "#fff" : C.orange, border: `2px solid ${p.highlight ? C.orange : C.border}`, fontWeight: 900, fontSize: 13, letterSpacing: 2, textTransform: "uppercase", cursor: "pointer", transition: "all 0.2s", fontFamily: C.sans }}>
+                Demander un devis
+              </motion.button>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section style={{ maxWidth: 860, margin: "0 auto", padding: "80px 60px" }}>
+        <h2 style={{ fontSize: "clamp(32px, 5vw, 56px)", fontWeight: 900, letterSpacing: -2, textTransform: "uppercase", marginBottom: 48 }}>FAQ</h2>
+        {FAQS.map((f, i) => (
+          <div key={i} style={{ borderBottom: `1px solid ${C.border}` }}>
+            <button onClick={() => setOpenFaq(openFaq === i ? null : i)}
+              style={{ width: "100%", display: "flex", justifyContent: "space-between", alignItems: "center", padding: "22px 0", background: "none", border: "none", color: C.text, cursor: "pointer", textAlign: "left" }}>
+              <span style={{ fontSize: 15, fontWeight: 700 }}>{f.q}</span>
+              <motion.span animate={{ rotate: openFaq === i ? 45 : 0 }} style={{ fontSize: 24, color: C.orange, minWidth: 24 }}>+</motion.span>
+            </button>
+            <AnimatePresence>
+              {openFaq === i && (
+                <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }}>
+                  <p style={{ paddingBottom: 22, fontSize: 14, color: C.muted, lineHeight: 1.8 }}>{f.a}</p>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
+        ))}
+      </section>
 
-          <div className="absolute bottom-12 left-12 right-12 flex justify-between items-end border-t border-white/5 pt-12">
-             <div className="flex flex-col gap-6">
-                <div className="flex items-center gap-4 text-[9px] font-bold text-white/20 uppercase tracking-widest italic">
-                   <div className="w-16 h-px bg-white/10" />
-                   Fab_ID: FORGE-UNIT-42
-                </div>
-                <div className="flex items-center gap-4 text-[9px] font-bold text-white/20 uppercase tracking-widest italic">
-                   <div className="w-16 h-px bg-white/10" />
-                   Purity_Status: CLASS-1_CLEANROOM
-                </div>
-             </div>
-             <div className="text-right flex flex-col items-end gap-4">
-                <span className="text-[8px] font-black uppercase tracking-[0.5em] text-blue-500">Transistor_Gate_Stream</span>
-                <div className="flex gap-2 h-12 items-end">
-                   {[...Array(16)].map((_, i) => (
-                     <motion.div 
-                        key={i}
-                        animate={{ height: ["10%", "100%", "30%", "80%", "10%"] }}
-                        transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.1 }}
-                        className="w-2 bg-blue-500/20"
-                     />
-                   ))}
-                </div>
-             </div>
-          </div>
-        </section>
+      {/* CTA */}
+      <section style={{ background: C.orange, padding: "80px 60px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <h2 style={{ fontSize: "clamp(40px, 6vw, 80px)", fontWeight: 900, letterSpacing: -3, textTransform: "uppercase", color: "#fff", lineHeight: 0.95 }}>
+          VOTRE PROJET,<br />NOTRE CHANTIER.
+        </h2>
+        <div style={{ display: "flex", flexDirection: "column", gap: 12, minWidth: 320 }}>
+          <input placeholder="Email ou téléphone" style={{ padding: "16px 20px", background: "rgba(255,255,255,0.15)", border: "2px solid rgba(255,255,255,0.4)", color: "#fff", fontSize: 15, outline: "none", fontFamily: C.sans }} />
+          <motion.button whileHover={{ background: C.bg, color: C.orange }} whileTap={{ scale: 0.97 }}
+            style={{ padding: "18px", background: "#fff", color: C.orange, border: "none", fontWeight: 900, fontSize: 15, letterSpacing: 1, textTransform: "uppercase", cursor: "pointer", transition: "all 0.2s", fontFamily: C.sans }}>
+            Être rappelé sous 24h →
+          </motion.button>
+        </div>
+      </section>
 
-        {/* ==========================================
-            2. CHIP REGISTRY (DENSE TECHNICAL)
-            ========================================== */}
-        <section className="py-60 bg-[#04060a] relative border-y border-white/5 overflow-hidden">
-           <div className="max-w-[1600px] mx-auto px-8 md:px-24">
-              <div className="flex flex-col md:flex-row items-end justify-between mb-40 gap-12">
-                 <Reveal>
-                    <span className="text-[10px] font-black uppercase tracking-[0.6em] text-blue-500 block mb-6 italic underline underline-offset-8 decoration-blue-400/20">Forge // Semiconductors</span>
-                    <h2 className="text-6xl md:text-[10vw] font-black uppercase tracking-tighter italic leading-none text-white">Registry.</h2>
-                 </Reveal>
-                 <div className="text-right">
-                    <span className="text-[10px] font-black uppercase tracking-[0.5em] text-white/20 block mb-4 italic">Registry // Fabrication_Audit</span>
-                    <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-blue-400">L'Architecture du Silicium</p>
-                 </div>
-              </div>
-
-              <div className="grid md:grid-cols-3 gap-px bg-white/5 border border-white/5 shadow-2xl">
-                 {PROCESSOR_ASSETS.map((chip, i) => (
-                   <Reveal key={chip.id} delay={i * 0.1}>
-                      <div className="bg-[#020408] p-20 flex flex-col h-full hover:bg-white/[0.02] transition-all group cursor-crosshair border-white/5 border-r last:border-r-0">
-                         <div className="flex justify-between items-start mb-16">
-                            <div className="w-16 h-16 bg-white/5 border border-white/10 flex items-center justify-center group-hover:bg-blue-700 group-hover:text-white transition-all duration-500">
-                               <Microchip className="w-8 h-8" />
-                            </div>
-                            <span className={`px-4 py-2 bg-white/5 text-[9px] font-black uppercase tracking-[0.3em] ${chip.status === "In Production" ? "text-blue-500" : "text-white/40"}`}>{chip.status}</span>
-                         </div>
-                         
-                         <h3 className="text-4xl font-black uppercase tracking-tighter mb-8 italic text-white group-hover:translate-x-4 transition-transform">{chip.name}</h3>
-                         <div className="text-[10px] font-black text-white/20 uppercase tracking-[0.5em] mb-12">{chip.type}</div>
-                         
-                         <div className="space-y-8 mb-20 border-l border-blue-400/20 pl-8">
-                            <div className="flex justify-between items-center text-[11px] font-bold uppercase tracking-widest">
-                               <span className="text-white/20">Lithography</span>
-                               <span className="text-white group-hover:text-blue-400 transition-colors">{chip.lithography}</span>
-                            </div>
-                            <div className="flex justify-between items-center text-[11px] font-bold uppercase tracking-widest">
-                               <span className="text-white/20">Frequency</span>
-                               <span className="text-white group-hover:text-blue-400 transition-colors">{chip.frequency}</span>
-                            </div>
-                            <div className="flex justify-between items-center text-[11px] font-bold uppercase tracking-widest">
-                               <span className="text-white/20">Power (TDP)</span>
-                               <span className="text-white group-hover:text-blue-400 transition-colors">{chip.tdp}</span>
-                            </div>
-                         </div>
-
-                         <p className="text-[12px] text-white/30 leading-loose uppercase tracking-[0.2em] font-bold italic mb-16">
-                            {chip.desc}
-                         </p>
-
-                         <div className="mt-auto pt-10 border-t border-white/5 flex justify-between items-center">
-                            <span className="text-[10px] font-black text-white/10 uppercase tracking-widest">Ref: {chip.id}</span>
-                            <button className="text-[10px] font-black uppercase text-white/40 flex items-center gap-4 group-hover:text-white transition-all">
-                               Technical_Specs <ChevronRight className="w-5 h-5" />
-                            </button>
-                         </div>
-                      </div>
-                   </Reveal>
-                 ))}
-              </div>
-           </div>
-        </section>
-
-        {/* ==========================================
-            3. LITHOGRAPHY MONITOR (INTERACTIVE DATA)
-            ========================================== */}
-        <section className="py-60 bg-black relative border-y border-white/5 overflow-hidden">
-           <div className="max-w-[1400px] mx-auto px-8 md:px-24">
-              <div className="grid lg:grid-cols-2 gap-40 items-center">
-                 <div>
-                    <Reveal>
-                       <span className="text-[10px] font-black uppercase tracking-[0.5em] text-blue-500 block mb-12 italic underline underline-offset-8 decoration-blue-400/20">Forge // Performance</span>
-                       <h2 className="text-7xl md:text-[9vw] font-light italic leading-none text-white mb-16 uppercase tracking-tighter">
-                          The <br/> <span className="not-italic font-black text-white/5 italic">Lithography_Link.</span>
-                       </h2>
-                       <p className="text-2xl font-light text-white/20 leading-relaxed mb-24 italic uppercase tracking-[0.2em] max-w-xl">
-                          Surveillance de la fabrication en temps réel. Nos capteurs nanométriques analysent la pureté du wafer et ajustent les paramètres de gravure EUV pour garantir un rendement optimal.
-                       </p>
-                       <div className="grid grid-cols-2 gap-px bg-white/5 border border-white/5 mb-24 shadow-2xl">
-                          {FABRICATION_METRICS.map((metric, i) => (
-                            <div key={i} className="p-16 bg-[#0a0c0e] group hover:bg-white/[0.02] transition-all border-r border-b last:border-r-0 border-white/5">
-                               <div className="text-[10px] font-black uppercase text-blue-500 mb-6 tracking-[0.4em]">{metric.label}</div>
-                               <div className="text-5xl font-black text-white italic mb-6 tracking-tighter group-hover:translate-x-4 transition-transform">{metric.value}</div>
-                               <div className="flex items-center gap-3 text-[9px] font-bold uppercase tracking-[0.3em] text-white/10 italic">
-                                  <Activity className="w-4 h-4 text-blue-400" /> {metric.trend}
-                               </div>
-                            </div>
-                          ))}
-                       </div>
-                       <button 
-                         onClick={() => setIsLithographyActive(!isLithographyActive)}
-                         className="w-full py-8 bg-blue-700 text-white text-[11px] font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all shadow-2xl flex items-center justify-center gap-6 italic"
-                       >
-                          <Settings className="w-5 h-5" /> Re-Sync Lithography Nodes
-                       </button>
-                    </Reveal>
-                 </div>
-                 
-                 <div className="relative">
-                    <Reveal delay={0.3} x={40}>
-                       <div className="aspect-square bg-[#0a0c0e] border border-white/10 p-20 flex flex-col justify-between relative group overflow-hidden shadow-2xl">
-                          <div className="absolute top-0 right-0 p-80 bg-blue-400 opacity-[0.02] blur-[150px] rounded-full group-hover:opacity-[0.05] transition-opacity" />
-                          
-                          <div className="flex justify-between items-start z-10">
-                             <div className="flex flex-col gap-3">
-                                <span className="text-[10px] font-black text-white/10 uppercase tracking-[0.5em]">Forge_Link // LITH-SYNC-v42</span>
-                                <span className="text-[12px] font-black text-white/40 uppercase tracking-[0.6em]">Wafer_Density_Map</span>
-                             </div>
-                             <Wifi className="w-6 h-6 text-blue-400" />
-                          </div>
-                          
-                          {/* LITHOGRAPHY VISUALIZER (SVG) */}
-                          <div className="relative z-10 flex flex-col items-center justify-center h-full">
-                             <div className="w-64 h-64 border border-blue-400/5 rounded-full flex items-center justify-center relative">
-                                <motion.div 
-                                  animate={{ rotate: 360 }}
-                                  transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-                                  className="absolute inset-0 border-t-2 border-blue-400/20 rounded-full" 
-                                />
-                                <motion.div 
-                                  animate={{ rotate: -360 }}
-                                  transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
-                                  className="absolute inset-8 border-b-2 border-blue-400/10 rounded-full" 
-                                />
-                                <Cpu className={`w-24 h-24 transition-colors duration-1000 ${isLithographyActive ? "text-blue-400 animate-pulse" : "text-white/5"}`} />
-                             </div>
-                             <div className="mt-16 text-center space-y-6">
-                                <div className={`text-4xl font-black italic tracking-tighter ${isLithographyActive ? "text-white" : "text-white/20"}`}>
-                                   {isLithographyActive ? "SYNC_ACTIVE" : "SYNC_LOST"}
-                                </div>
-                                <span className="text-[11px] font-bold text-white/10 uppercase tracking-[0.6em] block">Auth_Node: FORGE_UNIT_01</span>
-                             </div>
-                          </div>
-
-                          <div className="relative z-10 flex gap-6">
-                             <div className="flex-1 h-1 bg-white/5 overflow-hidden">
-                                <motion.div 
-                                   animate={isLithographyActive ? { x: ["-100%", "100%"] } : {}}
-                                   transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-                                   className="w-1/2 h-full bg-blue-600"
-                                />
-                             </div>
-                          </div>
-                       </div>
-                    </Reveal>
-                 </div>
-              </div>
-           </div>
-        </section>
-
-        {/* ==========================================
-            4. FORGE STORY (TECH STORYTELLING)
-            ========================================== */}
-        <section className="py-60 bg-[#020408] relative overflow-hidden border-t border-white/5">
-           <div className="max-w-[1400px] mx-auto px-8 md:px-24">
-              <div className="grid lg:grid-cols-2 gap-40 items-center">
-                 <div className="relative aspect-[3/4] overflow-hidden group border border-white/5 shadow-2xl">
-                    <Image 
-                       src="https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1200&auto=format&fit=crop" 
-                       alt="Semiconductor Fabrication" 
-                       fill 
-                       className="object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-[2000ms]"
-                    />
-                    <div className="absolute inset-0 bg-blue-900/10 mix-blend-color group-hover:opacity-0 transition-opacity" />
-                    <div className="absolute inset-0 p-20 flex flex-col justify-end bg-gradient-to-t from-black via-black/40 to-transparent">
-                       <div className="text-white">
-                          <span className="text-[11px] font-black uppercase tracking-[0.6em] text-blue-500 mb-8 block italic underline underline-offset-8 decoration-blue-400/20">Atelier // Purity // Unit</span>
-                          <h4 className="text-6xl font-black tracking-tighter uppercase italic mb-12 mix-blend-difference text-white">Silicon <br/> Fabric.</h4>
-                          <button className="flex items-center gap-6 text-[11px] font-black uppercase tracking-[0.4em] border-b border-white/20 pb-4 hover:border-blue-400 transition-all group">
-                             Forge Protocols <ExternalLink className="w-5 h-5 group-hover:translate-x-2 group-hover:-translate-y-2 transition-transform" />
-                          </button>
-                       </div>
-                    </div>
-                 </div>
-
-                 <div>
-                    <Reveal>
-                       <div className="mb-24 text-left">
-                          <span className="text-[10px] font-black uppercase tracking-[0.5em] text-blue-500 mb-8 block italic">Chapitre III // Synthesis</span>
-                          <h2 className="text-7xl md:text-[10vw] font-black tracking-tighter uppercase text-white italic leading-none text-white">Pure_Logic.</h2>
-                       </div>
-                       <p className="text-2xl font-light text-white/20 leading-relaxed italic mb-20 uppercase tracking-[0.2em]">
-                          Le silicium est notre canevas. Nous utilisons la lumière EUV pour sculpter des milliards de transistors, créant ainsi les fondations de l'intelligence artificielle moderne.
-                       </p>
-                       <div className="space-y-20">
-                          {[
-                            { t: "Extreme UV Exposure", d: "Utilisation de longueurs d'onde de 13.5nm pour graver des circuits d'une précision atomique." },
-                            { t: "Wafer Polishing", d: "Aplanissement mécano-chimique du silicium pour garantir une planéité absolue avant chaque couche de gravure." },
-                            { t: "Functional Testing", d: "Surveillance automatisée par IA de chaque transistor pour garantir une fiabilité maximale post-fabrication." }
-                          ].map((step, i) => (
-                            <div key={i} className="group flex gap-12 border-b border-white/5 pb-16 hover:border-blue-400/20 transition-all cursor-default">
-                               <div className="text-6xl font-black text-white/5 group-hover:text-blue-400/20 transition-colors italic leading-none">0{i+1}</div>
-                               <div>
-                                  <h5 className="text-3xl font-black uppercase tracking-tight text-white mb-6 italic group-hover:translate-x-4 transition-transform text-white">{step.t}</h5>
-                                  <p className="text-[12px] text-white/20 uppercase tracking-[0.3em] font-bold leading-loose italic">{step.d}</p>
-                               </div>
-                            </div>
-                          ))}
-                       </div>
-                    </Reveal>
-                 </div>
-              </div>
-           </div>
-        </section>
-
-        {/* MEGA FOOTER */}
-        <footer className="bg-black pt-60 pb-12 px-8 md:px-24 relative z-50">
-           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-32 mb-60 text-white">
-              <div className="lg:col-span-2">
-                 <div className="flex items-center gap-6 mb-16">
-                    <div className="w-16 h-16 bg-blue-700 flex items-center justify-center">
-                      <Cpu className="w-10 h-10 text-white" />
-                    </div>
-                    <span className="text-4xl font-black uppercase tracking-tighter italic">NEURAL<span className="text-white/20">FORGE.</span></span>
-                 </div>
-                 <p className="text-white/20 text-[11px] font-black uppercase tracking-[0.5em] leading-loose max-w-sm mb-20 italic">
-                    "La micro-architecture au service de l'intelligence." — Archive Forge V.42
-                 </p>
-                 <div className="flex gap-16">
-                    {["ForgeLog", "ChipRegistry", "GitHub", "X_Protocol"].map(s => (
-                      <Link key={s} href="#" className="text-[11px] font-black uppercase tracking-widest text-white/20 hover:text-blue-500 transition-colors italic underline underline-offset-8 decoration-white/5">{s}</Link>
-                    ))}
-                 </div>
-              </div>
-
-              {[
-                { t: "CHIPS", l: ["Neural Unit X-1", "Quantum-Core Z", "Photon-Link v5", "Hybrid Logic"] },
-                { t: "TECHNOLOGY", l: ["EUV Lithography", "Wafer Polishing", "Ion Implantation", "SLA Reports"] },
-                { t: "ATELIER", l: ["Our Legacy", "Sustainability", "Locations", "Support"] }
-              ].map((col, i) => (
-                <div key={i} className="flex flex-col gap-12">
-                  <h4 className="text-[11px] font-black text-blue-400 uppercase tracking-[0.6em] italic">{col.t}</h4>
-                  <ul className="flex flex-col gap-8">
-                    {col.l.map(link => (
-                      <li key={link} className="text-[11px] font-bold text-white/20 hover:text-white transition-colors cursor-pointer uppercase tracking-[0.4em] italic">{link}</li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-           </div>
-
-           <div className="max-w-[1600px] mx-auto border-t border-white/5 pt-16 flex flex-col md:flex-row justify-between items-center gap-16 text-[10px] font-black text-white/10 uppercase tracking-[0.6em] italic">
-              <span>© 2026 NEURAL FORGE SEMICONDUCTOR FABRICATION AG. // ALL_RIGHTS_RESERVED</span>
-              <div className="flex gap-16">
-                 <span>STATUS: OPERATIONAL</span>
-                 <span>YIELD: 99.98% (AVG)</span>
-                 <span>v4.12.0-STABLE</span>
-              </div>
-           </div>
-        </footer>
-      </main>
-    </div>
-  )
-}
-
-/* ==========================================
-   TECHNICAL SUB-COMPONENTS
-   ========================================== */
-
-function HUD_Overlay({ isLithographyActive }: { isLithographyActive: boolean }) {
-  return (
-    <div className="fixed inset-0 pointer-events-none z-[100]">
-       {/* Corner Brackets */}
-       <div className={`absolute top-12 left-12 w-20 h-20 border-t-2 border-l-2 transition-colors duration-1000 ${isLithographyActive ? "border-blue-400" : "border-white/10"}`} />
-       <div className={`absolute top-12 right-12 w-20 h-20 border-t-2 border-r-2 transition-colors duration-1000 ${isLithographyActive ? "border-blue-400" : "border-white/10"}`} />
-       <div className={`absolute bottom-12 left-12 w-20 h-20 border-b-2 border-l-2 transition-colors duration-1000 ${isLithographyActive ? "border-blue-400" : "border-white/10"}`} />
-       <div className={`absolute bottom-12 right-12 w-20 h-20 border-b-2 border-r-2 transition-colors duration-1000 ${isLithographyActive ? "border-blue-400" : "border-white/10"}`} />
-
-       {/* Top Status Bar */}
-       <div className="absolute top-12 left-1/2 -translate-x-1/2 flex items-center gap-20 bg-black/60 backdrop-blur-2xl px-12 py-4 border border-white/10 rounded-none">
-          <div className="flex items-center gap-6 text-white">
-             <div className={`w-3 h-3 transition-colors duration-500 ${isLithographyActive ? "bg-blue-400 animate-pulse" : "bg-red-500 animate-ping"}`} />
-             <span className="text-[10px] font-black uppercase tracking-[0.4em] italic leading-none">Forge_Sync: {isLithographyActive ? "NOMINAL" : "DATA_LOSS"} // Status: ACTIVE</span>
-          </div>
-          <div className="h-4 w-px bg-white/20" />
-          <div className="flex items-center gap-6 text-white/20">
-             <Wifi className="w-4 h-4" /> 
-             <span className="text-[10px] font-black uppercase tracking-[0.4em] italic leading-none">Forge_Grid: SECURE</span>
-          </div>
-       </div>
-
-       {/* Right Rotation Info */}
-       <div className="absolute right-12 top-1/2 -translate-y-1/2 rotate-90 origin-right hidden lg:block">
-          <span className="text-[10px] font-black uppercase tracking-[0.8em] text-white/5 italic">Unauthorized_Duplication_Of_Silicon_Patterns_Is_Strictly_Monitored_By_Global_Forge_Alliance</span>
-       </div>
+      {/* FOOTER */}
+      <footer style={{ background: "#0a0908", padding: "40px 60px", display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: `2px solid ${C.border}` }}>
+        <div style={{ fontSize: 14, fontWeight: 900, letterSpacing: 2, textTransform: "uppercase", color: C.text }}>Structure Bâtisseurs · Depuis 1989</div>
+        <div style={{ fontSize: 12, color: C.muted }}>© 2025 · Mentions légales · RGPD · Kbis disponible sur demande</div>
+      </footer>
     </div>
   )
 }

@@ -1,509 +1,371 @@
 "use client"
-
-import React, { useState, useEffect, useRef } from "react"
-import { 
-  motion, 
-  AnimatePresence, 
-  useScroll, 
-  useTransform, 
-  useInView, 
-  useSpring 
-} from "framer-motion"
+import { motion, useScroll, useTransform, useInView, AnimatePresence, useMotionValue, useSpring } from "framer-motion"
+import { useState, useRef, useEffect } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { 
-  Shield, Lock, Key, Eye, 
-  BarChart3, PieChart, TrendingUp, Globe, 
-  Zap, Database, Activity, Landmark, 
-  ShieldCheck, ShieldAlert, Award, Briefcase, 
-  Terminal, Settings, Power, Info, 
-  AlertTriangle, ChevronRight, ArrowRight, 
-  Share2, Maximize2, Download, ExternalLink, 
-  Archive, Hash, Wifi, Microscope, 
-  Fingerprint, Scan, Brain, Layers, 
-  Frame, Box, Target, Orbit, 
-  Atom, Satellite, Milestone, Gauge, 
-  Timer, Cloud, Signal, Search,
-  Navigation, Code, Command, Grid,
-  Radar, Lightbulb, User, Heart,
-  Dna, Smartphone, Bluetooth, Watch,
-  CreditCard, Coins, DollarSign, Euro
-} from "lucide-react"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
+import { Badge } from "@/components/ui/badge"
+import { Card, CardContent } from "@/components/ui/card"
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel"
+import { Progress } from "@/components/ui/progress"
+import { Separator } from "@/components/ui/separator"
+import { BookOpen, ArrowRight, Search, Menu, Twitter, Instagram, Linkedin, Rss, Star, Check, TrendingUp, Users, Clock } from "lucide-react"
 
-/* ==========================================================================
-   THE AEGIS VAULT DATASET (ULTRA DENSITY)
-   ========================================================================== */
-
-const ASSET_CLASSES = [
-  {
-    id: "asset-re-01",
-    name: "Prime Real Estate",
-    allocation: "35%",
-    yield: "4.2%",
-    risk: "Low",
-    regions: "London, NYC, Singapore",
-    desc: "Acquisition de biens immobiliers trophées dans les juridictions les plus stables au monde.",
-    status: "Stable"
-  },
-  {
-    id: "asset-pe-04",
-    name: "Private Equity",
-    allocation: "25%",
-    yield: "14.8%",
-    risk: "High",
-    regions: "Silicon Valley, Tel Aviv",
-    desc: "Investissements directs dans des licornes technologiques et des infrastructures de nouvelle génération.",
-    status: "Growth"
-  },
-  {
-    id: "asset-art-09",
-    name: "Rare Collectibles",
-    allocation: "15%",
-    yield: "6.5%",
-    risk: "Medium",
-    regions: "Geneva Free Ports",
-    desc: "Curateur de chefs-d'œuvre de l'art moderne et de manuscrits historiques à haute valeur de conservation.",
-    status: "Curated"
-  }
-]
-
-const PERFORMANCE_METRICS = [
-  { label: "Intergenerational Growth", value: "+124%", trend: "Stable" },
-  { label: "Liquidity Ratio", value: "18.4%", trend: "Nominal" },
-  { label: "Tax Optimization", value: "94.2%", trend: "Maximum" },
-  { label: "Security Health", value: "100%", trend: "Fortified" }
-]
-
-const SECURITY_LOGS = [
-  { timestamp: "14:12:42", event: "Biometric Handshake: Level 5", status: "VERIFIED" },
-  { timestamp: "14:12:45", event: "Quantum Encryption Sync", status: "ACTIVE" },
-  { timestamp: "14:12:48", event: "Physical Vault Status: Zurich", status: "SECURE" }
-]
-
-/* ==========================================================================
-   TECHNICAL COMPONENTS
-   ========================================================================== */
-
-function Reveal({ children, delay = 0, y = 40, x = 0 }: { children: React.ReactNode, delay?: number, y?: number, x?: number }) {
+function Reveal({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
   const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, margin: "-100px" })
+  const isInView = useInView(ref, { once: true, margin: "-80px" })
   return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, y, x }}
-      animate={isInView ? { opacity: 1, y: 0, x: 0 } : {}}
-      transition={{ duration: 1.2, delay, ease: [0.16, 1, 0.3, 1] }}
-    >
+    <motion.div ref={ref} initial={{ opacity: 0, y: 32 }} animate={isInView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.6, delay, ease: [0.22, 1, 0.36, 1] }}>
       {children}
     </motion.div>
   )
 }
 
-function VaultDoorSVG({ progress }: { progress: any }) {
-  const rotate = useTransform(progress, [0, 0.5], [0, 360])
-  const scale = useTransform(progress, [0, 0.5], [1, 2.5])
-  const opacity = useTransform(progress, [0, 0.3, 0.5], [1, 1, 0])
-
-  return (
-    <motion.div style={{ rotate, scale, opacity }} className="w-[600px] h-[600px] relative pointer-events-none opacity-20">
-       <svg viewBox="0 0 100 100" className="w-full h-full fill-none stroke-gold-500/20 stroke-[0.5]">
-          <circle cx="50" cy="50" r="45" />
-          <circle cx="50" cy="50" r="35" />
-          {[...Array(12)].map((_, i) => (
-            <line 
-              key={i} 
-              x1="50" y1="10" x2="50" y2="20" 
-              transform={`rotate(${i * 30} 50 50)`} 
-              stroke="white" 
-              strokeWidth="0.2"
-            />
-          ))}
-          <motion.path 
-            d="M50 20 L50 30 M50 70 L50 80 M20 50 L30 50 M70 50 L80 50" 
-            stroke="gold" 
-            strokeWidth="0.5" 
-          />
-       </svg>
-    </motion.div>
-  )
+const FEATURED_ARTICLE = {
+  cat: "STRATÉGIE",
+  title: "Pourquoi 94% des startups B2B ratent leur go-to-market (et comment faire partie des 6%)",
+  excerpt: "Analyse de 340 startups européennes sur 5 ans : les patterns qui séparent les gagnants des losers, les erreurs fatales commises avant même le premier client.",
+  author: "Marc Delacroix",
+  readTime: "12 min",
+  date: "8 mai 2026",
+  img: "photo-1460925895917-afdab827c52f",
 }
 
-function SectionTitle({ subtitle, title, alignment = "left" }: { subtitle: string, title: string, alignment?: "center" | "left" }) {
-  return (
-    <div className={`mb-32 ${alignment === "center" ? "text-center" : "text-left"}`}>
-       <Reveal>
-          <span className="text-[10px] font-black uppercase tracking-[0.6em] text-gold-500/60 mb-8 block italic underline underline-offset-8 decoration-gold-500/20 font-serif">
-             {subtitle}
-          </span>
-          <h2 className="text-6xl md:text-[8vw] font-light tracking-tighter uppercase text-white italic font-serif leading-none">
-             {title}
-          </h2>
-       </Reveal>
-    </div>
-  )
-}
+const ARTICLES = [
+  { cat: "PRODUCT", title: "Le product-led growth est mort. Vive le product-led sales.", author: "Sophie Chen", readTime: "8 min", img: "photo-1551288049-bebda4e38f71" },
+  { cat: "MARKETING", title: "SEO en 2026 : les 5 signaux qui comptent vraiment (les autres sont du bruit)", author: "Thomas Müller", readTime: "11 min", img: "photo-1432888622747-4eb9a8efeb07" },
+  { cat: "FINANCEMENT", title: "Lever 2M€ en pre-seed sans VC : le playbook complet d'une fondatrice", author: "Camille Aubert", readTime: "15 min", img: "photo-1507679799987-c73779587ccf" },
+  { cat: "IA & TECH", title: "RAG vs Fine-tuning : guide décisionnel pour les équipes produit non-téchniques", author: "Kevin Park", readTime: "9 min", img: "photo-1677442135703-1787eea5ce01" },
+  { cat: "CULTURE", title: "Remote-first à 80 personnes : les rituels qui ont sauvé notre culture d'équipe", author: "Julie Fontaine", readTime: "7 min", img: "photo-1522071820081-009f0129c71c" },
+  { cat: "VENTES", title: "Cold outreach en 2026 : les séquences qui génèrent 40% de reply rate", author: "Antoine Lebrun", readTime: "10 min", img: "photo-1563013544-824ae1b704d3" },
+]
 
-/* ==========================================
-   THE AEGIS VAULT - MAIN INTERFACE
-   ========================================== */
+const CATEGORIES = ["Stratégie", "Product", "Marketing", "IA & Tech", "Financement", "Culture", "Ventes"]
 
-export default function AegisVaultPremium() {
-  const [activeAsset, setActiveAsset] = useState(0)
-  const [isVaultLocked, setIsVaultLocked] = useState(true)
+const STATS = [
+  { val: "48 000+", label: "Lecteurs actifs" },
+  { val: "2x/sem.", label: "Newsletters" },
+  { val: "340+", label: "Articles publiés" },
+  { val: "4.8/5", label: "Note lecteurs" },
+]
+
+const TESTIMONIALS = [
+  { name: "Claire Dupont", role: "CMO, Spendr", rating: 5, text: "Essentiel — la seule newsletter que j'ouvre toujours en premier. Chaque article change ma façon de travailler. L'article sur le PLG m'a fait repenser toute notre stratégie product.", avatar: "CD" },
+  { name: "Alexandre Martin", role: "Fondateur, NordX", rating: 5, text: "Le niveau d'analyse est incomparable avec ce qu'on trouve ailleurs. Pas de bullshit, pas de checklists vides — juste des insights actionnables avec des vraies données.", avatar: "AM" },
+  { name: "Sophie Renard", role: "Partner, Accel Paris", rating: 5, text: "Je partage les articles à tous mes portfolios. La qualité éditoriale est proche de Harvard Business Review mais avec une praticité que HBR n'a pas.", avatar: "SR" },
+  { name: "Thomas Girard", role: "CEO, Growthly", rating: 5, text: "J'ai recruté 3 membres de mon équipe grâce aux offres partagées dans la newsletter. La communauté est exactement le réseau dont j'avais besoin.", avatar: "TG" },
+  { name: "Marie Chen", role: "Head of Growth, Aevia", rating: 5, text: "La série 'Go-to-market réel' est la meilleure ressource que j'ai trouvée sur le sujet. Des cas pratiques avec des vraies chiffres — du jamais vu.", avatar: "MC" },
+]
+
+const PLANS = [
+  { name: "Gratuit", price: "0", desc: "L'essentiel pour démarrer", features: ["2 articles/semaine en accès libre", "Newsletter hebdo résumé", "Archive 30 jours", "Accès app mobile"] },
+  { name: "Pro", price: "12", desc: "Pour les pros qui veulent tout", featured: true, features: ["Articles illimités sans limite", "Newsletter premium 2x/sem.", "Archive complète 340+ articles", "Synthèses audio des meilleurs articles", "Accès communauté Slack (2 400 membres)", "Replays des événements live", "Téléchargement PDF & epub"] },
+  { name: "Équipe", price: "39", desc: "Pour toute votre équipe", features: ["Tout Pro inclus", "Jusqu'à 10 sièges inclus", "Tableau de bord lecture équipe", "Articles partagés & annotations", "Formation onboarding dédiée", "Facturation entreprise"] },
+]
+
+const FAQS = [
+  { q: "À quelle fréquence publiez-vous ?", a: "Deux articles longs formats par semaine (mardi et jeudi), plus une synthèse de curation le vendredi. Les abonnés Pro reçoivent en plus une newsletter premium le dimanche avec des analyses exclusives." },
+  { q: "Qui écrit les articles ?", a: "Notre équipe de 8 rédacteurs spécialisés, tous anciens opérationnels (ex-fondateurs, VP Product, CMO). Chaque article est édité par notre rédacteur en chef et fact-checké par un expert externe." },
+  { q: "Puis-je accéder aux anciens articles ?", a: "Les abonnés gratuits ont accès aux 30 derniers jours. Les abonnés Pro ont accès à l'intégralité de l'archive depuis 2018 — soit 340+ articles, classés par thème et niveau de séniorité." },
+  { q: "Y a-t-il une version audio ?", a: "Oui, les abonnés Pro bénéficient de synthèses audio de 10-15 minutes pour chaque article long format, disponibles dès la publication. Parfait pour écouter en transports ou en sport." },
+  { q: "Comment fonctionne la communauté Slack ?", a: "Les abonnés Pro rejoignent un Slack privé de 2 400 professionnels. Des fils thématiques (product, growth, financement...), des AMA réguliers avec des experts invités, et des offres emploi exclusives." },
+  { q: "Puis-je annuler à tout moment ?", a: "Oui, annulation possible à tout moment depuis votre espace abonné. Aucun engagement, aucun frais de résiliation. Vous conservez l'accès jusqu'à la fin de votre période payée." },
+]
+
+export default function EssentialBlogPage() {
+  const [mobileOpen, setMobileOpen] = useState(false)
+  const [searchOpen, setSearchOpen] = useState(false)
   const containerRef = useRef(null)
-  const { scrollYProgress } = useScroll({ target: containerRef })
+  const { scrollY } = useScroll()
+  const titleX = useTransform(scrollY, [0, 400], ["0%", "-8%"])
 
   return (
-    <div ref={containerRef} className="bg-[#050505] text-[#e0e2e5] font-serif selection:bg-gold-500/30 selection:text-white min-h-screen overflow-x-hidden transition-colors duration-1000">
-      
-      {/* GLOBAL HUD OVERLAY */}
-      <HUD_Overlay isVaultLocked={isVaultLocked} />
+    <div style={{ overflowX: "hidden", scrollBehavior: "smooth", background: "#f8f7f4", color: "#0d0d0d", fontFamily: "'Times New Roman', Georgia, serif" }}>
 
-      <main>
-        {/* ==========================================
-            1. VAULT IGNITION (HERO)
-            ========================================== */}
-        <section className="relative h-screen flex flex-col justify-center items-center px-8 md:px-24 overflow-hidden pt-20">
-          <div className="absolute inset-0 z-0 bg-[radial-gradient(circle_at_center,#d4af3710_1px,transparent_1px)] bg-[size:60px_60px]" />
-          
-          <div className="absolute z-0 flex items-center justify-center">
-             <VaultDoorSVG progress={scrollYProgress} />
+      {/* NAVBAR — horizontal editorial bar */}
+      <motion.nav initial={{ y: -64, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.6 }}
+        style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 50, background: "#0d0d0d", borderBottom: "none" }}>
+        <div style={{ maxWidth: 1400, margin: "0 auto", padding: "0 32px", display: "flex", alignItems: "center", justifyContent: "space-between", height: 56 }}>
+          <div style={{ display: "flex", gap: 28, alignItems: "center" }}>
+            <Link href="/" style={{ fontSize: 18, fontWeight: 700, color: "#f8f7f4", textDecoration: "none", letterSpacing: "-0.01em", fontFamily: "system-ui" }}>
+              L'Essentiel
+            </Link>
+            <div style={{ display: "flex", gap: 20 }} className="hidden md:flex">
+              {CATEGORIES.slice(0, 5).map(cat => (
+                <a key={cat} href="#" style={{ color: "rgba(248,247,244,0.5)", textDecoration: "none", fontSize: 12, fontFamily: "system-ui", fontWeight: 500, letterSpacing: "0.06em", transition: "color 0.2s" }}
+                  onMouseEnter={e => (e.currentTarget.style.color = "#f8f7f4")}
+                  onMouseLeave={e => (e.currentTarget.style.color = "rgba(248,247,244,0.5)")}>
+                  {cat.toUpperCase()}
+                </a>
+              ))}
+            </div>
           </div>
-
-          <div className="relative z-10 text-center max-w-7xl">
-             <Reveal>
-                <div className="inline-flex items-center gap-4 px-6 py-2 border border-gold-500/30 bg-gold-500/5 text-[10px] font-black uppercase tracking-[0.5em] text-gold-500 mb-12 italic font-sans">
-                   <ShieldCheck className="w-4 h-4" /> Security_Status: Multi_Layer_Fortified // v4.2.0
+          <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
+            <button onClick={() => setSearchOpen(true)} style={{ background: "none", border: "none", color: "rgba(248,247,244,0.6)", cursor: "pointer" }}>
+              <Search size={18} />
+            </button>
+            <motion.button whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}
+              style={{ padding: "7px 18px", background: "#e8d44d", color: "#0d0d0d", border: "none", borderRadius: 4, fontSize: 12, fontFamily: "system-ui", fontWeight: 800, letterSpacing: "0.06em", cursor: "pointer" }}>
+              S'ABONNER
+            </motion.button>
+            <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+              <SheetTrigger asChild>
+                <button style={{ background: "none", border: "none", color: "#f8f7f4", cursor: "pointer" }} className="md:hidden block"><Menu size={22} /></button>
+              </SheetTrigger>
+              <SheetContent side="left" style={{ background: "#0d0d0d", width: 300 }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: 20, paddingTop: 48 }}>
+                  {CATEGORIES.map(cat => (
+                    <a key={cat} href="#" onClick={() => setMobileOpen(false)} style={{ color: "#f8f7f4", textDecoration: "none", fontSize: 16, fontFamily: "system-ui", fontWeight: 600 }}>{cat}</a>
+                  ))}
                 </div>
-                <h1 className="text-7xl md:text-[14vw] font-light tracking-tighter uppercase mb-16 leading-[0.75] italic">
-                   Aegis <br/> <span className="text-white/5 italic">Vault.</span>
-                </h1>
-                <p className="max-w-3xl mx-auto text-sm md:text-lg text-white/30 leading-relaxed uppercase tracking-widest font-light mb-16 italic font-sans">
-                   L'épicentre mondial de la préservation de fortune. Nous forgeons les structures de demain pour protéger le patrimoine des générations futures.
-                </p>
-                
-                <div className="flex flex-col sm:flex-row gap-8 justify-center items-center font-sans">
-                   <button className="px-12 py-6 bg-gold-600 text-black text-[10px] font-black uppercase tracking-widest hover:bg-white transition-all shadow-[0_0_40px_rgba(212,175,55,0.2)] flex items-center gap-4 italic">
-                      <Lock className="w-5 h-5" /> Access Portfolio
-                   </button>
-                   <button className="px-12 py-6 border border-white/10 text-white text-[10px] font-black uppercase tracking-widest hover:bg-white/5 transition-all flex items-center gap-4 italic">
-                      <Globe className="w-5 h-5" /> Global Jurisdictions
-                   </button>
-                </div>
-             </Reveal>
+              </SheetContent>
+            </Sheet>
           </div>
+        </div>
+      </motion.nav>
 
-          <div className="absolute bottom-12 left-12 right-12 flex justify-between items-end border-t border-white/5 pt-12 font-sans">
-             <div className="flex flex-col gap-6">
-                <div className="flex items-center gap-4 text-[9px] font-bold text-white/20 uppercase tracking-widest italic">
-                   <div className="w-16 h-px bg-white/10" />
-                   Vault_ID: AEGIS-77-ZRH
-                </div>
-                <div className="flex items-center gap-4 text-[9px] font-bold text-white/20 uppercase tracking-widest italic">
-                   <div className="w-16 h-px bg-white/10" />
-                   Legacy_Status: Generational
-                </div>
-             </div>
-             <div className="text-right flex flex-col items-end gap-4">
-                <span className="text-[8px] font-black uppercase tracking-[0.5em] text-gold-500/60">Asset_Flux_Monitor</span>
-                <div className="flex gap-2 h-12 items-end">
-                   {[...Array(16)].map((_, i) => (
-                     <motion.div 
-                        key={i}
-                        animate={{ height: ["20%", "100%", "40%", "90%", "20%"] }}
-                        transition={{ duration: 2, repeat: Infinity, delay: i * 0.1 }}
-                        className="w-2 bg-gold-500/10"
-                     />
-                   ))}
-                </div>
-             </div>
-          </div>
-        </section>
+      {/* HERO — oversized scrolling title */}
+      <section style={{ paddingTop: 56, background: "#0d0d0d", overflow: "hidden", position: "relative" }}>
+        <div style={{ padding: "60px 0 0", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+          {/* Oversized scrolling headline */}
+          <motion.div style={{ x: titleX }} className="whitespace-nowrap">
+            <div style={{ fontSize: "clamp(80px, 14vw, 180px)", fontWeight: 900, lineHeight: 0.9, letterSpacing: "-0.04em", color: "#f8f7f4", padding: "0 40px 32px", fontFamily: "system-ui", display: "inline-block", whiteSpace: "nowrap" }}>
+              STRATÉGIE · PRODUCT · GROWTH · MARKETING · IA · CULTURE ·
+            </div>
+          </motion.div>
 
-        {/* ==========================================
-            2. ASSET ALLOCATION (DENSE GRID)
-            ========================================== */}
-        <section className="py-60 bg-[#080808] relative border-y border-white/5 overflow-hidden font-sans">
-           <div className="max-w-[1600px] mx-auto px-8 md:px-24">
-              <div className="flex flex-col md:flex-row items-end justify-between mb-40 gap-12">
-                 <Reveal>
-                    <span className="text-[10px] font-black uppercase tracking-[0.6em] text-gold-500/60 block mb-6 italic underline underline-offset-8 decoration-gold-500/20">Portfolio // Matrix</span>
-                    <h2 className="text-6xl md:text-[10vw] font-light uppercase tracking-tighter italic leading-none text-white font-serif">Allocations.</h2>
-                 </Reveal>
-                 <div className="text-right">
-                    <span className="text-[10px] font-black uppercase tracking-[0.5em] text-white/20 block mb-4 italic">Registry // Wealth_Audit</span>
-                    <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-gold-500/60">L'Architecture de la Préservation</p>
-                 </div>
+          {/* Featured article */}
+          <div style={{ padding: "40px 40px 0", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 40, alignItems: "end", maxWidth: 1400, margin: "0 auto" }}>
+            <div style={{ paddingBottom: 48 }}>
+              <Badge style={{ background: "rgba(232,212,77,0.15)", color: "#e8d44d", border: "1px solid rgba(232,212,77,0.3)", fontSize: 11, letterSpacing: "0.12em", marginBottom: 20, fontFamily: "system-ui" }}>{FEATURED_ARTICLE.cat}</Badge>
+              <h1 style={{ fontSize: "clamp(28px, 3.5vw, 44px)", fontWeight: 700, lineHeight: 1.15, letterSpacing: "-0.02em", marginBottom: 20, color: "#f8f7f4" }}>
+                {FEATURED_ARTICLE.title}
+              </h1>
+              <p style={{ fontSize: 16, color: "rgba(248,247,244,0.65)", fontFamily: "system-ui", lineHeight: 1.7, marginBottom: 28 }}>{FEATURED_ARTICLE.excerpt}</p>
+              <div style={{ display: "flex", alignItems: "center", gap: 20, flexWrap: "wrap" }}>
+                <span style={{ fontSize: 13, color: "rgba(248,247,244,0.5)", fontFamily: "system-ui" }}>Par {FEATURED_ARTICLE.author}</span>
+                <span style={{ fontSize: 13, color: "rgba(248,247,244,0.5)", fontFamily: "system-ui" }}>{FEATURED_ARTICLE.readTime} de lecture</span>
+                <span style={{ fontSize: 13, color: "rgba(248,247,244,0.5)", fontFamily: "system-ui" }}>{FEATURED_ARTICLE.date}</span>
               </div>
+              <motion.button whileHover={{ gap: 12 }} style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 32, padding: "13px 24px", background: "#e8d44d", color: "#0d0d0d", border: "none", borderRadius: 4, fontSize: 13, fontFamily: "system-ui", fontWeight: 800, letterSpacing: "0.06em", cursor: "pointer" }}>
+                LIRE L'ARTICLE <ArrowRight size={16} />
+              </motion.button>
+            </div>
+            <div style={{ position: "relative", aspectRatio: "4/3", overflow: "hidden" }}>
+              <Image src={`https://images.unsplash.com/${FEATURED_ARTICLE.img}?w=700&q=80`} alt="Featured" fill style={{ objectFit: "cover" }} />
+              <div style={{ position: "absolute", inset: 0, background: "rgba(13,13,13,0.1)" }} />
+            </div>
+          </div>
+        </div>
+      </section>
 
-              <div className="grid md:grid-cols-3 gap-px bg-white/5 border border-white/5 shadow-2xl">
-                 {ASSET_CLASSES.map((asset, i) => (
-                   <Reveal key={asset.id} delay={i * 0.1}>
-                      <div className="bg-[#050505] p-20 flex flex-col h-full hover:bg-white/[0.02] transition-all group cursor-crosshair border-white/5 border-r last:border-r-0">
-                         <div className="flex justify-between items-start mb-16">
-                            <div className="w-16 h-16 bg-white/5 border border-white/10 flex items-center justify-center group-hover:bg-gold-600 group-hover:text-black transition-all duration-500">
-                               <Briefcase className="w-8 h-8" />
-                            </div>
-                            <span className={`px-4 py-2 bg-white/5 text-[9px] font-black uppercase tracking-[0.3em] ${asset.status === "Growth" ? "text-gold-500" : "text-white/40"}`}>{asset.status}</span>
-                         </div>
-                         
-                         <h3 className="text-5xl font-light uppercase tracking-tighter mb-8 italic text-white group-hover:translate-x-4 transition-transform font-serif">{asset.name}</h3>
-                         <div className="text-[10px] font-black text-white/20 uppercase tracking-[0.5em] mb-12">{asset.regions}</div>
-                         
-                         <div className="space-y-8 mb-20 border-l border-gold-500/20 pl-8">
-                            <div className="flex justify-between items-center text-[11px] font-bold uppercase tracking-widest">
-                               <span className="text-white/20">Allocation</span>
-                               <span className="text-white group-hover:text-gold-500 transition-colors">{asset.allocation}</span>
-                            </div>
-                            <div className="flex justify-between items-center text-[11px] font-bold uppercase tracking-widest">
-                               <span className="text-white/20">Yield (Ann.)</span>
-                               <span className="text-white group-hover:text-gold-500 transition-colors">{asset.yield}</span>
-                            </div>
-                            <div className="flex justify-between items-center text-[11px] font-bold uppercase tracking-widest">
-                               <span className="text-white/20">Risk Factor</span>
-                               <span className="text-white group-hover:text-gold-500 transition-colors">{asset.risk}</span>
-                            </div>
-                         </div>
+      {/* STATS BAR — white background */}
+      <section style={{ padding: "32px 40px", background: "#f8f7f4", borderBottom: "2px solid #0d0d0d" }}>
+        <div style={{ maxWidth: 1400, margin: "0 auto", display: "flex", flexWrap: "wrap", gap: 40, justifyContent: "center", alignItems: "center" }}>
+          {STATS.map((s, i) => (
+            <Reveal key={i} delay={i * 0.1}>
+              <div style={{ textAlign: "center" }}>
+                <div style={{ fontSize: 30, fontWeight: 900, color: "#0d0d0d", fontFamily: "system-ui", letterSpacing: "-0.02em" }}>{s.val}</div>
+                <div style={{ fontSize: 12, color: "#6b6b6b", fontFamily: "system-ui", fontWeight: 500, letterSpacing: "0.08em", marginTop: 4 }}>{s.label.toUpperCase()}</div>
+              </div>
+            </Reveal>
+          ))}
+          <Reveal delay={0.4}>
+            <motion.button whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}
+              style={{ padding: "12px 28px", background: "#0d0d0d", color: "#f8f7f4", border: "none", borderRadius: 4, fontSize: 13, fontFamily: "system-ui", fontWeight: 700, letterSpacing: "0.08em", cursor: "pointer" }}>
+              REJOINDRE 48 000 LECTEURS
+            </motion.button>
+          </Reveal>
+        </div>
+      </section>
 
-                         <p className="text-[12px] text-white/30 leading-loose uppercase tracking-[0.2em] font-bold italic mb-16">
-                            {asset.desc}
-                         </p>
+      {/* ARTICLES GRID — editorial newspaper layout */}
+      <section style={{ padding: "64px 40px", background: "#f8f7f4" }}>
+        <div style={{ maxWidth: 1400, margin: "0 auto" }}>
+          <Reveal>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 40, borderBottom: "3px solid #0d0d0d", paddingBottom: 12 }}>
+              <h2 style={{ fontSize: "clamp(24px, 3vw, 36px)", fontWeight: 900, letterSpacing: "-0.02em", fontFamily: "system-ui" }}>Articles récents</h2>
+              <a href="#" style={{ fontSize: 13, fontFamily: "system-ui", fontWeight: 600, color: "#0d0d0d", textDecoration: "none", letterSpacing: "0.06em", display: "flex", alignItems: "center", gap: 6 }}>
+                TOUT VOIR <ArrowRight size={14} />
+              </a>
+            </div>
+          </Reveal>
 
-                         <div className="mt-auto pt-10 border-t border-white/5 flex justify-between items-center">
-                            <span className="text-[10px] font-black text-white/10 uppercase tracking-widest">Ref: {asset.id}</span>
-                            <button className="text-[10px] font-black uppercase text-white/40 flex items-center gap-4 group-hover:text-gold-500 transition-all">
-                               View Position <ChevronRight className="w-5 h-5" />
-                            </button>
-                         </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 0, borderLeft: "1px solid rgba(13,13,13,0.1)" }}>
+            {ARTICLES.map((article, i) => (
+              <Reveal key={i} delay={i * 0.06}>
+                <motion.div whileHover={{ background: "rgba(13,13,13,0.03)" }}
+                  style={{ padding: "28px 28px 32px", borderRight: "1px solid rgba(13,13,13,0.1)", borderBottom: "1px solid rgba(13,13,13,0.1)", cursor: "pointer", transition: "background 0.2s" }}>
+                  <div style={{ position: "relative", aspectRatio: "16/9", overflow: "hidden", marginBottom: 20, borderRadius: 4 }}>
+                    <Image src={`https://images.unsplash.com/${article.img}?w=500&q=80`} alt={article.title} fill style={{ objectFit: "cover" }} />
+                  </div>
+                  <Badge style={{ background: "rgba(13,13,13,0.08)", color: "#0d0d0d", border: "none", fontSize: 10, letterSpacing: "0.1em", marginBottom: 12, fontFamily: "system-ui", fontWeight: 700 }}>{article.cat}</Badge>
+                  <h3 style={{ fontSize: 17, fontWeight: 700, lineHeight: 1.3, letterSpacing: "-0.01em", marginBottom: 12, color: "#0d0d0d" }}>{article.title}</h3>
+                  <div style={{ display: "flex", gap: 16, fontSize: 12, color: "#6b6b6b", fontFamily: "system-ui" }}>
+                    <span>{article.author}</span>
+                    <span><Clock size={11} style={{ display: "inline", marginRight: 3 }} />{article.readTime}</span>
+                  </div>
+                </motion.div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* NEWSLETTER CTA — bold black split */}
+      <section style={{ background: "#0d0d0d", padding: "80px 40px" }}>
+        <div style={{ maxWidth: 1000, margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 80, alignItems: "center" }}>
+          <Reveal>
+            <div>
+              <div style={{ fontSize: "clamp(48px, 7vw, 96px)", fontWeight: 900, lineHeight: 0.9, letterSpacing: "-0.04em", color: "#f8f7f4", fontFamily: "system-ui", marginBottom: 24 }}>
+                48 000<br /><span style={{ color: "#e8d44d" }}>lecteurs</span><br />ne peuvent<br />pas avoir tort.
+              </div>
+            </div>
+          </Reveal>
+          <Reveal delay={0.2}>
+            <div>
+              <p style={{ fontSize: 17, color: "rgba(248,247,244,0.65)", fontFamily: "system-ui", lineHeight: 1.75, marginBottom: 32 }}>
+                Les meilleurs articles sur la stratégie, le product et la croissance — deux fois par semaine dans votre boîte mail.
+              </p>
+              <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 24 }}>
+                <input type="email" placeholder="votre@email.com" style={{ padding: "14px 18px", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 6, fontSize: 15, color: "#f8f7f4", fontFamily: "system-ui", outline: "none" }} />
+                <motion.button whileHover={{ scale: 1.02, boxShadow: "0 4px 20px rgba(232,212,77,0.3)" }} whileTap={{ scale: 0.97 }}
+                  style={{ padding: "14px", background: "#e8d44d", color: "#0d0d0d", border: "none", borderRadius: 6, fontSize: 14, fontFamily: "system-ui", fontWeight: 800, letterSpacing: "0.06em", cursor: "pointer" }}>
+                  S'ABONNER GRATUITEMENT
+                </motion.button>
+              </div>
+              <p style={{ fontSize: 12, color: "rgba(248,247,244,0.35)", fontFamily: "system-ui" }}>Aucun spam. Désabonnement en 1 clic. RGPD compliant.</p>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* TESTIMONIALS */}
+      <section style={{ padding: "80px 40px", background: "#f8f7f4" }}>
+        <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+          <Reveal>
+            <h2 style={{ fontSize: "clamp(28px, 4vw, 48px)", fontWeight: 900, letterSpacing: "-0.02em", fontFamily: "system-ui", marginBottom: 48, borderBottom: "3px solid #0d0d0d", paddingBottom: 12 }}>
+              Ce qu'en disent nos lecteurs
+            </h2>
+          </Reveal>
+          <Carousel opts={{ align: "start", loop: true }}>
+            <CarouselContent style={{ paddingLeft: 8 }}>
+              {TESTIMONIALS.map((t, i) => (
+                <CarouselItem key={i} style={{ paddingLeft: 0, flexBasis: "calc(50% - 8px)", paddingRight: 16 }}>
+                  <div style={{ border: "1px solid rgba(13,13,13,0.1)", padding: "28px", background: "white" }}>
+                    <div style={{ display: "flex", gap: 3, marginBottom: 16 }}>
+                      {Array.from({ length: t.rating }).map((_, j) => <Star key={j} size={13} fill="#e8d44d" color="#e8d44d" />)}
+                    </div>
+                    <p style={{ fontSize: 16, color: "#2d2d2d", fontFamily: "system-ui", lineHeight: 1.75, marginBottom: 20 }}>"{t.text}"</p>
+                    <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                      <Avatar><AvatarFallback style={{ background: "#0d0d0d", color: "#e8d44d", fontSize: 12, fontWeight: 800, fontFamily: "system-ui" }}>{t.avatar}</AvatarFallback></Avatar>
+                      <div>
+                        <div style={{ fontSize: 14, fontWeight: 700, color: "#0d0d0d", fontFamily: "system-ui" }}>{t.name}</div>
+                        <div style={{ fontSize: 12, color: "#6b6b6b", fontFamily: "system-ui" }}>{t.role}</div>
                       </div>
-                   </Reveal>
-                 ))}
-              </div>
-           </div>
-        </section>
-
-        {/* ==========================================
-            3. PERFORMANCE TRACKER (INTERACTIVE DATA)
-            ========================================== */}
-        <section className="py-60 bg-black relative border-y border-white/5 overflow-hidden">
-           <div className="max-w-[1400px] mx-auto px-8 md:px-24">
-              <div className="grid lg:grid-cols-2 gap-40 items-center">
-                 <div>
-                    <Reveal>
-                       <span className="text-[10px] font-black uppercase tracking-[0.5em] text-gold-500/60 block mb-12 italic underline underline-offset-8 decoration-gold-500/20 font-sans">Legacy // Performance</span>
-                       <h2 className="text-7xl md:text-[9vw] font-light italic leading-none text-white mb-16 uppercase tracking-tighter font-serif">
-                          The <br/> <span className="not-italic font-black text-white/5 italic">Growth_Curve.</span>
-                       </h2>
-                       <p className="text-2xl font-light text-white/20 leading-relaxed mb-24 italic uppercase tracking-[0.2em] max-w-xl font-sans">
-                          Visualisation de la croissance intergénérationnelle. Nos algorithmes de gestion de risque anticipent les cycles de marché pour garantir une stabilité perpétuelle du capital.
-                       </p>
-                       <div className="grid grid-cols-2 gap-px bg-white/5 border border-white/5 mb-24 shadow-2xl font-sans">
-                          {PERFORMANCE_METRICS.map((metric, i) => (
-                            <div key={i} className="p-16 bg-[#0a0a0c] group hover:bg-white/[0.02] transition-all border-r border-b last:border-r-0 border-white/5">
-                               <div className="text-[10px] font-black uppercase text-gold-500/40 mb-6 tracking-[0.4em]">{metric.label}</div>
-                               <div className="text-5xl font-black text-white italic mb-6 tracking-tighter group-hover:translate-x-4 transition-transform">{metric.value}</div>
-                               <div className="flex items-center gap-3 text-[9px] font-bold uppercase tracking-[0.3em] text-white/10 italic">
-                                  <Activity className="w-4 h-4 text-gold-500/60" /> {metric.trend}
-                               </div>
-                            </div>
-                          ))}
-                       </div>
-                       <button 
-                         onClick={() => setIsVaultLocked(!isVaultLocked)}
-                         className="w-full py-8 bg-gold-600 text-black text-[11px] font-black uppercase tracking-widest hover:bg-white transition-all shadow-2xl flex items-center justify-center gap-6 italic font-sans"
-                       >
-                          <Settings className="w-5 h-5" /> Simulate Legacy Scenario
-                       </button>
-                    </Reveal>
-                 </div>
-                 
-                 <div className="relative">
-                    <Reveal delay={0.3} x={40}>
-                       <div className="aspect-square bg-[#0a0a0c] border border-white/10 p-20 flex flex-col justify-between relative group overflow-hidden shadow-2xl font-sans">
-                          <div className="absolute top-0 right-0 p-80 bg-gold-500 opacity-[0.02] blur-[150px] rounded-full group-hover:opacity-[0.05] transition-opacity" />
-                          
-                          <div className="flex justify-between items-start z-10">
-                             <div className="flex flex-col gap-3">
-                                <span className="text-[10px] font-black text-white/10 uppercase tracking-[0.5em]">Vault_Link // AEGIS-SYNC-v4</span>
-                                <span className="text-[12px] font-black text-white/40 uppercase tracking-[0.6em]">Capital_Density_Map</span>
-                             </div>
-                             <Wifi className="w-6 h-6 text-gold-500/60" />
-                          </div>
-                          
-                          {/* VAULT VISUALIZER (SVG) */}
-                          <div className="relative z-10 flex flex-col items-center justify-center h-full">
-                             <div className="w-64 h-64 border border-gold-500/5 rounded-full flex items-center justify-center relative">
-                                <motion.div 
-                                  animate={{ rotate: 360 }}
-                                  transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                                  className="absolute inset-0 border-t-2 border-gold-500/20 rounded-full" 
-                                />
-                                <motion.div 
-                                  animate={{ rotate: -360 }}
-                                  transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-                                  className="absolute inset-8 border-b-2 border-gold-500/10 rounded-full" 
-                                />
-                                <Shield className={`w-24 h-24 transition-colors duration-1000 ${!isVaultLocked ? "text-gold-500 animate-pulse" : "text-white/5"}`} />
-                             </div>
-                             <div className="mt-16 text-center space-y-6">
-                                <div className={`text-4xl font-black italic tracking-tighter ${!isVaultLocked ? "text-white" : "text-white/20"}`}>
-                                   {!isVaultLocked ? "VAULT_ACCESSED" : "VAULT_LOCKED"}
-                                </div>
-                                <span className="text-[11px] font-bold text-white/10 uppercase tracking-[0.6em] block">Auth_Node: ZURICH_HEAD_01</span>
-                             </div>
-                          </div>
-
-                          <div className="relative z-10 flex gap-6">
-                             <div className="flex-1 h-1 bg-white/5 overflow-hidden">
-                                <motion.div 
-                                   animate={!isVaultLocked ? { x: ["-100%", "100%"] } : {}}
-                                   transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-                                   className="w-1/2 h-full bg-gold-600"
-                                />
-                             </div>
-                          </div>
-                       </div>
-                    </Reveal>
-                 </div>
-              </div>
-           </div>
-        </section>
-
-        {/* ==========================================
-            4. LEGACY STORY (TECH STORYTELLING)
-            ========================================== */}
-        <section className="py-60 bg-[#050505] relative overflow-hidden border-t border-white/5 font-sans">
-           <div className="max-w-[1400px] mx-auto px-8 md:px-24">
-              <div className="grid lg:grid-cols-2 gap-40 items-center">
-                 <div className="relative aspect-[3/4] overflow-hidden group border border-white/5 shadow-2xl">
-                    <Image 
-                       src="https://images.unsplash.com/photo-1579621970795-87f9ac756557?q=80&w=1200&auto=format&fit=crop" 
-                       alt="Golden Architecture" 
-                       fill 
-                       className="object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-[2000ms]"
-                    />
-                    <div className="absolute inset-0 bg-gold-900/10 mix-blend-color group-hover:opacity-0 transition-opacity" />
-                    <div className="absolute inset-0 p-20 flex flex-col justify-end bg-gradient-to-t from-black via-black/40 to-transparent">
-                       <div className="text-white">
-                          <span className="text-[11px] font-black uppercase tracking-[0.6em] text-gold-500/60 mb-8 block italic underline underline-offset-8 decoration-gold-500/20">Family // Office // Unit</span>
-                          <h4 className="text-6xl font-black tracking-tighter uppercase italic mb-12 mix-blend-difference font-serif text-white">Generational <br/> Trust.</h4>
-                          <button className="flex items-center gap-6 text-[11px] font-black uppercase tracking-[0.4em] border-b border-white/20 pb-4 hover:border-gold-500 transition-all group">
-                             Governance Protocols <ExternalLink className="w-5 h-5 group-hover:translate-x-2 group-hover:-translate-y-2 transition-transform" />
-                          </button>
-                       </div>
                     </div>
-                 </div>
+                  </div>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <CarouselPrevious style={{ background: "#0d0d0d", border: "none", color: "#f8f7f4" }} />
+            <CarouselNext style={{ background: "#0d0d0d", border: "none", color: "#f8f7f4" }} />
+          </Carousel>
+        </div>
+      </section>
 
-                 <div>
-                    <Reveal>
-                       <div className="mb-24 text-left">
-                          <span className="text-[10px] font-black uppercase tracking-[0.5em] text-gold-500/60 mb-8 block italic font-serif">Chapitre III // Legacy</span>
-                          <h2 className="text-7xl md:text-[10vw] font-black tracking-tighter uppercase text-white italic leading-none font-serif text-white">Gold_Net.</h2>
-                       </div>
-                       <p className="text-2xl font-light text-white/20 leading-relaxed italic mb-20 uppercase tracking-[0.2em]">
-                          La gestion de fortune est un art de la discrétion et de la solidité. Nous ne gérons pas des chiffres, nous gérons des destins et des héritages historiques.
-                       </p>
-                       <div className="space-y-20">
-                          {[
-                            { t: "Asset Shielding", d: "Structures juridiques sophistiquées garantissant une protection absolue contre les aléas géopolitiques." },
-                            { t: "Dynastic Transfer", d: "Protocoles de transition fluide pour assurer la continuité de la vision familiale à travers les siècles." },
-                            { t: "Strategic Philanthropy", d: "Optimisation de l'impact social et caritatif pour un héritage qui transcende le simple capital financier." }
-                          ].map((step, i) => (
-                            <div key={i} className="group flex gap-12 border-b border-white/5 pb-16 hover:border-gold-500/20 transition-all cursor-default">
-                               <div className="text-6xl font-black text-white/5 group-hover:text-gold-500/20 transition-colors italic leading-none font-serif">0{i+1}</div>
-                               <div>
-                                  <h5 className="text-3xl font-black uppercase tracking-tight text-white mb-6 italic group-hover:translate-x-4 transition-transform font-serif text-white">{step.t}</h5>
-                                  <p className="text-[12px] text-white/20 uppercase tracking-[0.3em] font-bold leading-loose italic">{step.d}</p>
-                               </div>
-                            </div>
-                          ))}
-                       </div>
-                    </Reveal>
-                 </div>
-              </div>
-           </div>
-        </section>
-
-        {/* MEGA FOOTER */}
-        <footer className="bg-black pt-60 pb-12 px-8 md:px-24 relative z-50 font-sans">
-           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-32 mb-60 text-white">
-              <div className="lg:col-span-2">
-                 <div className="flex items-center gap-6 mb-16">
-                    <div className="w-16 h-16 bg-gold-600 flex items-center justify-center">
-                      <Landmark className="w-10 h-10 text-black" />
-                    </div>
-                    <span className="text-4xl font-black uppercase tracking-tighter italic font-serif">AEGIS<span className="text-white/20">_VAULT.</span></span>
-                 </div>
-                 <p className="text-white/20 text-[11px] font-black uppercase tracking-[0.5em] leading-loose max-w-sm mb-20 italic">
-                    "La richesse est une responsabilité, le temps est le seul actif réel." — Archive Aegis V.4
-                 </p>
-                 <div className="flex gap-16">
-                    {["VaultLog", "AssetRegistry", "GitHub", "X_Protocol"].map(s => (
-                      <Link key={s} href="#" className="text-[11px] font-black uppercase tracking-widest text-white/20 hover:text-gold-500 transition-colors italic underline underline-offset-8 decoration-white/5">{s}</Link>
+      {/* PRICING */}
+      <section style={{ padding: "80px 40px", background: "white", borderTop: "2px solid #0d0d0d" }}>
+        <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+          <Reveal>
+            <h2 style={{ fontSize: "clamp(28px, 4vw, 52px)", fontWeight: 900, letterSpacing: "-0.03em", fontFamily: "system-ui", marginBottom: 12 }}>Accès illimité.</h2>
+            <p style={{ fontSize: 17, color: "#6b6b6b", fontFamily: "system-ui", marginBottom: 48 }}>Toute la valeur, le prix d'un café par semaine.</p>
+          </Reveal>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 0, border: "2px solid #0d0d0d" }}>
+            {PLANS.map((plan, i) => (
+              <Reveal key={i} delay={i * 0.1}>
+                <div style={{ padding: "32px 28px", borderRight: i < 2 ? "2px solid #0d0d0d" : "none", background: plan.featured ? "#0d0d0d" : "transparent", position: "relative" }}>
+                  {plan.featured && <div style={{ position: "absolute", top: -1, left: -1, right: -1, height: 4, background: "#e8d44d" }} />}
+                  <h3 style={{ fontSize: 22, fontWeight: 900, fontFamily: "system-ui", color: plan.featured ? "#f8f7f4" : "#0d0d0d", marginBottom: 6 }}>{plan.name}</h3>
+                  <p style={{ fontSize: 13, color: plan.featured ? "rgba(248,247,244,0.5)" : "#6b6b6b", fontFamily: "system-ui", marginBottom: 20 }}>{plan.desc}</p>
+                  <div style={{ marginBottom: 28 }}>
+                    <span style={{ fontSize: 48, fontWeight: 900, fontFamily: "system-ui", color: plan.featured ? "#e8d44d" : "#0d0d0d" }}>{plan.price}€</span>
+                    {plan.price !== "0" && <span style={{ fontSize: 14, color: plan.featured ? "rgba(248,247,244,0.5)" : "#6b6b6b", fontFamily: "system-ui" }}>/mois</span>}
+                    {plan.price === "0" && <span style={{ fontSize: 14, color: plan.featured ? "rgba(248,247,244,0.5)" : "#6b6b6b", fontFamily: "system-ui" }}> — pour toujours</span>}
+                  </div>
+                  <ul style={{ listStyle: "none", padding: 0, display: "flex", flexDirection: "column", gap: 10, marginBottom: 28 }}>
+                    {plan.features.map(f => (
+                      <li key={f} style={{ display: "flex", alignItems: "flex-start", gap: 10, fontSize: 13, color: plan.featured ? "rgba(248,247,244,0.75)" : "#2d2d2d", fontFamily: "system-ui" }}>
+                        <Check size={13} color={plan.featured ? "#e8d44d" : "#0d0d0d"} style={{ marginTop: 2, flexShrink: 0 }} />{f}
+                      </li>
                     ))}
-                 </div>
-              </div>
+                  </ul>
+                  <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
+                    style={{ width: "100%", padding: "13px", background: plan.featured ? "#e8d44d" : "#0d0d0d", color: plan.featured ? "#0d0d0d" : "#f8f7f4", border: "none", borderRadius: 4, fontSize: 13, fontFamily: "system-ui", fontWeight: 800, letterSpacing: "0.06em", cursor: "pointer" }}>
+                    {plan.price === "0" ? "COMMENCER GRATUITEMENT" : "S'ABONNER"}
+                  </motion.button>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
 
+      {/* FAQ */}
+      <section style={{ padding: "80px 40px", background: "#f8f7f4" }}>
+        <div style={{ maxWidth: 800, margin: "0 auto" }}>
+          <Reveal>
+            <h2 style={{ fontSize: "clamp(26px, 4vw, 44px)", fontWeight: 900, fontFamily: "system-ui", letterSpacing: "-0.02em", marginBottom: 40, borderBottom: "2px solid #0d0d0d", paddingBottom: 12 }}>Questions</h2>
+          </Reveal>
+          <Accordion type="single" collapsible style={{ display: "flex", flexDirection: "column", gap: 0 }}>
+            {FAQS.map((faq, i) => (
+              <AccordionItem key={i} value={`q${i}`} style={{ borderBottom: "1px solid rgba(13,13,13,0.15)", background: "transparent" }}>
+                <AccordionTrigger style={{ padding: "20px 0", fontSize: 16, fontWeight: 700, color: "#0d0d0d", fontFamily: "system-ui", textAlign: "left" }}>{faq.q}</AccordionTrigger>
+                <AccordionContent style={{ padding: "0 0 20px", fontSize: 14, color: "#4a4a4a", fontFamily: "system-ui", lineHeight: 1.8 }}>{faq.a}</AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
+        </div>
+      </section>
+
+      {/* FOOTER */}
+      <footer style={{ background: "#0d0d0d", padding: "48px 40px 32px" }}>
+        <div style={{ maxWidth: 1400, margin: "0 auto" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 40, marginBottom: 48, paddingBottom: 48, borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+            <div>
+              <div style={{ fontSize: 24, fontWeight: 900, color: "#f8f7f4", fontFamily: "system-ui", marginBottom: 12 }}>L'Essentiel</div>
+              <p style={{ fontSize: 13, color: "rgba(248,247,244,0.4)", fontFamily: "system-ui", lineHeight: 1.7, maxWidth: 280 }}>Le media indépendant des professionnels du digital — stratégie, product, growth, culture.</p>
+              <div style={{ display: "flex", gap: 12, marginTop: 20 }}>
+                {[Twitter, Instagram, Linkedin, Rss].map((Icon, i) => (
+                  <motion.button key={i} whileHover={{ scale: 1.15, color: "#e8d44d" }} style={{ width: 32, height: 32, borderRadius: 4, background: "rgba(255,255,255,0.06)", border: "none", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "rgba(248,247,244,0.45)" }}>
+                    <Icon size={14} />
+                  </motion.button>
+                ))}
+              </div>
+            </div>
+            <div style={{ display: "flex", gap: 60, flexWrap: "wrap" }}>
               {[
-                { t: "ALLOCATIONS", l: ["Prime Real Estate", "Private Equity", "Rare Art", "Digital Assets"] },
-                { t: "SECURITY", l: ["Quantum Shield", "Swiss Vaults", "Legal Firewall", "Risk Matrix"] },
-                { t: "MAISON", l: ["Our Legacy", "Advisory Council", "Locations", "Support"] }
-              ].map((col, i) => (
-                <div key={i} className="flex flex-col gap-12">
-                  <h4 className="text-[11px] font-black text-gold-500/40 uppercase tracking-[0.6em] italic">{col.t}</h4>
-                  <ul className="flex flex-col gap-8">
-                    {col.l.map(link => (
-                      <li key={link} className="text-[11px] font-bold text-white/20 hover:text-white transition-colors cursor-pointer uppercase tracking-[0.4em] italic">{link}</li>
-                    ))}
+                { title: "Catégories", links: ["Stratégie", "Product", "Marketing", "IA & Tech", "Financement", "Culture"] },
+                { title: "L'Essentiel", links: ["À propos", "Notre équipe", "Partenariats", "Publicité", "Contact"] },
+                { title: "Abonnés", links: ["Se connecter", "Mon compte", "Newsletter", "Communauté Slack", "FAQ"] },
+              ].map(col => (
+                <div key={col.title}>
+                  <h4 style={{ fontSize: 11, fontWeight: 800, color: "#e8d44d", letterSpacing: "0.1em", fontFamily: "system-ui", marginBottom: 16 }}>{col.title.toUpperCase()}</h4>
+                  <ul style={{ listStyle: "none", padding: 0, display: "flex", flexDirection: "column", gap: 10 }}>
+                    {col.links.map(l => <li key={l}><a href="#" style={{ fontSize: 13, color: "rgba(248,247,244,0.4)", textDecoration: "none", fontFamily: "system-ui" }}>{l}</a></li>)}
                   </ul>
                 </div>
               ))}
-           </div>
-
-           <div className="max-w-[1600px] mx-auto border-t border-white/5 pt-16 flex flex-col md:flex-row justify-between items-center gap-16 text-[10px] font-black text-white/10 uppercase tracking-[0.6em] italic">
-              <span>© 2026 AEGIS VAULT PRIVATE FAMILY OFFICE AG. // ALL_RIGHTS_RESERVED</span>
-              <div className="flex gap-16">
-                 <span>STATUS: FORTIFIED</span>
-                 <span>UPTIME: 100% (AVG)</span>
-                 <span>v4.4.2-STABLE</span>
-              </div>
-           </div>
-        </footer>
-      </main>
-    </div>
-  )
-}
-
-/* ==========================================
-   TECHNICAL SUB-COMPONENTS
-   ========================================== */
-
-function HUD_Overlay({ isVaultLocked }: { isVaultLocked: boolean }) {
-  return (
-    <div className="fixed inset-0 pointer-events-none z-[100] font-sans">
-       {/* Corner Brackets */}
-       <div className={`absolute top-12 left-12 w-20 h-20 border-t-2 border-l-2 transition-colors duration-1000 ${!isVaultLocked ? "border-gold-500" : "border-white/10"}`} />
-       <div className={`absolute top-12 right-12 w-20 h-20 border-t-2 border-r-2 transition-colors duration-1000 ${!isVaultLocked ? "border-gold-500" : "border-white/10"}`} />
-       <div className={`absolute bottom-12 left-12 w-20 h-20 border-b-2 border-l-2 transition-colors duration-1000 ${!isVaultLocked ? "border-gold-500" : "border-white/10"}`} />
-       <div className={`absolute bottom-12 right-12 w-20 h-20 border-b-2 border-r-2 transition-colors duration-1000 ${!isVaultLocked ? "border-gold-500" : "border-white/10"}`} />
-
-       {/* Top Status Bar */}
-       <div className="absolute top-12 left-1/2 -translate-x-1/2 flex items-center gap-20 bg-black/60 backdrop-blur-2xl px-12 py-4 border border-white/10 rounded-none">
-          <div className="flex items-center gap-6 text-white">
-             <div className={`w-3 h-3 transition-colors duration-500 ${!isVaultLocked ? "bg-gold-500 animate-pulse" : "bg-white/20"}`} />
-             <span className="text-[10px] font-black uppercase tracking-[0.4em] italic leading-none">Security_Link: {!isVaultLocked ? "OPEN" : "FORTIFIED"} // Status: NOMINAL</span>
+            </div>
           </div>
-          <div className="h-4 w-px bg-white/20" />
-          <div className="flex items-center gap-6 text-white/20">
-             <Wifi className="w-4 h-4" /> 
-             <span className="text-[10px] font-black uppercase tracking-[0.4em] italic leading-none">Global_Grid: SECURE</span>
-          </div>
-       </div>
-
-       {/* Right Rotation Info */}
-       <div className="absolute right-12 top-1/2 -translate-y-1/2 rotate-90 origin-right hidden lg:block">
-          <span className="text-[10px] font-black uppercase tracking-[0.8em] text-white/5 italic">Unauthorized_Duplication_Of_Legacy_Patterns_Is_Strictly_Monitored_By_Global_Wealth_Security_Council</span>
-       </div>
+          <p style={{ fontSize: 12, color: "rgba(248,247,244,0.2)", fontFamily: "system-ui", textAlign: "center" }}>© 2024 L'Essentiel — Media indépendant · ISSN 2698-XXXX</p>
+        </div>
+      </footer>
     </div>
   )
 }

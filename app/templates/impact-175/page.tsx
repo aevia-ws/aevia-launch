@@ -1,519 +1,278 @@
 "use client"
 
-import React, { useState, useEffect, useRef } from "react"
-import { 
-  motion, 
-  AnimatePresence, 
-  useScroll, 
-  useTransform, 
-  useInView, 
-  useSpring 
-} from "framer-motion"
-import Image from "next/image"
-import Link from "next/link"
-import { 
-  Timer, Zap, Activity, Microscope, 
-  Target, Layers, Box, Hexagon, 
-  Terminal, Settings, Power, Info, 
-  AlertTriangle, ChevronRight, ArrowRight, 
-  Share2, Maximize2, Download, ExternalLink, 
-  Archive, Hash, Wifi, BarChart3, 
-  Fingerprint, Scan, Brain, Server, 
-  ShieldCheck, ShieldAlert, Award, 
-  Briefcase, Wind, Thermometer, 
-  Flame, Battery, Radio, Gauge, 
-  Lightbulb, Command, Grid, Radar, 
-  Orbit, Atom, Satellite, Milestone, 
-  FlaskConical, FlaskRound, Ghost, 
-  Clock, Watch, Hourglass, History, 
-  FastForward, Rewind, PlayCircle, 
-  Database, Search, Milestone as MilestoneIcon, 
-  Cpu
-} from "lucide-react"
+import React, { useState, useRef } from "react"
+import { motion, useScroll, useTransform, useInView, AnimatePresence } from "framer-motion"
 
-/* ==========================================================================
-   THE CHRONOS ENGINE DATASET (ULTRA DENSITY)
-   ========================================================================== */
+// CONFLUENCE EVENTS — Event agency. Warm terracotta + champagne + deep plum. Elegant serif.
+// Unique: timeline-based service flow, event type selector, gallery masonry hover effect.
 
-const TEMPORAL_ASSETS = [
-  {
-    id: "clock-cs-42",
-    name: "Cesium Master-Node",
-    type: "Primary Atomic Standard",
-    drift: "0.02 ns/day",
-    precision: "10⁻¹⁶",
-    stability: "99.9999%",
-    desc: "Horloge atomique au césium-133 servant de référence primaire pour la synchronisation des réseaux de télécommunications mondiaux.",
-    status: "Active"
-  },
-  {
-    id: "clock-hm-08",
-    name: "Hydrogen Maser v8",
-    type: "Secondary Reference",
-    drift: "0.12 ns/day",
-    precision: "10⁻¹⁵",
-    stability: "99.9842%",
-    desc: "Maser à hydrogène passif offrant une stabilité à court terme exceptionnelle pour les mesures de physique fondamentale.",
-    status: "Testing"
-  },
-  {
-    id: "clock-io-15",
-    name: "Ion-Trap Pulse",
-    type: "Next-Gen Quantum Clock",
-    drift: "0.001 ns/day",
-    precision: "10⁻¹⁸",
-    stability: "100%",
-    desc: "Prototype d'horloge optique à ions piégés, capable de mesurer des variations temporelles dues à la relativité générale.",
-    status: "Approved"
+const EVENT_TYPES = [
+  { name: "Mariages", icon: "◇", desc: "De la recherche de salle à la coordination jour J. Planning complet, gestion prestataires, direction artistique.", badge: "Notre spécialité", accent: "#b87c5a" },
+  { name: "Séminaires", icon: "◈", desc: "Teambuilding, conventions, incentives. Lieux insolites, animations sur mesure, traiteur d'exception.", badge: null, accent: "#6b5a8a" },
+  { name: "Galas & Soirées", icon: "◆", desc: "Dîners de gala, cérémonies de remise de prix, soirées de fin d'année. Scénographie complète.", badge: "Premium", accent: "#c4a96a" },
+  { name: "Événements Privés", icon: "◉", desc: "Anniversaires, baptêmes, fêtes de famille. Du cocktail intime à la réception de 300 personnes.", badge: null, accent: "#7a9a6a" },
+]
+
+const STEPS = [
+  { num: "01", title: "Découverte", desc: "Un premier appel de 30 min pour comprendre votre vision, vos contraintes et votre budget. Gratuit et sans engagement.", duration: "J-6 à 12 mois" },
+  { num: "02", title: "Conception", desc: "Proposition créative détaillée : concept, scénographie, sélection de prestataires référencés et budget précis.", duration: "J-5 à 9 mois" },
+  { num: "03", title: "Organisation", desc: "Négociation et coordination de tous les prestataires. Planning détaillé, rétro-planning, gestion administrative.", duration: "J-2 à 5 mois" },
+  { num: "04", title: "Jour J", desc: "Direction artistique et coordination en temps réel. Vous profitez, on gère. Un interlocuteur sur place du début à la fin.", duration: "J-0" },
+]
+
+const TESTIMONIALS = [
+  { quote: "Notre mariage était exactement ce qu'on avait imaginé — mais en mieux. Confluence a su aller au-delà de nos attentes sur chaque détail.", name: "Emma & Nicolas", event: "Mariage · 120 invités · Château de la Loire" },
+  { quote: "Le séminaire annuel de notre groupe a enfin l'image qu'il mérite. Lieu bluffant, programme millimétré, retours unanimes.", name: "Marie-Claire Dupont", event: "Séminaire · 85 collaborateurs · Provence" },
+  { quote: "Gala de prestige coordonné en 8 semaines. Impossible selon tout le monde — sauf Confluence.", name: "Laurent Tissier", event: "Gala · 240 convives · Paris 8e" },
+]
+
+const FAQS = [
+  { q: "Quelle est votre zone d'intervention ?", a: "France entière. Principalement Île-de-France, Auvergne-Rhône-Alpes, et PACA. Destinations internationales sur demande (Europe, Méditerranée)." },
+  { q: "Quel est votre budget minimum ?", a: "Nous travaillons à partir de 15 000 € pour les mariages et 8 000 € pour les événements d'entreprise. En dessous, nous proposons un accompagnement partiel." },
+  { q: "Comment calculez-vous vos honoraires ?", a: "Forfait fixe pour la coordination complète (10–15% du budget événement) ou forfait à la carte pour des missions ponctuelles (recherche de lieu, direction artistique, jour J)." },
+  { q: "Travaillez-vous avec vos propres prestataires ?", a: "Nous avons un réseau de partenaires sélectionnés, mais nous travaillons volontiers avec vos prestataires existants. Pas de commission cachée sur les fournisseurs." },
+  { q: "Que se passe-t-il si un prestataire fait défaut le jour J ?", a: "Nous avons toujours des solutions de secours identifiées en amont. Notre réseau permet des remplacements en 24–48h dans presque tous les cas." },
+]
+
+const PLANS = [
+  { name: "Essentiel", price: "À partir de 1 800 €", note: "mission partielle", features: ["Recherche & réservation du lieu", "Sélection 3 prestataires clés", "Budget et rétro-planning", "Assistance email J-6 à J-1"] },
+  { name: "Confluent", price: "10–15%", note: "du budget événement", features: ["Mission complète clé en main", "Direction artistique incluse", "Coordination tous prestataires", "Présence jour J full-day", "Bilan post-événement"], highlight: true },
+  { name: "Signature", price: "Sur devis", note: "événements de prestige", features: ["Tout Confluent inclus", "Déplacements internationaux", "Relations presse & influence", "Scénographie exclusive", "Support 24/7 J-30 à J+7"] },
+]
+
+export default function Page() {
+  const [activeType, setActiveType] = useState(0)
+  const [openFaq, setOpenFaq] = useState<number | null>(null)
+  const { scrollY } = useScroll()
+
+  const heroY = useTransform(scrollY, [0, 500], [0, -60])
+
+  const stepsRef = useRef(null)
+  const pricingRef = useRef(null)
+  const stepsInView = useInView(stepsRef, { once: true, margin: "-100px" })
+  const pricingInView = useInView(pricingRef, { once: true, margin: "-100px" })
+
+  const C = {
+    bg: "#faf6f0",
+    plum: "#3d2645",
+    terracotta: "#b87c5a",
+    champagne: "#e8d4b8",
+    text: "#1a1208",
+    muted: "#8b7a6b",
+    card: "#ffffff",
+    border: "#e8ddd0",
+    serif: "'Cormorant Garamond', Georgia, serif",
+    sans: "system-ui, -apple-system, sans-serif",
   }
-]
-
-const CHRONO_METRICS = [
-  { label: "UTC Offset", value: "0.000000s", trend: "Synced" },
-  { label: "Sync Nodes", value: "1,242", trend: "Optimal" },
-  { label: "Leap Counter", value: "24", trend: "Stable" },
-  { label: "Jitter Level", value: "0.01ps", trend: "Constant" }
-]
-
-const CHRONO_LOGS = [
-  { timestamp: "12:14:42.000", unit: "Master-Sync", status: "LOCKED", drift: "0.00ns" },
-  { timestamp: "12:14:45.004", unit: "Orbital-Link-A", status: "STABLE", latency: "1.2ms" },
-  { timestamp: "12:14:48.012", unit: "Fin-Grid-Sync", status: "SUCCESS", alignment: "100%" }
-]
-
-/* ==========================================
-   TECHNICAL COMPONENTS
-   ========================================== */
-
-function Reveal({ children, delay = 0, y = 40, x = 0 }: { children: React.ReactNode, delay?: number, y?: number, x?: number }) {
-  const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, margin: "-100px" })
-  return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, y, x }}
-      animate={isInView ? { opacity: 1, y: 0, x: 0 } : {}}
-      transition={{ duration: 1.2, delay, ease: [0.16, 1, 0.3, 1] }}
-    >
-      {children}
-    </motion.div>
-  )
-}
-
-function TemporalDriftVisualizer() {
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
-  useEffect(() => {
-    const handleMouse = (e: MouseEvent) => setMousePos({ x: e.clientX, y: e.clientY })
-    window.addEventListener("mousemove", handleMouse)
-    return () => window.removeEventListener("mousemove", handleMouse)
-  }, [])
 
   return (
-    <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden opacity-10">
-       <svg width="100%" height="100%" className="w-full h-full">
-          {[...Array(12)].map((_, i) => (
-            <motion.circle 
-               key={i}
-               cx="50%" 
-               cy="50%" 
-               r={100 + i * 80} 
-               stroke="peru" 
-               strokeWidth="0.5" 
-               fill="none"
-               strokeDasharray="10 20"
-               animate={{ rotate: 360 }}
-               transition={{ duration: 30 + i * 10, repeat: Infinity, ease: "linear" }}
-            />
+    <div style={{ background: C.bg, color: C.text, fontFamily: C.sans, overflowX: "hidden" }}>
+      {/* NAV */}
+      <nav style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 100, background: "rgba(250,246,240,0.97)", backdropFilter: "blur(12px)", borderBottom: `1px solid ${C.border}`, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 60px", height: 68 }}>
+        <div>
+          <div style={{ fontFamily: C.serif, fontSize: 20, letterSpacing: 2, fontStyle: "italic", color: C.plum }}>Confluence</div>
+          <div style={{ fontSize: 9, letterSpacing: 4, color: C.muted, textTransform: "uppercase" }}>Agence Événementielle</div>
+        </div>
+        <div style={{ display: "flex", gap: 40, alignItems: "center" }}>
+          {["Événements", "Notre approche", "Réalisations", "Contact"].map(l => (
+            <a key={l} href="#" style={{ fontSize: 12, color: C.muted, letterSpacing: 1, textDecoration: "none", fontWeight: 500 }}>{l}</a>
           ))}
-          <motion.circle 
-             animate={{ cx: mousePos.x, cy: mousePos.y }}
-             transition={{ type: "spring", damping: 30, stiffness: 100 }}
-             r="200" 
-             fill="peru" 
-             className="opacity-20 blur-[120px]"
-          />
-       </svg>
-    </div>
-  )
-}
+          <motion.button whileHover={{ background: C.plum }} whileTap={{ scale: 0.97 }}
+            style={{ padding: "10px 28px", background: C.terracotta, color: "#fff", border: "none", fontSize: 12, letterSpacing: 1, cursor: "pointer", fontFamily: C.sans, fontWeight: 600, transition: "background 0.2s" }}>
+            Nous contacter
+          </motion.button>
+        </div>
+      </nav>
 
-function ChronosHubModel({ progress }: { progress: any }) {
-  const rotate = useTransform(progress, [0, 1], [0, 360])
-  const scale = useTransform(progress, [0, 0.5, 1], [1, 1.2, 1])
+      {/* HERO — centered serif, warm gradient */}
+      <section style={{ minHeight: "100vh", paddingTop: 68, background: `linear-gradient(to bottom, ${C.bg}, #f0e8d8)`, display: "flex", alignItems: "center", justifyContent: "center", textAlign: "center", position: "relative", overflow: "hidden" }}>
+        {/* Decorative circles */}
+        <div style={{ position: "absolute", top: "15%", left: "8%", width: 200, height: 200, border: `1px solid ${C.champagne}`, borderRadius: "50%", opacity: 0.5 }} />
+        <div style={{ position: "absolute", bottom: "20%", right: "6%", width: 300, height: 300, border: `1px solid ${C.champagne}`, borderRadius: "50%", opacity: 0.3 }} />
 
-  return (
-    <motion.div style={{ rotate, scale }} className="relative w-80 h-80 flex items-center justify-center">
-       <div className="absolute inset-0 border border-peru/10 rounded-full animate-spin-slow shadow-[0_0_80px_rgba(205,133,63,0.05)]" />
-       <Clock className="w-40 h-40 text-peru/10 animate-pulse" />
-       <div className="absolute inset-8 border border-peru/5 rounded-full" />
-    </motion.div>
-  )
-}
-
-/* ==========================================
-   THE CHRONOS ENGINE - MAIN INTERFACE
-   ========================================== */
-
-export default function ChronosEnginePremium() {
-  const [activeClock, setActiveClock] = useState(0)
-  const [isTimeLocked, setIsTimeLocked] = useState(true)
-  const containerRef = useRef(null)
-  const { scrollYProgress } = useScroll({ target: containerRef })
-
-  // Chrono Scroll Effects
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.2], [1, 0])
-  const textX = useTransform(scrollYProgress, [0, 0.5], [0, 100])
-
-  return (
-    <div ref={containerRef} className="bg-[#0a0806] text-[#e5e0dc] font-mono selection:bg-peru/30 selection:text-white min-h-screen overflow-x-hidden transition-colors duration-1000">
-      
-      {/* GLOBAL HUD OVERLAY */}
-      <HUD_Overlay isTimeLocked={isTimeLocked} />
-
-      <main>
-        {/* ==========================================
-            1. CHRONO IGNITION (HERO)
-            ========================================== */}
-        <section className="relative h-screen flex flex-col justify-center items-center px-8 md:px-24 overflow-hidden pt-20">
-          <TemporalDriftVisualizer />
-          <motion.div style={{ opacity: heroOpacity }} className="absolute z-0 pointer-events-none flex items-center justify-center">
-             <ChronosHubModel progress={scrollYProgress} />
+        <motion.div style={{ y: heroY, position: "relative", zIndex: 1, maxWidth: 900, padding: "0 60px" }}>
+          <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1 }}>
+            <div style={{ fontFamily: C.serif, fontSize: 12, letterSpacing: 6, color: C.terracotta, textTransform: "uppercase", marginBottom: 36, fontStyle: "italic" }}>
+              Vos instants. Notre expertise.
+            </div>
+            <h1 style={{ fontFamily: C.serif, fontSize: "clamp(56px, 9vw, 130px)", fontWeight: 400, letterSpacing: -2, lineHeight: 0.95, color: C.plum, fontStyle: "italic", marginBottom: 40 }}>
+              Chaque<br />
+              événement<br />
+              <span style={{ color: C.terracotta }}>mérite</span><br />
+              l'exceptionnel.
+            </h1>
+            <p style={{ fontSize: 18, color: C.muted, lineHeight: 1.75, maxWidth: 560, margin: "0 auto 56px" }}>
+              Mariages, séminaires, galas et fêtes privées. Nous orchestrons vos moments les plus importants avec précision et passion.
+            </p>
+            <div style={{ display: "flex", gap: 20, justifyContent: "center" }}>
+              <motion.button whileHover={{ background: C.plum }} whileTap={{ scale: 0.97 }}
+                style={{ padding: "18px 48px", background: C.terracotta, color: "#fff", border: "none", fontSize: 15, fontWeight: 600, letterSpacing: 0.5, cursor: "pointer", transition: "background 0.2s" }}>
+                Parler de mon projet
+              </motion.button>
+              <motion.button whileHover={{ borderColor: C.terracotta, color: C.terracotta }} whileTap={{ scale: 0.97 }}
+                style={{ padding: "18px 48px", background: "transparent", color: C.muted, border: `1.5px solid ${C.border}`, fontSize: 15, cursor: "pointer", transition: "all 0.2s" }}>
+                Voir nos réalisations
+              </motion.button>
+            </div>
           </motion.div>
+        </motion.div>
+      </section>
 
-          <div className="relative z-10 text-center max-w-7xl">
-             <Reveal>
-                <div className="inline-flex items-center gap-4 px-6 py-2 border border-peru/30 bg-peru/5 text-[10px] font-black uppercase tracking-[0.5em] text-peru mb-12 italic">
-                   <Timer className="w-4 h-4" /> Atomic_Sync: NOMINAL // Drift_Rate: 0.02ns/d
+      {/* STATS */}
+      <section style={{ background: C.plum }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", maxWidth: 1280, margin: "0 auto" }}>
+          {[{ val: "340+", label: "Événements réalisés" }, { val: "98%", label: "Clients satisfaits" }, { val: "12 ans", label: "D'expérience" }, { val: "France & Europe", label: "Zone d'intervention" }].map((s, i) => (
+            <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}
+              style={{ padding: "52px 40px", borderRight: i < 3 ? "1px solid rgba(255,255,255,0.1)" : undefined, textAlign: "center" }}>
+              <div style={{ fontFamily: C.serif, fontSize: 48, fontStyle: "italic", color: C.champagne, lineHeight: 1 }}>{s.val}</div>
+              <div style={{ fontSize: 12, color: "rgba(232,212,184,0.5)", marginTop: 10, letterSpacing: 1 }}>{s.label}</div>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      {/* EVENT TYPES */}
+      <section style={{ padding: "100px 60px", borderBottom: `1px solid ${C.border}` }}>
+        <div style={{ textAlign: "center", marginBottom: 56 }}>
+          <h2 style={{ fontFamily: C.serif, fontSize: "clamp(36px, 4vw, 56px)", fontStyle: "italic", fontWeight: 400, color: C.plum }}>Nos événements</h2>
+        </div>
+        <div style={{ display: "flex", gap: 8, justifyContent: "center", marginBottom: 56, flexWrap: "wrap" }}>
+          {EVENT_TYPES.map((t, i) => (
+            <button key={i} onClick={() => setActiveType(i)}
+              style={{ padding: "10px 28px", border: `1.5px solid ${activeType === i ? t.accent : C.border}`, background: activeType === i ? t.accent : "transparent", color: activeType === i ? "#fff" : C.muted, fontSize: 14, cursor: "pointer", transition: "all 0.2s", fontFamily: C.sans, fontWeight: activeType === i ? 600 : 400 }}>
+              {t.name}
+            </button>
+          ))}
+        </div>
+        <AnimatePresence mode="wait">
+          <motion.div key={activeType} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }}
+            style={{ background: C.card, border: `1px solid ${C.border}`, padding: "56px 80px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 80, alignItems: "center", maxWidth: 1100, margin: "0 auto" }}>
+            <div>
+              {EVENT_TYPES[activeType].badge && (
+                <div style={{ display: "inline-block", background: EVENT_TYPES[activeType].accent + "22", color: EVENT_TYPES[activeType].accent, padding: "4px 16px", fontSize: 11, letterSpacing: 2, textTransform: "uppercase", marginBottom: 24, fontWeight: 600 }}>
+                  {EVENT_TYPES[activeType].badge}
                 </div>
-                <motion.h1 style={{ x: textX }} className="text-7xl md:text-[14vw] font-black tracking-tighter uppercase mb-16 leading-[0.75] italic">
-                   Chronos <br/> <span className="text-white/5 italic">Engine.</span>
-                </motion.h1>
-                <p className="max-w-3xl mx-auto text-sm md:text-lg text-white/30 leading-relaxed uppercase tracking-widest font-light mb-16 italic">
-                   L'ingénierie de la précision temporelle absolue. Nous synchronisons les réseaux financiers, spatiaux et de télécommunications par la maîtrise de la seconde atomique.
-                </p>
-                
-                <div className="flex flex-col sm:flex-row gap-8 justify-center items-center">
-                   <button className="px-12 py-6 bg-peru text-black text-[10px] font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all shadow-[0_0_40px_rgba(205,133,63,0.2)] flex items-center gap-4 italic">
-                      <Zap className="w-5 h-5" /> Initialize Sync
-                   </button>
-                   <button className="px-12 py-6 border border-white/10 text-white text-[10px] font-black uppercase tracking-widest hover:bg-white/5 transition-all flex items-center gap-4 italic">
-                      <Database className="w-5 h-5" /> Atomic Registry
-                   </button>
-                </div>
-             </Reveal>
-          </div>
-
-          <div className="absolute bottom-12 left-12 right-12 flex justify-between items-end border-t border-white/5 pt-12">
-             <div className="flex flex-col gap-6">
-                <div className="flex items-center gap-4 text-[9px] font-bold text-white/20 uppercase tracking-widest italic">
-                   <div className="w-16 h-px bg-white/10" />
-                   Sync_ID: CHRONO-NODE-42
-                </div>
-                <div className="flex items-center gap-4 text-[9px] font-bold text-white/20 uppercase tracking-widest italic">
-                   <div className="w-16 h-px bg-white/10" />
-                   Time_Condition: ATOMIC_LOCK
-                </div>
-             </div>
-             <div className="text-right flex flex-col items-end gap-4">
-                <span className="text-[8px] font-black uppercase tracking-[0.5em] text-peru">Chronometric_Pulse_Stream</span>
-                <div className="flex gap-2 h-12 items-end">
-                   {[...Array(16)].map((_, i) => (
-                     <motion.div 
-                        key={i}
-                        animate={{ height: ["10%", "100%", "30%", "80%", "10%"] }}
-                        transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.1 }}
-                        className="w-2 bg-peru/20"
-                     />
-                   ))}
-                </div>
-             </div>
-          </div>
-        </section>
-
-        {/* ==========================================
-            2. ATOMIC REGISTRY (DENSE TECHNICAL)
-            ========================================== */}
-        <section className="py-60 bg-[#060402] relative border-y border-white/5 overflow-hidden">
-           <div className="max-w-[1600px] mx-auto px-8 md:px-24">
-              <div className="flex flex-col md:flex-row items-end justify-between mb-40 gap-12">
-                 <Reveal>
-                    <span className="text-[10px] font-black uppercase tracking-[0.6em] text-peru block mb-6 italic underline underline-offset-8 decoration-peru/20">Temporal // Assets</span>
-                    <h2 className="text-6xl md:text-[10vw] font-black uppercase tracking-tighter italic leading-none text-white">Archives.</h2>
-                 </Reveal>
-                 <div className="text-right">
-                    <span className="text-[10px] font-black uppercase tracking-[0.5em] text-white/20 block mb-4 italic">Registry // Chrono_Audit</span>
-                    <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-peru">L'Architecture de la Seconde</p>
-                 </div>
-              </div>
-
-              <div className="grid md:grid-cols-3 gap-px bg-white/5 border border-white/5 shadow-2xl">
-                 {TEMPORAL_ASSETS.map((clock, i) => (
-                   <Reveal key={clock.id} delay={i * 0.1}>
-                      <div className="bg-[#0a0806] p-20 flex flex-col h-full hover:bg-white/[0.02] transition-all group cursor-crosshair border-white/5 border-r last:border-r-0">
-                         <div className="flex justify-between items-start mb-16">
-                            <div className="w-16 h-16 bg-white/5 border border-white/10 flex items-center justify-center group-hover:bg-peru group-hover:text-black transition-all duration-500">
-                               <Cpu className="w-8 h-8" />
-                            </div>
-                            <span className={`px-4 py-2 bg-white/5 text-[9px] font-black uppercase tracking-[0.3em] ${clock.status === "Active" ? "text-peru" : "text-white/40"}`}>{clock.status}</span>
-                         </div>
-                         
-                         <h3 className="text-4xl font-black uppercase tracking-tighter mb-8 italic text-white group-hover:translate-x-4 transition-transform">{clock.name}</h3>
-                         <div className="text-[10px] font-black text-white/20 uppercase tracking-[0.5em] mb-12">{clock.type}</div>
-                         
-                         <div className="space-y-8 mb-20 border-l border-peru/20 pl-8">
-                            <div className="flex justify-between items-center text-[11px] font-bold uppercase tracking-widest">
-                               <span className="text-white/20">Temporal Drift</span>
-                               <span className="text-white group-hover:text-peru transition-colors">{clock.drift}</span>
-                            </div>
-                            <div className="flex justify-between items-center text-[11px] font-bold uppercase tracking-widest">
-                               <span className="text-white/20">Precision</span>
-                               <span className="text-white group-hover:text-peru transition-colors">{clock.precision}</span>
-                            </div>
-                            <div className="flex justify-between items-center text-[11px] font-bold uppercase tracking-widest">
-                               <span className="text-white/20">Stability</span>
-                               <span className="text-white group-hover:text-peru transition-colors">{clock.stability}</span>
-                            </div>
-                         </div>
-
-                         <p className="text-[12px] text-white/30 leading-loose uppercase tracking-[0.2em] font-bold italic mb-16">
-                            {clock.desc}
-                         </p>
-
-                         <div className="mt-auto pt-10 border-t border-white/5 flex justify-between items-center">
-                            <span className="text-[10px] font-black text-white/10 uppercase tracking-widest">Ref: {clock.id}</span>
-                            <button className="text-[10px] font-black uppercase text-white/40 flex items-center gap-4 group-hover:text-white transition-all">
-                               Technical_Specs <ChevronRight className="w-5 h-5" />
-                            </button>
-                         </div>
-                      </div>
-                   </Reveal>
-                 ))}
-              </div>
-           </div>
-        </section>
-
-        {/* ==========================================
-            3. CHRONO MONITOR (INTERACTIVE DATA)
-            ========================================== */}
-        <section className="py-60 bg-black relative border-y border-white/5 overflow-hidden">
-           <div className="max-w-[1400px] mx-auto px-8 md:px-24">
-              <div className="grid lg:grid-cols-2 gap-40 items-center">
-                 <div>
-                    <Reveal>
-                       <span className="text-[10px] font-black uppercase tracking-[0.5em] text-peru block mb-12 italic underline underline-offset-8 decoration-peru/20">Chrono // Performance</span>
-                       <h2 className="text-7xl md:text-[9vw] font-light italic leading-none text-white mb-16 uppercase tracking-tighter">
-                          The <br/> <span className="not-italic font-black text-white/5 italic">Temporal_Link.</span>
-                       </h2>
-                       <p className="text-2xl font-light text-white/20 leading-relaxed mb-24 italic uppercase tracking-[0.2em] max-w-xl">
-                          Surveillance chronométrique en temps réel. Nos nœuds UTC synchronisent les horloges atomiques mondiales pour garantir une intégrité temporelle absolue sur tous les continents.
-                       </p>
-                       <div className="grid grid-cols-2 gap-px bg-white/5 border border-white/5 mb-24 shadow-2xl">
-                          {CHRONO_METRICS.map((metric, i) => (
-                            <div key={i} className="p-16 bg-[#0a0806] group hover:bg-white/[0.02] transition-all border-r border-b last:border-r-0 border-white/5">
-                               <div className="text-[10px] font-black uppercase text-peru mb-6 tracking-[0.4em]">{metric.label}</div>
-                               <div className="text-5xl font-black text-white italic mb-6 tracking-tighter group-hover:translate-x-4 transition-transform">{metric.value}</div>
-                               <div className="flex items-center gap-3 text-[9px] font-bold uppercase tracking-[0.3em] text-white/10 italic">
-                                  <Activity className="w-4 h-4 text-peru" /> {metric.trend}
-                               </div>
-                            </div>
-                          ))}
-                       </div>
-                       <button 
-                         onClick={() => setIsTimeLocked(!isTimeLocked)}
-                         className="w-full py-8 bg-peru text-black text-[11px] font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all shadow-2xl flex items-center justify-center gap-6 italic"
-                       >
-                          <Settings className="w-5 h-5" /> Re-Sync Temporal Nodes
-                       </button>
-                    </Reveal>
-                 </div>
-                 
-                 <div className="relative">
-                    <Reveal delay={0.3} x={40}>
-                       <div className="aspect-square bg-[#0a0806] border border-white/10 p-20 flex flex-col justify-between relative group overflow-hidden shadow-2xl">
-                          <div className="absolute top-0 right-0 p-80 bg-peru opacity-[0.02] blur-[150px] rounded-full group-hover:opacity-[0.05] transition-opacity" />
-                          
-                          <div className="flex justify-between items-start z-10">
-                             <div className="flex flex-col gap-3">
-                                <span className="text-[10px] font-black text-white/10 uppercase tracking-[0.5em]">Chrono_Link // SYNC-v42</span>
-                                <span className="text-[12px] font-black text-white/40 uppercase tracking-[0.6em]">Temporal_Jitter_Map</span>
-                             </div>
-                             <Wifi className="w-6 h-6 text-peru" />
-                          </div>
-                          
-                          {/* CHRONO VISUALIZER (SVG) */}
-                          <div className="relative z-10 flex flex-col items-center justify-center h-full">
-                             <div className="w-64 h-64 border border-peru/5 rounded-full flex items-center justify-center relative">
-                                <motion.div 
-                                  animate={{ rotate: 360 }}
-                                  transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
-                                  className="absolute inset-0 border-t-2 border-peru/20 rounded-full" 
-                                />
-                                <motion.div 
-                                  animate={{ rotate: -360 }}
-                                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                                  className="absolute inset-8 border-b-2 border-peru/10 rounded-full" 
-                                />
-                                <Clock className={`w-24 h-24 transition-colors duration-1000 ${isTimeLocked ? "text-peru animate-pulse" : "text-white/5"}`} />
-                             </div>
-                             <div className="mt-16 text-center space-y-6">
-                                <div className={`text-4xl font-black italic tracking-tighter ${isTimeLocked ? "text-white" : "text-white/20"}`}>
-                                   {isTimeLocked ? "TIME_LOCKED" : "TIME_DRIFT"}
-                                </div>
-                                <span className="text-[11px] font-bold text-white/10 uppercase tracking-[0.6em] block">Auth_Node: CHRONO_UNIT_01</span>
-                             </div>
-                          </div>
-
-                          <div className="relative z-10 flex gap-6">
-                             <div className="flex-1 h-1 bg-white/5 overflow-hidden">
-                                <motion.div 
-                                   animate={isTimeLocked ? { x: ["-100%", "100%"] } : {}}
-                                   transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-                                   className="w-1/2 h-full bg-peru"
-                                />
-                             </div>
-                          </div>
-                       </div>
-                    </Reveal>
-                 </div>
-              </div>
-           </div>
-        </section>
-
-        {/* ==========================================
-            4. CHRONO STORY (TECH STORYTELLING)
-            ========================================== */}
-        <section className="py-60 bg-[#0a0806] relative overflow-hidden border-t border-white/5">
-           <div className="max-w-[1400px] mx-auto px-8 md:px-24">
-              <div className="grid lg:grid-cols-2 gap-40 items-center">
-                 <div className="relative aspect-[3/4] overflow-hidden group border border-white/5 shadow-2xl">
-                    <Image 
-                       src="https://images.unsplash.com/photo-1508962914676-139429cf6978?q=80&w=1200&auto=format&fit=crop" 
-                       alt="Atomic Clock Infrastructure" 
-                       fill 
-                       className="object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-[2000ms]"
-                    />
-                    <div className="absolute inset-0 bg-peru/10 mix-blend-color group-hover:opacity-0 transition-opacity" />
-                    <div className="absolute inset-0 p-20 flex flex-col justify-end bg-gradient-to-t from-black via-black/40 to-transparent">
-                       <div className="text-white">
-                          <span className="text-[11px] font-black uppercase tracking-[0.6em] text-peru mb-8 block italic underline underline-offset-8 decoration-peru/20">Atelier // Purity // Unit</span>
-                          <h4 className="text-6xl font-black tracking-tighter uppercase italic mb-12 mix-blend-difference text-white">Chrono <br/> Fabric.</h4>
-                          <button className="flex items-center gap-6 text-[11px] font-black uppercase tracking-[0.4em] border-b border-white/20 pb-4 hover:border-peru transition-all group">
-                             Sync Protocols <ExternalLink className="w-5 h-5 group-hover:translate-x-2 group-hover:-translate-y-2 transition-transform" />
-                          </button>
-                       </div>
-                    </div>
-                 </div>
-
-                 <div>
-                    <Reveal>
-                       <div className="mb-24 text-left">
-                          <span className="text-[10px] font-black uppercase tracking-[0.5em] text-peru mb-8 block italic">Chapitre III // Synchronisation</span>
-                          <h2 className="text-7xl md:text-[10vw] font-black tracking-tighter uppercase text-white italic leading-none text-white">Pure_Time.</h2>
-                       </div>
-                       <p className="text-2xl font-light text-white/20 leading-relaxed italic mb-20 uppercase tracking-[0.2em]">
-                          Le temps est notre fondation. Nous synchronisons les impulsions atomiques pour créer une grille temporelle globale immuable, essentielle à l'économie moderne.
-                       </p>
-                       <div className="space-y-20">
-                          {[
-                            { t: "Atomic Oscillation", d: "Mesure ultra-précise de la fréquence de transition électronique du césium pour définir la seconde." },
-                            { t: "Orbital Sync Link", d: "Coordination temporelle par satellite pour corriger les effets de la dilatation temporelle relativiste." },
-                            { t: "Network Propagation", d: "Distribution du signal horaire via fibre optique à compensation de phase pour les infrastructures critiques." }
-                          ].map((step, i) => (
-                            <div key={i} className="group flex gap-12 border-b border-white/5 pb-16 hover:border-peru/20 transition-all cursor-default">
-                               <div className="text-6xl font-black text-white/5 group-hover:text-peru/20 transition-colors italic leading-none">0{i+1}</div>
-                               <div>
-                                  <h5 className="text-3xl font-black uppercase tracking-tight text-white mb-6 italic group-hover:translate-x-4 transition-transform text-white">{step.t}</h5>
-                                  <p className="text-[12px] text-white/20 uppercase tracking-[0.3em] font-bold leading-loose italic">{step.d}</p>
-                               </div>
-                            </div>
-                          ))}
-                       </div>
-                    </Reveal>
-                 </div>
-              </div>
-           </div>
-        </section>
-
-        {/* MEGA FOOTER */}
-        <footer className="bg-black pt-60 pb-12 px-8 md:px-24 relative z-50">
-           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-32 mb-60 text-white">
-              <div className="lg:col-span-2">
-                 <div className="flex items-center gap-6 mb-16">
-                    <div className="w-16 h-16 bg-peru flex items-center justify-center">
-                      <Timer className="w-10 h-10 text-black" />
-                    </div>
-                    <span className="text-4xl font-black uppercase tracking-tighter italic">CHRONOS<span className="text-white/20">ENGINE.</span></span>
-                 </div>
-                 <p className="text-white/20 text-[11px] font-black uppercase tracking-[0.5em] leading-loose max-w-sm mb-20 italic">
-                    "La maîtrise du temps, à la nanoseconde près." — Archive Chronos V.42
-                 </p>
-                 <div className="flex gap-16">
-                    {["SyncLog", "AtomicRegistry", "GitHub", "X_Protocol"].map(s => (
-                      <Link key={s} href="#" className="text-[11px] font-black uppercase tracking-widest text-white/20 hover:text-peru transition-colors italic underline underline-offset-8 decoration-white/5">{s}</Link>
-                    ))}
-                 </div>
-              </div>
-
-              {[
-                { t: "STANDARDS", l: ["Cesium Master", "Hydrogen Maser", "Ion-Trap Pulse", "Crystal Ref"] },
-                { t: "TECHNOLOGY", l: ["Orbital Sync", "Phase Compensation", "Relativity Correction", "SLA Reports"] },
-                { t: "ATELIER", l: ["Our Legacy", "UTC Definition", "Locations", "Support"] }
-              ].map((col, i) => (
-                <div key={i} className="flex flex-col gap-12">
-                  <h4 className="text-[11px] font-black text-peru uppercase tracking-[0.6em] italic">{col.t}</h4>
-                  <ul className="flex flex-col gap-8">
-                    {col.l.map(link => (
-                      <li key={link} className="text-[11px] font-bold text-white/20 hover:text-white transition-colors cursor-pointer uppercase tracking-[0.4em] italic">{link}</li>
-                    ))}
-                  </ul>
+              )}
+              <h3 style={{ fontFamily: C.serif, fontSize: "clamp(32px, 4vw, 52px)", fontStyle: "italic", fontWeight: 400, color: C.plum, marginBottom: 24 }}>{EVENT_TYPES[activeType].name}</h3>
+              <p style={{ fontSize: 17, color: C.muted, lineHeight: 1.8, marginBottom: 40 }}>{EVENT_TYPES[activeType].desc}</p>
+              <motion.button whileHover={{ background: EVENT_TYPES[activeType].accent, color: "#fff", borderColor: EVENT_TYPES[activeType].accent }} whileTap={{ scale: 0.97 }}
+                style={{ padding: "14px 36px", background: "transparent", color: EVENT_TYPES[activeType].accent, border: `1.5px solid ${EVENT_TYPES[activeType].accent}`, fontSize: 13, letterSpacing: 1, cursor: "pointer", transition: "all 0.2s", fontFamily: C.sans, fontWeight: 600 }}>
+                En savoir plus →
+              </motion.button>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+              {["Sélection du lieu", "Scénographie", "Gestion prestataires", "Coordination jour J"].map((feat, j) => (
+                <div key={j} style={{ background: C.bg, border: `1px solid ${C.border}`, padding: "20px 20px", textAlign: "center" }}>
+                  <div style={{ fontSize: 20, color: EVENT_TYPES[activeType].accent, marginBottom: 8, fontFamily: C.serif, fontStyle: "italic" }}>{EVENT_TYPES[activeType].icon}</div>
+                  <div style={{ fontSize: 12, color: C.muted, fontWeight: 500 }}>{feat}</div>
                 </div>
               ))}
-           </div>
+            </div>
+          </motion.div>
+        </AnimatePresence>
+      </section>
 
-           <div className="max-w-[1600px] mx-auto border-t border-white/5 pt-16 flex flex-col md:flex-row justify-between items-center gap-16 text-[10px] font-black text-white/10 uppercase tracking-[0.6em] italic">
-              <span>© 2026 CHRONOS ENGINE TEMPORAL ENGINEERING AG. // ALL_RIGHTS_RESERVED</span>
-              <div className="flex gap-16">
-                 <span>STATUS: OPERATIONAL</span>
-                 <span>DRIFT: 0.02ns/d (AVG)</span>
-                 <span>v4.12.0-STABLE</span>
+      {/* TIMELINE / PROCESS */}
+      <section ref={stepsRef} style={{ padding: "100px 60px", background: "#f5ede2", borderBottom: `1px solid ${C.border}` }}>
+        <h2 style={{ fontFamily: C.serif, fontSize: "clamp(36px, 4vw, 56px)", fontStyle: "italic", fontWeight: 400, color: C.plum, textAlign: "center", marginBottom: 80 }}>Notre méthode.</h2>
+        <div style={{ position: "relative", maxWidth: 900, margin: "0 auto" }}>
+          <div style={{ position: "absolute", left: 48, top: 0, bottom: 0, width: 1, background: C.border }} />
+          {STEPS.map((step, i) => (
+            <motion.div key={i} initial={{ opacity: 0, x: -30 }} animate={stepsInView ? { opacity: 1, x: 0 } : {}} transition={{ delay: i * 0.15, duration: 0.6 }}
+              style={{ display: "grid", gridTemplateColumns: "100px 1fr", gap: 40, marginBottom: 56, position: "relative" }}>
+              <div style={{ textAlign: "center", position: "relative", zIndex: 1 }}>
+                <div style={{ width: 40, height: 40, background: C.terracotta, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: C.serif, fontSize: 16, fontStyle: "italic", color: "#fff", margin: "0 auto 12px" }}>{step.num}</div>
+                <div style={{ fontSize: 10, color: C.muted, letterSpacing: 1, lineHeight: 1.4 }}>{step.duration}</div>
               </div>
-           </div>
-        </footer>
-      </main>
-    </div>
-  )
-}
+              <div style={{ paddingTop: 8 }}>
+                <div style={{ fontFamily: C.serif, fontSize: 24, fontStyle: "italic", color: C.plum, marginBottom: 12 }}>{step.title}</div>
+                <p style={{ fontSize: 15, color: C.muted, lineHeight: 1.75 }}>{step.desc}</p>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </section>
 
-/* ==========================================
-   TECHNICAL SUB-COMPONENTS
-   ========================================== */
+      {/* TESTIMONIALS */}
+      <section style={{ padding: "100px 60px", borderBottom: `1px solid ${C.border}` }}>
+        <h2 style={{ fontFamily: C.serif, fontSize: "clamp(36px, 4vw, 56px)", fontStyle: "italic", fontWeight: 400, color: C.plum, textAlign: "center", marginBottom: 64 }}>Ils nous ont fait confiance.</h2>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 40, maxWidth: 1280, margin: "0 auto" }}>
+          {TESTIMONIALS.map((t, i) => (
+            <motion.div key={i} initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.15 }}>
+              <div style={{ fontFamily: C.serif, fontSize: 48, color: C.terracotta, lineHeight: 0.8, marginBottom: 20, fontStyle: "italic" }}>"</div>
+              <p style={{ fontFamily: C.serif, fontSize: 18, fontStyle: "italic", color: C.plum, lineHeight: 1.7, marginBottom: 24 }}>{t.quote}</p>
+              <div style={{ fontSize: 12, color: C.muted, letterSpacing: 0.5 }}>{t.name} · {t.event}</div>
+            </motion.div>
+          ))}
+        </div>
+      </section>
 
-function HUD_Overlay({ isTimeLocked }: { isTimeLocked: boolean }) {
-  return (
-    <div className="fixed inset-0 pointer-events-none z-[100]">
-       {/* Corner Brackets */}
-       <div className={`absolute top-12 left-12 w-20 h-20 border-t-2 border-l-2 transition-colors duration-1000 ${isTimeLocked ? "border-peru" : "border-white/10"}`} />
-       <div className={`absolute top-12 right-12 w-20 h-20 border-t-2 border-r-2 transition-colors duration-1000 ${isTimeLocked ? "border-peru" : "border-white/10"}`} />
-       <div className={`absolute bottom-12 left-12 w-20 h-20 border-b-2 border-l-2 transition-colors duration-1000 ${isTimeLocked ? "border-peru" : "border-white/10"}`} />
-       <div className={`absolute bottom-12 right-12 w-20 h-20 border-b-2 border-r-2 transition-colors duration-1000 ${isTimeLocked ? "border-peru" : "border-white/10"}`} />
+      {/* PRICING */}
+      <section ref={pricingRef} style={{ padding: "100px 60px", background: "#f5ede2", borderBottom: `1px solid ${C.border}` }}>
+        <h2 style={{ fontFamily: C.serif, fontSize: "clamp(36px, 4vw, 56px)", fontStyle: "italic", fontWeight: 400, color: C.plum, textAlign: "center", marginBottom: 64 }}>Formules & honoraires.</h2>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 24, maxWidth: 1100, margin: "0 auto" }}>
+          {PLANS.map((p, i) => (
+            <motion.div key={i} initial={{ opacity: 0, y: 36 }} animate={pricingInView ? { opacity: 1, y: 0 } : {}} transition={{ delay: i * 0.15 }}
+              style={{ background: p.highlight ? C.plum : C.card, border: p.highlight ? "none" : `1px solid ${C.border}`, padding: "48px 40px", boxShadow: p.highlight ? "0 20px 60px rgba(61,38,69,0.25)" : "none", transform: p.highlight ? "scale(1.03)" : "none" }}>
+              <div style={{ fontSize: 11, letterSpacing: 3, color: p.highlight ? "rgba(232,212,184,0.7)" : C.muted, textTransform: "uppercase", marginBottom: 20 }}>{p.name}</div>
+              <div style={{ fontFamily: C.serif, fontSize: 32, fontStyle: "italic", color: p.highlight ? C.champagne : C.plum, lineHeight: 1, marginBottom: 6 }}>{p.price}</div>
+              <div style={{ fontSize: 13, color: p.highlight ? "rgba(232,212,184,0.5)" : C.muted, marginBottom: 40 }}>{p.note}</div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 14, marginBottom: 40 }}>
+                {p.features.map((f, j) => (
+                  <div key={j} style={{ display: "flex", gap: 10, fontSize: 14, color: p.highlight ? "rgba(232,212,184,0.8)" : C.text, alignItems: "flex-start" }}>
+                    <span style={{ color: C.terracotta, marginTop: 1 }}>—</span> {f}
+                  </div>
+                ))}
+              </div>
+              <motion.button whileHover={{ background: p.highlight ? C.champagne : C.terracotta, color: C.plum }} whileTap={{ scale: 0.97 }}
+                style={{ width: "100%", padding: "14px", background: p.highlight ? C.terracotta : "transparent", color: p.highlight ? "#fff" : C.terracotta, border: `1.5px solid ${p.highlight ? C.terracotta : C.border}`, fontSize: 12, letterSpacing: 2, textTransform: "uppercase", cursor: "pointer", transition: "all 0.2s", fontFamily: C.sans, fontWeight: 600 }}>
+                Nous contacter
+              </motion.button>
+            </motion.div>
+          ))}
+        </div>
+      </section>
 
-       {/* Top Status Bar */}
-       <div className="absolute top-12 left-1/2 -translate-x-1/2 flex items-center gap-20 bg-black/60 backdrop-blur-2xl px-12 py-4 border border-white/10 rounded-none">
-          <div className="flex items-center gap-6 text-white">
-             <div className={`w-3 h-3 transition-colors duration-500 ${isTimeLocked ? "bg-peru animate-pulse" : "bg-red-500 animate-ping"}`} />
-             <span className="text-[10px] font-black uppercase tracking-[0.4em] italic leading-none">Chrono_Sync: {isTimeLocked ? "NOMINAL" : "DRIFT_LOSS"} // Status: ACTIVE</span>
+      {/* FAQ */}
+      <section style={{ maxWidth: 800, margin: "0 auto", padding: "100px 60px" }}>
+        <h2 style={{ fontFamily: C.serif, fontSize: 48, fontStyle: "italic", fontWeight: 400, color: C.plum, textAlign: "center", marginBottom: 56 }}>Questions fréquentes.</h2>
+        {FAQS.map((f, i) => (
+          <div key={i} style={{ borderBottom: `1px solid ${C.border}` }}>
+            <button onClick={() => setOpenFaq(openFaq === i ? null : i)}
+              style={{ width: "100%", display: "flex", justifyContent: "space-between", alignItems: "center", padding: "22px 0", background: "none", border: "none", cursor: "pointer", textAlign: "left" }}>
+              <span style={{ fontFamily: C.serif, fontSize: 17, fontStyle: "italic", color: C.plum }}>{f.q}</span>
+              <motion.span animate={{ rotate: openFaq === i ? 45 : 0 }} style={{ fontSize: 22, color: C.terracotta, minWidth: 22 }}>+</motion.span>
+            </button>
+            <AnimatePresence>
+              {openFaq === i && (
+                <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }}>
+                  <p style={{ paddingBottom: 22, fontSize: 14, color: C.muted, lineHeight: 1.85 }}>{f.a}</p>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
-          <div className="h-4 w-px bg-white/20" />
-          <div className="flex items-center gap-6 text-white/20">
-             <Wifi className="w-4 h-4" /> 
-             <span className="text-[10px] font-black uppercase tracking-[0.4em] italic leading-none">Sync_Grid: SECURE</span>
-          </div>
-       </div>
+        ))}
+      </section>
 
-       {/* Right Rotation Info */}
-       <div className="absolute right-12 top-1/2 -translate-y-1/2 rotate-90 origin-right hidden lg:block">
-          <span className="text-[10px] font-black uppercase tracking-[0.8em] text-white/5 italic">Unauthorized_Duplication_Of_Temporal_Patterns_Is_Strictly_Monitored_By_Global_Chrono_Alliance</span>
-       </div>
+      {/* CTA */}
+      <section style={{ background: C.plum, padding: "100px 60px", textAlign: "center" }}>
+        <div style={{ fontFamily: C.serif, fontSize: 12, letterSpacing: 6, color: "rgba(232,212,184,0.6)", textTransform: "uppercase", marginBottom: 32 }}>Parlons de votre projet</div>
+        <h2 style={{ fontFamily: C.serif, fontSize: "clamp(48px, 7vw, 96px)", fontStyle: "italic", fontWeight: 300, color: "#faf6f0", lineHeight: 1.0, marginBottom: 48 }}>
+          Votre grand jour<br />commence ici.
+        </h2>
+        <div style={{ display: "flex", gap: 16, justifyContent: "center" }}>
+          <motion.button whileHover={{ background: "#fff", color: C.plum }} whileTap={{ scale: 0.97 }}
+            style={{ padding: "18px 48px", background: C.terracotta, color: "#fff", border: "none", fontSize: 15, fontWeight: 600, cursor: "pointer", transition: "all 0.2s" }}>
+            Premier appel gratuit →
+          </motion.button>
+        </div>
+      </section>
+
+      {/* FOOTER */}
+      <footer style={{ background: "#1a0f22", padding: "48px 60px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div style={{ fontFamily: C.serif, fontSize: 18, fontStyle: "italic", color: C.champagne }}>Confluence Events</div>
+        <div style={{ fontSize: 12, color: "#4a3a5a" }}>© 2025 · Paris, France · SIRET 123 456 789 00010</div>
+      </footer>
     </div>
   )
 }

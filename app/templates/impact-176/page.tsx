@@ -1,517 +1,297 @@
 "use client"
 
-import React, { useState, useEffect, useRef } from "react"
-import { 
-  motion, 
-  AnimatePresence, 
-  useScroll, 
-  useTransform, 
-  useInView, 
-  useSpring 
-} from "framer-motion"
-import Image from "next/image"
-import Link from "next/link"
-import { 
-  Rocket, Zap, Activity, Microscope, 
-  Target, Layers, Box, Hexagon, 
-  Terminal, Settings, Power, Info, 
-  AlertTriangle, ChevronRight, ArrowRight, 
-  Share2, Maximize2, Download, ExternalLink, 
-  Archive, Hash, Wifi, BarChart3, 
-  Fingerprint, Scan, Brain, Server, 
-  ShieldCheck, ShieldAlert, Award, 
-  Briefcase, Wind, Thermometer, 
-  Flame, Battery, Radio, Gauge, 
-  Timer, Lightbulb, Command, Grid, 
-  Radar, Orbit, Atom, Satellite, 
-  Milestone, FlaskConical, FlaskRound, 
-  Ghost, Ship, Anchor, Globe, 
-  MapPin, Database, Search, Cpu, 
-  BoxSelect, Construction, Move
-} from "lucide-react"
+import React, { useState, useRef } from "react"
+import { motion, useScroll, useTransform, useInView, AnimatePresence } from "framer-motion"
 
-/* ==========================================================================
-   THE ORBITAL FORGE DATASET (ULTRA DENSITY)
-   ========================================================================== */
+// METRIC — SaaS analytics platform. Dark navy + cyan accent. Metrics-first hero, live chart preview, data viz showcase.
+// Unique: animated counting numbers, dashboard mockup in hero, horizontal scroll feature strip.
 
-const ORBITAL_ASSETS = [
-  {
-    id: "asset-hm-42",
-    name: "Habitation Module v4",
-    type: "Deep Space Life Support",
-    mass: "420 Tons",
-    integrity: "98.4 MPa",
-    shielding: "Class-A (Solar)",
-    desc: "Module d'habitation autonome avec systèmes de support de vie régénératifs et blindage multicouche contre les radiations cosmiques.",
-    status: "Docked"
-  },
-  {
-    id: "asset-sf-08",
-    name: "Solar Farm Alpha",
-    type: "Energy Generation",
-    mass: "1,240 Tons",
-    integrity: "84.2 MPa",
-    shielding: "Class-B (Thermal)",
-    desc: "Vaste réseau de panneaux solaires à haut rendement déployés en orbite géostationnaire pour alimenter les colonies lunaires.",
-    status: "Under Construction"
-  },
-  {
-    id: "asset-se-15",
-    name: "Space Elevator Link",
-    type: "Planetary Logistics",
-    mass: "4,800 Tons",
-    integrity: "240.5 MPa",
-    shielding: "Class-S (Ion)",
-    desc: "Segment de câble en nanotubes de carbone reliant l'orbite basse à la station de surface, optimisé pour le transport lourd.",
-    status: "Operational"
+const FEATURES = [
+  { name: "Tableaux de bord temps réel", desc: "Données actualisées toutes les 5 secondes. Widgets personnalisables par drag & drop. 40+ types de visualisations.", metric: "< 5s latence" },
+  { name: "Alertes intelligentes", desc: "Seuils d'alerte configurables avec IA. Notifications Slack, email, webhook. Prévention avant l'incident.", metric: "99.7% précision" },
+  { name: "Rapports automatiques", desc: "Envoi hebdomadaire/mensuel en PDF ou HTML. Branded. Destinataires multiples sans compte nécessaire.", metric: "White-label inclus" },
+  { name: "Connecteurs natifs", desc: "200+ intégrations : GA4, Stripe, HubSpot, Salesforce, Postgres, BigQuery. SDK REST pour le reste.", metric: "200+ intégrations" },
+  { name: "Segmentation avancée", desc: "Cohortes, entonnoirs, rétention, heatmaps. Analyse comportementale sans code.", metric: "No-code" },
+  { name: "Accès équipe & rôles", desc: "Espaces de travail, permissions granulaires, SSO SAML. Audit log complet.", metric: "SOC 2 Type II" },
+]
+
+const TESTIMONIALS = [
+  { quote: "On a remplacé 4 outils par Metric. Moins de réunions de reporting, plus de décisions basées sur des données réelles.", name: "Camille Roux", role: "Head of Growth, Scale-up B2B (110 pers.)" },
+  { quote: "Les alertes IA ont détecté un bug de tracking 48h avant qu'on le remarque. Ça nous a évité de perdre 2 semaines de données propres.", name: "Théo Marchand", role: "Analytics Lead, E-commerce 4M€ CA" },
+  { quote: "L'intégration Stripe → Metric m'a donné une visibilité MRR/churn en temps réel que j'avais cherché à construire pendant 6 mois.", name: "Sarah K.", role: "Founder & CEO, SaaS Fintech" },
+]
+
+const PLANS = [
+  { name: "Starter", price: "79 €", note: "/mois · jusqu'à 3 utilisateurs", features: ["10 sources de données", "Dashboards illimités", "Alertes basiques", "7 jours d'historique", "Support email"] },
+  { name: "Growth", price: "299 €", note: "/mois · jusqu'à 15 utilisateurs", features: ["Sources illimitées", "Alertes IA", "Rapports automatiques", "90 jours d'historique", "Intégrations premium", "Support prioritaire"], highlight: true },
+  { name: "Enterprise", price: "Sur devis", note: "utilisateurs illimités", features: ["Tout Growth inclus", "SLA 99.9%", "SSO SAML", "Data residency EU", "Onboarding dédié", "Account manager"] },
+]
+
+const FAQS = [
+  { q: "Vos données sont-elles stockées en Europe ?", a: "Oui — infrastructure 100% EU (AWS Paris + Frankfurt). RGPD natif, DPA disponible, certifié ISO 27001." },
+  { q: "Proposez-vous une période d'essai ?", a: "14 jours gratuits sur le plan Growth, sans CB. Données effacées à l'issue si non conversion." },
+  { q: "Comment fonctionne l'onboarding ?", a: "Wizard de connexion en 15 min pour les intégrations standards. Pour les setups complexes, un ingénieur solutions vous accompagne (inclus en Enterprise)." },
+  { q: "Puis-je importer mes données historiques ?", a: "Oui — import CSV, connexion directe BigQuery/Redshift, ou via notre API REST. Rétention configurable jusqu'à 2 ans." },
+  { q: "Existe-t-il une API publique ?", a: "Oui — REST API complète documentée sur docs.metric.io. Webhooks, SDK JavaScript et Python disponibles." },
+]
+
+const LIVE_METRICS = [
+  { label: "Nouveaux utilisateurs", val: "2 847", change: "+12.4%", up: true },
+  { label: "MRR", val: "€ 48 290", change: "+8.1%", up: true },
+  { label: "Churn rate", val: "1.8%", change: "-0.3%", up: true },
+  { label: "NPS Score", val: "67", change: "+4", up: true },
+]
+
+export default function Page() {
+  const [openFaq, setOpenFaq] = useState<number | null>(null)
+  const [activeFeature, setActiveFeature] = useState(0)
+  const { scrollY } = useScroll()
+
+  const dashY = useTransform(scrollY, [0, 600], [0, 60])
+
+  const featRef = useRef(null)
+  const pricingRef = useRef(null)
+  const featInView = useInView(featRef, { once: true, margin: "-100px" })
+  const pricingInView = useInView(pricingRef, { once: true, margin: "-100px" })
+
+  const C = {
+    bg: "#060b18",
+    navy: "#0a1628",
+    cyan: "#00d4ff",
+    cyanDim: "#0088aa",
+    text: "#e2eaf5",
+    muted: "#4a6080",
+    card: "#0d1a2e",
+    border: "#132040",
+    mono: "'JetBrains Mono', monospace",
+    sans: "system-ui, -apple-system, sans-serif",
   }
-]
-
-const ORBITAL_METRICS = [
-  { label: "Orbital Speed", value: "7.8 km/s", trend: "Constant" },
-  { label: "Structural Sync", value: "99.98%", trend: "Optimal" },
-  { label: "Radiation Level", value: "0.02 mSv/h", trend: "Safe" },
-  { label: "Module Alignment", value: "0.01mm", trend: "Precise" }
-]
-
-const FABRICATION_LOGS = [
-  { timestamp: "14:14:42", unit: "Assembly-Drone-01", status: "LOCKED", torque: "420 Nm" },
-  { timestamp: "14:14:45", unit: "Shielding-Infuser", status: "ACTIVE", flow: "1.2 L/s" },
-  { timestamp: "14:14:48", unit: "Vacuum-Sync", status: "SUCCESS", pressure: "10^-11 Pa" }
-]
-
-/* ==========================================
-   TECHNICAL COMPONENTS
-   ========================================== */
-
-function Reveal({ children, delay = 0, y = 40, x = 0 }: { children: React.ReactNode, delay?: number, y?: number, x?: number }) {
-  const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, margin: "-100px" })
-  return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, y, x }}
-      animate={isInView ? { opacity: 1, y: 0, x: 0 } : {}}
-      transition={{ duration: 1.2, delay, ease: [0.16, 1, 0.3, 1] }}
-    >
-      {children}
-    </motion.div>
-  )
-}
-
-function ZeroGMeshVisualizer() {
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
-  useEffect(() => {
-    const handleMouse = (e: MouseEvent) => setMousePos({ x: e.clientX, y: e.clientY })
-    window.addEventListener("mousemove", handleMouse)
-    return () => window.removeEventListener("mousemove", handleMouse)
-  }, [])
 
   return (
-    <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden opacity-5">
-       <svg width="100%" height="100%" className="w-full h-full">
-          {[...Array(20)].map((_, i) => (
-            <motion.line 
-               key={i}
-               x1={`${Math.random() * 100}%`} 
-               y1={`${Math.random() * 100}%`} 
-               x2={`${Math.random() * 100}%`} 
-               y2={`${Math.random() * 100}%`} 
-               stroke="white" 
-               strokeWidth="0.5" 
-               animate={{ opacity: [0, 0.5, 0] }}
-               transition={{ duration: 3 + Math.random() * 4, repeat: Infinity, delay: Math.random() * 5 }}
-            />
+    <div style={{ background: C.bg, color: C.text, fontFamily: C.sans, overflowX: "hidden" }}>
+      {/* NAV */}
+      <nav style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 100, background: "rgba(6,11,24,0.97)", backdropFilter: "blur(16px)", borderBottom: `1px solid ${C.border}`, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 60px", height: 60 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div style={{ width: 28, height: 28, background: `linear-gradient(135deg, ${C.cyan}, #0066aa)`, borderRadius: 6, display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          </div>
+          <span style={{ fontWeight: 800, fontSize: 16, letterSpacing: -0.5, color: "#fff" }}>Metric</span>
+        </div>
+        <div style={{ display: "flex", gap: 36, alignItems: "center" }}>
+          {["Fonctionnalités", "Intégrations", "Tarifs", "Docs"].map(l => (
+            <a key={l} href="#" style={{ fontSize: 13, color: C.muted, textDecoration: "none", fontWeight: 500, transition: "color 0.2s" }}
+              onMouseEnter={e => (e.currentTarget.style.color = C.cyan)}
+              onMouseLeave={e => (e.currentTarget.style.color = C.muted)}>
+              {l}
+            </a>
           ))}
-          <motion.circle 
-             animate={{ cx: mousePos.x, cy: mousePos.y }}
-             transition={{ type: "spring", damping: 30, stiffness: 100 }}
-             r="200" 
-             fill="white" 
-             className="opacity-20 blur-[120px]"
-          />
-       </svg>
-    </div>
-  )
-}
+          <motion.button whileHover={{ background: C.cyan, color: C.bg }} whileTap={{ scale: 0.97 }}
+            style={{ padding: "8px 22px", background: "transparent", color: C.cyan, border: `1.5px solid ${C.cyan}`, fontSize: 13, fontWeight: 600, cursor: "pointer", transition: "all 0.2s", borderRadius: 6, fontFamily: C.sans }}>
+            Essai gratuit
+          </motion.button>
+        </div>
+      </nav>
 
-function OrbitalHubModel({ progress }: { progress: any }) {
-  const rotate = useTransform(progress, [0, 1], [0, 360])
-  const scale = useTransform(progress, [0, 0.5, 1], [1, 1.2, 1])
-
-  return (
-    <motion.div style={{ rotate, scale }} className="relative w-80 h-80 flex items-center justify-center">
-       <div className="absolute inset-0 border border-white/10 rounded-full animate-spin-slow shadow-[0_0_80px_rgba(255,255,255,0.05)]" />
-       <Satellite className="w-40 h-40 text-white/10 animate-pulse" />
-       <div className="absolute inset-8 border border-white/5 rounded-full" />
-    </motion.div>
-  )
-}
-
-/* ==========================================
-   THE ORBITAL FORGE - MAIN INTERFACE
-   ========================================== */
-
-export default function OrbitalForgePremium() {
-  const [activeAsset, setActiveAsset] = useState(0)
-  const [isOrbitalLockActive, setIsOrbitalLockActive] = useState(true)
-  const containerRef = useRef(null)
-  const { scrollYProgress } = useScroll({ target: containerRef })
-
-  // Orbital Scroll Effects
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.2], [1, 0])
-  const textX = useTransform(scrollYProgress, [0, 0.5], [0, -100])
-
-  return (
-    <div ref={containerRef} className="bg-[#020408] text-[#e0e8ed] font-mono selection:bg-white/10 selection:text-white min-h-screen overflow-x-hidden transition-colors duration-1000">
-      
-      {/* GLOBAL HUD OVERLAY */}
-      <HUD_Overlay isOrbitalLockActive={isOrbitalLockActive} />
-
-      <main>
-        {/* ==========================================
-            1. VACUUM IGNITION (HERO)
-            ========================================== */}
-        <section className="relative h-screen flex flex-col justify-center items-center px-8 md:px-24 overflow-hidden pt-20">
-          <ZeroGMeshVisualizer />
-          <motion.div style={{ opacity: heroOpacity }} className="absolute z-0 pointer-events-none flex items-center justify-center">
-             <OrbitalHubModel progress={scrollYProgress} />
-          </motion.div>
-
-          <div className="relative z-10 text-center max-w-7xl">
-             <Reveal>
-                <div className="inline-flex items-center gap-4 px-6 py-2 border border-white/30 bg-white/5 text-[10px] font-black uppercase tracking-[0.5em] text-white mb-12 italic">
-                   <Orbit className="w-4 h-4" /> Orbital_Sync: NOMINAL // Velocity: 7.8 km/s
-                </div>
-                <motion.h1 style={{ x: textX }} className="text-7xl md:text-[14vw] font-black tracking-tighter uppercase mb-16 leading-[0.75] italic">
-                   Orbital <br/> <span className="text-white/5 italic">Forge.</span>
-                </motion.h1>
-                <p className="max-w-3xl mx-auto text-sm md:text-lg text-white/30 leading-relaxed uppercase tracking-widest font-light mb-16 italic">
-                   L'ingénierie des méga-structures par l'assemblage en micro-gravité. Nous construisons les infrastructures de demain en orbite basse et au-delà.
-                </p>
-                
-                <div className="flex flex-col sm:flex-row gap-8 justify-center items-center">
-                   <button className="px-12 py-6 bg-white text-black text-[10px] font-black uppercase tracking-widest hover:bg-transparent hover:text-white border border-transparent hover:border-white transition-all shadow-[0_0_40px_rgba(255,255,255,0.1)] flex items-center gap-4 italic">
-                      <Construction className="w-5 h-5" /> Initialize Forge
-                   </button>
-                   <button className="px-12 py-6 border border-white/10 text-white text-[10px] font-black uppercase tracking-widest hover:bg-white/5 transition-all flex items-center gap-4 italic">
-                      <Archive className="w-5 h-5" /> Asset Registry
-                   </button>
-                </div>
-             </Reveal>
+      {/* HERO */}
+      <section style={{ minHeight: "100vh", paddingTop: 60, display: "flex", alignItems: "center", padding: "80px 60px", maxWidth: 1280, margin: "0 auto", gap: 80 }}>
+        <motion.div initial={{ opacity: 0, x: -40 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8 }} style={{ flex: "0 0 480px" }}>
+          <div style={{ display: "inline-flex", gap: 8, alignItems: "center", background: C.cyan + "15", border: `1px solid ${C.cyan}30`, padding: "6px 16px", borderRadius: 50, fontSize: 12, color: C.cyan, marginBottom: 36, fontFamily: C.mono }}>
+            <motion.span animate={{ opacity: [1, 0.3, 1] }} transition={{ repeat: Infinity, duration: 1.5 }} style={{ width: 6, height: 6, background: C.cyan, borderRadius: "50%", display: "inline-block" }} />
+            Données en temps réel · 99.95% uptime
           </div>
-
-          <div className="absolute bottom-12 left-12 right-12 flex justify-between items-end border-t border-white/5 pt-12">
-             <div className="flex flex-col gap-6">
-                <div className="flex items-center gap-4 text-[9px] font-bold text-white/20 uppercase tracking-widest italic">
-                   <div className="w-16 h-px bg-white/10" />
-                   Station_ID: FORGE-CORE-42
-                </div>
-                <div className="flex items-center gap-4 text-[9px] font-bold text-white/20 uppercase tracking-widest italic">
-                   <div className="w-16 h-px bg-white/10" />
-                   Docking_Status: ZERO-G_STABLE
-                </div>
-             </div>
-             <div className="text-right flex flex-col items-end gap-4">
-                <span className="text-[8px] font-black uppercase tracking-[0.5em] text-white/40">Structural_Gigue_Stream</span>
-                <div className="flex gap-2 h-12 items-end">
-                   {[...Array(16)].map((_, i) => (
-                     <motion.div 
-                        key={i}
-                        animate={{ height: ["10%", "100%", "30%", "80%", "10%"] }}
-                        transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.1 }}
-                        className="w-2 bg-white/20"
-                     />
-                   ))}
-                </div>
-             </div>
+          <h1 style={{ fontSize: "clamp(44px, 5vw, 72px)", fontWeight: 900, letterSpacing: -2.5, lineHeight: 1.05, color: "#fff", marginBottom: 24 }}>
+            Vos données.<br />
+            <span style={{ color: C.cyan }}>Vos décisions.</span><br />
+            Votre avantage.
+          </h1>
+          <p style={{ fontSize: 18, color: C.muted, lineHeight: 1.75, marginBottom: 48, maxWidth: 420 }}>
+            Metric transforme vos données brutes en insights actionnables. Dashboards, alertes et rapports — tout en un.
+          </p>
+          <div style={{ display: "flex", gap: 16 }}>
+            <motion.button whileHover={{ background: "#00b8dd" }} whileTap={{ scale: 0.97 }}
+              style={{ padding: "16px 36px", background: C.cyan, color: C.bg, border: "none", borderRadius: 8, fontSize: 16, fontWeight: 700, cursor: "pointer", transition: "background 0.2s", fontFamily: C.sans }}>
+              14 jours gratuits
+            </motion.button>
+            <motion.button whileHover={{ borderColor: C.cyan, color: C.cyan }} whileTap={{ scale: 0.97 }}
+              style={{ padding: "16px 36px", background: "transparent", color: C.muted, border: `1.5px solid ${C.border}`, borderRadius: 8, fontSize: 16, cursor: "pointer", transition: "all 0.2s", fontFamily: C.sans }}>
+              Voir la démo →
+            </motion.button>
           </div>
-        </section>
-
-        {/* ==========================================
-            2. ORBITAL REGISTRY (DENSE TECHNICAL)
-            ========================================== */}
-        <section className="py-60 bg-[#04060a] relative border-y border-white/5 overflow-hidden">
-           <div className="max-w-[1600px] mx-auto px-8 md:px-24">
-              <div className="flex flex-col md:flex-row items-end justify-between mb-40 gap-12">
-                 <Reveal>
-                    <span className="text-[10px] font-black uppercase tracking-[0.6em] text-white/40 block mb-6 italic underline underline-offset-8 decoration-white/20">Orbital // Assets</span>
-                    <h2 className="text-6xl md:text-[10vw] font-black uppercase tracking-tighter italic leading-none text-white">Archives.</h2>
-                 </Reveal>
-                 <div className="text-right">
-                    <span className="text-[10px] font-black uppercase tracking-[0.5em] text-white/20 block mb-4 italic">Registry // Orbital_Audit</span>
-                    <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/60">L'Architecture du Vide</p>
-                 </div>
+          <div style={{ display: "flex", gap: 24, marginTop: 40 }}>
+            {["SOC 2 Type II", "RGPD", "No credit card"].map(t => (
+              <div key={t} style={{ display: "flex", gap: 6, alignItems: "center", fontSize: 12, color: C.muted }}>
+                <span style={{ color: C.cyan }}>✓</span> {t}
               </div>
+            ))}
+          </div>
+        </motion.div>
 
-              <div className="grid md:grid-cols-3 gap-px bg-white/5 border border-white/5 shadow-2xl">
-                 {ORBITAL_ASSETS.map((asset, i) => (
-                   <Reveal key={asset.id} delay={i * 0.1}>
-                      <div className="bg-[#020408] p-20 flex flex-col h-full hover:bg-white/[0.02] transition-all group cursor-crosshair border-white/5 border-r last:border-r-0">
-                         <div className="flex justify-between items-start mb-16">
-                            <div className="w-16 h-16 bg-white/5 border border-white/10 flex items-center justify-center group-hover:bg-white group-hover:text-black transition-all duration-500">
-                               <BoxSelect className="w-8 h-8" />
-                            </div>
-                            <span className={`px-4 py-2 bg-white/5 text-[9px] font-black uppercase tracking-[0.3em] ${asset.status === "Operational" ? "text-white" : "text-white/40"}`}>{asset.status}</span>
-                         </div>
-                         
-                         <h3 className="text-4xl font-black uppercase tracking-tighter mb-8 italic text-white group-hover:translate-x-4 transition-transform">{asset.name}</h3>
-                         <div className="text-[10px] font-black text-white/20 uppercase tracking-[0.5em] mb-12">{asset.type}</div>
-                         
-                         <div className="space-y-8 mb-20 border-l border-white/20 pl-8">
-                            <div className="flex justify-between items-center text-[11px] font-bold uppercase tracking-widest">
-                               <span className="text-white/20">Mass</span>
-                               <span className="text-white group-hover:text-white transition-colors">{asset.mass}</span>
-                            </div>
-                            <div className="flex justify-between items-center text-[11px] font-bold uppercase tracking-widest">
-                               <span className="text-white/20">Integrity</span>
-                               <span className="text-white group-hover:text-white transition-colors">{asset.integrity}</span>
-                            </div>
-                            <div className="flex justify-between items-center text-[11px] font-bold uppercase tracking-widest">
-                               <span className="text-white/20">Shielding</span>
-                               <span className="text-white group-hover:text-white transition-colors">{asset.shielding}</span>
-                            </div>
-                         </div>
-
-                         <p className="text-[12px] text-white/30 leading-loose uppercase tracking-[0.2em] font-bold italic mb-16">
-                            {asset.desc}
-                         </p>
-
-                         <div className="mt-auto pt-10 border-t border-white/5 flex justify-between items-center">
-                            <span className="text-[10px] font-black text-white/10 uppercase tracking-widest">Ref: {asset.id}</span>
-                            <button className="text-[10px] font-black uppercase text-white/40 flex items-center gap-4 group-hover:text-white transition-all">
-                               Technical_Specs <ChevronRight className="w-5 h-5" />
-                            </button>
-                         </div>
-                      </div>
-                   </Reveal>
-                 ))}
-              </div>
-           </div>
-        </section>
-
-        {/* ==========================================
-            3. ORBITAL MONITOR (INTERACTIVE DATA)
-            ========================================== */}
-        <section className="py-60 bg-black relative border-y border-white/5 overflow-hidden">
-           <div className="max-w-[1400px] mx-auto px-8 md:px-24">
-              <div className="grid lg:grid-cols-2 gap-40 items-center">
-                 <div>
-                    <Reveal>
-                       <span className="text-[10px] font-black uppercase tracking-[0.5em] text-white/40 block mb-12 italic underline underline-offset-8 decoration-white/20">Forge // Performance</span>
-                       <h2 className="text-7xl md:text-[9vw] font-light italic leading-none text-white mb-16 uppercase tracking-tighter">
-                          The <br/> <span className="not-italic font-black text-white/5 italic">Stability_Link.</span>
-                       </h2>
-                       <p className="text-2xl font-light text-white/20 leading-relaxed mb-24 italic uppercase tracking-[0.2em] max-w-xl">
-                          Surveillance structurelle en temps réel. Nos capteurs analysent les contraintes mécaniques et l'alignement orbital pour garantir l'intégrité de chaque module assemblé.
-                       </p>
-                       <div className="grid grid-cols-2 gap-px bg-white/5 border border-white/5 mb-24 shadow-2xl">
-                          {ORBITAL_METRICS.map((metric, i) => (
-                            <div key={i} className="p-16 bg-[#0a0c0e] group hover:bg-white/[0.02] transition-all border-r border-b last:border-r-0 border-white/5">
-                               <div className="text-[10px] font-black uppercase text-white/40 mb-6 tracking-[0.4em]">{metric.label}</div>
-                               <div className="text-5xl font-black text-white italic mb-6 tracking-tighter group-hover:translate-x-4 transition-transform">{metric.value}</div>
-                               <div className="flex items-center gap-3 text-[9px] font-bold uppercase tracking-[0.3em] text-white/10 italic">
-                                  <Activity className="w-4 h-4 text-white" /> {metric.trend}
-                               </div>
-                            </div>
-                          ))}
-                       </div>
-                       <button 
-                         onClick={() => setIsOrbitalLockActive(!isOrbitalLockActive)}
-                         className="w-full py-8 bg-white text-black text-[11px] font-black uppercase tracking-widest hover:bg-transparent hover:text-white border border-transparent hover:border-white transition-all shadow-2xl flex items-center justify-center gap-6 italic"
-                       >
-                          <Settings className="w-5 h-5" /> Re-Sync Orbital Nodes
-                       </button>
-                    </Reveal>
-                 </div>
-                 
-                 <div className="relative">
-                    <Reveal delay={0.3} x={40}>
-                       <div className="aspect-square bg-[#0a0c0e] border border-white/10 p-20 flex flex-col justify-between relative group overflow-hidden shadow-2xl">
-                          <div className="absolute top-0 right-0 p-80 bg-white opacity-[0.02] blur-[150px] rounded-full group-hover:opacity-[0.05] transition-opacity" />
-                          
-                          <div className="flex justify-between items-start z-10">
-                             <div className="flex flex-col gap-3">
-                                <span className="text-[10px] font-black text-white/10 uppercase tracking-[0.5em]">Forge_Link // ORB-SYNC-v42</span>
-                                <span className="text-[12px] font-black text-white/40 uppercase tracking-[0.6em]">Zero-G_Stability_Map</span>
-                             </div>
-                             <Wifi className="w-6 h-6 text-white" />
-                          </div>
-                          
-                          {/* ORBITAL VISUALIZER (SVG) */}
-                          <div className="relative z-10 flex flex-col items-center justify-center h-full">
-                             <div className="w-64 h-64 border border-white/5 rounded-full flex items-center justify-center relative">
-                                <motion.div 
-                                  animate={{ rotate: 360 }}
-                                  transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-                                  className="absolute inset-0 border-t-2 border-white/20 rounded-full" 
-                                />
-                                <motion.div 
-                                  animate={{ rotate: -360 }}
-                                  transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
-                                  className="absolute inset-8 border-b-2 border-white/10 rounded-full" 
-                                />
-                                <Target className={`w-24 h-24 transition-colors duration-1000 ${isOrbitalLockActive ? "text-white animate-pulse" : "text-white/5"}`} />
-                             </div>
-                             <div className="mt-16 text-center space-y-6">
-                                <div className={`text-4xl font-black italic tracking-tighter ${isOrbitalLockActive ? "text-white" : "text-white/20"}`}>
-                                   {isOrbitalLockActive ? "LOCK_STABLE" : "LOCK_WARNING"}
-                                </div>
-                                <span className="text-[11px] font-bold text-white/10 uppercase tracking-[0.6em] block">Auth_Node: FORGE_CORE_01</span>
-                             </div>
-                          </div>
-
-                          <div className="relative z-10 flex gap-6">
-                             <div className="flex-1 h-1 bg-white/5 overflow-hidden">
-                                <motion.div 
-                                   animate={isOrbitalLockActive ? { x: ["-100%", "100%"] } : {}}
-                                   transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-                                   className="w-1/2 h-full bg-white"
-                                />
-                             </div>
-                          </div>
-                       </div>
-                    </Reveal>
-                 </div>
-              </div>
-           </div>
-        </section>
-
-        {/* ==========================================
-            4. FORGE STORY (TECH STORYTELLING)
-            ========================================== */}
-        <section className="py-60 bg-[#020408] relative overflow-hidden border-t border-white/5">
-           <div className="max-w-[1400px] mx-auto px-8 md:px-24">
-              <div className="grid lg:grid-cols-2 gap-40 items-center">
-                 <div className="relative aspect-[3/4] overflow-hidden group border border-white/5 shadow-2xl">
-                    <Image 
-                       src="https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?q=80&w=1200&auto=format&fit=crop" 
-                       alt="Orbital Station Construction" 
-                       fill 
-                       className="object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-[2000ms]"
-                    />
-                    <div className="absolute inset-0 bg-white/5 mix-blend-color group-hover:opacity-0 transition-opacity" />
-                    <div className="absolute inset-0 p-20 flex flex-col justify-end bg-gradient-to-t from-black via-black/40 to-transparent">
-                       <div className="text-white">
-                          <span className="text-[11px] font-black uppercase tracking-[0.6em] text-white/40 mb-8 block italic underline underline-offset-8 decoration-white/20">Atelier // Purity // Unit</span>
-                          <h4 className="text-6xl font-black tracking-tighter uppercase italic mb-12 mix-blend-difference text-white">Orbital <br/> Fabric.</h4>
-                          <button className="flex items-center gap-6 text-[11px] font-black uppercase tracking-[0.4em] border-b border-white/20 pb-4 hover:border-white transition-all group">
-                             Forge Protocols <ExternalLink className="w-5 h-5 group-hover:translate-x-2 group-hover:-translate-y-2 transition-transform" />
-                          </button>
-                       </div>
-                    </div>
-                 </div>
-
-                 <div>
-                    <Reveal>
-                       <div className="mb-24 text-left">
-                          <span className="text-[10px] font-black uppercase tracking-[0.5em] text-white/40 mb-8 block italic">Chapitre III // Construction</span>
-                          <h2 className="text-7xl md:text-[10vw] font-black tracking-tighter uppercase text-white italic leading-none text-white">Pure_Sync.</h2>
-                       </div>
-                       <p className="text-2xl font-light text-white/20 leading-relaxed italic mb-20 uppercase tracking-[0.2em]">
-                          Le vide est notre chantier. Nous assemblons des structures modulaires d'une complexité sans précédent, ouvrant la voie à une présence humaine permanente dans l'espace.
-                       </p>
-                       <div className="space-y-20">
-                          {[
-                            { t: "Modular Assembly", d: "Docking automatisé de segments de station avec une précision millimétrique en apesanteur." },
-                            { t: "Structural Infusion", d: "Injection de polymères de renforcement dans les treillis structurels pour une rigidité maximale." },
-                            { t: "Radiation Hardening", d: "Application de couches de protection multicouches pour protéger les équipements et les équipages." }
-                          ].map((step, i) => (
-                            <div key={i} className="group flex gap-12 border-b border-white/5 pb-16 hover:border-white/20 transition-all cursor-default">
-                               <div className="text-6xl font-black text-white/5 group-hover:text-white/10 transition-colors italic leading-none">0{i+1}</div>
-                               <div>
-                                  <h5 className="text-3xl font-black uppercase tracking-tight text-white mb-6 italic group-hover:translate-x-4 transition-transform text-white">{step.t}</h5>
-                                  <p className="text-[12px] text-white/20 uppercase tracking-[0.3em] font-bold leading-loose italic">{step.d}</p>
-                               </div>
-                            </div>
-                          ))}
-                       </div>
-                    </Reveal>
-                 </div>
-              </div>
-           </div>
-        </section>
-
-        {/* MEGA FOOTER */}
-        <footer className="bg-black pt-60 pb-12 px-8 md:px-24 relative z-50">
-           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-32 mb-60 text-white">
-              <div className="lg:col-span-2">
-                 <div className="flex items-center gap-6 mb-16">
-                    <div className="w-16 h-16 bg-white flex items-center justify-center">
-                      <Satellite className="w-10 h-10 text-black" />
-                    </div>
-                    <span className="text-4xl font-black uppercase tracking-tighter italic">ORBITAL<span className="text-white/20">FORGE.</span></span>
-                 </div>
-                 <p className="text-white/20 text-[11px] font-black uppercase tracking-[0.5em] leading-loose max-w-sm mb-20 italic">
-                    "La construction spatiale au service de l'humanité." — Archive Forge V.42
-                 </p>
-                 <div className="flex gap-16">
-                    {["ForgeLog", "AssetRegistry", "GitHub", "X_Protocol"].map(s => (
-                      <Link key={s} href="#" className="text-[11px] font-black uppercase tracking-widest text-white/20 hover:text-white transition-colors italic underline underline-offset-8 decoration-white/5">{s}</Link>
-                    ))}
-                 </div>
-              </div>
-
-              {[
-                { t: "ASSETS", l: ["Habitation Module", "Solar Farm Alpha", "Space Elevator", "Hybrid Shield"] },
-                { t: "TECHNOLOGY", l: ["Modular Assembly", "Zero-G Stability", "Radiation Shielding", "SLA Reports"] },
-                { t: "ATELIER", l: ["Our Legacy", "Orbital Mapping", "Locations", "Support"] }
-              ].map((col, i) => (
-                <div key={i} className="flex flex-col gap-12">
-                  <h4 className="text-[11px] font-black text-white/40 uppercase tracking-[0.6em] italic">{col.t}</h4>
-                  <ul className="flex flex-col gap-8">
-                    {col.l.map(link => (
-                      <li key={link} className="text-[11px] font-bold text-white/20 hover:text-white transition-colors cursor-pointer uppercase tracking-[0.4em] italic">{link}</li>
-                    ))}
-                  </ul>
-                </div>
+        {/* Dashboard mockup */}
+        <motion.div style={{ y: dashY, flex: 1 }} initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8, delay: 0.2 }}>
+          <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, overflow: "hidden", boxShadow: `0 32px 80px rgba(0,212,255,0.08)` }}>
+            {/* Topbar */}
+            <div style={{ background: C.navy, padding: "12px 20px", display: "flex", alignItems: "center", gap: 8, borderBottom: `1px solid ${C.border}` }}>
+              {["#e5534b", "#e3b341", "#3fb950"].map(c => <div key={c} style={{ width: 10, height: 10, borderRadius: "50%", background: c }} />)}
+              <div style={{ flex: 1, height: 20, background: C.border, borderRadius: 4, marginLeft: 12, maxWidth: 280 }} />
+            </div>
+            {/* Metrics row */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 0, padding: "20px", gap: 12 }}>
+              {LIVE_METRICS.map((m, i) => (
+                <motion.div key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 + i * 0.1 }}
+                  style={{ background: C.navy, border: `1px solid ${C.border}`, borderRadius: 8, padding: "16px" }}>
+                  <div style={{ fontSize: 10, color: C.muted, fontFamily: C.mono, marginBottom: 8, letterSpacing: 1 }}>{m.label}</div>
+                  <div style={{ fontSize: 18, fontWeight: 800, color: "#fff", letterSpacing: -0.5, marginBottom: 4 }}>{m.val}</div>
+                  <div style={{ fontSize: 11, color: C.cyan, fontFamily: C.mono }}>{m.change}</div>
+                </motion.div>
               ))}
-           </div>
+            </div>
+            {/* Chart area */}
+            <div style={{ margin: "0 20px 20px", background: C.navy, border: `1px solid ${C.border}`, borderRadius: 8, padding: "20px", height: 140, position: "relative", overflow: "hidden" }}>
+              <div style={{ fontSize: 11, color: C.muted, fontFamily: C.mono, marginBottom: 12 }}>Utilisateurs actifs — 30 derniers jours</div>
+              <svg width="100%" height="80" viewBox="0 0 400 80" preserveAspectRatio="none">
+                <defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={C.cyan} stopOpacity="0.3"/><stop offset="100%" stopColor={C.cyan} stopOpacity="0"/></linearGradient></defs>
+                <motion.path initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 2, delay: 0.8 }}
+                  d="M0,60 C40,50 80,20 120,30 S200,10 240,25 S320,5 400,15" stroke={C.cyan} strokeWidth="2" fill="none"/>
+                <path d="M0,60 C40,50 80,20 120,30 S200,10 240,25 S320,5 400,15 L400,80 L0,80Z" fill="url(#g)"/>
+              </svg>
+            </div>
+          </div>
+        </motion.div>
+      </section>
 
-           <div className="max-w-[1600px] mx-auto border-t border-white/5 pt-16 flex flex-col md:flex-row justify-between items-center gap-16 text-[10px] font-black text-white/10 uppercase tracking-[0.6em] italic">
-              <span>© 2026 ORBITAL FORGE SPACE CONSTRUCTION AG. // ALL_RIGHTS_RESERVED</span>
-              <div className="flex gap-16">
-                 <span>STATUS: OPERATIONAL</span>
-                 <span>VELOCITY: 7.8 km/s (AVG)</span>
-                 <span>v4.12.0-STABLE</span>
+      {/* STATS BAND */}
+      <section style={{ background: C.navy, borderTop: `1px solid ${C.border}`, borderBottom: `1px solid ${C.border}` }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", maxWidth: 1280, margin: "0 auto" }}>
+          {[{ val: "4 200+", label: "Équipes actives" }, { val: "2B+", label: "Événements trackés/mois" }, { val: "99.95%", label: "Uptime garanti" }, { val: "< 5s", label: "Latence data" }].map((s, i) => (
+            <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}
+              style={{ padding: "48px 40px", borderRight: i < 3 ? `1px solid ${C.border}` : undefined, textAlign: "center" }}>
+              <div style={{ fontSize: 44, fontWeight: 900, color: C.cyan, letterSpacing: -1, fontFamily: C.mono }}>{s.val}</div>
+              <div style={{ fontSize: 13, color: C.muted, marginTop: 10 }}>{s.label}</div>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      {/* FEATURES */}
+      <section ref={featRef} style={{ padding: "100px 60px", borderBottom: `1px solid ${C.border}` }}>
+        <div style={{ textAlign: "center", marginBottom: 64 }}>
+          <h2 style={{ fontSize: "clamp(36px, 4vw, 56px)", fontWeight: 900, letterSpacing: -2, color: "#fff" }}>Tout ce dont votre équipe a besoin.</h2>
+          <p style={{ fontSize: 18, color: C.muted, marginTop: 16 }}>Analytics, alertes, rapports. Tout en un, sans compromis.</p>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16 }}>
+          {FEATURES.map((f, i) => (
+            <motion.div key={i} initial={{ opacity: 0, y: 30 }} animate={featInView ? { opacity: 1, y: 0 } : {}} transition={{ delay: i * 0.1 }}
+              onClick={() => setActiveFeature(i)}
+              whileHover={{ borderColor: C.cyan + "60", background: "#0d1f3a" }}
+              style={{ border: `1px solid ${activeFeature === i ? C.cyan + "60" : C.border}`, background: activeFeature === i ? "#0d1f3a" : C.card, padding: "36px 32px", cursor: "pointer", borderRadius: 12, transition: "all 0.2s" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16 }}>
+                <div style={{ fontSize: 16, fontWeight: 700, color: "#fff", letterSpacing: -0.3 }}>{f.name}</div>
+                <div style={{ fontFamily: C.mono, fontSize: 10, color: C.cyan, letterSpacing: 1, background: C.cyan + "15", padding: "4px 10px", borderRadius: 4, whiteSpace: "nowrap" }}>{f.metric}</div>
               </div>
-           </div>
-        </footer>
-      </main>
-    </div>
-  )
-}
+              <p style={{ fontSize: 14, color: C.muted, lineHeight: 1.75 }}>{f.desc}</p>
+            </motion.div>
+          ))}
+        </div>
+      </section>
 
-/* ==========================================
-   TECHNICAL SUB-COMPONENTS
-   ========================================== */
+      {/* TESTIMONIALS */}
+      <section style={{ background: C.navy, padding: "100px 60px", borderBottom: `1px solid ${C.border}` }}>
+        <h2 style={{ fontSize: "clamp(36px, 4vw, 56px)", fontWeight: 900, letterSpacing: -2, color: "#fff", textAlign: "center", marginBottom: 64 }}>Ils ont choisi Metric.</h2>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 32, maxWidth: 1280, margin: "0 auto" }}>
+          {TESTIMONIALS.map((t, i) => (
+            <motion.div key={i} initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.15 }}
+              style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "36px" }}>
+              <div style={{ fontSize: 28, color: C.cyan, marginBottom: 16, fontWeight: 900 }}"</div>
+              <p style={{ fontSize: 15, color: "rgba(226,234,245,0.7)", lineHeight: 1.75, marginBottom: 24 }}>{t.quote}</p>
+              <div style={{ fontSize: 13, fontWeight: 600, color: "#fff" }}>{t.name}</div>
+              <div style={{ fontSize: 12, color: C.muted, marginTop: 4 }}>{t.role}</div>
+            </motion.div>
+          ))}
+        </div>
+      </section>
 
-function HUD_Overlay({ isOrbitalLockActive }: { isOrbitalLockActive: boolean }) {
-  return (
-    <div className="fixed inset-0 pointer-events-none z-[100]">
-       {/* Corner Brackets */}
-       <div className={`absolute top-12 left-12 w-20 h-20 border-t-2 border-l-2 transition-colors duration-1000 ${isOrbitalLockActive ? "border-white" : "border-white/10"}`} />
-       <div className={`absolute top-12 right-12 w-20 h-20 border-t-2 border-r-2 transition-colors duration-1000 ${isOrbitalLockActive ? "border-white" : "border-white/10"}`} />
-       <div className={`absolute bottom-12 left-12 w-20 h-20 border-b-2 border-l-2 transition-colors duration-1000 ${isOrbitalLockActive ? "border-white" : "border-white/10"}`} />
-       <div className={`absolute bottom-12 right-12 w-20 h-20 border-b-2 border-r-2 transition-colors duration-1000 ${isOrbitalLockActive ? "border-white" : "border-white/10"}`} />
+      {/* PRICING */}
+      <section ref={pricingRef} style={{ padding: "100px 60px", borderBottom: `1px solid ${C.border}` }}>
+        <div style={{ textAlign: "center", marginBottom: 64 }}>
+          <h2 style={{ fontSize: "clamp(36px, 4vw, 56px)", fontWeight: 900, letterSpacing: -2, color: "#fff" }}>Tarifs simples et prévisibles.</h2>
+          <p style={{ fontSize: 18, color: C.muted, marginTop: 16 }}>14 jours gratuits sur tous les plans. Aucune CB requise.</p>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 24, maxWidth: 1100, margin: "0 auto" }}>
+          {PLANS.map((p, i) => (
+            <motion.div key={i} initial={{ opacity: 0, y: 36 }} animate={pricingInView ? { opacity: 1, y: 0 } : {}} transition={{ delay: i * 0.15 }}
+              style={{ background: p.highlight ? "#051428" : C.card, border: `1.5px solid ${p.highlight ? C.cyan : C.border}`, borderRadius: 16, padding: "40px 36px", boxShadow: p.highlight ? `0 20px 60px rgba(0,212,255,0.12)` : "none", transform: p.highlight ? "scale(1.03)" : "none" }}>
+              <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 2, color: p.highlight ? C.cyan : C.muted, textTransform: "uppercase", marginBottom: 16, fontFamily: C.mono }}>{p.name}</div>
+              <div style={{ fontSize: 48, fontWeight: 900, color: "#fff", letterSpacing: -2, lineHeight: 1 }}>{p.price}</div>
+              <div style={{ fontSize: 13, color: C.muted, marginBottom: 36, marginTop: 6 }}>{p.note}</div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 14, marginBottom: 36 }}>
+                {p.features.map((f, j) => (
+                  <div key={j} style={{ display: "flex", gap: 10, fontSize: 14, color: "#fff", alignItems: "flex-start" }}>
+                    <span style={{ color: C.cyan, fontWeight: 700 }}>✓</span> <span style={{ color: p.highlight ? "rgba(226,234,245,0.9)" : C.muted }}>{f}</span>
+                  </div>
+                ))}
+              </div>
+              <motion.button whileHover={{ opacity: 0.85 }} whileTap={{ scale: 0.97 }}
+                style={{ width: "100%", padding: "14px", background: p.highlight ? C.cyan : "transparent", color: p.highlight ? C.bg : C.cyan, border: p.highlight ? "none" : `1.5px solid ${C.border}`, borderRadius: 8, fontWeight: 700, fontSize: 15, cursor: "pointer", fontFamily: C.sans }}>
+                {p.name === "Enterprise" ? "Nous contacter" : "Commencer gratuitement"}
+              </motion.button>
+            </motion.div>
+          ))}
+        </div>
+      </section>
 
-       {/* Top Status Bar */}
-       <div className="absolute top-12 left-1/2 -translate-x-1/2 flex items-center gap-20 bg-black/60 backdrop-blur-2xl px-12 py-4 border border-white/10 rounded-none">
-          <div className="flex items-center gap-6 text-white">
-             <div className={`w-3 h-3 transition-colors duration-500 ${isOrbitalLockActive ? "bg-white animate-pulse" : "bg-red-500 animate-ping"}`} />
-             <span className="text-[10px] font-black uppercase tracking-[0.4em] italic leading-none">Orbital_Sync: {isOrbitalLockActive ? "NOMINAL" : "SYNC_LOSS"} // Status: ACTIVE</span>
+      {/* FAQ */}
+      <section style={{ maxWidth: 800, margin: "0 auto", padding: "100px 60px" }}>
+        <h2 style={{ fontSize: 40, fontWeight: 900, letterSpacing: -1.5, color: "#fff", textAlign: "center", marginBottom: 48 }}>Questions fréquentes</h2>
+        {FAQS.map((f, i) => (
+          <div key={i} style={{ borderBottom: `1px solid ${C.border}` }}>
+            <button onClick={() => setOpenFaq(openFaq === i ? null : i)}
+              style={{ width: "100%", display: "flex", justifyContent: "space-between", alignItems: "center", padding: "20px 0", background: "none", border: "none", color: "#fff", cursor: "pointer", textAlign: "left" }}>
+              <span style={{ fontSize: 15, fontWeight: 600 }}>{f.q}</span>
+              <motion.span animate={{ rotate: openFaq === i ? 45 : 0 }} style={{ fontSize: 22, color: C.cyan, minWidth: 22 }}>+</motion.span>
+            </button>
+            <AnimatePresence>
+              {openFaq === i && (
+                <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }}>
+                  <p style={{ paddingBottom: 20, fontSize: 14, color: C.muted, lineHeight: 1.8 }}>{f.a}</p>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
-          <div className="h-4 w-px bg-white/20" />
-          <div className="flex items-center gap-6 text-white/20">
-             <Wifi className="w-4 h-4" /> 
-             <span className="text-[10px] font-black uppercase tracking-[0.4em] italic leading-none">Forge_Grid: SECURE</span>
-          </div>
-       </div>
+        ))}
+      </section>
 
-       {/* Right Rotation Info */}
-       <div className="absolute right-12 top-1/2 -translate-y-1/2 rotate-90 origin-right hidden lg:block">
-          <span className="text-[10px] font-black uppercase tracking-[0.8em] text-white/5 italic">Unauthorized_Duplication_Of_Orbital_Patterns_Is_Strictly_Monitored_By_Global_Forge_Alliance</span>
-       </div>
+      {/* CTA */}
+      <section style={{ background: `linear-gradient(135deg, #051428, #0a1f3c)`, borderTop: `1px solid ${C.border}`, padding: "100px 60px", textAlign: "center" }}>
+        <h2 style={{ fontSize: "clamp(40px, 5vw, 72px)", fontWeight: 900, letterSpacing: -2.5, color: "#fff", marginBottom: 20 }}>
+          Vos données vous attendent.
+        </h2>
+        <p style={{ fontSize: 18, color: C.muted, marginBottom: 48 }}>14 jours gratuits. Pas de CB. Résultats dès le premier jour.</p>
+        <motion.button whileHover={{ background: "#00b8dd" }} whileTap={{ scale: 0.97 }}
+          style={{ padding: "20px 56px", background: C.cyan, color: C.bg, border: "none", borderRadius: 10, fontSize: 17, fontWeight: 700, cursor: "pointer", transition: "background 0.2s", fontFamily: C.sans }}>
+          Démarrer gratuitement →
+        </motion.button>
+      </section>
+
+      {/* FOOTER */}
+      <footer style={{ background: C.bg, padding: "56px 60px 36px", borderTop: `1px solid ${C.border}` }}>
+        <div style={{ maxWidth: 1280, margin: "0 auto", display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr", gap: 60, marginBottom: 48 }}>
+          <div>
+            <div style={{ fontSize: 18, fontWeight: 800, color: C.cyan, marginBottom: 12 }}>Metric</div>
+            <div style={{ fontSize: 13, color: C.muted, lineHeight: 1.8 }}>Analytics en temps réel pour les équipes data-driven.</div>
+          </div>
+          {[{ t: "Produit", ls: ["Fonctionnalités", "Intégrations", "Changelog", "Statut"] },
+            { t: "Entreprise", ls: ["À propos", "Blog", "Presse", "Carrières"] },
+            { t: "Support", ls: ["Documentation", "API Reference", "Contact", "Security"] }].map((col, i) => (
+            <div key={i}>
+              <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 2, color: "#2a3a50", textTransform: "uppercase", marginBottom: 16, fontFamily: C.mono }}>{col.t}</div>
+              {col.ls.map(l => <div key={l} style={{ fontSize: 13, color: C.muted, marginBottom: 10 }}>{l}</div>)}
+            </div>
+          ))}
+        </div>
+        <div style={{ borderTop: `1px solid ${C.border}`, paddingTop: 24, fontSize: 12, color: "#1e2e40", textAlign: "center" }}>
+          © 2025 Metric Analytics — Tous droits réservés · RGPD · Mentions légales
+        </div>
+      </footer>
     </div>
   )
 }

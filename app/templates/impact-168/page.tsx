@@ -1,505 +1,293 @@
 "use client"
 
-import React, { useState, useEffect, useRef } from "react"
-import { 
-  motion, 
-  AnimatePresence, 
-  useScroll, 
-  useTransform, 
-  useInView, 
-  useSpring 
-} from "framer-motion"
-import Image from "next/image"
-import Link from "next/link"
-import { 
-  Mic, Volume2, Speaker, Wind, 
-  Activity, Zap, Cpu, Shield, 
-  Target, Layers, Box, Hexagon, 
-  Terminal, Settings, Power, Info, 
-  AlertTriangle, ChevronRight, ArrowRight, 
-  Share2, Maximize2, Download, ExternalLink, 
-  Archive, Hash, Wifi, BarChart3, 
-  Microscope, Fingerprint, Scan, 
-  Brain, Server, ShieldCheck, 
-  ShieldAlert, Award, Briefcase, 
-  Music, Waves, Radio, Ear, 
-  Ghost, Gauge, Timer, Lightbulb, 
-  Command, Grid, Radar
-} from "lucide-react"
+import React, { useState, useRef } from "react"
+import { motion, useInView, AnimatePresence } from "framer-motion"
 
-/* ==========================================================================
-   THE ECHO HORIZON DATASET (ULTRA DENSITY)
-   ========================================================================== */
+// ÉCLAT — Premium e-commerce fashion boutique. Warm white + terracotta + forest green. Product-first grid, conversion optimized.
 
-const ACOUSTIC_MATERIALS = [
-  {
-    id: "mat-poly-92",
-    name: "HD-Polymer Foam",
-    type: "Absorption Layer",
-    nrc: "0.95",
-    density: "42 kg/m³",
-    thickness: "50mm",
-    desc: "Mousse polymère à cellules ouvertes conçue pour l'absorption maximale des fréquences moyennes et hautes.",
-    status: "Optimal"
-  },
-  {
-    id: "mat-wood-04",
-    name: "Noble Oak Diffuser",
-    type: "Diffusion Panel",
-    nrc: "0.15",
-    density: "720 kg/m³",
-    thickness: "120mm",
-    desc: "Diffuseur quadratique en chêne massif pour une dispersion uniforme du son sans perte d'énergie acoustique.",
-    status: "Premium"
-  },
-  {
-    id: "mat-helm-08",
-    name: "Helmholtz Resonator",
-    type: "Bass Trap",
-    nrc: "0.85 (Low-Freq)",
-    density: "N/A",
-    thickness: "200mm",
-    desc: "Résonateur accordé spécifiquement pour l'élimination des ondes stationnaires dans les basses fréquences.",
-    status: "Custom"
+const COLLECTIONS = [
+  { name: "Été Brûlant", items: 34, badge: "Nouvelle collection", accent: "#c45c3a" },
+  { name: "Essentiels Neutres", items: 28, badge: "Bestseller", accent: "#6b7a5c" },
+  { name: "Nuit Dorée", items: 19, badge: "Édition limitée", accent: "#c4a96a" },
+]
+
+const PRODUCTS = [
+  { name: "Robe Lin Biarritz", price: "189 €", oldPrice: null, tag: "Nouveau", color: "#c4a96a", size: "XS–XL", material: "100% Lin" },
+  { name: "Top Soie Côte d'Azur", price: "134 €", oldPrice: "189 €", tag: "–29%", color: "#c45c3a", size: "XS–L", material: "100% Soie" },
+  { name: "Pantalon Wide-Leg", price: "165 €", oldPrice: null, tag: null, color: "#6b7a5c", size: "34–44", material: "Tencel Lyocell" },
+  { name: "Blazer Sable", price: "295 €", oldPrice: null, tag: "Exclusivité", color: "#9e8e78", size: "34–44", material: "Laine Vierge" },
+  { name: "Robe Dos-Nu Riviera", price: "215 €", oldPrice: null, tag: "Quasi épuisé", color: "#d4a0a0", size: "XS–M", material: "Viscose" },
+  { name: "Chemise Portuense", price: "98 €", oldPrice: "145 €", tag: "–32%", color: "#b5c4b1", size: "XS–XL", material: "Coton Égyptien" },
+]
+
+const TESTIMONIALS = [
+  { quote: "La qualité est incomparable. J'ai la Robe Lin depuis 2 ans — elle est toujours parfaite après chaque lavage.", name: "Pauline M.", location: "Paris", stars: 5 },
+  { quote: "Livraison le lendemain, emballage cadeau inclus. J'offre Éclat à toutes mes amies maintenant.", name: "Juliette D.", location: "Lyon", stars: 5 },
+  { quote: "Enfin une boutique qui a des tailles pour les vraies femmes. Les coupes sont d'une précision rare.", name: "Amélie R.", location: "Bordeaux", stars: 5 },
+]
+
+const FAQS = [
+  { q: "Quels sont les délais de livraison ?", a: "Livraison standard 3–5 jours ouvrés. Express J+1 disponible (avant 14h). Gratuit dès 120€ d'achat." },
+  { q: "Puis-je retourner un article ?", a: "30 jours de retour, sans justification. Le colis de retour est prépayé inclus dans votre commande." },
+  { q: "Les tailles sont-elles fidèles ?", a: "Oui — notre guide des tailles détaillé (tour de poitrine, hanches, longueurs) est disponible sur chaque fiche produit." },
+  { q: "Vos matières sont-elles durables ?", a: "Nous travaillons uniquement avec des fournisseurs certifiés GOTS et OEKO-TEX. Aucune matière synthétique issue du pétrole." },
+  { q: "Proposez-vous un emballage cadeau ?", a: "Oui — boîte cartonnée, ruban et carte message manuscrite, offerts sur demande à la commande." },
+]
+
+export default function Page() {
+  const [cartCount, setCartCount] = useState(0)
+  const [wishlist, setWishlist] = useState<number[]>([])
+  const [openFaq, setOpenFaq] = useState<number | null>(null)
+  const [activeCollection, setActiveCollection] = useState(0)
+
+  const productsRef = useRef(null)
+  const testimonialsRef = useRef(null)
+  const productsInView = useInView(productsRef, { once: true, margin: "-100px" })
+  const testimonialsInView = useInView(testimonialsRef, { once: true, margin: "-100px" })
+
+  const C = {
+    bg: "#faf8f5",
+    text: "#1a1512",
+    terracotta: "#c45c3a",
+    forest: "#6b7a5c",
+    sand: "#c4a96a",
+    muted: "#8b7d6b",
+    card: "#ffffff",
+    border: "#e8e0d4",
+    serif: "'Cormorant Garamond', Georgia, serif",
+    sans: "system-ui, -apple-system, sans-serif",
   }
-]
 
-const SONIC_METRICS = [
-  { label: "RT60 (Avg)", value: "0.42s", trend: "Controlled" },
-  { label: "NRC Coefficient", value: "0.88", trend: "High" },
-  { label: "Sound Isolation", value: "62 dB", trend: "Maximum" },
-  { label: "Signal Purity", value: "99.9%", trend: "Stable" }
-]
-
-const ACOUSTIC_LOGS = [
-  { timestamp: "16:14:42", unit: "Room-Audit-01", status: "STABLE", db: "12.4 dB" },
-  { timestamp: "16:14:45", unit: "Freq-Sweep-Z", status: "ACTIVE", range: "20Hz-20kHz" },
-  { timestamp: "16:14:48", unit: "Sync-Check", status: "SUCCESS", latency: "0.1ms" }
-]
-
-/* ==========================================
-   TECHNICAL COMPONENTS
-   ========================================== */
-
-function Reveal({ children, delay = 0, y = 40, x = 0 }: { children: React.ReactNode, delay?: number, y?: number, x?: number }) {
-  const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, margin: "-100px" })
-  return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, y, x }}
-      animate={isInView ? { opacity: 1, y: 0, x: 0 } : {}}
-      transition={{ duration: 1.2, delay, ease: [0.16, 1, 0.3, 1] }}
-    >
-      {children}
-    </motion.div>
-  )
-}
-
-function SoundWaveVisualizer() {
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
-  useEffect(() => {
-    const handleMouse = (e: MouseEvent) => setMousePos({ x: e.clientX, y: e.clientY })
-    window.addEventListener("mousemove", handleMouse)
-    return () => window.removeEventListener("mousemove", handleMouse)
-  }, [])
+  const STATS = [
+    { val: "4.92", label: "Note moyenne (2 840 avis)" },
+    { val: "J+1", label: "Livraison express" },
+    { val: "30 j", label: "Retours gratuits" },
+    { val: "Bio", label: "Matières certifiées GOTS" },
+  ]
 
   return (
-    <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden opacity-5">
-       <svg width="100%" height="100%" className="w-full h-full">
-          {[...Array(12)].map((_, i) => (
-            <motion.path 
-               key={i}
-               d={`M 0 ${100 + i * 80} Q 400 ${50 + i * 20} 800 ${100 + i * 80} T 1600 ${100 + i * 80}`}
-               stroke="white" 
-               strokeWidth="0.5" 
-               fill="none"
-               animate={{ d: `M 0 ${100 + i * 80} Q ${mousePos.x} ${mousePos.y / (i+1)} 800 ${100 + i * 80} T 1600 ${100 + i * 80}` }}
-               transition={{ type: "spring", damping: 20, stiffness: 50 }}
-            />
+    <div style={{ background: C.bg, color: C.text, fontFamily: C.sans, overflowX: "hidden" }}>
+      {/* ANNOUNCEMENT BAR */}
+      <div style={{ background: C.terracotta, padding: "10px", textAlign: "center", fontSize: 12, letterSpacing: 2, color: "#fff", textTransform: "uppercase" }}>
+        Livraison offerte dès 120 € — Code ÉCLAT20 : –20% sur la nouvelle collection
+      </div>
+
+      {/* NAV */}
+      <nav style={{
+        position: "sticky", top: 0, zIndex: 100,
+        background: "rgba(250,248,245,0.97)", backdropFilter: "blur(12px)",
+        borderBottom: `1px solid ${C.border}`,
+        display: "flex", alignItems: "center", justifyContent: "space-between",
+        padding: "0 60px", height: 64,
+      }}>
+        <div style={{ fontFamily: C.serif, fontSize: 22, letterSpacing: 3, fontStyle: "italic", color: C.text }}>Éclat</div>
+        <div style={{ display: "flex", gap: 36, alignItems: "center" }}>
+          {["Collections", "Nouveautés", "Soldes", "Notre histoire"].map(l => (
+            <a key={l} href="#" style={{ fontSize: 13, color: C.muted, textDecoration: "none", letterSpacing: 0.5, fontWeight: 500 }}>{l}</a>
           ))}
-       </svg>
-    </div>
-  )
-}
+        </div>
+        <div style={{ display: "flex", gap: 20, alignItems: "center" }}>
+          <span style={{ fontSize: 13, color: C.muted, cursor: "pointer" }}>Recherche</span>
+          <span style={{ fontSize: 13, color: C.muted, cursor: "pointer" }}>Compte</span>
+          <motion.button whileHover={{ background: C.terracotta, borderColor: C.terracotta }} whileTap={{ scale: 0.97 }}
+            onClick={() => setCartCount(c => c + 1)}
+            style={{ position: "relative", padding: "8px 20px", background: "transparent", color: C.text, border: `1.5px solid ${C.text}`, fontSize: 13, fontWeight: 600, cursor: "pointer", transition: "all 0.2s", color: cartCount > 0 ? C.terracotta : C.text, borderColor: cartCount > 0 ? C.terracotta : C.text }}>
+            Panier {cartCount > 0 ? `(${cartCount})` : ""}
+          </motion.button>
+        </div>
+      </nav>
 
-function AcousticModel({ progress }: { progress: any }) {
-  const rotate = useTransform(progress, [0, 1], [0, 360])
-  const scale = useTransform(progress, [0, 0.5, 1], [1, 1.2, 1])
-
-  return (
-    <motion.div style={{ rotate, scale }} className="relative w-80 h-80 flex items-center justify-center">
-       <div className="absolute inset-0 border border-amber-400/10 rounded-full animate-spin-slow shadow-[0_0_80px_rgba(251,191,36,0.05)]" />
-       <Ear className="w-32 h-32 text-amber-400/10" />
-       <div className="absolute inset-8 border border-amber-400/5 rounded-full" />
-    </motion.div>
-  )
-}
-
-/* ==========================================
-   THE ECHO HORIZON - MAIN INTERFACE
-   ========================================== */
-
-export default function EchoHorizonPremium() {
-  const [activeMaterial, setActiveMaterial] = useState(0)
-  const [isFreqSweepActive, setIsFreqSweepActive] = useState(true)
-  const containerRef = useRef(null)
-  const { scrollYProgress } = useScroll({ target: containerRef })
-
-  // Acoustic Scroll Effects
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.2], [1, 0])
-  const textY = useTransform(scrollYProgress, [0, 0.5], [0, 100])
-
-  return (
-    <div ref={containerRef} className="bg-[#050505] text-[#e0e2e5] font-mono selection:bg-amber-500/30 selection:text-white min-h-screen overflow-x-hidden transition-colors duration-1000">
-      
-      {/* GLOBAL HUD OVERLAY */}
-      <HUD_Overlay isFreqSweepActive={isFreqSweepActive} />
-
-      <main>
-        {/* ==========================================
-            1. SONIC IGNITION (HERO)
-            ========================================== */}
-        <section className="relative h-screen flex flex-col justify-center items-center px-8 md:px-24 overflow-hidden pt-20">
-          <SoundWaveVisualizer />
-          <motion.div style={{ opacity: heroOpacity }} className="absolute z-0 pointer-events-none flex items-center justify-center">
-             <AcousticModel progress={scrollYProgress} />
+      {/* HERO — full width editorial */}
+      <section style={{ position: "relative", height: "85vh", background: "#1a1512", overflow: "hidden", display: "flex", alignItems: "flex-end" }}>
+        <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at 30% 60%, rgba(196,92,58,0.15) 0%, transparent 60%)" }} />
+        <div style={{ position: "relative", zIndex: 10, padding: "0 80px 80px", maxWidth: 720 }}>
+          <motion.div initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.9 }}>
+            <div style={{ fontSize: 11, letterSpacing: 5, color: C.sand, textTransform: "uppercase", marginBottom: 28 }}>Été 2025</div>
+            <h1 style={{ fontFamily: C.serif, fontSize: "clamp(56px, 8vw, 112px)", fontWeight: 400, letterSpacing: -2, lineHeight: 0.95, color: "#f9f7f2", fontStyle: "italic", marginBottom: 36 }}>
+              La chaleur<br />comme<br /><span style={{ color: C.terracotta }}>philosophie.</span>
+            </h1>
+            <p style={{ fontSize: 16, color: "rgba(249,247,242,0.6)", lineHeight: 1.7, marginBottom: 48, maxWidth: 440 }}>
+              Lin, soie, tencel. Des matières qui respirent, des coupes qui durent. La nouvelle collection Éclat est là.
+            </p>
+            <div style={{ display: "flex", gap: 16 }}>
+              <motion.button whileHover={{ background: "#fff", color: C.text }} whileTap={{ scale: 0.97 }}
+                style={{ padding: "16px 40px", background: C.terracotta, color: "#fff", border: "none", fontSize: 14, fontWeight: 600, letterSpacing: 0.5, cursor: "pointer", transition: "all 0.2s" }}>
+                Découvrir la collection
+              </motion.button>
+              <motion.button whileHover={{ borderColor: "#fff", color: "#fff" }} whileTap={{ scale: 0.97 }}
+                style={{ padding: "16px 40px", background: "transparent", color: "rgba(249,247,242,0.6)", border: "1px solid rgba(249,247,242,0.3)", fontSize: 14, cursor: "pointer", transition: "all 0.2s" }}>
+                Soldes →
+              </motion.button>
+            </div>
           </motion.div>
+        </div>
+      </section>
 
-          <div className="relative z-10 text-center max-w-7xl">
-             <Reveal>
-                <div className="inline-flex items-center gap-4 px-6 py-2 border border-amber-400/30 bg-amber-400/5 text-[10px] font-black uppercase tracking-[0.5em] text-amber-400 mb-12 italic">
-                   <ActivityIcon className="w-4 h-4" /> Acoustic_Link: STABLE // RT60_0.42s
-                </div>
-                <motion.h1 style={{ y: textY }} className="text-7xl md:text-[14vw] font-black tracking-tighter uppercase mb-16 leading-[0.75] italic">
-                   Echo <br/> <span className="text-white/5 italic">Horizon.</span>
-                </motion.h1>
-                <p className="max-w-3xl mx-auto text-sm md:text-lg text-white/30 leading-relaxed uppercase tracking-widest font-light mb-16 italic">
-                   L'ingénierie acoustique au service de l'architecture. Nous sculptons le silence et la clarté sonore pour créer des espaces immersifs de haute fidélité.
-                </p>
-                
-                <div className="flex flex-col sm:flex-row gap-8 justify-center items-center">
-                   <button className="px-12 py-6 bg-amber-600 text-black text-[10px] font-black uppercase tracking-widest hover:bg-white transition-all shadow-[0_0_40px_rgba(251,191,36,0.2)] flex items-center gap-4 italic">
-                      <Volume2 className="w-5 h-5" /> Start Audit
-                   </button>
-                   <button className="px-12 py-6 border border-white/10 text-white text-[10px] font-black uppercase tracking-widest hover:bg-white/5 transition-all flex items-center gap-4 italic">
-                      <Archive className="w-5 h-5" /> Material Registry
-                   </button>
-                </div>
-             </Reveal>
+      {/* STATS BAR */}
+      <section style={{ background: C.forest }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)" }}>
+          {STATS.map((s, i) => (
+            <div key={i} style={{ padding: "28px 40px", borderRight: i < 3 ? "1px solid rgba(255,255,255,0.1)" : undefined, textAlign: "center" }}>
+              <div style={{ fontSize: 20, fontWeight: 800, color: "#fff", letterSpacing: -0.5 }}>{s.val}</div>
+              <div style={{ fontSize: 12, color: "rgba(255,255,255,0.6)", marginTop: 4 }}>{s.label}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* COLLECTIONS */}
+      <section style={{ padding: "80px 60px", borderBottom: `1px solid ${C.border}` }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 48 }}>
+          <h2 style={{ fontFamily: C.serif, fontSize: "clamp(32px, 4vw, 52px)", fontStyle: "italic", fontWeight: 400, letterSpacing: -1 }}>Collections</h2>
+          <a href="#" style={{ fontSize: 13, color: C.terracotta, textDecoration: "none", letterSpacing: 0.5, fontWeight: 600 }}>Voir tout →</a>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16 }}>
+          {COLLECTIONS.map((col, i) => (
+            <motion.div key={i} whileHover={{ y: -6 }} transition={{ duration: 0.2 }}
+              onClick={() => setActiveCollection(i)}
+              style={{ height: 280, background: activeCollection === i ? col.accent : "#ede8e1", display: "flex", flexDirection: "column", justifyContent: "flex-end", padding: 32, cursor: "pointer", transition: "background 0.3s", position: "relative" }}>
+              <div style={{ position: "absolute", top: 20, right: 20, background: "#fff", padding: "4px 12px", fontSize: 11, fontWeight: 600, letterSpacing: 1, color: activeCollection === i ? col.accent : C.muted }}>
+                {col.badge}
+              </div>
+              <div style={{ fontFamily: C.serif, fontSize: 28, fontStyle: "italic", color: activeCollection === i ? "#fff" : C.text, marginBottom: 8, transition: "color 0.3s" }}>{col.name}</div>
+              <div style={{ fontSize: 12, color: activeCollection === i ? "rgba(255,255,255,0.7)" : C.muted, transition: "color 0.3s" }}>{col.items} pièces</div>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      {/* PRODUCTS GRID */}
+      <section ref={productsRef} style={{ padding: "80px 60px", borderBottom: `1px solid ${C.border}` }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 48 }}>
+          <h2 style={{ fontFamily: C.serif, fontSize: "clamp(32px, 4vw, 52px)", fontStyle: "italic", fontWeight: 400, letterSpacing: -1 }}>Sélection du moment</h2>
+          <div style={{ display: "flex", gap: 16 }}>
+            {["Récents", "Bestsellers", "Soldes"].map((f, i) => (
+              <button key={f} style={{ padding: "8px 20px", background: i === 0 ? C.text : "transparent", color: i === 0 ? "#fff" : C.muted, border: `1px solid ${i === 0 ? C.text : C.border}`, fontSize: 12, cursor: "pointer", transition: "all 0.2s", fontFamily: C.sans }}>
+                {f}
+              </button>
+            ))}
           </div>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 24 }}>
+          {PRODUCTS.map((p, i) => (
+            <motion.div key={i}
+              initial={{ opacity: 0, y: 30 }} animate={productsInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ delay: i * 0.1, duration: 0.5 }}
+              style={{ background: C.card, border: `1px solid ${C.border}`, overflow: "hidden" }}>
+              {/* Product image area */}
+              <div style={{ height: 280, background: p.color + "22", position: "relative", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
+                <motion.div whileHover={{ scale: 1.05 }} transition={{ duration: 0.4 }}
+                  style={{ width: 100, height: 180, background: p.color + "66", borderRadius: 8 }} />
+                {p.tag && (
+                  <div style={{ position: "absolute", top: 16, left: 16, background: p.tag.includes("%") ? C.terracotta : C.text, color: "#fff", padding: "4px 10px", fontSize: 11, fontWeight: 700 }}>
+                    {p.tag}
+                  </div>
+                )}
+                <button
+                  onClick={() => setWishlist(w => w.includes(i) ? w.filter(x => x !== i) : [...w, i])}
+                  style={{ position: "absolute", top: 16, right: 16, width: 36, height: 36, background: "#fff", border: "none", cursor: "pointer", fontSize: 16, display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "50%" }}>
+                  {wishlist.includes(i) ? "♥" : "♡"}
+                </button>
+              </div>
+              <div style={{ padding: "20px 24px 24px" }}>
+                <div style={{ fontSize: 11, color: C.muted, marginBottom: 4 }}>{p.material}</div>
+                <div style={{ fontFamily: C.serif, fontSize: 18, fontStyle: "italic", color: C.text, marginBottom: 8 }}>{p.name}</div>
+                <div style={{ fontSize: 12, color: C.muted, marginBottom: 12 }}>Tailles: {p.size}</div>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                  <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                    <span style={{ fontSize: 18, fontWeight: 700, color: C.text }}>{p.price}</span>
+                    {p.oldPrice && <span style={{ fontSize: 14, color: C.muted, textDecoration: "line-through" }}>{p.oldPrice}</span>}
+                  </div>
+                  <motion.button whileHover={{ background: C.terracotta, borderColor: C.terracotta, color: "#fff" }} whileTap={{ scale: 0.96 }}
+                    onClick={() => setCartCount(c => c + 1)}
+                    style={{ padding: "8px 18px", background: "transparent", color: C.text, border: `1.5px solid ${C.text}`, fontSize: 12, fontWeight: 600, cursor: "pointer", transition: "all 0.2s", fontFamily: C.sans }}>
+                    + Panier
+                  </motion.button>
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </section>
 
-          <div className="absolute bottom-12 left-12 right-12 flex justify-between items-end border-t border-white/5 pt-12">
-             <div className="flex flex-col gap-6">
-                <div className="flex items-center gap-4 text-[9px] font-bold text-white/20 uppercase tracking-widest italic">
-                   <div className="w-16 h-px bg-white/10" />
-                   Studio_ID: ECHO-ZRH-42
-                </div>
-                <div className="flex items-center gap-4 text-[9px] font-bold text-white/20 uppercase tracking-widest italic">
-                   <div className="w-16 h-px bg-white/10" />
-                   Acoustic_Class: GRADE_A
-                </div>
-             </div>
-             <div className="text-right flex flex-col items-end gap-4">
-                <span className="text-[8px] font-black uppercase tracking-[0.5em] text-amber-400">Sonic_Wave_Stream</span>
-                <div className="flex gap-2 h-12 items-end">
-                   {[...Array(16)].map((_, i) => (
-                     <motion.div 
-                        key={i}
-                        animate={{ height: ["10%", "100%", "30%", "80%", "10%"] }}
-                        transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.1 }}
-                        className="w-2 bg-amber-400/20"
-                     />
-                   ))}
-                </div>
-             </div>
+      {/* TESTIMONIALS */}
+      <section ref={testimonialsRef} style={{ background: "#f0ece6", padding: "80px 60px", borderBottom: `1px solid ${C.border}` }}>
+        <h2 style={{ fontFamily: C.serif, fontSize: "clamp(32px, 4vw, 52px)", fontStyle: "italic", fontWeight: 400, textAlign: "center", marginBottom: 56 }}>Ce qu'elles en pensent.</h2>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 32 }}>
+          {TESTIMONIALS.map((t, i) => (
+            <motion.div key={i} initial={{ opacity: 0, y: 30 }} animate={testimonialsInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ delay: i * 0.15 }}
+              style={{ background: C.card, padding: "36px", border: `1px solid ${C.border}` }}>
+              <div style={{ display: "flex", gap: 2, marginBottom: 20 }}>
+                {[...Array(t.stars)].map((_, j) => <span key={j} style={{ fontSize: 14, color: C.sand }}>★</span>)}
+              </div>
+              <p style={{ fontFamily: C.serif, fontSize: 17, fontStyle: "italic", color: C.text, lineHeight: 1.7, marginBottom: 24 }}>« {t.quote} »</p>
+              <div style={{ fontSize: 12, color: C.muted, fontWeight: 600 }}>{t.name} · {t.location}</div>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section style={{ maxWidth: 800, margin: "0 auto", padding: "80px 60px" }}>
+        <h2 style={{ fontFamily: C.serif, fontSize: 44, fontStyle: "italic", fontWeight: 400, textAlign: "center", marginBottom: 48 }}>Questions & réponses</h2>
+        {FAQS.map((f, i) => (
+          <div key={i} style={{ borderBottom: `1px solid ${C.border}` }}>
+            <button onClick={() => setOpenFaq(openFaq === i ? null : i)}
+              style={{ width: "100%", display: "flex", justifyContent: "space-between", alignItems: "center", padding: "20px 0", background: "none", border: "none", color: C.text, cursor: "pointer", textAlign: "left" }}>
+              <span style={{ fontSize: 15, fontWeight: 600 }}>{f.q}</span>
+              <motion.span animate={{ rotate: openFaq === i ? 45 : 0 }} style={{ fontSize: 22, color: C.terracotta, minWidth: 22 }}>+</motion.span>
+            </button>
+            <AnimatePresence>
+              {openFaq === i && (
+                <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }}>
+                  <p style={{ paddingBottom: 20, fontSize: 14, color: C.muted, lineHeight: 1.8 }}>{f.a}</p>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
-        </section>
+        ))}
+      </section>
 
-        {/* ==========================================
-            2. MATERIAL REGISTRY (DENSE TECHNICAL)
-            ========================================== */}
-        <section className="py-60 bg-[#080808] relative border-y border-white/5 overflow-hidden">
-           <div className="max-w-[1600px] mx-auto px-8 md:px-24">
-              <div className="flex flex-col md:flex-row items-end justify-between mb-40 gap-12">
-                 <Reveal>
-                    <span className="text-[10px] font-black uppercase tracking-[0.6em] text-amber-400 block mb-6 italic underline underline-offset-8 decoration-amber-400/20">Acoustic // Engineering</span>
-                    <h2 className="text-6xl md:text-[10vw] font-black uppercase tracking-tighter italic leading-none text-white">Registry.</h2>
-                 </Reveal>
-                 <div className="text-right">
-                    <span className="text-[10px] font-black uppercase tracking-[0.5em] text-white/20 block mb-4 italic">Registry // Sound_Audit</span>
-                    <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-amber-400">L'Architecture du Silence</p>
-                 </div>
-              </div>
+      {/* CTA NEWSLETTER */}
+      <section style={{ background: C.terracotta, padding: "80px 60px", textAlign: "center" }}>
+        <div style={{ fontFamily: C.serif, fontSize: 13, letterSpacing: 4, color: "rgba(255,255,255,0.7)", textTransform: "uppercase", marginBottom: 24 }}>Restez dans la boucle</div>
+        <h2 style={{ fontFamily: C.serif, fontSize: "clamp(36px, 5vw, 64px)", fontStyle: "italic", fontWeight: 300, color: "#fff", marginBottom: 16 }}>
+          –15% sur votre première commande.
+        </h2>
+        <p style={{ fontSize: 16, color: "rgba(255,255,255,0.7)", marginBottom: 40 }}>Accès en avant-première aux nouvelles collections et offres exclusives.</p>
+        <div style={{ display: "flex", gap: 0, maxWidth: 480, margin: "0 auto" }}>
+          <input placeholder="votre@email.fr" style={{ flex: 1, padding: "16px 24px", background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.3)", color: "#fff", fontSize: 14, outline: "none", fontFamily: C.sans }} />
+          <motion.button whileHover={{ background: C.text }} whileTap={{ scale: 0.97 }}
+            style={{ padding: "16px 28px", background: "#fff", color: C.terracotta, border: "none", fontWeight: 700, fontSize: 14, cursor: "pointer", transition: "all 0.2s", fontFamily: C.sans }}>
+            S'inscrire
+          </motion.button>
+        </div>
+      </section>
 
-              <div className="grid md:grid-cols-3 gap-px bg-white/5 border border-white/5 shadow-2xl">
-                 {ACOUSTIC_MATERIALS.map((mat, i) => (
-                   <Reveal key={mat.id} delay={i * 0.1}>
-                      <div className="bg-[#050505] p-20 flex flex-col h-full hover:bg-white/[0.02] transition-all group cursor-crosshair border-white/5 border-r last:border-r-0">
-                         <div className="flex justify-between items-start mb-16">
-                            <div className="w-16 h-16 bg-white/5 border border-white/10 flex items-center justify-center group-hover:bg-amber-600 group-hover:text-black transition-all duration-500">
-                               <Waves className="w-8 h-8" />
-                            </div>
-                            <span className={`px-4 py-2 bg-white/5 text-[9px] font-black uppercase tracking-[0.3em] ${mat.status === "Optimal" ? "text-amber-400" : "text-white/40"}`}>{mat.status}</span>
-                         </div>
-                         
-                         <h3 className="text-4xl font-black uppercase tracking-tighter mb-8 italic text-white group-hover:translate-x-4 transition-transform">{mat.name}</h3>
-                         <div className="text-[10px] font-black text-white/20 uppercase tracking-[0.5em] mb-12">{mat.type}</div>
-                         
-                         <div className="space-y-8 mb-20 border-l border-amber-400/20 pl-8">
-                            <div className="flex justify-between items-center text-[11px] font-bold uppercase tracking-widest">
-                               <span className="text-white/20">NRC Coeff.</span>
-                               <span className="text-white group-hover:text-amber-400 transition-colors">{mat.nrc}</span>
-                            </div>
-                            <div className="flex justify-between items-center text-[11px] font-bold uppercase tracking-widest">
-                               <span className="text-white/20">Density</span>
-                               <span className="text-white group-hover:text-amber-400 transition-colors">{mat.density}</span>
-                            </div>
-                            <div className="flex justify-between items-center text-[11px] font-bold uppercase tracking-widest">
-                               <span className="text-white/20">Thickness</span>
-                               <span className="text-white group-hover:text-amber-400 transition-colors">{mat.thickness}</span>
-                            </div>
-                         </div>
-
-                         <p className="text-[12px] text-white/30 leading-loose uppercase tracking-[0.2em] font-bold italic mb-16">
-                            {mat.desc}
-                         </p>
-
-                         <div className="mt-auto pt-10 border-t border-white/5 flex justify-between items-center">
-                            <span className="text-[10px] font-black text-white/10 uppercase tracking-widest">Ref: {mat.id}</span>
-                            <button className="text-[10px] font-black uppercase text-white/40 flex items-center gap-4 group-hover:text-white transition-all">
-                               System_Specs <ChevronRight className="w-5 h-5" />
-                            </button>
-                         </div>
-                      </div>
-                   </Reveal>
-                 ))}
-              </div>
-           </div>
-        </section>
-
-        {/* ==========================================
-            3. SONIC MONITOR (INTERACTIVE DATA)
-            ========================================== */}
-        <section className="py-60 bg-black relative border-y border-white/5 overflow-hidden">
-           <div className="max-w-[1400px] mx-auto px-8 md:px-24">
-              <div className="grid lg:grid-cols-2 gap-40 items-center">
-                 <div>
-                    <Reveal>
-                       <span className="text-[10px] font-black uppercase tracking-[0.5em] text-amber-400 block mb-12 italic underline underline-offset-8 decoration-amber-400/20">Sonic // Performance</span>
-                       <h2 className="text-7xl md:text-[9vw] font-light italic leading-none text-white mb-16 uppercase tracking-tighter">
-                          The <br/> <span className="not-italic font-black text-white/5 italic">Echo_Link.</span>
-                       </h2>
-                       <p className="text-2xl font-light text-white/20 leading-relaxed mb-24 italic uppercase tracking-[0.2em] max-w-xl">
-                          Surveillance des ondes stationnaires en temps réel. Nos algorithmes de simulation acoustique anticipent les réflexions parasites pour garantir une intelligibilité parfaite.
-                       </p>
-                       <div className="grid grid-cols-2 gap-px bg-white/5 border border-white/5 mb-24 shadow-2xl">
-                          {SONIC_METRICS.map((metric, i) => (
-                            <div key={i} className="p-16 bg-[#0a0a0a] group hover:bg-white/[0.02] transition-all border-r border-b last:border-r-0 border-white/5">
-                               <div className="text-[10px] font-black uppercase text-amber-400 mb-6 tracking-[0.4em]">{metric.label}</div>
-                               <div className="text-5xl font-black text-white italic mb-6 tracking-tighter group-hover:translate-x-4 transition-transform">{metric.value}</div>
-                               <div className="flex items-center gap-3 text-[9px] font-bold uppercase tracking-[0.3em] text-white/10 italic">
-                                  <Activity className="w-4 h-4 text-amber-400" /> {metric.trend}
-                               </div>
-                            </div>
-                          ))}
-                       </div>
-                       <button 
-                         onClick={() => setIsFreqSweepActive(!isFreqSweepActive)}
-                         className="w-full py-8 bg-amber-600 text-black text-[11px] font-black uppercase tracking-widest hover:bg-white transition-all shadow-2xl flex items-center justify-center gap-6 italic"
-                       >
-                          <Settings className="w-5 h-5" /> Re-Sync Frequency Nodes
-                       </button>
-                    </Reveal>
-                 </div>
-                 
-                 <div className="relative">
-                    <Reveal delay={0.3} x={40}>
-                       <div className="aspect-square bg-[#0a0a0a] border border-white/10 p-20 flex flex-col justify-between relative group overflow-hidden shadow-2xl">
-                          <div className="absolute top-0 right-0 p-80 bg-amber-400 opacity-[0.02] blur-[150px] rounded-full group-hover:opacity-[0.05] transition-opacity" />
-                          
-                          <div className="flex justify-between items-start z-10">
-                             <div className="flex flex-col gap-3">
-                                <span className="text-[10px] font-black text-white/10 uppercase tracking-[0.5em]">Echo_Link // SONIC-SYNC-v4</span>
-                                <span className="text-[12px] font-black text-white/40 uppercase tracking-[0.6em]">Sound_Density_Map</span>
-                             </div>
-                             <Wifi className="w-6 h-6 text-amber-400" />
-                          </div>
-                          
-                          {/* SONIC VISUALIZER (SVG) */}
-                          <div className="relative z-10 flex flex-col items-center justify-center h-full">
-                             <div className="w-64 h-64 border border-amber-400/5 rounded-full flex items-center justify-center relative">
-                                <motion.div 
-                                  animate={{ rotate: 360 }}
-                                  transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
-                                  className="absolute inset-0 border-t-2 border-amber-400/20 rounded-full" 
-                                />
-                                <motion.div 
-                                  animate={{ rotate: -360 }}
-                                  transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-                                  className="absolute inset-8 border-b-2 border-amber-400/10 rounded-full" 
-                                />
-                                <Volume2 className={`w-24 h-24 transition-colors duration-1000 ${isFreqSweepActive ? "text-amber-400 animate-pulse" : "text-white/5"}`} />
-                             </div>
-                             <div className="mt-16 text-center space-y-6">
-                                <div className={`text-4xl font-black italic tracking-tighter ${isFreqSweepActive ? "text-white" : "text-white/20"}`}>
-                                   {isFreqSweepActive ? "FREQ_LOCKED" : "FREQ_UNSTABLE"}
-                                </div>
-                                <span className="text-[11px] font-bold text-white/10 uppercase tracking-[0.6em] block">Auth_Node: STUDIO_HEAD_01</span>
-                             </div>
-                          </div>
-
-                          <div className="relative z-10 flex gap-6">
-                             <div className="flex-1 h-1 bg-white/5 overflow-hidden">
-                                <motion.div 
-                                   animate={isFreqSweepActive ? { x: ["-100%", "100%"] } : {}}
-                                   transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-                                   className="w-1/2 h-full bg-amber-600"
-                                />
-                             </div>
-                          </div>
-                       </div>
-                    </Reveal>
-                 </div>
-              </div>
-           </div>
-        </section>
-
-        {/* ==========================================
-            4. ACOUSTIC STORY (TECH STORYTELLING)
-            ========================================== */}
-        <section className="py-60 bg-[#050505] relative overflow-hidden border-t border-white/5">
-           <div className="max-w-[1400px] mx-auto px-8 md:px-24">
-              <div className="grid lg:grid-cols-2 gap-40 items-center">
-                 <div className="relative aspect-[3/4] overflow-hidden group border border-white/5 shadow-2xl">
-                    <Image 
-                       src="https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=1200&auto=format&fit=crop" 
-                       alt="Concert Hall" 
-                       fill 
-                       className="object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-[2000ms]"
-                    />
-                    <div className="absolute inset-0 bg-amber-900/10 mix-blend-color group-hover:opacity-0 transition-opacity" />
-                    <div className="absolute inset-0 p-20 flex flex-col justify-end bg-gradient-to-t from-black via-black/40 to-transparent">
-                       <div className="text-white">
-                          <span className="text-[11px] font-black uppercase tracking-[0.6em] text-amber-400 mb-8 block italic underline underline-offset-8 decoration-amber-400/20">Atelier // Purity // Unit</span>
-                          <h4 className="text-6xl font-black tracking-tighter uppercase italic mb-12 mix-blend-difference text-white">Sonic <br/> Architecture.</h4>
-                          <button className="flex items-center gap-6 text-[11px] font-black uppercase tracking-[0.4em] border-b border-white/20 pb-4 hover:border-amber-400 transition-all group">
-                             Acoustic Protocols <ExternalLink className="w-5 h-5 group-hover:translate-x-2 group-hover:-translate-y-2 transition-transform" />
-                          </button>
-                       </div>
-                    </div>
-                 </div>
-
-                 <div>
-                    <Reveal>
-                       <div className="mb-24 text-left">
-                          <span className="text-[10px] font-black uppercase tracking-[0.5em] text-amber-400 mb-8 block italic">Chapitre III // Precision</span>
-                          <h2 className="text-7xl md:text-[10vw] font-black tracking-tighter uppercase text-white italic leading-none text-white">Pure_Echo.</h2>
-                       </div>
-                       <p className="text-2xl font-light text-white/20 leading-relaxed italic mb-20 uppercase tracking-[0.2em]">
-                          L'espace acoustique est une extension de l'architecture. Nous concevons des environnements où le son devient une matière sculptable, garantissant une immersion totale.
-                       </p>
-                       <div className="space-y-20">
-                          {[
-                            { t: "Mechanical Decoupling", d: "Isolement structurel complet pour éviter la transmission des bruits solidiens et des vibrations." },
-                            { t: "Quadratic Diffusion", d: "Calculs mathématiques précis pour une dispersion spatiale du son, évitant les échos flottants." },
-                            { t: "Resonant Control", d: "Traitement sélectif des modes propres de la pièce pour une réponse en fréquence parfaitement linéaire." }
-                          ].map((step, i) => (
-                            <div key={i} className="group flex gap-12 border-b border-white/5 pb-16 hover:border-amber-400/20 transition-all cursor-default">
-                               <div className="text-6xl font-black text-white/5 group-hover:text-amber-400/20 transition-colors italic leading-none">0{i+1}</div>
-                               <div>
-                                  <h5 className="text-3xl font-black uppercase tracking-tight text-white mb-6 italic group-hover:translate-x-4 transition-transform text-white">{step.t}</h5>
-                                  <p className="text-[12px] text-white/20 uppercase tracking-[0.3em] font-bold leading-loose italic">{step.d}</p>
-                               </div>
-                            </div>
-                          ))}
-                       </div>
-                    </Reveal>
-                 </div>
-              </div>
-           </div>
-        </section>
-
-        {/* MEGA FOOTER */}
-        <footer className="bg-black pt-60 pb-12 px-8 md:px-24 relative z-50">
-           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-32 mb-60 text-white">
-              <div className="lg:col-span-2">
-                 <div className="flex items-center gap-6 mb-16">
-                    <div className="w-16 h-16 bg-amber-600 flex items-center justify-center">
-                      <Speaker className="w-10 h-10 text-black" />
-                    </div>
-                    <span className="text-4xl font-black uppercase tracking-tighter italic">ECHO<span className="text-white/20">HORIZON.</span></span>
-                 </div>
-                 <p className="text-white/20 text-[11px] font-black uppercase tracking-[0.5em] leading-loose max-w-sm mb-20 italic">
-                    "L'excellence sonore commence par le silence." — Archive Echo V.4
-                 </p>
-                 <div className="flex gap-16">
-                    {["AcousticLog", "MaterialRegistry", "GitHub", "X_Protocol"].map(s => (
-                      <Link key={s} href="#" className="text-[11px] font-black uppercase tracking-widest text-white/20 hover:text-amber-400 transition-colors italic underline underline-offset-8 decoration-white/5">{s}</Link>
-                    ))}
-                 </div>
-              </div>
-
-              {[
-                { t: "MATERIALS", l: ["Polymer Foam", "Wood Diffusers", "Bass Traps", "Resonators"] },
-                { t: "TECHNOLOGY", l: ["RT60 Simulation", "Sound Isolation", "NRC Metrics", "Acoustic Mapping"] },
-                { t: "ATELIER", l: ["Our Legacy", "Sustainability", "Locations", "Support"] }
-              ].map((col, i) => (
-                <div key={i} className="flex flex-col gap-12">
-                  <h4 className="text-[11px] font-black text-amber-400 uppercase tracking-[0.6em] italic">{col.t}</h4>
-                  <ul className="flex flex-col gap-8">
-                    {col.l.map(link => (
-                      <li key={link} className="text-[11px] font-bold text-white/20 hover:text-white transition-colors cursor-pointer uppercase tracking-[0.4em] italic">{link}</li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-           </div>
-
-           <div className="max-w-[1600px] mx-auto border-t border-white/5 pt-16 flex flex-col md:flex-row justify-between items-center gap-16 text-[10px] font-black text-white/10 uppercase tracking-[0.6em] italic">
-              <span>© 2026 ECHO HORIZON ARCHITECTURAL ACOUSTICS AG. // ALL_RIGHTS_RESERVED</span>
-              <div className="flex gap-16">
-                 <span>STATUS: OPERATIONAL</span>
-                 <span>RT60: 0.42s (AVG)</span>
-                 <span>v4.12.0-STABLE</span>
-              </div>
-           </div>
-        </footer>
-      </main>
-    </div>
-  )
-}
-
-/* ==========================================
-   TECHNICAL SUB-COMPONENTS
-   ========================================== */
-
-function HUD_Overlay({ isFreqSweepActive }: { isFreqSweepActive: boolean }) {
-  return (
-    <div className="fixed inset-0 pointer-events-none z-[100]">
-       {/* Corner Brackets */}
-       <div className={`absolute top-12 left-12 w-20 h-20 border-t-2 border-l-2 transition-colors duration-1000 ${isFreqSweepActive ? "border-amber-400" : "border-white/10"}`} />
-       <div className={`absolute top-12 right-12 w-20 h-20 border-t-2 border-r-2 transition-colors duration-1000 ${isFreqSweepActive ? "border-amber-400" : "border-white/10"}`} />
-       <div className={`absolute bottom-12 left-12 w-20 h-20 border-b-2 border-l-2 transition-colors duration-1000 ${isFreqSweepActive ? "border-amber-400" : "border-white/10"}`} />
-       <div className={`absolute bottom-12 right-12 w-20 h-20 border-b-2 border-r-2 transition-colors duration-1000 ${isFreqSweepActive ? "border-amber-400" : "border-white/10"}`} />
-
-       {/* Top Status Bar */}
-       <div className="absolute top-12 left-1/2 -translate-x-1/2 flex items-center gap-20 bg-black/60 backdrop-blur-2xl px-12 py-4 border border-white/10 rounded-none">
-          <div className="flex items-center gap-6 text-white">
-             <div className={`w-3 h-3 transition-colors duration-500 ${isFreqSweepActive ? "bg-amber-400 animate-pulse" : "bg-red-500 animate-ping"}`} />
-             <span className="text-[10px] font-black uppercase tracking-[0.4em] italic leading-none">Sonic_Sync: {isFreqSweepActive ? "LOCKED" : "UNSTABLE"} // Status: ACTIVE</span>
+      {/* FOOTER */}
+      <footer style={{ background: C.text, padding: "64px 60px 40px" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr", gap: 60, marginBottom: 48 }}>
+          <div>
+            <div style={{ fontFamily: C.serif, fontSize: 22, fontStyle: "italic", color: "#f9f7f2", marginBottom: 16 }}>Éclat</div>
+            <div style={{ fontSize: 13, color: "#6b7280", lineHeight: 1.8, maxWidth: 260 }}>Mode durable et intemporelle. Des pièces qui traversent les saisons et les années.</div>
           </div>
-          <div className="h-4 w-px bg-white/20" />
-          <div className="flex items-center gap-6 text-white/20">
-             <Wifi className="w-4 h-4" /> 
-             <span className="text-[10px] font-black uppercase tracking-[0.4em] italic leading-none">Studio_Grid: SECURE</span>
-          </div>
-       </div>
-
-       {/* Right Rotation Info */}
-       <div className="absolute right-12 top-1/2 -translate-y-1/2 rotate-90 origin-right hidden lg:block">
-          <span className="text-[10px] font-black uppercase tracking-[0.8em] text-white/5 italic">Unauthorized_Duplication_Of_Acoustic_Patterns_Is_Strictly_Monitored_By_Global_Sound_Alliance</span>
-       </div>
+          {[
+            { title: "Boutique", links: ["Collections", "Nouveautés", "Soldes", "Gift Cards"] },
+            { title: "Info", links: ["Notre histoire", "Engagements", "Blog", "Presse"] },
+            { title: "Service", links: ["Livraison & Retours", "Guide des tailles", "FAQ", "Contact"] },
+          ].map((col, i) => (
+            <div key={i}>
+              <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 2, color: "#4b5563", textTransform: "uppercase", marginBottom: 16 }}>{col.title}</div>
+              {col.links.map(l => <div key={l} style={{ fontSize: 14, color: "#6b7280", marginBottom: 10, cursor: "pointer" }}>{l}</div>)}
+            </div>
+          ))}
+        </div>
+        <div style={{ borderTop: "1px solid #1f2937", paddingTop: 24, fontSize: 12, color: "#374151", display: "flex", justifyContent: "space-between" }}>
+          <span>© 2025 Éclat — Tous droits réservés</span>
+          <span>Mentions légales · CGV · Confidentialité</span>
+        </div>
+      </footer>
     </div>
   )
 }

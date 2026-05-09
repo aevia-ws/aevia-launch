@@ -1,518 +1,312 @@
 "use client"
 
-import React, { useState, useEffect, useRef } from "react"
-import { 
-  motion, 
-  AnimatePresence, 
-  useScroll, 
-  useTransform, 
-  useInView, 
-  useSpring 
-} from "framer-motion"
-import Image from "next/image"
-import Link from "next/link"
-import { 
-  Brain, Zap, Cpu, Shield, 
-  Target, Layers, Box, Hexagon, 
-  Terminal, Settings, Power, Info, 
-  AlertTriangle, ChevronRight, ArrowRight, 
-  Share2, Maximize2, Download, ExternalLink, 
-  Archive, Hash, Wifi, BarChart3, 
-  Microscope, Fingerprint, Scan, 
-  Activity, Server, ShieldCheck, 
-  ShieldAlert, Award, Briefcase, 
-  Eye, Zap as ZapIcon, Activity as ActivityIcon, 
-  Database, Navigation, Code, Command, 
-  Grid, Radar, Lightbulb, User, 
-  Heart, Dna, Snowflake, Droplet, 
-  Wind, Ghost, FlaskConical, FlaskRound, 
-  Orbit, Atom, Satellite, Milestone, 
-  Gauge, Timer, Signal, Search, 
-  Headphones, MousePointer2, Move, 
-  Smartphone, Monitor, Tablet, Watch
-} from "lucide-react"
+import React, { useState, useRef } from "react"
+import { motion, useInView, AnimatePresence } from "framer-motion"
 
-/* ==========================================================================
-   THE NEURAL LINK DATASET (ULTRA DENSITY)
-   ========================================================================== */
+// VITALITÉ MÉDICAL — Health clinic. Light mode, teal accent, clean trustworthy layout.
+// Unique: floating card hero with doctor credentials, specialty tabs, appointment booking CTA.
 
-const NEURO_ASSETS = [
-  {
-    id: "link-c-42",
-    name: "Cortex-Link v4",
-    type: "Direct Brain Interface",
-    latency: "0.2ms",
-    bandwidth: "420 Gbps",
-    integration: "99.98%",
-    desc: "Interface corticale de haute fidélité permettant une communication bidirectionnelle entre le cerveau humain et les systèmes informatiques.",
-    status: "Active"
-  },
-  {
-    id: "link-h-09",
-    name: "Haptic-Prosthesis Z",
-    type: "Motor Cortex Link",
-    latency: "1.2ms",
-    bandwidth: "120 Gbps",
-    integration: "98.42%",
-    desc: "Bras robotique avancé avec retour haptique direct, synchronisé avec les commandes motrices du sujet.",
-    status: "Testing"
-  },
-  {
-    id: "link-o-15",
-    name: "Optic-Augment X",
-    type: "Visual Cortex Proxy",
-    latency: "0.5ms",
-    bandwidth: "800 Gbps",
-    integration: "100%",
-    desc: "Prothèse optique permettant une vision augmentée (IR, UV, Data-HUD) directement projetée dans le cortex visuel.",
-    status: "Approved"
+const SPECIALTIES = [
+  { label: "Médecine Générale", desc: "Consultations, bilans annuels, suivi chronique, prescriptions. Prise en charge Sécu 100%.", duration: "20 min", price: "Secteur 1 · 26 €" },
+  { label: "Cardiologie", desc: "ECG, holter, écho doppler, suivi tensionnel. Cardiologue diplômé de Paris VI.", duration: "45 min", price: "Secteur 2 · 80 €" },
+  { label: "Dermatologie", desc: "Consultations acné, eczéma, psoriasis, naevi. Cryothérapie en cabinet.", duration: "30 min", price: "Secteur 2 · 65 €" },
+  { label: "Nutrition", desc: "Bilan nutritionnel, plan alimentaire personnalisé, suivi mensuel inclus.", duration: "60 min", price: "Non remboursé · 90 €" },
+]
+
+const DOCTORS = [
+  { name: "Dr. Claire Moreau", title: "Médecin généraliste", exp: "18 ans", univ: "Faculté Paris V", initials: "CM", accent: "#0d9488" },
+  { name: "Dr. Antoine Berger", title: "Cardiologue", exp: "12 ans", univ: "Faculté Paris VI", initials: "AB", accent: "#6366f1" },
+  { name: "Dr. Sophie Renaud", title: "Dermatologue", exp: "9 ans", univ: "Faculté Lyon I", initials: "SR", accent: "#f59e0b" },
+]
+
+const TESTIMONIALS = [
+  { quote: "Enfin un cabinet qui répond le jour même et qui ne vous fait pas attendre 45 min en salle d'attente. Révolutionnaire.", name: "Pierre M.", service: "Médecine générale" },
+  { quote: "Dr. Berger m'a diagnostiqué une arythmie que mon cardiologue précédent avait manquée pendant 3 ans.", name: "Marie-Hélène F.", service: "Cardiologie" },
+  { quote: "Le suivi nutritionnel a changé ma vie. 14 kg en 8 mois, sans régime draconien.", name: "Thomas L.", service: "Nutrition" },
+]
+
+const FAQS = [
+  { q: "Prenez-vous les nouveaux patients ?", a: "Oui — en médecine générale et nutrition. Cardiologie et dermatologie sur liste d'attente (2–4 semaines)." },
+  { q: "Les consultations sont-elles remboursées ?", a: "Médecine générale secteur 1 : 100% Sécu. Cardiologie et dermatologie secteur 2 : remboursement partiel selon mutuelle." },
+  { q: "Proposez-vous des consultations en ligne ?", a: "Oui — téléconsultation disponible pour les patients déjà suivis au cabinet. Via la plateforme sécurisée Doctolib." },
+  { q: "Quelle est votre politique de rendez-vous urgents ?", a: "Créneaux urgents réservés chaque matin de 8h à 9h. Pas de tri téléphonique pour les urgences réelles." },
+  { q: "Y a-t-il un parking ?", a: "Oui — parking gratuit 2h juste en face du cabinet. Accès PMR par l'entrée latérale rue Lamartine." },
+]
+
+const PLANS = [
+  { name: "Ponctuel", price: "Acte unique", note: "sans engagement", features: ["Consultation classique", "Ordonnance e-prescrite", "Compte-rendu PDF 48h", "Prise en charge habituelle"] },
+  { name: "Suivi Annuel", price: "149 €/an", note: "sans CB à chaque visite", features: ["Bilan santé annuel complet", "Accès prioritaire créneaux", "Consultation téléphonique incluse", "Carnet de santé numérique", "Rappels préventifs personnalisés"], highlight: true },
+  { name: "Famille", price: "299 €/an", note: "jusqu'à 4 personnes", features: ["Tout Suivi Annuel ×4", "Pédiatre en réseau", "Urgences nuit coordinées", "Dossier famille centralisé"] },
+]
+
+export default function Page() {
+  const [activeSpec, setActiveSpec] = useState(0)
+  const [openFaq, setOpenFaq] = useState<number | null>(null)
+
+  const statsRef = useRef(null)
+  const pricingRef = useRef(null)
+  const statsInView = useInView(statsRef, { once: true, margin: "-100px" })
+  const pricingInView = useInView(pricingRef, { once: true, margin: "-100px" })
+
+  const C = {
+    bg: "#f8fffe",
+    teal: "#0d9488",
+    tealLight: "#ccfbf1",
+    text: "#0f2820",
+    muted: "#6b7280",
+    card: "#ffffff",
+    border: "#e2f0ee",
+    sans: "system-ui, -apple-system, sans-serif",
+    serif: "'Cormorant Garamond', Georgia, serif",
   }
-]
 
-const NEURAL_METRICS = [
-  { label: "Synaptic Sync", value: "99.98%", trend: "Stable" },
-  { label: "Cognitive Load", value: "42%", trend: "Optimal" },
-  { label: "Data Throughput", value: "1.4 TB/h", trend: "High" },
-  { label: "Neural Plasticity", value: "Level 8", trend: "Increasing" }
-]
-
-const SURGICAL_LOGS = [
-  { timestamp: "22:14:42", unit: "Mapping-Node-01", status: "ACTIVE", resolution: "0.1nm" },
-  { timestamp: "22:14:45", unit: "Insertion-Core-Z", status: "STABLE", depth: "12mm" },
-  { timestamp: "22:14:48", unit: "Software-Sync", status: "SUCCESS", alignment: "100%" }
-]
-
-/* ==========================================
-   TECHNICAL COMPONENTS
-   ========================================== */
-
-function Reveal({ children, delay = 0, y = 40, x = 0 }: { children: React.ReactNode, delay?: number, y?: number, x?: number }) {
-  const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, margin: "-100px" })
-  return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, y, x }}
-      animate={isInView ? { opacity: 1, y: 0, x: 0 } : {}}
-      transition={{ duration: 1.2, delay, ease: [0.16, 1, 0.3, 1] }}
-    >
-      {children}
-    </motion.div>
-  )
-}
-
-function SynapticGridVisualizer() {
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
-  useEffect(() => {
-    const handleMouse = (e: MouseEvent) => setMousePos({ x: e.clientX, y: e.clientY })
-    window.addEventListener("mousemove", handleMouse)
-    return () => window.removeEventListener("mousemove", handleMouse)
-  }, [])
+  const STATS = [
+    { val: "4 200+", label: "Patients suivis" },
+    { val: "48h", label: "Délai moyen RDV" },
+    { val: "97%", label: "Satisfaction patients" },
+    { val: "2009", label: "Ouverture du cabinet" },
+  ]
 
   return (
-    <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden opacity-5">
-       <svg width="100%" height="100%" className="w-full h-full">
-          {[...Array(30)].map((_, i) => (
-            <motion.circle 
-               key={i}
-               cx={`${Math.random() * 100}%`} 
-               cy={`${Math.random() * 100}%`} 
-               r={Math.random() * 2 + 1} 
-               fill="white"
-               animate={{ opacity: [0, 1, 0] }}
-               transition={{ duration: 2 + Math.random() * 3, repeat: Infinity, delay: Math.random() * 5 }}
-            />
+    <div style={{ background: C.bg, color: C.text, fontFamily: C.sans, overflowX: "hidden" }}>
+      {/* NAV */}
+      <nav style={{
+        position: "sticky", top: 0, zIndex: 100,
+        background: "rgba(248,255,254,0.95)", backdropFilter: "blur(12px)",
+        borderBottom: `1px solid ${C.border}`,
+        display: "flex", alignItems: "center", justifyContent: "space-between",
+        padding: "0 60px", height: 68,
+      }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <div style={{ width: 36, height: 36, background: C.teal, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+          </div>
+          <div>
+            <div style={{ fontSize: 16, fontWeight: 700, color: C.text, letterSpacing: -0.3 }}>Vitalité Médical</div>
+            <div style={{ fontSize: 10, color: C.muted, letterSpacing: 1 }}>Cabinet pluridisciplinaire</div>
+          </div>
+        </div>
+        <div style={{ display: "flex", gap: 36, alignItems: "center" }}>
+          {["Spécialités", "Médecins", "Tarifs", "Contact"].map(l => (
+            <a key={l} href="#" style={{ fontSize: 14, color: C.muted, textDecoration: "none", fontWeight: 500 }}>{l}</a>
           ))}
-          {/* Neural Connections */}
-          <motion.circle 
-             animate={{ cx: mousePos.x, cy: mousePos.y }}
-             transition={{ type: "spring", damping: 30, stiffness: 100 }}
-             r="200" 
-             fill="white" 
-             className="opacity-20 blur-[120px]"
-          />
-       </svg>
-    </div>
-  )
-}
+          <motion.a href="tel:+33123456789" whileHover={{ background: "#0a7a70" }} whileTap={{ scale: 0.97 }}
+            style={{ padding: "10px 24px", background: C.teal, color: "#fff", borderRadius: 8, fontSize: 14, fontWeight: 600, textDecoration: "none", display: "flex", alignItems: "center", gap: 8 }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.8 19.79 19.79 0 01.9 1.18 2 2 0 012.88 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L7.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+            Prendre RDV
+          </motion.a>
+        </div>
+      </nav>
 
-function NeuralHubModel({ progress }: { progress: any }) {
-  const rotate = useTransform(progress, [0, 1], [0, 360])
-  const scale = useTransform(progress, [0, 0.5, 1], [1, 1.1, 1])
-
-  return (
-    <motion.div style={{ rotate, scale }} className="relative w-80 h-80 flex items-center justify-center">
-       <div className="absolute inset-0 border border-cyan-400/10 rounded-full animate-spin-slow shadow-[0_0_80px_rgba(34,211,238,0.05)]" />
-       <Brain className="w-40 h-40 text-cyan-400/10 animate-pulse" />
-       <div className="absolute inset-4 border border-cyan-400/5 rounded-full" />
-    </motion.div>
-  )
-}
-
-/* ==========================================
-   THE NEURAL LINK - MAIN INTERFACE
-   ========================================== */
-
-export default function NeuralLinkPremium() {
-  const [activeLink, setActiveLink] = useState(0)
-  const [isNeuralSyncActive, setIsNeuralSyncActive] = useState(true)
-  const containerRef = useRef(null)
-  const { scrollYProgress } = useScroll({ target: containerRef })
-
-  // Neural Scroll Effects
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.2], [1, 0])
-  const textX = useTransform(scrollYProgress, [0, 0.5], [0, -100])
-
-  return (
-    <div ref={containerRef} className="bg-[#020408] text-[#e0e8ed] font-mono selection:bg-cyan-500/30 selection:text-white min-h-screen overflow-x-hidden transition-colors duration-1000">
-      
-      {/* GLOBAL HUD OVERLAY */}
-      <HUD_Overlay isNeuralSyncActive={isNeuralSyncActive} />
-
-      <main>
-        {/* ==========================================
-            1. NEURAL IGNITION (HERO)
-            ========================================== */}
-        <section className="relative h-screen flex flex-col justify-center items-center px-8 md:px-24 overflow-hidden pt-20">
-          <SynapticGridVisualizer />
-          <motion.div style={{ opacity: heroOpacity }} className="absolute z-0 pointer-events-none flex items-center justify-center">
-             <NeuralHubModel progress={scrollYProgress} />
-          </motion.div>
-
-          <div className="relative z-10 text-center max-w-7xl">
-             <Reveal>
-                <div className="inline-flex items-center gap-4 px-6 py-2 border border-cyan-400/30 bg-cyan-400/5 text-[10px] font-black uppercase tracking-[0.5em] text-cyan-400 mb-12 italic">
-                   <ActivityIcon className="w-4 h-4" /> Neural_Sync: NOMINAL // Bandwidth: 1.4 TB/h
-                </div>
-                <motion.h1 style={{ x: textX }} className="text-7xl md:text-[14vw] font-black tracking-tighter uppercase mb-16 leading-[0.75] italic">
-                   Neural <br/> <span className="text-white/5 italic">Link.</span>
-                </motion.h1>
-                <p className="max-w-3xl mx-auto text-sm md:text-lg text-white/30 leading-relaxed uppercase tracking-widest font-light mb-16 italic">
-                   L'évolution de l'interface humaine par le design neuro-numérique. Nous fusionnons la pensée et le silicium pour transcender les limites de l'esprit.
-                </p>
-                
-                <div className="flex flex-col sm:flex-row gap-8 justify-center items-center">
-                   <button className="px-12 py-6 bg-cyan-700 text-white text-[10px] font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all shadow-[0_0_40px_rgba(34,211,238,0.2)] flex items-center gap-4 italic">
-                      <ZapIcon className="w-5 h-5" /> Initialize Link
-                   </button>
-                   <button className="px-12 py-6 border border-white/10 text-white text-[10px] font-black uppercase tracking-widest hover:bg-white/5 transition-all flex items-center gap-4 italic">
-                      <Database className="w-5 h-5" /> Neuro Registry
-                   </button>
-                </div>
-             </Reveal>
+      {/* HERO */}
+      <section style={{ maxWidth: 1280, margin: "0 auto", padding: "80px 60px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 80, alignItems: "center", minHeight: "calc(100vh - 68px)" }}>
+        <motion.div initial={{ opacity: 0, x: -40 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8 }}>
+          <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: C.tealLight, color: C.teal, padding: "6px 16px", borderRadius: 50, fontSize: 12, fontWeight: 600, marginBottom: 32 }}>
+            <div style={{ width: 6, height: 6, background: C.teal, borderRadius: "50%" }} /> Cabinet ouvert — RDV disponibles
           </div>
-
-          <div className="absolute bottom-12 left-12 right-12 flex justify-between items-end border-t border-white/5 pt-12">
-             <div className="flex flex-col gap-6">
-                <div className="flex items-center gap-4 text-[9px] font-bold text-white/20 uppercase tracking-widest italic">
-                   <div className="w-16 h-px bg-white/10" />
-                   Subject_ID: NEURAL-42-ALP
-                </div>
-                <div className="flex items-center gap-4 text-[9px] font-bold text-white/20 uppercase tracking-widest italic">
-                   <div className="w-16 h-px bg-white/10" />
-                   Sync_Condition: DEEP_INTEGRATION
-                </div>
-             </div>
-             <div className="text-right flex flex-col items-end gap-4">
-                <span className="text-[8px] font-black uppercase tracking-[0.5em] text-cyan-400">Synaptic_Vibration_Stream</span>
-                <div className="flex gap-2 h-12 items-end">
-                   {[...Array(16)].map((_, i) => (
-                     <motion.div 
-                        key={i}
-                        animate={{ height: ["10%", "100%", "30%", "80%", "10%"] }}
-                        transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.1 }}
-                        className="w-2 bg-cyan-400/20"
-                     />
-                   ))}
-                </div>
-             </div>
+          <h1 style={{ fontSize: "clamp(44px, 5.5vw, 72px)", fontWeight: 800, letterSpacing: -2, lineHeight: 1.05, marginBottom: 24, color: C.text }}>
+            Votre santé,<br />
+            <span style={{ color: C.teal }}>prise en charge</span><br />
+            avec soin.
+          </h1>
+          <p style={{ fontSize: 18, color: C.muted, lineHeight: 1.75, marginBottom: 48, maxWidth: 440 }}>
+            Cabinet pluridisciplinaire au cœur de Lyon. Médecins généralistes, cardiologues et dermatologues disponibles sous 48h.
+          </p>
+          <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
+            <motion.a href="#" whileHover={{ background: "#0a7a70" }} whileTap={{ scale: 0.97 }}
+              style={{ padding: "16px 36px", background: C.teal, color: "#fff", borderRadius: 10, fontSize: 16, fontWeight: 700, textDecoration: "none", display: "inline-block", transition: "background 0.2s" }}>
+              Prendre rendez-vous
+            </motion.a>
+            <motion.a href="tel:+33123456789" whileHover={{ borderColor: C.teal, color: C.teal }} whileTap={{ scale: 0.97 }}
+              style={{ padding: "16px 36px", background: "transparent", color: C.text, border: `2px solid ${C.border}`, borderRadius: 10, fontSize: 16, fontWeight: 600, textDecoration: "none", transition: "all 0.2s" }}>
+              04 XX XX XX XX
+            </motion.a>
           </div>
-        </section>
-
-        {/* ==========================================
-            2. NEURO REGISTRY (DENSE TECHNICAL)
-            ========================================== */}
-        <section className="py-60 bg-[#04060a] relative border-y border-white/5 overflow-hidden">
-           <div className="max-w-[1600px] mx-auto px-8 md:px-24">
-              <div className="flex flex-col md:flex-row items-end justify-between mb-40 gap-12">
-                 <Reveal>
-                    <span className="text-[10px] font-black uppercase tracking-[0.6em] text-cyan-400 block mb-6 italic underline underline-offset-8 decoration-cyan-400/20">Neuro // Assets</span>
-                    <h2 className="text-6xl md:text-[10vw] font-black uppercase tracking-tighter italic leading-none text-white">Archives.</h2>
-                 </Reveal>
-                 <div className="text-right">
-                    <span className="text-[10px] font-black uppercase tracking-[0.5em] text-white/20 block mb-4 italic">Registry // Neural_Audit</span>
-                    <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-cyan-400">L'Architecture de l'Esprit</p>
-                 </div>
+          <div style={{ display: "flex", gap: 24, marginTop: 40, flexWrap: "wrap" }}>
+            {["Secteur 1 disponible", "Accès PMR", "Parking gratuit", "Téléconsultation"].map(t => (
+              <div key={t} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, color: C.muted }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={C.teal} strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                {t}
               </div>
+            ))}
+          </div>
+        </motion.div>
 
-              <div className="grid md:grid-cols-3 gap-px bg-white/5 border border-white/5 shadow-2xl">
-                 {NEURO_ASSETS.map((asset, i) => (
-                   <Reveal key={asset.id} delay={i * 0.1}>
-                      <div className="bg-[#020408] p-20 flex flex-col h-full hover:bg-white/[0.02] transition-all group cursor-crosshair border-white/5 border-r last:border-r-0">
-                         <div className="flex justify-between items-start mb-16">
-                            <div className="w-16 h-16 bg-white/5 border border-white/10 flex items-center justify-center group-hover:bg-cyan-700 group-hover:text-black transition-all duration-500">
-                               <Cpu className="w-8 h-8" />
-                            </div>
-                            <span className={`px-4 py-2 bg-white/5 text-[9px] font-black uppercase tracking-[0.3em] ${asset.status === "Approved" ? "text-cyan-400" : "text-white/40"}`}>{asset.status}</span>
-                         </div>
-                         
-                         <h3 className="text-4xl font-black uppercase tracking-tighter mb-8 italic text-white group-hover:translate-x-4 transition-transform">{asset.name}</h3>
-                         <div className="text-[10px] font-black text-white/20 uppercase tracking-[0.5em] mb-12">{asset.type}</div>
-                         
-                         <div className="space-y-8 mb-20 border-l border-cyan-400/20 pl-8">
-                            <div className="flex justify-between items-center text-[11px] font-bold uppercase tracking-widest">
-                               <span className="text-white/20">Latency</span>
-                               <span className="text-white group-hover:text-cyan-400 transition-colors">{asset.latency}</span>
-                            </div>
-                            <div className="flex justify-between items-center text-[11px] font-bold uppercase tracking-widest">
-                               <span className="text-white/20">Bandwidth</span>
-                               <span className="text-white group-hover:text-cyan-400 transition-colors">{asset.bandwidth}</span>
-                            </div>
-                            <div className="flex justify-between items-center text-[11px] font-bold uppercase tracking-widest">
-                               <span className="text-white/20">Integration</span>
-                               <span className="text-white group-hover:text-cyan-400 transition-colors">{asset.integration}</span>
-                            </div>
-                         </div>
-
-                         <p className="text-[12px] text-white/30 leading-loose uppercase tracking-[0.2em] font-bold italic mb-16">
-                            {asset.desc}
-                         </p>
-
-                         <div className="mt-auto pt-10 border-t border-white/5 flex justify-between items-center">
-                            <span className="text-[10px] font-black text-white/10 uppercase tracking-widest">Ref: {asset.id}</span>
-                            <button className="text-[10px] font-black uppercase text-white/40 flex items-center gap-4 group-hover:text-white transition-all">
-                               Technical_Specs <ChevronRight className="w-5 h-5" />
-                            </button>
-                         </div>
-                      </div>
-                   </Reveal>
-                 ))}
+        {/* Doctor cards */}
+        <motion.div initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8, delay: 0.2 }}
+          style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          {DOCTORS.map((doc, i) => (
+            <motion.div key={i} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 + i * 0.12 }}
+              whileHover={{ y: -3, boxShadow: "0 8px 32px rgba(13,148,136,0.12)" }}
+              style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, padding: "24px 28px", display: "flex", alignItems: "center", gap: 20, cursor: "pointer", transition: "all 0.2s" }}>
+              <div style={{ width: 52, height: 52, background: doc.accent + "22", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, fontWeight: 700, color: doc.accent, flexShrink: 0 }}>
+                {doc.initials}
               </div>
-           </div>
-        </section>
-
-        {/* ==========================================
-            3. COGNITIVE MONITOR (INTERACTIVE DATA)
-            ========================================== */}
-        <section className="py-60 bg-black relative border-y border-white/5 overflow-hidden">
-           <div className="max-w-[1400px] mx-auto px-8 md:px-24">
-              <div className="grid lg:grid-cols-2 gap-40 items-center">
-                 <div>
-                    <Reveal>
-                       <span className="text-[10px] font-black uppercase tracking-[0.5em] text-cyan-400 block mb-12 italic underline underline-offset-8 decoration-cyan-400/20">Neural // Performance</span>
-                       <h2 className="text-7xl md:text-[9vw] font-light italic leading-none text-white mb-16 uppercase tracking-tighter">
-                          The <br/> <span className="not-italic font-black text-white/5 italic">Cognitive_Hub.</span>
-                       </h2>
-                       <p className="text-2xl font-light text-white/20 leading-relaxed mb-24 italic uppercase tracking-[0.2em] max-w-xl">
-                          Surveillance synaptique en temps réel. Nos interfaces capturent chaque impulsion neuronale et optimisent le flux de données pour une symbiose parfaite entre l'homme et la machine.
-                       </p>
-                       <div className="grid grid-cols-2 gap-px bg-white/5 border border-white/5 mb-24 shadow-2xl">
-                          {NEURAL_METRICS.map((metric, i) => (
-                            <div key={i} className="p-16 bg-[#0a0c0e] group hover:bg-white/[0.02] transition-all border-r border-b last:border-r-0 border-white/5">
-                               <div className="text-[10px] font-black uppercase text-cyan-400 mb-6 tracking-[0.4em]">{metric.label}</div>
-                               <div className="text-5xl font-black text-white italic mb-6 tracking-tighter group-hover:translate-x-4 transition-transform">{metric.value}</div>
-                               <div className="flex items-center gap-3 text-[9px] font-bold uppercase tracking-[0.3em] text-white/10 italic">
-                                  <ActivityIcon className="w-4 h-4 text-cyan-400" /> {metric.trend}
-                               </div>
-                            </div>
-                          ))}
-                       </div>
-                       <button 
-                         onClick={() => setIsNeuralSyncActive(!isNeuralSyncActive)}
-                         className="w-full py-8 bg-cyan-700 text-white text-[11px] font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all shadow-2xl flex items-center justify-center gap-6 italic"
-                       >
-                          <Settings className="w-5 h-5" /> Re-Sync Neural Nodes
-                       </button>
-                    </Reveal>
-                 </div>
-                 
-                 <div className="relative">
-                    <Reveal delay={0.3} x={40}>
-                       <div className="aspect-square bg-[#0a0c0e] border border-white/10 p-20 flex flex-col justify-between relative group overflow-hidden shadow-2xl">
-                          <div className="absolute top-0 right-0 p-80 bg-cyan-400 opacity-[0.02] blur-[150px] rounded-full group-hover:opacity-[0.05] transition-opacity" />
-                          
-                          <div className="flex justify-between items-start z-10">
-                             <div className="flex flex-col gap-3">
-                                <span className="text-[10px] font-black text-white/10 uppercase tracking-[0.5em]">Neural_Link // SYNC-v42</span>
-                                <span className="text-[12px] font-black text-white/40 uppercase tracking-[0.6em]">Synaptic_Vibration_Map</span>
-                             </div>
-                             <Wifi className="w-6 h-6 text-cyan-400" />
-                          </div>
-                          
-                          {/* NEURAL VISUALIZER (SVG) */}
-                          <div className="relative z-10 flex flex-col items-center justify-center h-full">
-                             <div className="w-64 h-64 border border-cyan-400/5 rounded-full flex items-center justify-center relative">
-                                <motion.div 
-                                  animate={{ rotate: 360 }}
-                                  transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-                                  className="absolute inset-0 border-t-2 border-cyan-400/20 rounded-full" 
-                                />
-                                <motion.div 
-                                  animate={{ rotate: -360 }}
-                                  transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
-                                  className="absolute inset-8 border-b-2 border-cyan-400/10 rounded-full" 
-                                />
-                                <Brain className={`w-24 h-24 transition-colors duration-1000 ${isNeuralSyncActive ? "text-cyan-400 animate-pulse" : "text-white/5"}`} />
-                             </div>
-                             <div className="mt-16 text-center space-y-6">
-                                <div className={`text-4xl font-black italic tracking-tighter ${isNeuralSyncActive ? "text-white" : "text-white/20"}`}>
-                                   {isNeuralSyncActive ? "SYNC_ACTIVE" : "SYNC_LOST"}
-                                </div>
-                                <span className="text-[11px] font-bold text-white/10 uppercase tracking-[0.6em] block">Auth_Node: CORTEX_UNIT_01</span>
-                             </div>
-                          </div>
-
-                          <div className="relative z-10 flex gap-6">
-                             <div className="flex-1 h-1 bg-white/5 overflow-hidden">
-                                <motion.div 
-                                   animate={isNeuralSyncActive ? { x: ["-100%", "100%"] } : {}}
-                                   transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-                                   className="w-1/2 h-full bg-cyan-600"
-                                />
-                             </div>
-                          </div>
-                       </div>
-                    </Reveal>
-                 </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontWeight: 700, fontSize: 16, color: C.text, marginBottom: 2 }}>{doc.name}</div>
+                <div style={{ fontSize: 13, color: C.muted }}>{doc.title} · {doc.exp} d'expérience</div>
               </div>
-           </div>
-        </section>
+              <div style={{ fontSize: 12, color: C.teal, fontWeight: 600 }}>RDV →</div>
+            </motion.div>
+          ))}
+          {/* Appointment urgency */}
+          <div style={{ background: C.tealLight, borderRadius: 16, padding: "20px 24px", border: `1px solid ${C.teal}30` }}>
+            <div style={{ fontSize: 13, fontWeight: 600, color: C.teal, marginBottom: 4 }}>Créneaux urgents disponibles</div>
+            <div style={{ fontSize: 12, color: "#047a70" }}>Lun-Ven 8h–9h · Sans rendez-vous · Salle d'attente prioritaire</div>
+          </div>
+        </motion.div>
+      </section>
 
-        {/* ==========================================
-            4. NEURAL STORYTELLING (TECH STORYTELLING)
-            ========================================== */}
-        <section className="py-60 bg-[#020408] relative overflow-hidden border-t border-white/5">
-           <div className="max-w-[1400px] mx-auto px-8 md:px-24">
-              <div className="grid lg:grid-cols-2 gap-40 items-center">
-                 <div className="relative aspect-[3/4] overflow-hidden group border border-white/5 shadow-2xl">
-                    <Image 
-                       src="https://images.unsplash.com/photo-1555664424-778a1e5e1b48?q=80&w=1200&auto=format&fit=crop" 
-                       alt="Neural Infrastructure" 
-                       fill 
-                       className="object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-[2000ms]"
-                    />
-                    <div className="absolute inset-0 bg-cyan-900/10 mix-blend-color group-hover:opacity-0 transition-opacity" />
-                    <div className="absolute inset-0 p-20 flex flex-col justify-end bg-gradient-to-t from-black via-black/40 to-transparent">
-                       <div className="text-white">
-                          <span className="text-[11px] font-black uppercase tracking-[0.6em] text-cyan-400 mb-8 block italic underline underline-offset-8 decoration-cyan-400/20">Atelier // Purity // Unit</span>
-                          <h4 className="text-6xl font-black tracking-tighter uppercase italic mb-12 mix-blend-difference text-white">Neural <br/> Fabric.</h4>
-                          <button className="flex items-center gap-6 text-[11px] font-black uppercase tracking-[0.4em] border-b border-white/20 pb-4 hover:border-cyan-400 transition-all group">
-                             Link Protocols <ExternalLink className="w-5 h-5 group-hover:translate-x-2 group-hover:-translate-y-2 transition-transform" />
-                          </button>
-                       </div>
-                    </div>
-                 </div>
+      {/* STATS */}
+      <section ref={statsRef} style={{ background: C.teal }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", maxWidth: 1280, margin: "0 auto" }}>
+          {STATS.map((s, i) => (
+            <motion.div key={i} initial={{ opacity: 0, y: 20 }} animate={statsInView ? { opacity: 1, y: 0 } : {}} transition={{ delay: i * 0.1 }}
+              style={{ padding: "52px 40px", borderRight: i < 3 ? "1px solid rgba(255,255,255,0.15)" : undefined, textAlign: "center" }}>
+              <div style={{ fontSize: 44, fontWeight: 900, color: "#fff", letterSpacing: -1, lineHeight: 1 }}>{s.val}</div>
+              <div style={{ fontSize: 13, color: "rgba(255,255,255,0.65)", marginTop: 10 }}>{s.label}</div>
+            </motion.div>
+          ))}
+        </div>
+      </section>
 
-                 <div>
-                    <Reveal>
-                       <div className="mb-24 text-left">
-                          <span className="text-[10px] font-black uppercase tracking-[0.5em] text-cyan-400 mb-8 block italic">Chapitre III // Synthesis</span>
-                          <h2 className="text-7xl md:text-[10vw] font-black tracking-tighter uppercase text-white italic leading-none text-white">Pure_Sync.</h2>
-                       </div>
-                       <p className="text-2xl font-light text-white/20 leading-relaxed italic mb-20 uppercase tracking-[0.2em]">
-                          L'avenir de l'humanité est une interface. Nous concevons des micro-électrodes capables de s'intégrer harmonieusement à l'architecture neuronale naturelle.
-                       </p>
-                       <div className="space-y-20">
-                          {[
-                            { t: "Synaptic Mapping", d: "Cartographie haute résolution des réseaux neuronaux pour une insertion précise des interfaces." },
-                            { t: "Signal Amplification", d: "Traitement et amplification des signaux synaptiques faibles pour une communication sans perte." },
-                            { t: "Neural Integration", d: "Protocoles d'intégration tissulaire biocompatibles pour une longévité maximale des implants." }
-                          ].map((step, i) => (
-                            <div key={i} className="group flex gap-12 border-b border-white/5 pb-16 hover:border-cyan-400/20 transition-all cursor-default">
-                               <div className="text-6xl font-black text-white/5 group-hover:text-cyan-400/20 transition-colors italic leading-none">0{i+1}</div>
-                               <div>
-                                  <h5 className="text-3xl font-black uppercase tracking-tight text-white mb-6 italic group-hover:translate-x-4 transition-transform text-white">{step.t}</h5>
-                                  <p className="text-[12px] text-white/20 uppercase tracking-[0.3em] font-bold leading-loose italic">{step.d}</p>
-                               </div>
-                            </div>
-                          ))}
-                       </div>
-                    </Reveal>
-                 </div>
-              </div>
-           </div>
-        </section>
-
-        {/* MEGA FOOTER */}
-        <footer className="bg-black pt-60 pb-12 px-8 md:px-24 relative z-50">
-           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-32 mb-60 text-white">
-              <div className="lg:col-span-2">
-                 <div className="flex items-center gap-6 mb-16">
-                    <div className="w-16 h-16 bg-cyan-700 flex items-center justify-center">
-                      <Brain className="w-10 h-10 text-white" />
-                    </div>
-                    <span className="text-4xl font-black uppercase tracking-tighter italic">NEURAL<span className="text-white/20">LINK.</span></span>
-                 </div>
-                 <p className="text-white/20 text-[11px] font-black uppercase tracking-[0.5em] leading-loose max-w-sm mb-20 italic">
-                    "L'esprits et la machine, enfin unis." — Archive Neural V.42
-                 </p>
-                 <div className="flex gap-16">
-                    {["LinkLog", "NeuroRegistry", "GitHub", "X_Protocol"].map(s => (
-                      <Link key={s} href="#" className="text-[11px] font-black uppercase tracking-widest text-white/20 hover:text-cyan-400 transition-colors italic underline underline-offset-8 decoration-white/5">{s}</Link>
-                    ))}
-                 </div>
-              </div>
-
-              {[
-                { t: "IMPLANTS", l: ["Cortex-Link", "Haptic-Prosthesis", "Optic-Augment", "Neural Hub"] },
-                { t: "TECHNOLOGY", l: ["Synaptic Mapping", "Signal Processing", "Tissue Integration", "SLA Reports"] },
-                { t: "ATELIER", l: ["Our Legacy", "Sustainability", "Locations", "Support"] }
-              ].map((col, i) => (
-                <div key={i} className="flex flex-col gap-12">
-                  <h4 className="text-[11px] font-black text-cyan-400 uppercase tracking-[0.6em] italic">{col.t}</h4>
-                  <ul className="flex flex-col gap-8">
-                    {col.l.map(link => (
-                      <li key={link} className="text-[11px] font-bold text-white/20 hover:text-white transition-colors cursor-pointer uppercase tracking-[0.4em] italic">{link}</li>
-                    ))}
-                  </ul>
+      {/* SPECIALTIES */}
+      <section style={{ maxWidth: 1280, margin: "0 auto", padding: "100px 60px" }}>
+        <div style={{ textAlign: "center", marginBottom: 56 }}>
+          <h2 style={{ fontSize: "clamp(36px, 4vw, 54px)", fontWeight: 800, letterSpacing: -1.5, color: C.text }}>Nos spécialités</h2>
+          <p style={{ fontSize: 17, color: C.muted, marginTop: 16 }}>Prise en charge pluridisciplinaire dans un seul et même cabinet.</p>
+        </div>
+        <div style={{ display: "flex", gap: 8, justifyContent: "center", marginBottom: 48, flexWrap: "wrap" }}>
+          {SPECIALTIES.map((s, i) => (
+            <button key={i} onClick={() => setActiveSpec(i)}
+              style={{ padding: "10px 24px", borderRadius: 50, border: `1.5px solid ${activeSpec === i ? C.teal : C.border}`, background: activeSpec === i ? C.teal : "transparent", color: activeSpec === i ? "#fff" : C.muted, fontSize: 14, fontWeight: 500, cursor: "pointer", transition: "all 0.2s", fontFamily: C.sans }}>
+              {s.label}
+            </button>
+          ))}
+        </div>
+        <AnimatePresence mode="wait">
+          <motion.div key={activeSpec} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -16 }} transition={{ duration: 0.3 }}
+            style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 20, padding: "48px 60px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 60, alignItems: "center" }}>
+            <div>
+              <h3 style={{ fontSize: "clamp(28px, 3vw, 40px)", fontWeight: 700, letterSpacing: -1, marginBottom: 16, color: C.text }}>{SPECIALTIES[activeSpec].label}</h3>
+              <p style={{ fontSize: 17, color: C.muted, lineHeight: 1.75, marginBottom: 32 }}>{SPECIALTIES[activeSpec].desc}</p>
+              <motion.a href="#" whileHover={{ background: "#0a7a70" }} whileTap={{ scale: 0.97 }}
+                style={{ display: "inline-block", padding: "14px 32px", background: C.teal, color: "#fff", borderRadius: 10, fontSize: 15, fontWeight: 700, textDecoration: "none", transition: "background 0.2s" }}>
+                Prendre rendez-vous
+              </motion.a>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+              {[{ label: "Durée consultation", val: SPECIALTIES[activeSpec].duration }, { label: "Tarif", val: SPECIALTIES[activeSpec].price }].map((info, j) => (
+                <div key={j} style={{ background: C.bg, border: `1px solid ${C.border}`, borderRadius: 12, padding: "24px 28px" }}>
+                  <div style={{ fontSize: 12, color: C.muted, marginBottom: 6, fontWeight: 500, letterSpacing: 0.5 }}>{info.label}</div>
+                  <div style={{ fontSize: 22, fontWeight: 700, color: C.text }}>{info.val}</div>
                 </div>
               ))}
-           </div>
+            </div>
+          </motion.div>
+        </AnimatePresence>
+      </section>
 
-           <div className="max-w-[1600px] mx-auto border-t border-white/5 pt-16 flex flex-col md:flex-row justify-between items-center gap-16 text-[10px] font-black text-white/10 uppercase tracking-[0.6em] italic">
-              <span>© 2026 NEURAL LINK HUMAN INTERFACE AG. // ALL_RIGHTS_RESERVED</span>
-              <div className="flex gap-16">
-                 <span>STATUS: OPERATIONAL</span>
-                 <span>BANDWIDTH: 1.4 TB/h (AVG)</span>
-                 <span>v4.2.0-STABLE</span>
+      {/* TESTIMONIALS */}
+      <section style={{ background: C.tealLight, padding: "80px 60px", borderTop: `1px solid ${C.border}` }}>
+        <div style={{ maxWidth: 1280, margin: "0 auto" }}>
+          <h2 style={{ fontSize: "clamp(32px, 4vw, 48px)", fontWeight: 800, letterSpacing: -1, textAlign: "center", marginBottom: 56, color: C.text }}>Ce que nos patients disent.</h2>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 28 }}>
+            {TESTIMONIALS.map((t, i) => (
+              <motion.div key={i} initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.15 }}
+                style={{ background: C.card, borderRadius: 16, padding: "32px", border: `1px solid ${C.border}` }}>
+                <div style={{ display: "flex", gap: 2, marginBottom: 16 }}>
+                  {[...Array(5)].map((_, j) => <span key={j} style={{ fontSize: 14, color: C.teal }}>★</span>)}
+                </div>
+                <p style={{ fontSize: 15, color: C.text, lineHeight: 1.75, marginBottom: 20 }}>« {t.quote} »</p>
+                <div style={{ fontSize: 12, color: C.muted, fontWeight: 600 }}>{t.name} · <span style={{ color: C.teal }}>{t.service}</span></div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* PRICING */}
+      <section ref={pricingRef} style={{ maxWidth: 1280, margin: "0 auto", padding: "100px 60px" }}>
+        <div style={{ textAlign: "center", marginBottom: 56 }}>
+          <h2 style={{ fontSize: "clamp(36px, 4vw, 54px)", fontWeight: 800, letterSpacing: -1.5, color: C.text }}>Nos formules de suivi</h2>
+          <p style={{ fontSize: 17, color: C.muted, marginTop: 16 }}>Soins ponctuels ou suivi annuel — à vous de choisir.</p>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 24 }}>
+          {PLANS.map((p, i) => (
+            <motion.div key={i} initial={{ opacity: 0, y: 36 }} animate={pricingInView ? { opacity: 1, y: 0 } : {}} transition={{ delay: i * 0.15 }}
+              style={{ background: p.highlight ? C.teal : C.card, borderRadius: 20, padding: "40px 36px", border: p.highlight ? "none" : `1px solid ${C.border}`, boxShadow: p.highlight ? "0 16px 48px rgba(13,148,136,0.3)" : "none", transform: p.highlight ? "scale(1.03)" : "none" }}>
+              <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 2, color: p.highlight ? "rgba(255,255,255,0.7)" : C.muted, textTransform: "uppercase", marginBottom: 16 }}>{p.name}</div>
+              <div style={{ fontSize: 36, fontWeight: 900, color: p.highlight ? "#fff" : C.text, letterSpacing: -1, lineHeight: 1, marginBottom: 4 }}>{p.price}</div>
+              <div style={{ fontSize: 13, color: p.highlight ? "rgba(255,255,255,0.6)" : C.muted, marginBottom: 32 }}>{p.note}</div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 32 }}>
+                {p.features.map((f, j) => (
+                  <div key={j} style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 14, color: p.highlight ? "rgba(255,255,255,0.9)" : C.text }}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={p.highlight ? "#fff" : C.teal} strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                    {f}
+                  </div>
+                ))}
               </div>
-           </div>
-        </footer>
-      </main>
-    </div>
-  )
-}
+              <motion.button whileHover={{ opacity: 0.85 }} whileTap={{ scale: 0.97 }}
+                style={{ width: "100%", padding: "14px", background: p.highlight ? "#fff" : C.teal, color: p.highlight ? C.teal : "#fff", border: "none", borderRadius: 10, fontWeight: 700, fontSize: 15, cursor: "pointer", fontFamily: C.sans }}>
+                Choisir cette formule
+              </motion.button>
+            </motion.div>
+          ))}
+        </div>
+      </section>
 
-/* ==========================================
-   TECHNICAL SUB-COMPONENTS
-   ========================================== */
-
-function HUD_Overlay({ isNeuralSyncActive }: { isNeuralSyncActive: boolean }) {
-  return (
-    <div className="fixed inset-0 pointer-events-none z-[100]">
-       {/* Corner Brackets */}
-       <div className={`absolute top-12 left-12 w-20 h-20 border-t-2 border-l-2 transition-colors duration-1000 ${isNeuralSyncActive ? "border-cyan-400" : "border-white/10"}`} />
-       <div className={`absolute top-12 right-12 w-20 h-20 border-t-2 border-r-2 transition-colors duration-1000 ${isNeuralSyncActive ? "border-cyan-400" : "border-white/10"}`} />
-       <div className={`absolute bottom-12 left-12 w-20 h-20 border-b-2 border-l-2 transition-colors duration-1000 ${isNeuralSyncActive ? "border-cyan-400" : "border-white/10"}`} />
-       <div className={`absolute bottom-12 right-12 w-20 h-20 border-b-2 border-r-2 transition-colors duration-1000 ${isNeuralSyncActive ? "border-cyan-400" : "border-white/10"}`} />
-
-       {/* Top Status Bar */}
-       <div className="absolute top-12 left-1/2 -translate-x-1/2 flex items-center gap-20 bg-black/60 backdrop-blur-2xl px-12 py-4 border border-white/10 rounded-none">
-          <div className="flex items-center gap-6 text-white">
-             <div className={`w-3 h-3 transition-colors duration-500 ${isNeuralSyncActive ? "bg-cyan-400 animate-pulse" : "bg-red-500 animate-ping"}`} />
-             <span className="text-[10px] font-black uppercase tracking-[0.4em] italic leading-none">Neural_Sync: {isNeuralSyncActive ? "NOMINAL" : "DATA_LOSS"} // Status: ACTIVE</span>
+      {/* FAQ */}
+      <section style={{ maxWidth: 800, margin: "0 auto", padding: "0 60px 100px" }}>
+        <h2 style={{ fontSize: 40, fontWeight: 800, letterSpacing: -1.5, textAlign: "center", marginBottom: 48, color: C.text }}>Questions fréquentes</h2>
+        {FAQS.map((f, i) => (
+          <div key={i} style={{ borderBottom: `1px solid ${C.border}` }}>
+            <button onClick={() => setOpenFaq(openFaq === i ? null : i)}
+              style={{ width: "100%", display: "flex", justifyContent: "space-between", alignItems: "center", padding: "20px 0", background: "none", border: "none", color: C.text, cursor: "pointer", textAlign: "left" }}>
+              <span style={{ fontSize: 15, fontWeight: 600 }}>{f.q}</span>
+              <motion.span animate={{ rotate: openFaq === i ? 45 : 0 }} style={{ fontSize: 22, color: C.teal, minWidth: 22 }}>+</motion.span>
+            </button>
+            <AnimatePresence>
+              {openFaq === i && (
+                <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }}>
+                  <p style={{ paddingBottom: 20, fontSize: 14, color: C.muted, lineHeight: 1.8 }}>{f.a}</p>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
-          <div className="h-4 w-px bg-white/20" />
-          <div className="flex items-center gap-6 text-white/20">
-             <Wifi className="w-4 h-4" /> 
-             <span className="text-[10px] font-black uppercase tracking-[0.4em] italic leading-none">Neural_Grid: SECURE</span>
-          </div>
-       </div>
+        ))}
+      </section>
 
-       {/* Right Rotation Info */}
-       <div className="absolute right-12 top-1/2 -translate-y-1/2 rotate-90 origin-right hidden lg:block">
-          <span className="text-[10px] font-black uppercase tracking-[0.8em] text-white/5 italic">Unauthorized_Duplication_Of_Neural_Patterns_Is_Strictly_Monitored_By_Global_Neuro_Alliance</span>
-       </div>
+      {/* CTA */}
+      <section style={{ background: C.teal, padding: "80px 60px", textAlign: "center" }}>
+        <h2 style={{ fontSize: "clamp(36px, 5vw, 64px)", fontWeight: 800, letterSpacing: -2, color: "#fff", marginBottom: 20 }}>Prendre soin de vous<br />commence ici.</h2>
+        <p style={{ fontSize: 17, color: "rgba(255,255,255,0.7)", marginBottom: 40 }}>Rendez-vous disponibles sous 48h. Sans dépassement d'honoraires en médecine générale.</p>
+        <motion.a href="#" whileHover={{ background: C.text }} whileTap={{ scale: 0.97 }}
+          style={{ display: "inline-block", padding: "18px 48px", background: "#fff", color: C.teal, borderRadius: 10, fontSize: 17, fontWeight: 700, textDecoration: "none", transition: "background 0.2s" }}>
+          Réserver une consultation
+        </motion.a>
+      </section>
+
+      {/* FOOTER */}
+      <footer style={{ background: C.text, padding: "60px 60px 36px" }}>
+        <div style={{ maxWidth: 1280, margin: "0 auto", display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr", gap: 60, marginBottom: 48 }}>
+          <div>
+            <div style={{ fontSize: 18, fontWeight: 700, color: "#fff", marginBottom: 12 }}>Vitalité Médical</div>
+            <div style={{ fontSize: 13, color: "#6b7280", lineHeight: 1.8 }}>12 avenue des Fleurs, 69002 Lyon<br />Lun–Ven 8h–19h · Sam 9h–13h</div>
+          </div>
+          {[{ t: "Spécialités", ls: ["Médecine générale", "Cardiologie", "Dermatologie", "Nutrition"] },
+            { t: "Cabinet", ls: ["Notre équipe", "Accès & parking", "Urgences", "Téléconsultation"] },
+            { t: "Contact", ls: ["04 XX XX XX XX", "contact@vitalite.fr", "Doctolib", "Urgences : 15"] }].map((col, i) => (
+            <div key={i}>
+              <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 2, color: "#4b5563", textTransform: "uppercase", marginBottom: 16 }}>{col.t}</div>
+              {col.ls.map(l => <div key={l} style={{ fontSize: 13, color: "#6b7280", marginBottom: 10 }}>{l}</div>)}
+            </div>
+          ))}
+        </div>
+        <div style={{ borderTop: "1px solid #1f2937", paddingTop: 24, fontSize: 12, color: "#374151", textAlign: "center" }}>
+          © 2025 Vitalité Médical — Mentions légales · RGPD · Ordre des médecins
+        </div>
+      </footer>
     </div>
   )
 }

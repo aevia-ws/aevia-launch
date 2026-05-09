@@ -1,521 +1,257 @@
 "use client"
 
-import React, { useState, useEffect, useRef } from "react"
-import { 
-  motion, 
-  AnimatePresence, 
-  useScroll, 
-  useTransform, 
-  useInView, 
-  useSpring 
-} from "framer-motion"
-import Image from "next/image"
-import Link from "next/link"
-import { 
-  Dna, Heart, Activity, Microscope, 
-  Zap, Cpu, Shield, Target, Layers, 
-  Box, Hexagon, Terminal, Settings, 
-  Power, Info, AlertTriangle, ChevronRight, 
-  ArrowRight, Share2, Maximize2, 
-  Download, ExternalLink, Archive, 
-  Hash, Wifi, BarChart3, Fingerprint, 
-  Scan, Brain, Server, ShieldCheck, 
-  ShieldAlert, Award, Briefcase, 
-  Droplets, Thermometer, FlaskConical, 
-  FlaskRound, Pill, Stethoscope, 
-  Crosshair, Wind, Gauge, Timer, 
-  Lightbulb, Command, Grid, Radar
-} from "lucide-react"
+import React, { useState, useRef } from "react"
+import { motion, useScroll, useTransform, useInView, AnimatePresence } from "framer-motion"
 
-/* ==========================================================================
-   THE BIO-LOOM DATASET (ULTRA DENSITY)
-   ========================================================================== */
+// FRÉQUENCE — Independent newsletter/media. Bold yellow + black editorial, subscription-first, column layout.
+// Unique: oversized rotating "F" logo, vertical tab navigation on left, issue-based structure.
 
-const SYNTHETIC_ORGANS = [
-  {
-    id: "organ-ht-42",
-    name: "Bioresorbable Heart",
-    type: "Cardiac Unit",
-    biocompatibility: "99.98%",
-    vascularization: "Optimal",
-    maturation: "24 Days",
-    desc: "Cœur synthétique imprimé en 3D avec un polymère biodégradable, colonisé par les propres cellules souches du patient.",
-    status: "Clinical Ready"
-  },
-  {
-    id: "organ-lu-09",
-    name: "Microfluidic Lung",
-    type: "Respiratory Mesh",
-    biocompatibility: "98.42%",
-    vascularization: "High-Density",
-    maturation: "18 Days",
-    desc: "Matrice pulmonaire utilisant des canaux microfluidiques pour maximiser l'échange gazeux à l'échelle nanométrique.",
-    status: "In Vitro"
-  },
-  {
-    id: "organ-sk-15",
-    name: "Cutaneous Matrix X",
-    type: "Dermal Graft",
-    biocompatibility: "100%",
-    vascularization: "Rapid-Sync",
-    maturation: "7 Days",
-    desc: "Greffon cutané multi-couches avec intégration de follicules pileux et de glandes sudoripares synthétiques.",
-    status: "Approved"
+const ISSUES = [
+  { num: "047", date: "Semaine du 5 mai 2025", title: "L'IA va-t-elle tuer la créativité — ou la sauver ?", reads: "14 200", tag: "Tech & Culture" },
+  { num: "046", date: "28 avril 2025", title: "Le retour du bureau : ce que les chiffres ne disent pas.", reads: "11 800", tag: "Business" },
+  { num: "045", date: "21 avril 2025", title: "Quiet quitting 2025 : le mouvement s'est transformé.", reads: "16 400", tag: "Société" },
+  { num: "044", date: "14 avril 2025", title: "Startup Winter — les levées de fonds à la loupe.", reads: "9 300", tag: "Finance" },
+]
+
+const CATEGORIES = ["Tech & Culture", "Business", "Société", "Finance", "Design", "Future du Travail"]
+
+const TESTIMONIALS = [
+  { quote: "Fréquence est la seule newsletter que j'ouvre en premier le lundi matin. Pas de bullshit, des idées qui tiennent.", name: "Alexandre M.", role: "Directeur Produit, Scale-up" },
+  { quote: "J'ai lu 3 articles et j'ai restructuré toute ma stratégie Q3. Ça mérite largement l'abonnement.", name: "Cécile P.", role: "Founder, Studio indépendant" },
+  { quote: "Enfin du contenu qui respecte l'intelligence du lecteur. C'est rare et précieux.", name: "Romain L.", role: "VC Partner, Paris" },
+]
+
+const PLANS = [
+  { name: "Gratuit", price: "0 €", note: "pour toujours", features: ["1 article par semaine", "Archives des 3 derniers mois", "Newsletter hebdo résumée"] },
+  { name: "Lecteur", price: "9 €", note: "/mois · sans engagement", features: ["Accès illimité à tous les articles", "Archives complètes (2019–)", "Newsletter complète sans pub", "Podcast hebdo inclus"], highlight: true },
+  { name: "Studio", price: "49 €", note: "/mois · équipe jusqu'à 10", features: ["Tout Lecteur ×10 comptes", "Rapports thématiques mensuels", "Accès sessions live Q&A", "Usage commercial articles"] },
+]
+
+const FAQS = [
+  { q: "À quelle fréquence publiez-vous ?", a: "Chaque lundi — une grande analyse (2 500 mots) + 3 brèves. Parfois un hors-série le jeudi sur un sujet brûlant." },
+  { q: "Puis-je annuler mon abonnement ?", a: "Oui, à tout moment depuis votre espace abonné. Pas de rétention abusive, pas d'email de culpabilisation." },
+  { q: "Acceptez-vous les articles invités ?", a: "Rarement. Nous publions des contributeurs de la communauté 2 fois par mois sur candidature." },
+  { q: "Avez-vous des publicités ?", a: "Un seul sponsor par numéro, clairement identifié. Aucune donnée lecteur vendue. Jamais." },
+  { q: "Y a-t-il un podcast ?", a: "Oui — disponible pour les abonnés Lecteur. L'éditeur commente l'édition en 20 min chaque lundi." },
+]
+
+export default function Page() {
+  const [email, setEmail] = useState("")
+  const [subscribed, setSubscribed] = useState(false)
+  const [activeIssue, setActiveIssue] = useState(0)
+  const [openFaq, setOpenFaq] = useState<number | null>(null)
+  const [activeCategory, setActiveCategory] = useState(0)
+  const { scrollY } = useScroll()
+
+  const logoRotate = useTransform(scrollY, [0, 1000], [0, 180])
+
+  const pricingRef = useRef(null)
+  const pricingInView = useInView(pricingRef, { once: true, margin: "-100px" })
+
+  const C = {
+    yellow: "#f5e642",
+    bg: "#0d0d0d",
+    white: "#f0ede6",
+    muted: "#555",
+    card: "#141414",
+    border: "#1f1f1f",
+    mono: "'JetBrains Mono', 'Courier New', monospace",
+    serif: "'Times New Roman', Georgia, serif",
+    sans: "system-ui, -apple-system, sans-serif",
   }
-]
-
-const BIOMETRIC_METRICS = [
-  { label: "Cell Density", value: "1.2M/ml", trend: "Increasing" },
-  { label: "O2 Saturation", value: "98.8%", trend: "Stable" },
-  { label: "pH Balance", value: "7.42", trend: "Optimal" },
-  { label: "Scaffold Integrity", value: "99.9%", trend: "High" }
-]
-
-const LAB_LOGS = [
-  { timestamp: "18:14:42", unit: "Bio-Printer-01", status: "ACTIVE", layer: "420/1200" },
-  { timestamp: "18:14:45", unit: "Incubator-Z", status: "STABLE", temp: "37.2°C" },
-  { timestamp: "18:14:48", unit: "Cell-Sync", status: "SUCCESS", alignment: "100%" }
-]
-
-/* ==========================================
-   TECHNICAL COMPONENTS
-   ========================================== */
-
-function Reveal({ children, delay = 0, y = 40, x = 0 }: { children: React.ReactNode, delay?: number, y?: number, x?: number }) {
-  const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, margin: "-100px" })
-  return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, y, x }}
-      animate={isInView ? { opacity: 1, y: 0, x: 0 } : {}}
-      transition={{ duration: 1.2, delay, ease: [0.16, 1, 0.3, 1] }}
-    >
-      {children}
-    </motion.div>
-  )
-}
-
-function CellularMeshVisualizer() {
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
-  useEffect(() => {
-    const handleMouse = (e: MouseEvent) => setMousePos({ x: e.clientX, y: e.clientY })
-    window.addEventListener("mousemove", handleMouse)
-    return () => window.removeEventListener("mousemove", handleMouse)
-  }, [])
 
   return (
-    <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden opacity-10">
-       <svg width="100%" height="100%" className="w-full h-full">
-          {[...Array(20)].map((_, i) => (
-            <motion.circle 
-               key={i}
-               cx={`${Math.random() * 100}%`} 
-               cy={`${Math.random() * 100}%`} 
-               r={Math.random() * 30 + 10} 
-               fill="none"
-               stroke="white"
-               strokeWidth="0.5"
-               animate={{ 
-                 cx: [`${Math.random() * 100}%`, `${Math.random() * 100}%`],
-                 cy: [`${Math.random() * 100}%`, `${Math.random() * 100}%`]
-               }}
-               transition={{ duration: 20 + Math.random() * 10, repeat: Infinity, ease: "linear" }}
-            />
+    <div style={{ background: C.bg, color: C.white, fontFamily: C.sans, overflowX: "hidden" }}>
+      {/* NAV — newspaper style top bar */}
+      <nav style={{ borderBottom: `2px solid ${C.border}`, padding: "0 60px", height: 56, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 32 }}>
+          <div style={{ fontFamily: C.serif, fontSize: 28, fontWeight: 700, letterSpacing: -1, color: C.yellow }}>Fréquence</div>
+          <div style={{ fontFamily: C.mono, fontSize: 10, letterSpacing: 2, color: C.muted, borderLeft: `1px solid ${C.border}`, paddingLeft: 24 }}>Numéro 047 · Lundi 5 mai 2025</div>
+        </div>
+        <div style={{ display: "flex", gap: 32, alignItems: "center" }}>
+          {["Archives", "Podcast", "À propos"].map(l => (
+            <a key={l} href="#" style={{ fontFamily: C.mono, fontSize: 11, letterSpacing: 2, color: C.muted, textDecoration: "none", textTransform: "uppercase" }}>{l}</a>
           ))}
-          {/* Neural Connections */}
-          <motion.circle 
-             animate={{ cx: mousePos.x, cy: mousePos.y }}
-             transition={{ type: "spring", damping: 30, stiffness: 100 }}
-             r="150" 
-             fill="white" 
-             className="opacity-20 blur-[100px]"
-          />
-       </svg>
-    </div>
-  )
-}
+          <motion.button whileHover={{ background: C.yellow, color: C.bg }} whileTap={{ scale: 0.97 }}
+            style={{ padding: "8px 20px", background: "transparent", color: C.yellow, border: `1px solid ${C.yellow}`, fontFamily: C.mono, fontSize: 11, letterSpacing: 2, textTransform: "uppercase", cursor: "pointer", transition: "all 0.2s" }}>
+            S'abonner
+          </motion.button>
+        </div>
+      </nav>
 
-function BioOrganModel({ progress }: { progress: any }) {
-  const rotate = useTransform(progress, [0, 1], [0, 360])
-  const scale = useTransform(progress, [0, 0.5, 1], [1, 1.1, 1])
-
-  return (
-    <motion.div style={{ rotate, scale }} className="relative w-80 h-80 flex items-center justify-center">
-       <div className="absolute inset-0 border border-red-500/10 rounded-full animate-pulse shadow-[0_0_80px_rgba(239,68,68,0.05)]" />
-       <Heart className="w-40 h-40 text-red-500/10 animate-bounce-slow" />
-       <div className="absolute inset-0 flex items-center justify-center">
-          <div className="w-[120%] h-px bg-gradient-to-r from-transparent via-red-500/10 to-transparent rotate-45" />
-          <div className="w-[120%] h-px bg-gradient-to-r from-transparent via-red-500/10 to-transparent -rotate-45" />
-       </div>
-    </motion.div>
-  )
-}
-
-/* ==========================================
-   THE BIO-LOOM - MAIN INTERFACE
-   ========================================== */
-
-export default function BioLoomPremium() {
-  const [activeOrgan, setActiveOrgan] = useState(0)
-  const [isIncubatorActive, setIsIncubatorActive] = useState(true)
-  const containerRef = useRef(null)
-  const { scrollYProgress } = useScroll({ target: containerRef })
-
-  // Bio Scroll Effects
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.2], [1, 0])
-  const textX = useTransform(scrollYProgress, [0, 0.5], [0, 100])
-
-  return (
-    <div ref={containerRef} className="bg-[#080505] text-[#e5e0e0] font-mono selection:bg-red-500/30 selection:text-white min-h-screen overflow-x-hidden transition-colors duration-1000">
-      
-      {/* GLOBAL HUD OVERLAY */}
-      <HUD_Overlay isIncubatorActive={isIncubatorActive} />
-
-      <main>
-        {/* ==========================================
-            1. CELLULAR IGNITION (HERO)
-            ========================================== */}
-        <section className="relative h-screen flex flex-col justify-center items-center px-8 md:px-24 overflow-hidden pt-20">
-          <CellularMeshVisualizer />
-          <motion.div style={{ opacity: heroOpacity }} className="absolute z-0 pointer-events-none flex items-center justify-center">
-             <BioOrganModel progress={scrollYProgress} />
+      {/* HERO — oversized rotating F + headline */}
+      <section style={{ display: "grid", gridTemplateColumns: "240px 1fr", borderBottom: `1px solid ${C.border}`, minHeight: "80vh" }}>
+        {/* Left sidebar with rotating F */}
+        <div style={{ borderRight: `1px solid ${C.border}`, display: "flex", alignItems: "center", justifyContent: "center", position: "relative", overflow: "hidden" }}>
+          <motion.div style={{ rotate: logoRotate, fontSize: 240, fontFamily: C.serif, fontWeight: 700, color: C.yellow, lineHeight: 1, opacity: 0.15, position: "absolute" }}>
+            F
           </motion.div>
-
-          <div className="relative z-10 text-center max-w-7xl">
-             <Reveal>
-                <div className="inline-flex items-center gap-4 px-6 py-2 border border-red-500/30 bg-red-500/5 text-[10px] font-black uppercase tracking-[0.5em] text-red-500 mb-12 italic">
-                   <Activity className="w-4 h-4" /> Biocompatibility_Link: SECURE // Vascular_Sync: OPTIMAL
-                </div>
-                <motion.h1 style={{ x: textX }} className="text-7xl md:text-[14vw] font-black tracking-tighter uppercase mb-16 leading-[0.75] italic">
-                   Bio <br/> <span className="text-white/5 italic">Loom.</span>
-                </motion.h1>
-                <p className="max-w-3xl mx-auto text-sm md:text-lg text-white/30 leading-relaxed uppercase tracking-widest font-light mb-16 italic">
-                   L'ingénierie de la vie par le design moléculaire. Nous tissons les organes de demain pour transcender les limites biologiques du corps humain.
-                </p>
-                
-                <div className="flex flex-col sm:flex-row gap-8 justify-center items-center">
-                   <button className="px-12 py-6 bg-red-700 text-white text-[10px] font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all shadow-[0_0_40px_rgba(239,68,68,0.2)] flex items-center gap-4 italic">
-                      <Microscope className="w-5 h-5" /> Start Synthesis
-                   </button>
-                   <button className="px-12 py-6 border border-white/10 text-white text-[10px] font-black uppercase tracking-widest hover:bg-white/5 transition-all flex items-center gap-4 italic">
-                      <Archive className="w-5 h-5" /> Organ Registry
-                   </button>
-                </div>
-             </Reveal>
+          <div style={{ position: "relative", zIndex: 1, textAlign: "center" }}>
+            {CATEGORIES.map((cat, i) => (
+              <motion.div key={i}
+                onClick={() => setActiveCategory(i)}
+                whileHover={{ x: 4 }}
+                style={{ fontFamily: C.mono, fontSize: 10, letterSpacing: 3, textTransform: "uppercase", color: activeCategory === i ? C.yellow : C.muted, padding: "12px 0", cursor: "pointer", transition: "color 0.2s", borderBottom: `1px solid ${C.border}` }}>
+                {cat}
+              </motion.div>
+            ))}
           </div>
+        </div>
 
-          <div className="absolute bottom-12 left-12 right-12 flex justify-between items-end border-t border-white/5 pt-12">
-             <div className="flex flex-col gap-6">
-                <div className="flex items-center gap-4 text-[9px] font-bold text-white/20 uppercase tracking-widest italic">
-                   <div className="w-16 h-px bg-white/10" />
-                   Lab_ID: BIO-LOOM-42
-                </div>
-                <div className="flex items-center gap-4 text-[9px] font-bold text-white/20 uppercase tracking-widest italic">
-                   <div className="w-16 h-px bg-white/10" />
-                   Growth_Status: ACCELERATED
-                </div>
-             </div>
-             <div className="text-right flex flex-col items-end gap-4">
-                <span className="text-[8px] font-black uppercase tracking-[0.5em] text-red-500">Cellular_Pulse_Stream</span>
-                <div className="flex gap-2 h-12 items-end">
-                   {[...Array(16)].map((_, i) => (
-                     <motion.div 
-                        key={i}
-                        animate={{ height: ["10%", "100%", "30%", "80%", "10%"] }}
-                        transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.1 }}
-                        className="w-2 bg-red-500/20"
-                     />
-                   ))}
-                </div>
-             </div>
+        {/* Main hero content */}
+        <div style={{ padding: "80px 80px", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+          <div>
+            <div style={{ display: "flex", gap: 16, alignItems: "center", marginBottom: 48 }}>
+              <div style={{ background: C.yellow, padding: "4px 12px", fontFamily: C.mono, fontSize: 10, letterSpacing: 3, color: C.bg, textTransform: "uppercase", fontWeight: 700 }}>
+                {ISSUES[0].tag}
+              </div>
+              <div style={{ fontFamily: C.mono, fontSize: 10, letterSpacing: 2, color: C.muted }}>№ {ISSUES[0].num}</div>
+            </div>
+            <motion.h1 initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}
+              style={{ fontFamily: C.serif, fontSize: "clamp(44px, 6vw, 88px)", fontWeight: 700, letterSpacing: -2, lineHeight: 1.05, color: C.white, marginBottom: 36 }}>
+              {ISSUES[0].title}
+            </motion.h1>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 48 }}>
+              <p style={{ fontFamily: C.serif, fontSize: 17, lineHeight: 1.85, color: "rgba(240,237,230,0.6)", borderTop: `1px solid ${C.border}`, paddingTop: 24 }}>
+                Il y a trois ans, on nous promettait que l'IA allait tuer des millions de jobs créatifs. Aujourd'hui, les designers, écrivains et musiciens les plus influents utilisent tous des outils génératifs. Ce n'est pas la mort de la créativité — c'est sa mutation.
+              </p>
+              <p style={{ fontFamily: C.serif, fontSize: 17, lineHeight: 1.85, color: "rgba(240,237,230,0.6)", borderTop: `1px solid ${C.border}`, paddingTop: 24 }}>
+                Mais à quel prix ? L'analyse de 400 créatifs professionnels sur leur rapport à ces outils révèle une fracture profonde — entre ceux qui se sont adaptés et ceux qui ont arrêté de créer.
+              </p>
+            </div>
           </div>
-        </section>
-
-        {/* ==========================================
-            2. ORGAN REGISTRY (DENSE TECHNICAL)
-            ========================================== */}
-        <section className="py-60 bg-[#0a0808] relative border-y border-white/5 overflow-hidden">
-           <div className="max-w-[1600px] mx-auto px-8 md:px-24">
-              <div className="flex flex-col md:flex-row items-end justify-between mb-40 gap-12">
-                 <Reveal>
-                    <span className="text-[10px] font-black uppercase tracking-[0.6em] text-red-500 block mb-6 italic underline underline-offset-8 decoration-red-500/20">Bio // Engineering</span>
-                    <h2 className="text-6xl md:text-[10vw] font-black uppercase tracking-tighter italic leading-none text-white">Registry.</h2>
-                 </Reveal>
-                 <div className="text-right">
-                    <span className="text-[10px] font-black uppercase tracking-[0.5em] text-white/20 block mb-4 italic">Registry // Biological_Audit</span>
-                    <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-red-500">L'Architecture du Vivant</p>
-                 </div>
-              </div>
-
-              <div className="grid md:grid-cols-3 gap-px bg-white/5 border border-white/5 shadow-2xl">
-                 {SYNTHETIC_ORGANS.map((organ, i) => (
-                   <Reveal key={organ.id} delay={i * 0.1}>
-                      <div className="bg-[#080505] p-20 flex flex-col h-full hover:bg-white/[0.02] transition-all group cursor-crosshair border-white/5 border-r last:border-r-0">
-                         <div className="flex justify-between items-start mb-16">
-                            <div className="w-16 h-16 bg-white/5 border border-white/10 flex items-center justify-center group-hover:bg-red-700 group-hover:text-white transition-all duration-500">
-                               <Dna className="w-8 h-8" />
-                            </div>
-                            <span className={`px-4 py-2 bg-white/5 text-[9px] font-black uppercase tracking-[0.3em] ${organ.status === "Approved" ? "text-red-500" : "text-white/40"}`}>{organ.status}</span>
-                         </div>
-                         
-                         <h3 className="text-4xl font-black uppercase tracking-tighter mb-8 italic text-white group-hover:translate-x-4 transition-transform">{organ.name}</h3>
-                         <div className="text-[10px] font-black text-white/20 uppercase tracking-[0.5em] mb-12">{organ.type}</div>
-                         
-                         <div className="space-y-8 mb-20 border-l border-red-500/20 pl-8">
-                            <div className="flex justify-between items-center text-[11px] font-bold uppercase tracking-widest">
-                               <span className="text-white/20">Biocompatibility</span>
-                               <span className="text-white group-hover:text-red-500 transition-colors">{organ.biocompatibility}</span>
-                            </div>
-                            <div className="flex justify-between items-center text-[11px] font-bold uppercase tracking-widest">
-                               <span className="text-white/20">Vascularization</span>
-                               <span className="text-white group-hover:text-red-500 transition-colors">{organ.vascularization}</span>
-                            </div>
-                            <div className="flex justify-between items-center text-[11px] font-bold uppercase tracking-widest">
-                               <span className="text-white/20">Maturation</span>
-                               <span className="text-white group-hover:text-red-500 transition-colors">{organ.maturation}</span>
-                            </div>
-                         </div>
-
-                         <p className="text-[12px] text-white/30 leading-loose uppercase tracking-[0.2em] font-bold italic mb-16">
-                            {organ.desc}
-                         </p>
-
-                         <div className="mt-auto pt-10 border-t border-white/5 flex justify-between items-center">
-                            <span className="text-[10px] font-black text-white/10 uppercase tracking-widest">Ref: {organ.id}</span>
-                            <button className="text-[10px] font-black uppercase text-white/40 flex items-center gap-4 group-hover:text-white transition-all">
-                               Technical_Specs <ChevronRight className="w-5 h-5" />
-                            </button>
-                         </div>
-                      </div>
-                   </Reveal>
-                 ))}
-              </div>
-           </div>
-        </section>
-
-        {/* ==========================================
-            3. BIOMETRIC MONITOR (INTERACTIVE DATA)
-            ========================================== */}
-        <section className="py-60 bg-black relative border-y border-white/5 overflow-hidden">
-           <div className="max-w-[1400px] mx-auto px-8 md:px-24">
-              <div className="grid lg:grid-cols-2 gap-40 items-center">
-                 <div>
-                    <Reveal>
-                       <span className="text-[10px] font-black uppercase tracking-[0.5em] text-red-500 block mb-12 italic underline underline-offset-8 decoration-red-500/20">Bio // Monitoring</span>
-                       <h2 className="text-7xl md:text-[9vw] font-light italic leading-none text-white mb-16 uppercase tracking-tighter">
-                          The <br/> <span className="not-italic font-black text-white/5 italic">Maturation_Link.</span>
-                       </h2>
-                       <p className="text-2xl font-light text-white/20 leading-relaxed mb-24 italic uppercase tracking-[0.2em] max-w-xl">
-                          Surveillance des tissus en bioréacteur. Nos capteurs moléculaires analysent la division cellulaire et la formation des réseaux capillaires en temps réel.
-                       </p>
-                       <div className="grid grid-cols-2 gap-px bg-white/5 border border-white/5 mb-24 shadow-2xl">
-                          {BIOMETRIC_METRICS.map((metric, i) => (
-                            <div key={i} className="p-16 bg-[#0a0808] group hover:bg-white/[0.02] transition-all border-r border-b last:border-r-0 border-white/5">
-                               <div className="text-[10px] font-black uppercase text-red-500 mb-6 tracking-[0.4em]">{metric.label}</div>
-                               <div className="text-5xl font-black text-white italic mb-6 tracking-tighter group-hover:translate-x-4 transition-transform">{metric.value}</div>
-                               <div className="flex items-center gap-3 text-[9px] font-bold uppercase tracking-[0.3em] text-white/10 italic">
-                                  <Activity className="w-4 h-4 text-red-500" /> {metric.trend}
-                               </div>
-                            </div>
-                          ))}
-                       </div>
-                       <button 
-                         onClick={() => setIsIncubatorActive(!isIncubatorActive)}
-                         className="w-full py-8 bg-red-700 text-white text-[11px] font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all shadow-2xl flex items-center justify-center gap-6 italic"
-                       >
-                          <Settings className="w-5 h-5" /> Re-Sync Bioréacteur Nodes
-                       </button>
-                    </Reveal>
-                 </div>
-                 
-                 <div className="relative">
-                    <Reveal delay={0.3} x={40}>
-                       <div className="aspect-square bg-[#0a0808] border border-white/10 p-20 flex flex-col justify-between relative group overflow-hidden shadow-2xl">
-                          <div className="absolute top-0 right-0 p-80 bg-red-500 opacity-[0.02] blur-[150px] rounded-full group-hover:opacity-[0.05] transition-opacity" />
-                          
-                          <div className="flex justify-between items-start z-10">
-                             <div className="flex flex-col gap-3">
-                                <span className="text-[10px] font-black text-white/10 uppercase tracking-[0.5em]">Bio_Link // CELL-SYNC-v12</span>
-                                <span className="text-[12px] font-black text-white/40 uppercase tracking-[0.6em]">Cellular_Density_Map</span>
-                             </div>
-                             <Wifi className="w-6 h-6 text-red-500" />
-                          </div>
-                          
-                          {/* BIO VISUALIZER (SVG) */}
-                          <div className="relative z-10 flex flex-col items-center justify-center h-full">
-                             <div className="w-64 h-64 border border-red-500/5 rounded-full flex items-center justify-center relative">
-                                <motion.div 
-                                  animate={{ rotate: 360 }}
-                                  transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-                                  className="absolute inset-0 border-t-2 border-red-500/20 rounded-full" 
-                                />
-                                <motion.div 
-                                  animate={{ rotate: -360 }}
-                                  transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
-                                  className="absolute inset-8 border-b-2 border-red-500/10 rounded-full" 
-                                />
-                                <Activity className={`w-24 h-24 transition-colors duration-1000 ${isIncubatorActive ? "text-red-500 animate-pulse" : "text-white/5"}`} />
-                             </div>
-                             <div className="mt-16 text-center space-y-6">
-                                <div className={`text-4xl font-black italic tracking-tighter ${isIncubatorActive ? "text-white" : "text-white/20"}`}>
-                                   {isIncubatorActive ? "SYNC_ACTIVE" : "SYNC_LOST"}
-                                </div>
-                                <span className="text-[11px] font-bold text-white/10 uppercase tracking-[0.6em] block">Auth_Node: INCUBATOR_UNIT_01</span>
-                             </div>
-                          </div>
-
-                          <div className="relative z-10 flex gap-6">
-                             <div className="flex-1 h-1 bg-white/5 overflow-hidden">
-                                <motion.div 
-                                   animate={isIncubatorActive ? { x: ["-100%", "100%"] } : {}}
-                                   transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-                                   className="w-1/2 h-full bg-red-600"
-                                />
-                             </div>
-                          </div>
-                       </div>
-                    </Reveal>
-                 </div>
-              </div>
-           </div>
-        </section>
-
-        {/* ==========================================
-            4. BIO-STORYTELLING (TECH STORYTELLING)
-            ========================================== */}
-        <section className="py-60 bg-[#080505] relative overflow-hidden border-t border-white/5">
-           <div className="max-w-[1400px] mx-auto px-8 md:px-24">
-              <div className="grid lg:grid-cols-2 gap-40 items-center">
-                 <div className="relative aspect-[3/4] overflow-hidden group border border-white/5 shadow-2xl">
-                    <Image 
-                       src="https://images.unsplash.com/photo-1532187863486-abf9d39d9992?q=80&w=1200&auto=format&fit=crop" 
-                       alt="Laboratory" 
-                       fill 
-                       className="object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-[2000ms]"
-                    />
-                    <div className="absolute inset-0 bg-red-900/10 mix-blend-color group-hover:opacity-0 transition-opacity" />
-                    <div className="absolute inset-0 p-20 flex flex-col justify-end bg-gradient-to-t from-black via-black/40 to-transparent">
-                       <div className="text-white">
-                          <span className="text-[11px] font-black uppercase tracking-[0.6em] text-red-500 mb-8 block italic underline underline-offset-8 decoration-red-500/20">Atelier // Purity // Unit</span>
-                          <h4 className="text-6xl font-black tracking-tighter uppercase italic mb-12 mix-blend-difference text-white">Biological <br/> Fabric.</h4>
-                          <button className="flex items-center gap-6 text-[11px] font-black uppercase tracking-[0.4em] border-b border-white/20 pb-4 hover:border-red-500 transition-all group">
-                             Lab Protocols <ExternalLink className="w-5 h-5 group-hover:translate-x-2 group-hover:-translate-y-2 transition-transform" />
-                          </button>
-                       </div>
-                    </div>
-                 </div>
-
-                 <div>
-                    <Reveal>
-                       <div className="mb-24 text-left">
-                          <span className="text-[10px] font-black uppercase tracking-[0.5em] text-red-500 mb-8 block italic">Chapitre III // Synthesis</span>
-                          <h2 className="text-7xl md:text-[10vw] font-black tracking-tighter uppercase text-white italic leading-none text-white">Pure_Tissue.</h2>
-                       </div>
-                       <p className="text-2xl font-light text-white/20 leading-relaxed italic mb-20 uppercase tracking-[0.2em]">
-                          L'organe du futur n'est pas mécanique, il est biologique. Nous utilisons des imprimantes 3D à haute résolution pour disposer les cellules couche par couche.
-                       </p>
-                       <div className="space-y-20">
-                          {[
-                            { t: "Cellular Deposition", d: "Placement précis des cellules souches au sein d'une matrice biocompatible pour recréer l'architecture tissulaire." },
-                            { t: "Vascular Induction", d: "Stimulation de la croissance des vaisseaux sanguins par l'apport contrôlé de facteurs de croissance angiogéniques." },
-                            { t: "Functional Maturation", d: "Entraînement mécanique et électrique des tissus en bioréacteur pour garantir une performance post-greffe." }
-                          ].map((step, i) => (
-                            <div key={i} className="group flex gap-12 border-b border-white/5 pb-16 hover:border-red-500/20 transition-all cursor-default">
-                               <div className="text-6xl font-black text-white/5 group-hover:text-red-500/20 transition-colors italic leading-none">0{i+1}</div>
-                               <div>
-                                  <h5 className="text-3xl font-black uppercase tracking-tight text-white mb-6 italic group-hover:translate-x-4 transition-transform text-white">{step.t}</h5>
-                                  <p className="text-[12px] text-white/20 uppercase tracking-[0.3em] font-bold leading-loose italic">{step.d}</p>
-                               </div>
-                            </div>
-                          ))}
-                       </div>
-                    </Reveal>
-                 </div>
-              </div>
-           </div>
-        </section>
-
-        {/* MEGA FOOTER */}
-        <footer className="bg-black pt-60 pb-12 px-8 md:px-24 relative z-50">
-           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-32 mb-60 text-white">
-              <div className="lg:col-span-2">
-                 <div className="flex items-center gap-6 mb-16">
-                    <div className="w-16 h-16 bg-red-700 flex items-center justify-center">
-                      <Dna className="w-10 h-10 text-white" />
-                    </div>
-                    <span className="text-4xl font-black uppercase tracking-tighter italic">BIO<span className="text-white/20">LOOM.</span></span>
-                 </div>
-                 <p className="text-white/20 text-[11px] font-black uppercase tracking-[0.5em] leading-loose max-w-sm mb-20 italic">
-                    "La vie est un tissu que nous apprenons à tisser." — Archive Bio V.42
-                 </p>
-                 <div className="flex gap-16">
-                    {["LabLog", "OrganRegistry", "GitHub", "X_Protocol"].map(s => (
-                      <Link key={s} href="#" className="text-[11px] font-black uppercase tracking-widest text-white/20 hover:text-red-500 transition-colors italic underline underline-offset-8 decoration-white/5">{s}</Link>
-                    ))}
-                 </div>
-              </div>
-
-              {[
-                { t: "ORGANS", l: ["Cardiac Unit", "Respiratory Mesh", "Dermal Graft", "Neural Hub"] },
-                { t: "TECHNOLOGY", l: ["3D Bio-Printing", "Incubator Sync", "Vascular Induction", "SLA Reports"] },
-                { t: "ATELIER", l: ["Our Legacy", "Sustainability", "Locations", "Support"] }
-              ].map((col, i) => (
-                <div key={i} className="flex flex-col gap-12">
-                  <h4 className="text-[11px] font-black text-red-500 uppercase tracking-[0.6em] italic">{col.t}</h4>
-                  <ul className="flex flex-col gap-8">
-                    {col.l.map(link => (
-                      <li key={link} className="text-[11px] font-bold text-white/20 hover:text-white transition-colors cursor-pointer uppercase tracking-[0.4em] italic">{link}</li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-           </div>
-
-           <div className="max-w-[1600px] mx-auto border-t border-white/5 pt-16 flex flex-col md:flex-row justify-between items-center gap-16 text-[10px] font-black text-white/10 uppercase tracking-[0.6em] italic">
-              <span>© 2026 BIO-LOOM SYNTHETIC ORGAN ENGINEERING AG. // ALL_RIGHTS_RESERVED</span>
-              <div className="flex gap-16">
-                 <span>STATUS: OPERATIONAL</span>
-                 <span>GROWTH: ACCELERATED</span>
-                 <span>v4.12.0-STABLE</span>
-              </div>
-           </div>
-        </footer>
-      </main>
-    </div>
-  )
-}
-
-/* ==========================================
-   TECHNICAL SUB-COMPONENTS
-   ========================================== */
-
-function HUD_Overlay({ isIncubatorActive }: { isIncubatorActive: boolean }) {
-  return (
-    <div className="fixed inset-0 pointer-events-none z-[100]">
-       {/* Corner Brackets */}
-       <div className={`absolute top-12 left-12 w-20 h-20 border-t-2 border-l-2 transition-colors duration-1000 ${isIncubatorActive ? "border-red-500" : "border-white/10"}`} />
-       <div className={`absolute top-12 right-12 w-20 h-20 border-t-2 border-r-2 transition-colors duration-1000 ${isIncubatorActive ? "border-red-500" : "border-white/10"}`} />
-       <div className={`absolute bottom-12 left-12 w-20 h-20 border-b-2 border-l-2 transition-colors duration-1000 ${isIncubatorActive ? "border-red-500" : "border-white/10"}`} />
-       <div className={`absolute bottom-12 right-12 w-20 h-20 border-b-2 border-r-2 transition-colors duration-1000 ${isIncubatorActive ? "border-red-500" : "border-white/10"}`} />
-
-       {/* Top Status Bar */}
-       <div className="absolute top-12 left-1/2 -translate-x-1/2 flex items-center gap-20 bg-black/60 backdrop-blur-2xl px-12 py-4 border border-white/10 rounded-none">
-          <div className="flex items-center gap-6 text-white">
-             <div className={`w-3 h-3 transition-colors duration-500 ${isIncubatorActive ? "bg-red-500 animate-pulse" : "bg-red-900 animate-ping"}`} />
-             <span className="text-[10px] font-black uppercase tracking-[0.4em] italic leading-none">Bio_Sync: {isIncubatorActive ? "NOMINAL" : "UNSTABLE"} // Status: ACTIVE</span>
+          <div style={{ display: "flex", gap: 24, alignItems: "center", borderTop: `1px solid ${C.border}`, paddingTop: 32, marginTop: 48 }}>
+            <div style={{ fontFamily: C.mono, fontSize: 11, color: C.muted, letterSpacing: 2 }}>{ISSUES[0].reads} lectures</div>
+            <motion.button whileHover={{ background: C.yellow, color: C.bg }} whileTap={{ scale: 0.97 }}
+              style={{ padding: "12px 32px", background: "transparent", color: C.yellow, border: `1px solid ${C.yellow}`, fontFamily: C.mono, fontSize: 11, letterSpacing: 2, textTransform: "uppercase", cursor: "pointer", transition: "all 0.2s" }}>
+              Lire l'article complet →
+            </motion.button>
+            <div style={{ fontFamily: C.mono, fontSize: 10, color: C.muted }}>Réservé aux abonnés</div>
           </div>
-          <div className="h-4 w-px bg-white/20" />
-          <div className="flex items-center gap-6 text-white/20">
-             <Wifi className="w-4 h-4" /> 
-             <span className="text-[10px] font-black uppercase tracking-[0.4em] italic leading-none">Lab_Grid: SECURE</span>
-          </div>
-       </div>
+        </div>
+      </section>
 
-       {/* Right Rotation Info */}
-       <div className="absolute right-12 top-1/2 -translate-y-1/2 rotate-90 origin-right hidden lg:block">
-          <span className="text-[10px] font-black uppercase tracking-[0.8em] text-white/5 italic">Unauthorized_Duplication_Of_Biological_Patterns_Is_Strictly_Monitored_By_Global_Bio_Alliance</span>
-       </div>
+      {/* ARCHIVE — issue list */}
+      <section style={{ borderBottom: `1px solid ${C.border}` }}>
+        <div style={{ padding: "64px 60px 0", display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 40 }}>
+          <div style={{ fontFamily: C.serif, fontSize: 36, fontWeight: 700, letterSpacing: -1 }}>Dernières éditions</div>
+          <a href="#" style={{ fontFamily: C.mono, fontSize: 11, letterSpacing: 3, color: C.yellow, textDecoration: "none", textTransform: "uppercase" }}>Archives complètes →</a>
+        </div>
+        {ISSUES.map((issue, i) => (
+          <motion.div key={i}
+            onClick={() => setActiveIssue(i)}
+            whileHover={{ background: "#111" }}
+            style={{ borderTop: `1px solid ${C.border}`, padding: "28px 60px", cursor: "pointer", display: "flex", alignItems: "center", gap: 48, transition: "background 0.15s", background: activeIssue === i ? "#111" : "transparent" }}>
+            <div style={{ fontFamily: C.mono, fontSize: 11, color: C.yellow, minWidth: 40 }}>#{issue.num}</div>
+            <div style={{ fontFamily: C.mono, fontSize: 10, letterSpacing: 2, color: C.muted, minWidth: 140, textTransform: "uppercase" }}>{issue.tag}</div>
+            <div style={{ fontFamily: C.serif, fontSize: 18, flex: 1, color: C.white }}>{issue.title}</div>
+            <div style={{ fontFamily: C.mono, fontSize: 10, color: C.muted }}>{issue.reads} lectures</div>
+            <div style={{ fontFamily: C.mono, fontSize: 10, color: C.muted, textAlign: "right", minWidth: 120 }}>{issue.date}</div>
+          </motion.div>
+        ))}
+      </section>
+
+      {/* SUBSCRIPTION BOX */}
+      <section style={{ display: "grid", gridTemplateColumns: "1fr 1fr", borderBottom: `1px solid ${C.border}` }}>
+        <div style={{ borderRight: `1px solid ${C.border}`, padding: "80px 80px", background: C.yellow }}>
+          <div style={{ fontFamily: C.mono, fontSize: 11, letterSpacing: 4, color: "#6b5e00", textTransform: "uppercase", marginBottom: 24 }}>Pour aller plus loin</div>
+          <h2 style={{ fontFamily: C.serif, fontSize: "clamp(40px, 5vw, 64px)", fontWeight: 700, letterSpacing: -2, lineHeight: 1.1, color: C.bg, marginBottom: 24 }}>
+            Lisez tout.<br />Pensez mieux.
+          </h2>
+          <p style={{ fontSize: 16, color: "#3d3000", lineHeight: 1.7 }}>
+            9 €/mois. Archives complètes depuis 2019. Podcast inclus. Sans publicité.
+          </p>
+        </div>
+        <div style={{ padding: "80px 80px", display: "flex", flexDirection: "column", justifyContent: "center", gap: 20 }}>
+          <div style={{ fontFamily: C.mono, fontSize: 11, letterSpacing: 3, color: C.muted, textTransform: "uppercase", marginBottom: 8 }}>Commencer gratuitement</div>
+          <input value={email} onChange={e => setEmail(e.target.value)} placeholder="votre@email.fr"
+            style={{ padding: "16px 20px", background: C.card, border: `1px solid ${C.border}`, color: C.white, fontFamily: C.mono, fontSize: 13, outline: "none", letterSpacing: 1 }} />
+          {subscribed ? (
+            <div style={{ fontFamily: C.mono, fontSize: 13, color: C.yellow, letterSpacing: 2 }}>Bienvenue dans la communauté Fréquence ✓</div>
+          ) : (
+            <motion.button whileHover={{ background: C.yellow, color: C.bg, borderColor: C.yellow }} whileTap={{ scale: 0.97 }}
+              onClick={() => { if (email) setSubscribed(true) }}
+              style={{ padding: "16px", background: "transparent", color: C.white, border: `1px solid ${C.border}`, fontFamily: C.mono, fontSize: 12, letterSpacing: 3, textTransform: "uppercase", cursor: "pointer", transition: "all 0.2s" }}>
+              Accès gratuit →
+            </motion.button>
+          )}
+          <div style={{ fontFamily: C.mono, fontSize: 10, color: C.muted, letterSpacing: 1 }}>+15 200 abonnés · Aucun spam · Désabonnement en 1 clic</div>
+        </div>
+      </section>
+
+      {/* TESTIMONIALS */}
+      <section style={{ borderBottom: `1px solid ${C.border}`, padding: "80px 60px" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 0 }}>
+          {TESTIMONIALS.map((t, i) => (
+            <motion.div key={i} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }} transition={{ delay: i * 0.15 }}
+              style={{ padding: "0 56px 0 0", borderRight: i < 2 ? `1px solid ${C.border}` : undefined, paddingLeft: i > 0 ? 56 : 0 }}>
+              <div style={{ fontFamily: C.serif, fontSize: 48, color: C.yellow, lineHeight: 0.8, marginBottom: 24 }}>"</div>
+              <p style={{ fontFamily: C.serif, fontSize: 17, lineHeight: 1.75, color: "rgba(240,237,230,0.75)", marginBottom: 24 }}>{t.quote}</p>
+              <div style={{ fontFamily: C.mono, fontSize: 10, color: C.muted, letterSpacing: 2, textTransform: "uppercase" }}>{t.name} · {t.role}</div>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      {/* PRICING */}
+      <section ref={pricingRef} style={{ borderBottom: `1px solid ${C.border}` }}>
+        <div style={{ padding: "80px 60px 48px", display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
+          <div style={{ fontFamily: C.serif, fontSize: "clamp(36px, 5vw, 64px)", fontWeight: 700, letterSpacing: -2 }}>Abonnements</div>
+          <div style={{ fontFamily: C.mono, fontSize: 11, color: C.muted, letterSpacing: 3, textTransform: "uppercase" }}>Simple et transparent</div>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", borderTop: `1px solid ${C.border}` }}>
+          {PLANS.map((p, i) => (
+            <motion.div key={i} initial={{ opacity: 0, y: 30 }} animate={pricingInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ delay: i * 0.15 }}
+              style={{ borderRight: i < 2 ? `1px solid ${C.border}` : undefined, padding: "56px 48px", background: p.highlight ? "#0a0900" : "transparent" }}>
+              {p.highlight && <div style={{ width: "100%", height: 2, background: C.yellow, marginBottom: 48, position: "absolute", top: 0, left: 0 }} />}
+              <div style={{ fontFamily: C.mono, fontSize: 10, letterSpacing: 4, color: p.highlight ? C.yellow : C.muted, textTransform: "uppercase", marginBottom: 24 }}>{p.name}</div>
+              <div style={{ fontFamily: C.serif, fontSize: 56, fontWeight: 700, letterSpacing: -2, lineHeight: 1, marginBottom: 6 }}>{p.price}</div>
+              <div style={{ fontFamily: C.mono, fontSize: 11, color: C.muted, marginBottom: 40 }}>{p.note}</div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 14, marginBottom: 40 }}>
+                {p.features.map((f, j) => (
+                  <div key={j} style={{ display: "flex", gap: 12, alignItems: "flex-start", fontFamily: C.mono, fontSize: 12, color: p.highlight ? "rgba(240,237,230,0.8)" : C.muted, lineHeight: 1.5 }}>
+                    <span style={{ color: C.yellow, fontWeight: 700, marginTop: 1 }}>→</span> {f}
+                  </div>
+                ))}
+              </div>
+              <motion.button whileHover={{ background: C.yellow, color: C.bg, borderColor: C.yellow }} whileTap={{ scale: 0.97 }}
+                style={{ width: "100%", padding: "14px", background: "transparent", color: p.highlight ? C.yellow : C.muted, border: `1px solid ${p.highlight ? C.yellow : C.border}`, fontFamily: C.mono, fontSize: 11, letterSpacing: 3, textTransform: "uppercase", cursor: "pointer", transition: "all 0.2s" }}>
+                {p.price === "0 €" ? "Accès gratuit" : "S'abonner →"}
+              </motion.button>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section style={{ maxWidth: 840, margin: "0 auto", padding: "80px 60px" }}>
+        <div style={{ fontFamily: C.serif, fontSize: 40, fontWeight: 700, letterSpacing: -1, marginBottom: 48 }}>Questions fréquentes</div>
+        {FAQS.map((f, i) => (
+          <div key={i} style={{ borderBottom: `1px solid ${C.border}` }}>
+            <button onClick={() => setOpenFaq(openFaq === i ? null : i)}
+              style={{ width: "100%", display: "flex", justifyContent: "space-between", alignItems: "center", padding: "22px 0", background: "none", border: "none", color: C.white, cursor: "pointer", textAlign: "left" }}>
+              <span style={{ fontFamily: C.serif, fontSize: 17, fontWeight: 600 }}>{f.q}</span>
+              <motion.span animate={{ rotate: openFaq === i ? 45 : 0 }} style={{ fontSize: 22, color: C.yellow, minWidth: 22 }}>+</motion.span>
+            </button>
+            <AnimatePresence>
+              {openFaq === i && (
+                <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }}>
+                  <p style={{ paddingBottom: 22, fontFamily: C.mono, fontSize: 13, color: C.muted, lineHeight: 1.8 }}>{f.a}</p>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        ))}
+      </section>
+
+      {/* FOOTER */}
+      <footer style={{ borderTop: `1px solid ${C.border}`, padding: "40px 60px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div style={{ fontFamily: C.serif, fontSize: 20, fontWeight: 700, color: C.yellow }}>Fréquence</div>
+        <div style={{ fontFamily: C.mono, fontSize: 10, color: C.muted, letterSpacing: 2 }}>HEBDOMADAIRE · INDÉPENDANT · DEPUIS 2019</div>
+        <div style={{ fontFamily: C.mono, fontSize: 10, color: C.muted, letterSpacing: 1 }}>© 2025 — Confidentialité · Désabonnement</div>
+      </footer>
     </div>
   )
 }

@@ -1,499 +1,269 @@
 "use client"
 
-import React, { useState, useEffect, useRef } from "react"
-import { 
-  motion, 
-  AnimatePresence, 
-  useScroll, 
-  useTransform, 
-  useInView, 
-  useSpring 
-} from "framer-motion"
-import Image from "next/image"
-import Link from "next/link"
-import { 
-  Thermometer, Shield, Zap, Activity, 
-  ShieldCheck, Eye, Terminal, Lock, 
-  Key, Eye as EyeIcon, Settings, Power, 
-  Info, AlertTriangle, ChevronRight, 
-  ArrowRight, Share2, Maximize2, 
-  Download, ExternalLink, Archive, 
-  Hash, Wifi, BarChart3, Microscope, 
-  Fingerprint, Scan, Layers, Frame, 
-  Box, Target, Orbit, Atom, Satellite, 
-  Milestone, Gauge, Timer, Cloud, 
-  Signal, Search, Navigation, Code, 
-  Command, Grid, Radar, Lightbulb, 
-  User, Heart, Dna, Snowflake, Droplet, 
-  Wind, Ghost, FlaskConical, FlaskRound
-} from "lucide-react"
+import React, { useState, useRef } from "react"
+import { motion, useScroll, useTransform, useInView, AnimatePresence } from "framer-motion"
 
-/* ==========================================================================
-   THE CRYO-RESERVE DATASET (ULTRA DENSITY)
-   ========================================================================== */
+// IRIS STUDIO — Photography portfolio. Dark mode, full-bleed cinematic palette, Cinzel serif headers.
+// Unique scroll: images fade+rise on scroll, hero text overlays a dark gradient backdrop.
 
-const STASIS_SUBJECTS = [
-  {
-    id: "subject-h-42",
-    name: "Human Prototype Alpha",
-    category: "Biological",
-    temp: "-196.2°C",
-    vitrification: "99.98%",
-    stasis_time: "4,242 Days",
-    integrity: "Optimal",
-    desc: "Premier sujet humain en conservation cryogénique complète. Paramètres neurologiques stabilisés à 0.001% d'activité.",
-    status: "Stable"
-  },
-  {
-    id: "subject-b-09",
-    name: "Extinct Flora-Bank",
-    category: "Botanical Heritage",
-    temp: "-188.4°C",
-    vitrification: "98.42%",
-    stasis_time: "12,800 Days",
-    integrity: "Nominal",
-    desc: "Banque génétique de 1,200 espèces végétales disparues au 21ème siècle. Prêt pour une éventuelle réanimation.",
-    status: "Secured"
-  },
-  {
-    id: "subject-g-15",
-    name: "Archeo-Genome X",
-    category: "Genomic Library",
-    temp: "-192.0°C",
-    vitrification: "100%",
-    stasis_time: "1,200 Days",
-    integrity: "Cryo-Locked",
-    desc: "Séquençage et conservation physique d'ADN ancien pour la reconstruction de la biodiversité primitive.",
-    status: "Encrypted"
+const SERIES = [
+  { title: "Lumière Naturelle", count: "24 clichés", year: "2025", accent: "#d4a96a" },
+  { title: "Portraits Urbains", count: "18 clichés", year: "2025", accent: "#a78bfa" },
+  { title: "Architecture & Vide", count: "31 clichés", year: "2024", accent: "#6ee7b7" },
+  { title: "Instants Éphémères", count: "42 clichés", year: "2024", accent: "#f87171" },
+  { title: "Paysages Extrêmes", count: "15 clichés", year: "2023", accent: "#38bdf8" },
+  { title: "Monochrome Stories", count: "27 clichés", year: "2023", accent: "#e5e7eb" },
+]
+
+const TESTIMONIALS = [
+  { quote: "Iris a capturé en une fraction de seconde ce qu'on avait mis 5 ans à construire. Notre campagne a fait x4.", name: "Julien Bernard", role: "Directeur Marketing, Maison Farno" },
+  { quote: "Chaque photo raconte une histoire complète. On n'avait pas besoin de légende.", name: "Adèle Marceau", role: "Rédactrice en chef, Numéro Magazine" },
+  { quote: "Le shooting de mariage dépassait tout ce qu'on avait imaginé. On pleure encore.", name: "Thomas & Chloé Leroux", role: "Mariés, juin 2024" },
+]
+
+const SERVICES = [
+  { name: "Éditorial & Mode", desc: "Lookbooks, campagnes saison, portraits de collection. Studio ou extérieur.", price: "À partir de 1 400 €" },
+  { name: "Portrait Corporate", desc: "Dirigeants, équipes, personal branding. Retouche professionnelle incluse.", price: "À partir de 480 €" },
+  { name: "Mariage & Événements", desc: "Un seul jour, une seule chance. Reportage complet + album imprimé.", price: "À partir de 2 200 €" },
+  { name: "Architecture & Intérieur", desc: "Immobilier haut de gamme, hôtels, showrooms. HDR + ambiance naturelle.", price: "À partir de 890 €" },
+]
+
+const FAQS = [
+  { q: "Quelle est votre disponibilité ?", a: "Les créneaux sont ouverts sur 6 mois glissants. Réservez tôt pour les dates en haute saison (mai–octobre)." },
+  { q: "Combien de temps pour recevoir les photos ?", a: "7 jours ouvrés pour un portrait, 14 jours pour un événement. Édition premium disponible en 3 jours (+30%)." },
+  { q: "Fournissez-vous les fichiers RAW ?", a: "Non — les fichiers livrés sont les retouches finalisées en TIFF haute résolution. Les RAW restent exclusifs à Iris Studio." },
+  { q: "Déplacez-vous en dehors de Paris ?", a: "Oui, France entière et international. Frais de déplacement calculés sur devis selon localisation." },
+  { q: "Puis-je utiliser les photos pour un usage commercial ?", a: "Un contrat de licence est inclus dans chaque devis selon l'usage prévu (web, presse, affichage, etc.)." },
+]
+
+const PLANS = [
+  { name: "Découverte", price: "480 €", note: "portrait solo / 2h", features: ["Session 2h studio ou extérieur", "15 photos retouchées TIFF", "Galerie privée en ligne 30 j", "Droits usage personnel"] },
+  { name: "Signature", price: "1 400 €", note: "éditorial / demi-journée", features: ["Session 4h multi-looks", "40 photos retouchées TIFF", "Direction artistique incluse", "Droits usage commercial 1 an", "Livraison express 3j possible"], highlight: true },
+  { name: "Production", price: "Sur devis", note: "campagnes & grands formats", features: ["Planification complète", "Équipe (assistants, styliste)", "Licence illimitée", "Post-prod avancée", "Accès prioritaire planning"] },
+]
+
+export default function Page() {
+  const [openFaq, setOpenFaq] = useState<number | null>(null)
+  const [hoveredSeries, setHoveredSeries] = useState<number | null>(null)
+  const { scrollY } = useScroll()
+
+  const heroTextY = useTransform(scrollY, [0, 500], [0, -80])
+  const heroOpacity = useTransform(scrollY, [0, 400], [1, 0])
+
+  const servicesRef = useRef(null)
+  const pricingRef = useRef(null)
+  const servicesInView = useInView(servicesRef, { once: true, margin: "-100px" })
+  const pricingInView = useInView(pricingRef, { once: true, margin: "-100px" })
+
+  const C = {
+    bg: "#080808",
+    warm: "#e8e0d4",
+    gold: "#c4a96a",
+    muted: "#666",
+    card: "#111",
+    serif: "'Cormorant Garamond', 'Garamond', Georgia, serif",
+    sans: "system-ui, -apple-system, sans-serif",
   }
-]
-
-const THERMAL_METRICS = [
-  { label: "Cooling Load", value: "420 kW", trend: "Steady" },
-  { label: "Nitrogen Reserves", value: "94.2%", trend: "Refilled" },
-  { label: "Vitrification Avg.", value: "99.92%", trend: "High" },
-  { label: "SLA Uptime", value: "100.00%", trend: "Infinite" }
-]
-
-const CHAMBER_LOGS = [
-  { timestamp: "04:12:42", sensor: "Vault-A1", status: "NOMINAL", temp: "-196.21°C" },
-  { timestamp: "04:12:45", sensor: "Perfusion-Z", status: "STABLE", flow: "0.2ml/s" },
-  { timestamp: "04:12:48", sensor: "Safety-Core", status: "ACTIVE", level: "MAX" }
-]
-
-/* ==========================================================================
-   TECHNICAL COMPONENTS
-   ========================================================================== */
-
-function Reveal({ children, delay = 0, y = 40, x = 0 }: { children: React.ReactNode, delay?: number, y?: number, x?: number }) {
-  const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, margin: "-100px" })
-  return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, y, x }}
-      animate={isInView ? { opacity: 1, y: 0, x: 0 } : {}}
-      transition={{ duration: 1.2, delay, ease: [0.16, 1, 0.3, 1] }}
-    >
-      {children}
-    </motion.div>
-  )
-}
-
-function FrostOverlay() {
-  return (
-    <div className="fixed inset-0 pointer-events-none z-[100] opacity-20">
-       <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-white via-white/5 to-transparent blur-3xl" />
-       <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-white via-white/5 to-transparent blur-3xl" />
-       <div className="absolute top-0 left-0 h-full w-32 bg-gradient-to-r from-white via-white/5 to-transparent blur-3xl" />
-       <div className="absolute top-0 right-0 h-full w-32 bg-gradient-to-l from-white via-white/5 to-transparent blur-3xl" />
-    </div>
-  )
-}
-
-function CryoPodVisualizer({ progress }: { progress: any }) {
-  const rotate = useTransform(progress, [0, 1], [0, 360])
-  const scale = useTransform(progress, [0, 0.5, 1], [1, 1.1, 1])
-  const opacity = useTransform(progress, [0, 0.2], [1, 0.2])
 
   return (
-    <motion.div style={{ rotate, scale, opacity }} className="relative w-80 h-80 flex items-center justify-center">
-       <div className="absolute inset-0 border-[2px] border-white/10 rounded-full animate-spin-slow shadow-[0_0_80px_rgba(255,255,255,0.05)]" />
-       <Snowflake className="w-40 h-40 text-white/5 animate-pulse" />
-       <div className="absolute inset-0 flex items-center justify-center">
-          <div className="w-[120%] h-px bg-gradient-to-r from-transparent via-white/10 to-transparent rotate-45" />
-          <div className="w-[120%] h-px bg-gradient-to-r from-transparent via-white/10 to-transparent -rotate-45" />
-       </div>
-    </motion.div>
-  )
-}
+    <div style={{ background: C.bg, color: C.warm, fontFamily: C.sans, overflowX: "hidden" }}>
+      {/* NAV — transparent overlay */}
+      <nav style={{
+        position: "fixed", top: 0, left: 0, right: 0, zIndex: 100,
+        background: "linear-gradient(to bottom, rgba(8,8,8,0.9), transparent)",
+        display: "flex", alignItems: "center", justifyContent: "space-between",
+        padding: "32px 60px",
+      }}>
+        <div style={{ fontFamily: C.serif, fontSize: 22, letterSpacing: 6, color: C.warm, fontStyle: "italic" }}>Iris Studio</div>
+        <div style={{ display: "flex", gap: 40, alignItems: "center" }}>
+          {["Séries", "Services", "À propos", "Contact"].map(l => (
+            <a key={l} href="#" style={{ fontSize: 12, color: "rgba(232,224,212,0.6)", letterSpacing: 3, textTransform: "uppercase", textDecoration: "none", transition: "color 0.2s" }}>{l}</a>
+          ))}
+        </div>
+      </nav>
 
-/* ==========================================
-   THE CRYO-RESERVE - MAIN INTERFACE
-   ========================================== */
+      {/* HERO — full-viewport dark with overlaid text */}
+      <section style={{ height: "100vh", position: "relative", display: "flex", alignItems: "flex-end", overflow: "hidden" }}>
+        {/* Simulated dark backdrop with gradient */}
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(135deg, #0d0d0d 0%, #1a1208 50%, #0d0d0d 100%)" }} />
+        <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at 70% 30%, rgba(196,169,106,0.08) 0%, transparent 60%)" }} />
 
-export default function CryoReservePremium() {
-  const [activeSubject, setActiveSubject] = useState(0)
-  const [isPerfusionActive, setIsPerfusionActive] = useState(true)
-  const containerRef = useRef(null)
-  const { scrollYProgress } = useScroll({ target: containerRef })
+        {/* Animated grain overlay */}
+        <motion.div animate={{ opacity: [0.03, 0.06, 0.03] }} transition={{ repeat: Infinity, duration: 3 }}
+          style={{ position: "absolute", inset: 0, backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E\")", backgroundSize: "150px" }} />
 
-  // Thermal Scroll Effects
-  const frostOpacity = useTransform(scrollYProgress, [0, 0.5], [0.1, 1])
-  const chamberScale = useTransform(scrollYProgress, [0, 1], [1, 1.3])
+        <motion.div style={{ y: heroTextY, opacity: heroOpacity, position: "relative", zIndex: 10, padding: "0 60px 80px", maxWidth: 900 }}>
+          <motion.div initial={{ opacity: 0, y: 60 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1.2, ease: [0.25, 0.46, 0.45, 0.94] }}>
+            <div style={{ fontFamily: C.serif, fontSize: 12, letterSpacing: 6, color: C.gold, marginBottom: 32, textTransform: "uppercase" }}>Photographe — Paris</div>
+            <h1 style={{ fontFamily: C.serif, fontSize: "clamp(72px, 11vw, 160px)", fontWeight: 400, letterSpacing: "-2px", lineHeight: 0.9, color: C.warm, marginBottom: 48, fontStyle: "italic" }}>
+              La lumière<br />
+              <span style={{ color: C.gold }}>ne ment</span><br />
+              jamais.
+            </h1>
+            <div style={{ display: "flex", gap: 40, alignItems: "center" }}>
+              <motion.button whileHover={{ borderColor: C.gold, color: C.gold }} whileTap={{ scale: 0.97 }}
+                style={{ padding: "16px 40px", background: "transparent", color: C.warm, border: `1px solid rgba(232,224,212,0.4)`, fontSize: 12, letterSpacing: 3, textTransform: "uppercase", cursor: "pointer", transition: "all 0.3s", fontFamily: C.sans }}>
+                Voir les séries
+              </motion.button>
+              <motion.button whileHover={{ background: C.warm, color: C.bg }} whileTap={{ scale: 0.97 }}
+                style={{ padding: "16px 40px", background: C.gold, color: C.bg, border: "none", fontSize: 12, letterSpacing: 3, textTransform: "uppercase", cursor: "pointer", fontFamily: C.sans, fontWeight: 700, transition: "all 0.3s" }}>
+                Demander un devis
+              </motion.button>
+            </div>
+          </motion.div>
+        </motion.div>
 
-  return (
-    <div ref={containerRef} className="bg-[#050505] text-[#e0e5ea] font-mono selection:bg-white/10 selection:text-white min-h-screen overflow-x-hidden transition-colors duration-1000">
-      
-      {/* GLOBAL FROST OVERLAY */}
-      <FrostOverlay />
-      <HUD_Overlay isPerfusionActive={isPerfusionActive} />
+        {/* Scroll indicator */}
+        <div style={{ position: "absolute", bottom: 40, right: 60, display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
+          <motion.div animate={{ y: [0, 10, 0] }} transition={{ repeat: Infinity, duration: 2 }}
+            style={{ width: 1, height: 60, background: `linear-gradient(to bottom, transparent, ${C.gold})` }} />
+          <span style={{ fontFamily: C.sans, fontSize: 10, letterSpacing: 4, color: "#555", textTransform: "uppercase", writingMode: "vertical-rl" }}>Défiler</span>
+        </div>
+      </section>
 
-      <main>
-        {/* ==========================================
-            1. FROZEN IGNITION (HERO)
-            ========================================== */}
-        <section className="relative h-screen flex flex-col justify-center items-center px-8 md:px-24 overflow-hidden pt-20">
-          <div className="absolute inset-0 z-0 bg-[radial-gradient(circle_at_center,#ffffff05_1px,transparent_1px)] bg-[size:50px_50px]" />
-          
-          <div className="absolute z-0 pointer-events-none flex items-center justify-center">
-             <CryoPodVisualizer progress={scrollYProgress} />
+      {/* SERIES GRID — hover reveals accent color */}
+      <section style={{ padding: "100px 60px", borderBottom: `1px solid #1a1a1a` }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 60 }}>
+          <h2 style={{ fontFamily: C.serif, fontSize: "clamp(36px, 4vw, 56px)", fontWeight: 400, fontStyle: "italic", letterSpacing: -1 }}>Séries photographiques</h2>
+          <span style={{ fontSize: 12, color: C.muted, letterSpacing: 3, textTransform: "uppercase" }}>6 collections</span>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 2 }}>
+          {SERIES.map((s, i) => (
+            <motion.div key={i}
+              onHoverStart={() => setHoveredSeries(i)}
+              onHoverEnd={() => setHoveredSeries(null)}
+              initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }} transition={{ delay: i * 0.1, duration: 0.7 }}
+              style={{ position: "relative", height: 280, background: hoveredSeries === i ? "#111" : "#0d0d0d", cursor: "pointer", overflow: "hidden", transition: "background 0.3s" }}>
+              <div style={{ position: "absolute", inset: 0, background: hoveredSeries === i ? `linear-gradient(135deg, ${s.accent}18, transparent)` : "transparent", transition: "background 0.4s" }} />
+              <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: 28, borderTop: hoveredSeries === i ? `1px solid ${s.accent}40` : "1px solid transparent", transition: "border-color 0.3s" }}>
+                <div style={{ fontSize: 10, letterSpacing: 4, color: hoveredSeries === i ? s.accent : C.muted, textTransform: "uppercase", marginBottom: 8, transition: "color 0.3s" }}>{s.year} — {s.count}</div>
+                <div style={{ fontFamily: C.serif, fontSize: 22, fontStyle: "italic", color: C.warm }}>{s.title}</div>
+              </div>
+              <AnimatePresence>
+                {hoveredSeries === i && (
+                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                    style={{ position: "absolute", top: 28, right: 28, fontSize: 11, letterSpacing: 3, color: s.accent, textTransform: "uppercase" }}>
+                    Voir →
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      {/* SERVICES */}
+      <section ref={servicesRef} style={{ padding: "100px 60px", borderBottom: `1px solid #1a1a1a`, maxWidth: 1280, margin: "0 auto" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: 100, alignItems: "start" }}>
+          <div>
+            <h2 style={{ fontFamily: C.serif, fontSize: "clamp(36px, 4vw, 56px)", fontWeight: 400, fontStyle: "italic", letterSpacing: -1, lineHeight: 1.1 }}>Ce que je propose.</h2>
+            <div style={{ width: 40, height: 1, background: C.gold, marginTop: 32 }} />
           </div>
-
-          <div className="relative z-10 text-center max-w-7xl">
-             <Reveal>
-                <div className="inline-flex items-center gap-4 px-6 py-2 border border-white/20 bg-white/5 text-[10px] font-black uppercase tracking-[0.5em] text-white/60 mb-12 italic">
-                   <Thermometer className="w-4 h-4" /> Thermal_SLA: -196.2°C // Vault_Secure
+          <div>
+            {SERVICES.map((s, i) => (
+              <motion.div key={i}
+                initial={{ opacity: 0, x: 40 }} animate={servicesInView ? { opacity: 1, x: 0 } : {}}
+                transition={{ delay: i * 0.12, duration: 0.6 }}
+                style={{ paddingBottom: 36, marginBottom: 36, borderBottom: i < SERVICES.length - 1 ? "1px solid #1a1a1a" : undefined }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
+                  <div style={{ fontFamily: C.serif, fontSize: 22, fontStyle: "italic", color: C.warm }}>{s.name}</div>
+                  <div style={{ fontFamily: C.sans, fontSize: 13, color: C.gold, fontWeight: 600 }}>{s.price}</div>
                 </div>
-                <h1 className="text-7xl md:text-[14vw] font-black tracking-tighter uppercase mb-16 leading-[0.75] italic">
-                   Cryo <br/> <span className="text-white/5 italic">Reserve.</span>
-                </h1>
-                <p className="max-w-3xl mx-auto text-sm md:text-lg text-white/20 leading-relaxed uppercase tracking-widest font-light mb-16 italic">
-                   La préservation éternelle par la science moléculaire. Nous suspendons le temps pour protéger l'héritage biologique de l'humanité.
-                </p>
-                
-                <div className="flex flex-col sm:flex-row gap-8 justify-center items-center">
-                   <button className="px-12 py-6 bg-white text-black text-[10px] font-black uppercase tracking-widest hover:bg-black hover:text-white border border-transparent hover:border-white/20 transition-all shadow-[0_0_40px_rgba(255,255,255,0.1)] flex items-center gap-4 italic">
-                      <Lock className="w-5 h-5" /> Initialize Stasis
-                   </button>
-                   <button className="px-12 py-6 border border-white/10 text-white/60 text-[10px] font-black uppercase tracking-widest hover:bg-white/5 transition-all flex items-center gap-4 italic">
-                      <Archive className="w-5 h-5" /> Archive Registry
-                   </button>
-                </div>
-             </Reveal>
+                <p style={{ fontSize: 14, color: C.muted, lineHeight: 1.8 }}>{s.desc}</p>
+              </motion.div>
+            ))}
           </div>
+        </div>
+      </section>
 
-          <div className="absolute bottom-12 left-12 right-12 flex justify-between items-end border-t border-white/5 pt-12">
-             <div className="flex flex-col gap-6">
-                <div className="flex items-center gap-4 text-[9px] font-bold text-white/10 uppercase tracking-widest italic">
-                   <div className="w-16 h-px bg-white/5" />
-                   Vault_ID: CRYO-77-ALP
-                </div>
-                <div className="flex items-center gap-4 text-[9px] font-bold text-white/10 uppercase tracking-widest italic">
-                   <div className="w-16 h-px bg-white/5" />
-                   Stasis_Status: NOMINAL
-                </div>
-             </div>
-             <div className="text-right flex flex-col items-end gap-4">
-                <span className="text-[8px] font-black uppercase tracking-[0.5em] text-white/40">Molecular_Vibration_Stream</span>
-                <div className="flex gap-2 h-12 items-end">
-                   {[...Array(16)].map((_, i) => (
-                     <motion.div 
-                        key={i}
-                        animate={{ height: ["5%", "40%", "10%", "30%", "5%"] }}
-                        transition={{ duration: 3, repeat: Infinity, delay: i * 0.2 }}
-                        className="w-2 bg-white/5"
-                     />
-                   ))}
-                </div>
-             </div>
+      {/* TESTIMONIALS */}
+      <section style={{ padding: "100px 60px", background: "#050505", borderBottom: `1px solid #1a1a1a` }}>
+        <div style={{ maxWidth: 1280, margin: "0 auto" }}>
+          <h2 style={{ fontFamily: C.serif, fontSize: "clamp(36px, 4vw, 56px)", fontWeight: 400, fontStyle: "italic", textAlign: "center", marginBottom: 64 }}>Ce qu'ils en disent.</h2>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 48 }}>
+            {TESTIMONIALS.map((t, i) => (
+              <motion.div key={i} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }} transition={{ delay: i * 0.15 }}>
+                <div style={{ fontFamily: C.serif, fontSize: 48, color: C.gold, lineHeight: 1, marginBottom: 20, fontStyle: "italic" }}>"</div>
+                <p style={{ fontFamily: C.serif, fontSize: 18, fontStyle: "italic", color: "rgba(232,224,212,0.8)", lineHeight: 1.8, marginBottom: 28 }}>{t.quote}</p>
+                <div style={{ fontSize: 11, color: C.muted, letterSpacing: 2, textTransform: "uppercase" }}>{t.name} · {t.role}</div>
+              </motion.div>
+            ))}
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* ==========================================
-            2. STASIS REGISTRY (DENSE TECHNICAL)
-            ========================================== */}
-        <section className="py-60 bg-[#080808] relative border-y border-white/5 overflow-hidden">
-           <div className="max-w-[1600px] mx-auto px-8 md:px-24">
-              <div className="flex flex-col md:flex-row items-end justify-between mb-40 gap-12">
-                 <Reveal>
-                    <span className="text-[10px] font-black uppercase tracking-[0.6em] text-white/40 block mb-6 italic underline underline-offset-8 decoration-white/10">Stasis // Subjects</span>
-                    <h2 className="text-6xl md:text-[10vw] font-black uppercase tracking-tighter italic leading-none text-white">Archives.</h2>
-                 </Reveal>
-                 <div className="text-right">
-                    <span className="text-[10px] font-black uppercase tracking-[0.5em] text-white/20 block mb-4 italic">Registry // Molecular_Audit</span>
-                    <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/40">L'Architecture de la Suspension</p>
-                 </div>
+      {/* PRICING */}
+      <section ref={pricingRef} style={{ padding: "100px 60px", borderBottom: `1px solid #1a1a1a`, maxWidth: 1280, margin: "0 auto" }}>
+        <h2 style={{ fontFamily: C.serif, fontSize: "clamp(36px, 4vw, 56px)", fontWeight: 400, fontStyle: "italic", textAlign: "center", marginBottom: 64 }}>Formules & tarifs.</h2>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 2 }}>
+          {PLANS.map((p, i) => (
+            <motion.div key={i} initial={{ opacity: 0, y: 30 }} animate={pricingInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ delay: i * 0.15 }}
+              style={{ background: p.highlight ? "#111" : C.card, padding: "56px 48px", border: p.highlight ? `1px solid ${C.gold}40` : "1px solid #1a1a1a", position: "relative" }}>
+              {p.highlight && <div style={{ position: "absolute", top: -1, left: 0, right: 0, height: 1, background: C.gold }} />}
+              <div style={{ fontSize: 10, letterSpacing: 4, color: p.highlight ? C.gold : C.muted, textTransform: "uppercase", marginBottom: 24 }}>{p.name}</div>
+              <div style={{ fontFamily: C.serif, fontSize: 48, fontStyle: "italic", color: C.warm, marginBottom: 4 }}>{p.price}</div>
+              <div style={{ fontSize: 12, color: C.muted, marginBottom: 40 }}>{p.note}</div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 14, marginBottom: 40 }}>
+                {p.features.map((f, j) => (
+                  <div key={j} style={{ fontSize: 13, color: "rgba(232,224,212,0.65)", display: "flex", gap: 10, alignItems: "flex-start", lineHeight: 1.5 }}>
+                    <span style={{ color: C.gold, marginTop: 1 }}>—</span> {f}
+                  </div>
+                ))}
               </div>
+              <motion.button whileHover={{ background: C.gold, color: C.bg, borderColor: C.gold }} whileTap={{ scale: 0.97 }}
+                style={{ width: "100%", padding: "14px", background: "transparent", color: C.warm, border: `1px solid ${p.highlight ? C.gold : "#333"}`, fontSize: 11, letterSpacing: 3, textTransform: "uppercase", cursor: "pointer", transition: "all 0.25s", fontFamily: C.sans }}>
+                Réserver
+              </motion.button>
+            </motion.div>
+          ))}
+        </div>
+      </section>
 
-              <div className="grid md:grid-cols-3 gap-px bg-white/5 border border-white/5 shadow-2xl">
-                 {STASIS_SUBJECTS.map((subject, i) => (
-                   <Reveal key={subject.id} delay={i * 0.1}>
-                      <div className="bg-[#050505] p-20 flex flex-col h-full hover:bg-white/[0.02] transition-all group cursor-crosshair border-white/5 border-r last:border-r-0">
-                         <div className="flex justify-between items-start mb-16">
-                            <div className="w-16 h-16 bg-white/5 border border-white/10 flex items-center justify-center group-hover:bg-white group-hover:text-black transition-all duration-500">
-                               <Dna className="w-8 h-8" />
-                            </div>
-                            <span className={`px-4 py-2 bg-white/5 text-[9px] font-black uppercase tracking-[0.3em] ${subject.status === "Stable" ? "text-white" : "text-white/40"}`}>{subject.status}</span>
-                         </div>
-                         
-                         <h3 className="text-4xl font-black uppercase tracking-tighter mb-8 italic text-white group-hover:translate-x-4 transition-transform">{subject.name}</h3>
-                         <div className="text-[10px] font-black text-white/20 uppercase tracking-[0.5em] mb-12">{subject.category}</div>
-                         
-                         <div className="space-y-8 mb-20 border-l border-white/10 pl-8">
-                            <div className="flex justify-between items-center text-[11px] font-bold uppercase tracking-widest">
-                               <span className="text-white/20">Temperature</span>
-                               <span className="text-white group-hover:text-cyan-400 transition-colors">{subject.temp}</span>
-                            </div>
-                            <div className="flex justify-between items-center text-[11px] font-bold uppercase tracking-widest">
-                               <span className="text-white/20">Vitrification</span>
-                               <span className="text-white group-hover:text-cyan-400 transition-colors">{subject.vitrification}</span>
-                            </div>
-                            <div className="flex justify-between items-center text-[11px] font-bold uppercase tracking-widest">
-                               <span className="text-white/20">Stasis Time</span>
-                               <span className="text-white group-hover:text-cyan-400 transition-colors">{subject.stasis_time}</span>
-                            </div>
-                         </div>
-
-                         <p className="text-[12px] text-white/30 leading-loose uppercase tracking-[0.2em] font-bold italic mb-16">
-                            {subject.desc}
-                         </p>
-
-                         <div className="mt-auto pt-10 border-t border-white/5 flex justify-between items-center">
-                            <span className="text-[10px] font-black text-white/10 uppercase tracking-widest">Ref: {subject.id}</span>
-                            <button className="text-[10px] font-black uppercase text-white/40 flex items-center gap-4 group-hover:text-white transition-all">
-                               System_Specs <ChevronRight className="w-5 h-5" />
-                            </button>
-                         </div>
-                      </div>
-                   </Reveal>
-                 ))}
-              </div>
-           </div>
-        </section>
-
-        {/* ==========================================
-            3. MOLECULAR MONITOR (INTERACTIVE DATA)
-            ========================================== */}
-        <section className="py-60 bg-black relative border-y border-white/5 overflow-hidden">
-           <div className="max-w-[1400px] mx-auto px-8 md:px-24">
-              <div className="grid lg:grid-cols-2 gap-40 items-center">
-                 <div>
-                    <Reveal>
-                       <span className="text-[10px] font-black uppercase tracking-[0.5em] text-white/40 block mb-12 italic underline underline-offset-8 decoration-white/10">Thermal // Stability</span>
-                       <h2 className="text-7xl md:text-[9vw] font-light italic leading-none text-white mb-16 uppercase tracking-tighter">
-                          The <br/> <span className="not-italic font-black text-white/5 italic">Zero_Point.</span>
-                       </h2>
-                       <p className="text-2xl font-light text-white/20 leading-relaxed mb-24 italic uppercase tracking-[0.2em] max-w-xl">
-                          Surveillance thermique en temps réel. Nos protocoles de vitrification garantissent l'absence totale de formation de cristaux de glace, préservant l'intégrité cellulaire à 100%.
-                       </p>
-                       <div className="grid grid-cols-2 gap-px bg-white/5 border border-white/5 mb-24 shadow-2xl">
-                          {THERMAL_METRICS.map((metric, i) => (
-                            <div key={i} className="p-16 bg-[#0a0a0a] group hover:bg-white/[0.02] transition-all border-r border-b last:border-r-0 border-white/5">
-                               <div className="text-[10px] font-black uppercase text-white/40 mb-6 tracking-[0.4em]">{metric.label}</div>
-                               <div className="text-5xl font-black text-white italic mb-6 tracking-tighter group-hover:translate-x-4 transition-transform">{metric.value}</div>
-                               <div className="flex items-center gap-3 text-[9px] font-bold uppercase tracking-[0.3em] text-white/10 italic">
-                                  <Activity className="w-4 h-4 text-white/40" /> {metric.trend}
-                               </div>
-                            </div>
-                          ))}
-                       </div>
-                       <button 
-                         onClick={() => setIsPerfusionActive(!isPerfusionActive)}
-                         className="w-full py-8 bg-white text-black text-[11px] font-black uppercase tracking-widest hover:bg-white/90 transition-all shadow-2xl flex items-center justify-center gap-6 italic"
-                       >
-                          <Settings className="w-5 h-5" /> Re-Calibrate Perfusion Source
-                       </button>
-                    </Reveal>
-                 </div>
-                 
-                 <div className="relative">
-                    <Reveal delay={0.3} x={40}>
-                       <div className="aspect-square bg-[#0a0a0a] border border-white/10 p-20 flex flex-col justify-between relative group overflow-hidden shadow-2xl">
-                          <div className="absolute top-0 right-0 p-80 bg-white opacity-[0.01] blur-[150px] rounded-full group-hover:opacity-[0.03] transition-opacity" />
-                          
-                          <div className="flex justify-between items-start z-10">
-                             <div className="flex flex-col gap-3">
-                                <span className="text-[10px] font-black text-white/10 uppercase tracking-[0.5em]">Vault_Link // CRYO-SYNC-v4</span>
-                                <span className="text-[12px] font-black text-white/40 uppercase tracking-[0.6em]">Molecular_Density_Map</span>
-                             </div>
-                             <Wifi className="w-6 h-6 text-white/20" />
-                          </div>
-                          
-                          {/* CRYO VISUALIZER (SVG) */}
-                          <div className="relative z-10 flex flex-col items-center justify-center h-full">
-                             <div className="w-64 h-64 border border-white/5 rounded-full flex items-center justify-center relative">
-                                <motion.div 
-                                  animate={{ rotate: 360 }}
-                                  transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-                                  className="absolute inset-0 border-t-2 border-white/20 rounded-full" 
-                                />
-                                <motion.div 
-                                  animate={{ rotate: -360 }}
-                                  transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-                                  className="absolute inset-8 border-b-2 border-white/10 rounded-full" 
-                                />
-                                <Snowflake className={`w-24 h-24 transition-colors duration-1000 ${isPerfusionActive ? "text-white animate-pulse" : "text-white/5"}`} />
-                             </div>
-                             <div className="mt-16 text-center space-y-6">
-                                <div className={`text-4xl font-black italic tracking-tighter ${isPerfusionActive ? "text-white" : "text-white/20"}`}>
-                                   {isPerfusionActive ? "THERMAL_LOCKED" : "THERMAL_WARNING"}
-                                </div>
-                                <span className="text-[11px] font-bold text-white/10 uppercase tracking-[0.6em] block">Auth_Node: ARCTIC_HEAD_01</span>
-                             </div>
-                          </div>
-
-                          <div className="relative z-10 flex gap-6">
-                             <div className="flex-1 h-1 bg-white/5 overflow-hidden">
-                                <motion.div 
-                                   animate={isPerfusionActive ? { x: ["-100%", "100%"] } : {}}
-                                   transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-                                   className="w-1/2 h-full bg-white/40"
-                                />
-                             </div>
-                          </div>
-                       </div>
-                    </Reveal>
-                 </div>
-              </div>
-           </div>
-        </section>
-
-        {/* ==========================================
-            4. CONSERVATION STORY (TECH STORYTELLING)
-            ========================================== */}
-        <section className="py-60 bg-[#050505] relative overflow-hidden border-t border-white/5">
-           <div className="max-w-[1400px] mx-auto px-8 md:px-24">
-              <div className="grid lg:grid-cols-2 gap-40 items-center">
-                 <div className="relative aspect-[3/4] overflow-hidden group border border-white/5 shadow-2xl">
-                    <Image 
-                       src="https://images.unsplash.com/photo-1579154341098-e4e158cc7f55?q=80&w=1200&auto=format&fit=crop" 
-                       alt="Cryogenic Facility" 
-                       fill 
-                       className="object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-[2000ms]"
-                    />
-                    <div className="absolute inset-0 bg-white/5 mix-blend-overlay group-hover:opacity-0 transition-opacity" />
-                    <div className="absolute inset-0 p-20 flex flex-col justify-end bg-gradient-to-t from-black via-black/40 to-transparent">
-                       <div className="text-white">
-                          <span className="text-[11px] font-black uppercase tracking-[0.6em] text-white/60 mb-8 block italic underline underline-offset-8 decoration-white/20">Conservation // Heritage // Unit</span>
-                          <h4 className="text-6xl font-black tracking-tighter uppercase italic mb-12 mix-blend-difference text-white">Frozen <br/> Heritage.</h4>
-                          <button className="flex items-center gap-6 text-[11px] font-black uppercase tracking-[0.4em] border-b border-white/20 pb-4 hover:border-white transition-all group">
-                             Security Protocols <ExternalLink className="w-5 h-5 group-hover:translate-x-2 group-hover:-translate-y-2 transition-transform" />
-                          </button>
-                       </div>
-                    </div>
-                 </div>
-
-                 <div>
-                    <Reveal>
-                       <div className="mb-24 text-left">
-                          <span className="text-[10px] font-black uppercase tracking-[0.5em] text-white/40 mb-8 block italic">Chapitre III // Suspension</span>
-                          <h2 className="text-7xl md:text-[10vw] font-black tracking-tighter uppercase text-white italic leading-none text-white">Stasis_Log.</h2>
-                       </div>
-                       <p className="text-2xl font-light text-white/20 leading-relaxed italic mb-20 uppercase tracking-[0.2em]">
-                          La cryogénie n'est pas seulement une technique de froid, c'est l'art de la suspension métabolique. Nous combattons l'entropie à l'échelle atomique.
-                       </p>
-                       <div className="space-y-20">
-                          {[
-                            { t: "Vitrification Mastery", d: "Remplacement complet de l'eau cellulaire par des solutions cryoprotectrices pour éviter la cristallisation." },
-                            { t: "Thermal Redundancy", d: "Huit couches de protection thermique et alimentation en azote liquide redondante pour une sécurité absolue." },
-                            { t: "Genomic Integrity", d: "Surveillance constante des mutations induites par les rayonnements cosmiques pendant la stase prolongée." }
-                          ].map((step, i) => (
-                            <div key={i} className="group flex gap-12 border-b border-white/5 pb-16 hover:border-white/20 transition-all cursor-default">
-                               <div className="text-6xl font-black text-white/5 group-hover:text-white/10 transition-colors italic leading-none">0{i+1}</div>
-                               <div>
-                                  <h5 className="text-3xl font-black uppercase tracking-tight text-white mb-6 italic group-hover:translate-x-4 transition-transform text-white">{step.t}</h5>
-                                  <p className="text-[12px] text-white/20 uppercase tracking-[0.3em] font-bold leading-loose italic">{step.d}</p>
-                               </div>
-                            </div>
-                          ))}
-                       </div>
-                    </Reveal>
-                 </div>
-              </div>
-           </div>
-        </section>
-
-        {/* MEGA FOOTER */}
-        <footer className="bg-black pt-60 pb-12 px-8 md:px-24 relative z-50">
-           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-32 mb-60 text-white">
-              <div className="lg:col-span-2">
-                 <div className="flex items-center gap-6 mb-16">
-                    <div className="w-16 h-16 bg-white flex items-center justify-center">
-                      <FlaskConical className="w-10 h-10 text-black" />
-                    </div>
-                    <span className="text-4xl font-black uppercase tracking-tighter italic">CRYO<span className="text-white/20">_RESERVE.</span></span>
-                 </div>
-                 <p className="text-white/20 text-[11px] font-black uppercase tracking-[0.5em] leading-loose max-w-sm mb-20 italic">
-                    "L'avenir est une question de conservation." — Archive Cryo V.42
-                 </p>
-                 <div className="flex gap-16">
-                    {["StasisLog", "ArchiveRegistry", "GitHub", "X_Protocol"].map(s => (
-                      <Link key={s} href="#" className="text-[11px] font-black uppercase tracking-widest text-white/20 hover:text-white transition-colors italic underline underline-offset-8 decoration-white/5">{s}</Link>
-                    ))}
-                 </div>
-              </div>
-
-              {[
-                { t: "CONSERVATION", l: ["Biological Stasis", "Genomic Bank", "Botanical Vault", "Archeo-Genome"] },
-                { t: "TECHNOLOGY", l: ["Vitrification", "Perfusion Hub", "Thermal Shield", "SLA Reports"] },
-                { t: "FACILITY", l: ["Our Legacy", "Arctic Station", "Locations", "Support"] }
-              ].map((col, i) => (
-                <div key={i} className="flex flex-col gap-12">
-                  <h4 className="text-[11px] font-black text-white/40 uppercase tracking-[0.6em] italic">{col.t}</h4>
-                  <ul className="flex flex-col gap-8">
-                    {col.l.map(link => (
-                      <li key={link} className="text-[11px] font-bold text-white/20 hover:text-white transition-colors cursor-pointer uppercase tracking-[0.4em] italic">{link}</li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-           </div>
-
-           <div className="max-w-[1600px] mx-auto border-t border-white/5 pt-16 flex flex-col md:flex-row justify-between items-center gap-16 text-[10px] font-black text-white/10 uppercase tracking-[0.6em] italic">
-              <span>© 2026 CRYO-RESERVE BIONIC CONSERVATION AG. // ALL_RIGHTS_RESERVED</span>
-              <div className="flex gap-16">
-                 <span>STATUS: FROZEN</span>
-                 <span>TEMPERATURE: -196.2°C (AVG)</span>
-                 <span>v4.12.0-STABLE</span>
-              </div>
-           </div>
-        </footer>
-      </main>
-    </div>
-  )
-}
-
-/* ==========================================
-   TECHNICAL SUB-COMPONENTS
-   ========================================== */
-
-function HUD_Overlay({ isPerfusionActive }: { isPerfusionActive: boolean }) {
-  return (
-    <div className="fixed inset-0 pointer-events-none z-[100]">
-       {/* Corner Brackets */}
-       <div className={`absolute top-12 left-12 w-20 h-20 border-t-2 border-l-2 transition-colors duration-1000 ${isPerfusionActive ? "border-white" : "border-white/10"}`} />
-       <div className={`absolute top-12 right-12 w-20 h-20 border-t-2 border-r-2 transition-colors duration-1000 ${isPerfusionActive ? "border-white" : "border-white/10"}`} />
-       <div className={`absolute bottom-12 left-12 w-20 h-20 border-b-2 border-l-2 transition-colors duration-1000 ${isPerfusionActive ? "border-white" : "border-white/10"}`} />
-       <div className={`absolute bottom-12 right-12 w-20 h-20 border-b-2 border-r-2 transition-colors duration-1000 ${isPerfusionActive ? "border-white" : "border-white/10"}`} />
-
-       {/* Top Status Bar */}
-       <div className="absolute top-12 left-1/2 -translate-x-1/2 flex items-center gap-20 bg-black/60 backdrop-blur-2xl px-12 py-4 border border-white/10 rounded-none">
-          <div className="flex items-center gap-6 text-white">
-             <div className={`w-3 h-3 transition-colors duration-500 ${isPerfusionActive ? "bg-white animate-pulse" : "bg-red-500 animate-ping"}`} />
-             <span className="text-[10px] font-black uppercase tracking-[0.4em] italic leading-none">Thermal_Sync: {isPerfusionActive ? "LOCKED" : "UNSTABLE"} // Status: ACTIVE</span>
+      {/* FAQ */}
+      <section style={{ maxWidth: 800, margin: "0 auto", padding: "100px 60px" }}>
+        <h2 style={{ fontFamily: C.serif, fontSize: 48, fontStyle: "italic", textAlign: "center", marginBottom: 56 }}>Questions.</h2>
+        {FAQS.map((f, i) => (
+          <div key={i} style={{ borderBottom: "1px solid #1a1a1a" }}>
+            <button onClick={() => setOpenFaq(openFaq === i ? null : i)}
+              style={{ width: "100%", display: "flex", justifyContent: "space-between", alignItems: "center", padding: "24px 0", background: "none", border: "none", color: C.warm, cursor: "pointer", textAlign: "left" }}>
+              <span style={{ fontFamily: C.serif, fontSize: 18, fontStyle: "italic" }}>{f.q}</span>
+              <motion.span animate={{ rotate: openFaq === i ? 45 : 0 }} style={{ fontSize: 20, color: C.gold, minWidth: 20 }}>+</motion.span>
+            </button>
+            <AnimatePresence>
+              {openFaq === i && (
+                <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }}>
+                  <p style={{ paddingBottom: 24, fontSize: 14, color: C.muted, lineHeight: 1.8 }}>{f.a}</p>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
-          <div className="h-4 w-px bg-white/20" />
-          <div className="flex items-center gap-6 text-white/20">
-             <Wifi className="w-4 h-4" /> 
-             <span className="text-[10px] font-black uppercase tracking-[0.4em] italic leading-none">Arctic_Relay: SECURE</span>
-          </div>
-       </div>
+        ))}
+      </section>
 
-       {/* Right Rotation Info */}
-       <div className="absolute right-12 top-1/2 -translate-y-1/2 rotate-90 origin-right hidden lg:block">
-          <span className="text-[10px] font-black uppercase tracking-[0.8em] text-white/5 italic">Unauthorized_Duplication_Of_Stasis_Patterns_Is_Strictly_Monitored_By_Global_Cryo_Alliance</span>
-       </div>
+      {/* CTA */}
+      <section style={{ background: "#050505", padding: "100px 60px", textAlign: "center", borderTop: `1px solid #1a1a1a` }}>
+        <h2 style={{ fontFamily: C.serif, fontSize: "clamp(48px, 7vw, 100px)", fontStyle: "italic", fontWeight: 300, color: C.warm, marginBottom: 40, lineHeight: 1 }}>
+          Parlons de<br /><span style={{ color: C.gold }}>votre projet.</span>
+        </h2>
+        <motion.a href="#" whileHover={{ letterSpacing: 6 }} whileTap={{ scale: 0.97 }}
+          style={{ display: "inline-block", padding: "18px 56px", border: `1px solid ${C.gold}`, color: C.gold, fontSize: 12, letterSpacing: 4, textTransform: "uppercase", textDecoration: "none", transition: "letter-spacing 0.3s", fontFamily: C.sans }}>
+          hello@iris-studio.fr
+        </motion.a>
+      </section>
+
+      {/* FOOTER */}
+      <footer style={{ padding: "40px 60px", display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid #111" }}>
+        <span style={{ fontFamily: C.serif, fontSize: 16, fontStyle: "italic", color: "#333" }}>Iris Studio</span>
+        <span style={{ fontSize: 11, color: "#333", letterSpacing: 2 }}>© 2025 — Paris, France</span>
+        <div style={{ display: "flex", gap: 24 }}>
+          {["Instagram", "Behance", "LinkedIn"].map(l => (
+            <span key={l} style={{ fontSize: 11, color: "#444", letterSpacing: 2, textTransform: "uppercase", cursor: "pointer" }}>{l}</span>
+          ))}
+        </div>
+      </footer>
     </div>
   )
 }

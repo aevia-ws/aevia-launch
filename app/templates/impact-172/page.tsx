@@ -1,507 +1,292 @@
 "use client"
 
-import React, { useState, useEffect, useRef } from "react"
-import { 
-  motion, 
-  AnimatePresence, 
-  useScroll, 
-  useTransform, 
-  useInView, 
-  useSpring 
-} from "framer-motion"
-import Image from "next/image"
-import Link from "next/link"
-import { 
-  Zap, Sun, Activity, Cpu, 
-  Shield, Target, Layers, Box, 
-  Hexagon, Terminal, Settings, Power, 
-  Info, AlertTriangle, ChevronRight, 
-  ArrowRight, Share2, Maximize2, 
-  Download, ExternalLink, Archive, 
-  Hash, Wifi, BarChart3, Fingerprint, 
-  Scan, Brain, Server, ShieldCheck, 
-  ShieldAlert, Award, Briefcase, 
-  Wind, Thermometer, Droplets, 
-  Flame, Battery, Radio, Gauge, 
-  Timer, Lightbulb, Command, Grid, 
-  Radar, Orbit, Atom, Satellite, 
-  Milestone, FlaskConical, FlaskRound, 
-  Ghost, Magnet, Hammer, Factory
-} from "lucide-react"
+import React, { useState, useRef } from "react"
+import { motion, useScroll, useTransform, useInView, AnimatePresence } from "framer-motion"
 
-/* ==========================================================================
-   THE SOLAR FLARE DATASET (ULTRA DENSITY)
-   ========================================================================== */
+// LEGRAND & ASSOCIÉS — Law firm. Dark charcoal + gold, authoritative serif, formal column layout.
+// Unique: sticky numbered sections, diagonal gold dividers, dense editorial feel.
 
-const FUSION_REACTORS = [
-  {
-    id: "reactor-tk-42",
-    name: "Tokamak Alpha-9",
-    type: "Magnetic Confinement",
-    temp: "150M °C",
-    q_factor: "Q=12.4",
-    stability: "Optimal",
-    desc: "Réacteur à fusion de nouvelle génération utilisant des aimants supraconducteurs à haute température pour un confinement plasma ultra-stable.",
-    status: "Online"
-  },
-  {
-    id: "reactor-st-08",
-    name: "Stellarator-Z",
-    type: "Helical Shield",
-    temp: "120M °C",
-    q_factor: "Q=8.2",
-    stability: "High-Fidelity",
-    desc: "Conception géométrique complexe éliminant le besoin de courant de plasma interne pour une exploitation continue et sécurisée.",
-    status: "Maintenance"
-  },
-  {
-    id: "reactor-ic-15",
-    name: "Inertial Core X",
-    type: "Laser Ignition",
-    temp: "200M °C",
-    q_factor: "Q=1.5 (Pulse)",
-    stability: "Critical-Sync",
-    desc: "Compression de cibles de deutérium-tritium par des faisceaux laser haute puissance pour une ignition instantanée.",
-    status: "Approved"
+const PRACTICES = [
+  { num: "I", name: "Droit des Affaires", desc: "Fusions-acquisitions, due diligence, pactes d'associés, cessions de fonds de commerce. Conseils aux PME et ETI.", scope: ["M&A", "Contrats", "Sociétés", "Gouvernance"] },
+  { num: "II", name: "Droit Social & RH", desc: "Relations individuelles et collectives, licenciements, accords d'entreprise, contentieux prud'homal.", scope: ["Licenciement", "CSE", "Accords", "Contentieux"] },
+  { num: "III", name: "Droit Immobilier", desc: "Baux commerciaux, VEFA, copropriété, contentieux locatif, due diligence immobilière.", scope: ["Baux", "VEFA", "Copro", "Contentieux"] },
+  { num: "IV", name: "Propriété Intellectuelle", desc: "Marques, brevets, droits d'auteur, contrats de licence, cybersécurité et protection des données.", scope: ["Marques", "Brevets", "RGPD", "Licences"] },
+]
+
+const ASSOCIATES = [
+  { name: "Maître Henri Legrand", title: "Associé fondateur", bar: "Barreau de Paris", exp: "28 ans", spec: "Droit des affaires, M&A" },
+  { name: "Maître Sophie Aubert", title: "Associée senior", bar: "Barreau de Lyon", exp: "16 ans", spec: "Droit social, RH" },
+  { name: "Maître Thomas Villiers", title: "Collaborateur senior", bar: "Barreau de Paris", exp: "9 ans", spec: "Immobilier, Copropriété" },
+]
+
+const TESTIMONIALS = [
+  { quote: "Legrand & Associés a géré l'acquisition de notre concurrent en 6 semaines. Une rigueur et une réactivité que je n'avais jamais vues.", name: "Laurent Bonneau", role: "PDG, Groupe Bonneau Industries" },
+  { quote: "Nous avons fait face à un contentieux prud'homal complexe. Le cabinet a obtenu le classement de l'affaire en première instance.", name: "Isabelle Roux", role: "DRH, Retail Group SA" },
+  { quote: "La rédaction de nos contrats de licence internationale est d'une précision qui nous protège efficacement depuis 5 ans.", name: "Marc Duhamel", role: "Directeur Juridique, SaaS Corp." },
+]
+
+const FAQS = [
+  { q: "Comment se déroule une première consultation ?", a: "Consultation initiale de 45 minutes (250 € HT). Analyse de votre dossier, premier avis juridique et présentation de notre proposition d'honoraires." },
+  { q: "Quels sont vos modes de facturation ?", a: "Honoraires au taux horaire (250–450 € HT/h selon l'avocat), forfait pour les actes standards, ou abonnement mensuel pour les entreprises en besoin récurrent." },
+  { q: "Intervenez-vous en dehors de Paris et Lyon ?", a: "Oui, France entière. Présence physique à Paris (8e) et Lyon (2e). Audiences devant toutes les juridictions françaises." },
+  { q: "Proposez-vous un abonnement pour les entreprises ?", a: "Oui — formule Conseil Permanent : accès illimité aux avis juridiques, revue mensuelle des contrats, alerte légale mensuelle. À partir de 1 500 € HT/mois." },
+  { q: "Quel délai pour obtenir un avis juridique ?", a: "Avis express sous 48h (majoration 30%). Avis standard sous 5 jours ouvrés. Urgences traitées le jour même sur accord préalable." },
+]
+
+const PLANS = [
+  { name: "Ponctuel", price: "Taux horaire", note: "250–450 € HT/h", features: ["Consultation initiale 45 min", "Rédaction d'actes à l'acte", "Représentation en justice", "Avis juridiques circonstanciés"] },
+  { name: "Conseil Permanent", price: "À partir de 1 500 €", note: "HT / mois", features: ["Avis juridiques illimités", "Revue mensuelle des contrats", "Veille légale et alertes", "Interlocuteur dédié", "Tarif préférentiel contentieux"], highlight: true },
+  { name: "Sur Mesure", price: "Forfait", note: "à définir ensemble", features: ["Due diligence M&A", "Projets complexes multi-phases", "Équipe dédiée", "Reporting régulier dirigeants"] },
+]
+
+export default function Page() {
+  const [activePractice, setActivePractice] = useState(0)
+  const [openFaq, setOpenFaq] = useState<number | null>(null)
+  const { scrollY } = useScroll()
+
+  const heroTitleY = useTransform(scrollY, [0, 500], [0, -50])
+
+  const assocRef = useRef(null)
+  const pricingRef = useRef(null)
+  const assocInView = useInView(assocRef, { once: true, margin: "-100px" })
+  const pricingInView = useInView(pricingRef, { once: true, margin: "-100px" })
+
+  const C = {
+    bg: "#0f0e0c",
+    cream: "#f0ece4",
+    gold: "#c4a96a",
+    goldDim: "#8a7245",
+    text: "#e8e4dc",
+    muted: "#6b6454",
+    card: "#141210",
+    border: "#1f1c18",
+    serif: "'Cormorant Garamond', 'Garamond', Georgia, serif",
+    sans: "system-ui, -apple-system, sans-serif",
   }
-]
-
-const PLASMA_METRICS = [
-  { label: "Core Temp", value: "152.4M°C", trend: "Stable" },
-  { label: "Magnetic Flux", value: "12.4 Tesla", trend: "Optimal" },
-  { label: "Energy Output", value: "1.4 GW", trend: "High" },
-  { label: "Tritium Ratio", value: "0.98", trend: "Constant" }
-]
-
-const REACTOR_LOGS = [
-  { timestamp: "00:14:42", unit: "Confinement-Grid", status: "LOCKED", power: "98.4%" },
-  { timestamp: "00:14:45", unit: "Helium-Exhaust", status: "NOMINAL", rate: "4.2 mg/s" },
-  { timestamp: "00:14:48", unit: "Laser-Bank", status: "READY", charge: "100%" }
-]
-
-/* ==========================================
-   TECHNICAL COMPONENTS
-   ========================================== */
-
-function Reveal({ children, delay = 0, y = 40, x = 0 }: { children: React.ReactNode, delay?: number, y?: number, x?: number }) {
-  const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, margin: "-100px" })
-  return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, y, x }}
-      animate={isInView ? { opacity: 1, y: 0, x: 0 } : {}}
-      transition={{ duration: 1.2, delay, ease: [0.16, 1, 0.3, 1] }}
-    >
-      {children}
-    </motion.div>
-  )
-}
-
-function PlasmaVisualizer() {
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
-  useEffect(() => {
-    const handleMouse = (e: MouseEvent) => setMousePos({ x: e.clientX, y: e.clientY })
-    window.addEventListener("mousemove", handleMouse)
-    return () => window.removeEventListener("mousemove", handleMouse)
-  }, [])
 
   return (
-    <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden opacity-10">
-       <svg width="100%" height="100%" className="w-full h-full">
-          {[...Array(15)].map((_, i) => (
-            <motion.path 
-               key={i}
-               d={`M ${100 + i * 50} 0 Q ${200 + i * 100} 400 ${100 + i * 50} 800`}
-               stroke="orange" 
-               strokeWidth="0.5" 
-               fill="none"
-               animate={{ d: `M ${100 + i * 50} 0 Q ${mousePos.x + (i * 20)} ${mousePos.y} ${100 + i * 50} 800` }}
-               transition={{ type: "spring", damping: 20, stiffness: 40 }}
-            />
+    <div style={{ background: C.bg, color: C.text, fontFamily: C.sans, overflowX: "hidden" }}>
+      {/* NAV */}
+      <nav style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 100, background: "rgba(15,14,12,0.97)", borderBottom: `1px solid ${C.border}`, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 60px", height: 64 }}>
+        <div>
+          <div style={{ fontFamily: C.serif, fontSize: 17, letterSpacing: 2, color: C.gold, fontStyle: "italic" }}>Legrand & Associés</div>
+          <div style={{ fontSize: 9, letterSpacing: 4, color: C.muted, textTransform: "uppercase" }}>Avocats · Paris · Lyon</div>
+        </div>
+        <div style={{ display: "flex", gap: 36, alignItems: "center" }}>
+          {["Expertises", "Équipe", "Honoraires", "Contact"].map(l => (
+            <a key={l} href="#" style={{ fontSize: 11, color: C.muted, letterSpacing: 3, textTransform: "uppercase", textDecoration: "none", transition: "color 0.2s" }}
+              onMouseEnter={e => (e.currentTarget.style.color = C.gold)}
+              onMouseLeave={e => (e.currentTarget.style.color = C.muted)}>
+              {l}
+            </a>
           ))}
-       </svg>
-    </div>
-  )
-}
+          <motion.button whileHover={{ background: C.gold, color: C.bg }} whileTap={{ scale: 0.97 }}
+            style={{ padding: "10px 24px", background: "transparent", color: C.gold, border: `1px solid ${C.gold}`, fontSize: 11, letterSpacing: 2, textTransform: "uppercase", cursor: "pointer", transition: "all 0.2s", fontFamily: C.sans }}>
+            Consultation
+          </motion.button>
+        </div>
+      </nav>
 
-function FusionModel({ progress }: { progress: any }) {
-  const rotate = useTransform(progress, [0, 1], [0, 360])
-  const scale = useTransform(progress, [0, 0.5, 1], [1, 1.2, 1])
-
-  return (
-    <motion.div style={{ rotate, scale }} className="relative w-80 h-80 flex items-center justify-center">
-       <div className="absolute inset-0 border border-orange-500/10 rounded-full animate-spin-slow shadow-[0_0_80px_rgba(249,115,22,0.05)]" />
-       <Sun className="w-40 h-40 text-orange-500/10 animate-pulse" />
-       <div className="absolute inset-8 border border-orange-500/5 rounded-full" />
-    </motion.div>
-  )
-}
-
-/* ==========================================
-   THE SOLAR FLARE - MAIN INTERFACE
-   ========================================== */
-
-export default function SolarFlarePremium() {
-  const [activeReactor, setActiveReactor] = useState(0)
-  const [isPlasmaLocked, setIsPlasmaLocked] = useState(true)
-  const containerRef = useRef(null)
-  const { scrollYProgress } = useScroll({ target: containerRef })
-
-  // Fusion Scroll Effects
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.2], [1, 0])
-  const textX = useTransform(scrollYProgress, [0, 0.5], [0, 100])
-
-  return (
-    <div ref={containerRef} className="bg-[#050402] text-[#e5e0dc] font-mono selection:bg-orange-500/30 selection:text-white min-h-screen overflow-x-hidden transition-colors duration-1000">
-      
-      {/* GLOBAL HUD OVERLAY */}
-      <HUD_Overlay isPlasmaLocked={isPlasmaLocked} />
-
-      <main>
-        {/* ==========================================
-            1. PLASMA IGNITION (HERO)
-            ========================================== */}
-        <section className="relative h-screen flex flex-col justify-center items-center px-8 md:px-24 overflow-hidden pt-20">
-          <PlasmaVisualizer />
-          <motion.div style={{ opacity: heroOpacity }} className="absolute z-0 pointer-events-none flex items-center justify-center">
-             <FusionModel progress={scrollYProgress} />
+      {/* HERO — full width, left-heavy editorial */}
+      <section style={{ minHeight: "100vh", paddingTop: 64, display: "grid", gridTemplateColumns: "3fr 2fr" }}>
+        <motion.div style={{ y: heroTitleY, padding: "100px 80px", display: "flex", flexDirection: "column", justifyContent: "flex-end", borderRight: `1px solid ${C.border}` }}>
+          <motion.div initial={{ opacity: 0, y: 60 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1, ease: "easeOut" }}>
+            <div style={{ fontFamily: C.serif, fontSize: 11, letterSpacing: 6, color: C.gold, textTransform: "uppercase", marginBottom: 48 }}>
+              Fondé en 1997 · Barreau de Paris
+            </div>
+            <h1 style={{ fontFamily: C.serif, fontSize: "clamp(60px, 9vw, 140px)", fontWeight: 400, letterSpacing: "-2px", lineHeight: 0.92, color: C.cream, fontStyle: "italic", marginBottom: 56 }}>
+              La loi<br />
+              comme<br />
+              <span style={{ color: C.gold }}>bouclier.</span>
+            </h1>
+            <div style={{ display: "flex", gap: 48, alignItems: "center" }}>
+              <motion.button whileHover={{ background: C.cream, color: C.bg }} whileTap={{ scale: 0.97 }}
+                style={{ padding: "18px 48px", background: C.gold, color: C.bg, border: "none", fontSize: 12, letterSpacing: 2, textTransform: "uppercase", cursor: "pointer", fontFamily: C.sans, fontWeight: 600, transition: "all 0.25s" }}>
+                Prendre rendez-vous
+              </motion.button>
+              <div style={{ fontFamily: C.serif, fontSize: 14, color: C.muted, fontStyle: "italic" }}>
+                Première consultation · 250 € HT
+              </div>
+            </div>
           </motion.div>
+        </motion.div>
 
-          <div className="relative z-10 text-center max-w-7xl">
-             <Reveal>
-                <div className="inline-flex items-center gap-4 px-6 py-2 border border-orange-500/30 bg-orange-500/5 text-[10px] font-black uppercase tracking-[0.5em] text-orange-500 mb-12 italic">
-                   <Flame className="w-4 h-4" /> Fusion_Link: NOMINAL // Core_Temp: 152.4M°C
-                </div>
-                <motion.h1 style={{ x: textX }} className="text-7xl md:text-[14vw] font-black tracking-tighter uppercase mb-16 leading-[0.75] italic">
-                   Solar <br/> <span className="text-white/5 italic">Flare.</span>
-                </motion.h1>
-                <p className="max-w-3xl mx-auto text-sm md:text-lg text-white/30 leading-relaxed uppercase tracking-widest font-light mb-16 italic">
-                   La maîtrise de l'énergie stellaire pour un futur durable. Nous concevons les réacteurs à fusion les plus avancés au monde pour alimenter l'humanité sans carbone.
-                </p>
-                
-                <div className="flex flex-col sm:flex-row gap-8 justify-center items-center">
-                   <button className="px-12 py-6 bg-orange-700 text-white text-[10px] font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all shadow-[0_0_40px_rgba(249,115,22,0.2)] flex items-center gap-4 italic">
-                      <Power className="w-5 h-5" /> Ignite Reactor
-                   </button>
-                   <button className="px-12 py-6 border border-white/10 text-white text-[10px] font-black uppercase tracking-widest hover:bg-white/5 transition-all flex items-center gap-4 italic">
-                      <Archive className="w-5 h-5" /> Reactor Registry
-                   </button>
-                </div>
-             </Reveal>
+        {/* Right column — vertical list */}
+        <div style={{ padding: "100px 60px", display: "flex", flexDirection: "column", justifyContent: "flex-end", gap: 40 }}>
+          {[
+            { val: "28", label: "années d'exercice" },
+            { val: "1 400+", label: "dossiers traités" },
+            { val: "94%", label: "taux de succès contentieux" },
+          ].map((s, i) => (
+            <motion.div key={i} initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.5 + i * 0.15 }}
+              style={{ borderLeft: `2px solid ${C.gold}`, paddingLeft: 28 }}>
+              <div style={{ fontFamily: C.serif, fontSize: 52, fontStyle: "italic", color: C.gold, lineHeight: 1 }}>{s.val}</div>
+              <div style={{ fontSize: 12, color: C.muted, letterSpacing: 2, textTransform: "uppercase", marginTop: 6 }}>{s.label}</div>
+            </motion.div>
+          ))}
+          <div style={{ width: "100%", height: 1, background: C.border, marginTop: 20 }} />
+          <div style={{ fontFamily: C.serif, fontSize: 14, color: C.muted, fontStyle: "italic", lineHeight: 1.7 }}>
+            "La précision du droit est notre première obligation envers le client."<br />
+            — Maître Henri Legrand
           </div>
+        </div>
+      </section>
 
-          <div className="absolute bottom-12 left-12 right-12 flex justify-between items-end border-t border-white/5 pt-12">
-             <div className="flex flex-col gap-6">
-                <div className="flex items-center gap-4 text-[9px] font-bold text-white/20 uppercase tracking-widest italic">
-                   <div className="w-16 h-px bg-white/10" />
-                   Station_ID: FLARE-HUB-42
-                </div>
-                <div className="flex items-center gap-4 text-[9px] font-bold text-white/20 uppercase tracking-widest italic">
-                   <div className="w-16 h-px bg-white/10" />
-                   Output_Status: HIGH_STABILITY
-                </div>
-             </div>
-             <div className="text-right flex flex-col items-end gap-4">
-                <span className="text-[8px] font-black uppercase tracking-[0.5em] text-orange-500">Magnetic_Flux_Stream</span>
-                <div className="flex gap-2 h-12 items-end">
-                   {[...Array(16)].map((_, i) => (
-                     <motion.div 
-                        key={i}
-                        animate={{ height: ["10%", "100%", "30%", "80%", "10%"] }}
-                        transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.1 }}
-                        className="w-2 bg-orange-500/20"
-                     />
-                   ))}
-                </div>
-             </div>
+      {/* PRACTICES */}
+      <section style={{ borderTop: `1px solid ${C.border}` }}>
+        <div style={{ padding: "80px 60px 0", display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 48 }}>
+          <h2 style={{ fontFamily: C.serif, fontSize: "clamp(36px, 4vw, 56px)", fontStyle: "italic", fontWeight: 400, color: C.cream }}>Domaines d'expertise</h2>
+          <span style={{ fontSize: 11, color: C.muted, letterSpacing: 3, textTransform: "uppercase" }}>4 pôles</span>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "280px 1fr" }}>
+          <div style={{ borderRight: `1px solid ${C.border}` }}>
+            {PRACTICES.map((p, i) => (
+              <button key={i} onClick={() => setActivePractice(i)}
+                style={{ width: "100%", display: "flex", alignItems: "center", gap: 20, padding: "28px 40px", background: activePractice === i ? C.card : "transparent", borderBottom: `1px solid ${C.border}`, borderLeft: activePractice === i ? `3px solid ${C.gold}` : "3px solid transparent", cursor: "pointer", textAlign: "left", transition: "all 0.2s", border: "none" }}>
+                <span style={{ fontFamily: C.serif, fontSize: 18, fontStyle: "italic", color: C.gold, minWidth: 20 }}>{p.num}</span>
+                <span style={{ fontSize: 14, color: activePractice === i ? C.cream : C.muted, fontWeight: activePractice === i ? 600 : 400, transition: "color 0.2s" }}>{p.name}</span>
+              </button>
+            ))}
           </div>
-        </section>
-
-        {/* ==========================================
-            2. REACTOR REGISTRY (DENSE TECHNICAL)
-            ========================================== */}
-        <section className="py-60 bg-[#0a0806] relative border-y border-white/5 overflow-hidden">
-           <div className="max-w-[1600px] mx-auto px-8 md:px-24">
-              <div className="flex flex-col md:flex-row items-end justify-between mb-40 gap-12">
-                 <Reveal>
-                    <span className="text-[10px] font-black uppercase tracking-[0.6em] text-orange-500 block mb-6 italic underline underline-offset-8 decoration-orange-500/20">Fusion // Engineering</span>
-                    <h2 className="text-6xl md:text-[10vw] font-black uppercase tracking-tighter italic leading-none text-white">Registry.</h2>
-                 </Reveal>
-                 <div className="text-right">
-                    <span className="text-[10px] font-black uppercase tracking-[0.5em] text-white/20 block mb-4 italic">Registry // Energy_Audit</span>
-                    <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-orange-500">L'Architecture du Plasma</p>
-                 </div>
+          <AnimatePresence mode="wait">
+            <motion.div key={activePractice} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }}
+              style={{ padding: "60px 80px" }}>
+              <div style={{ fontFamily: C.serif, fontSize: 11, letterSpacing: 5, color: C.gold, textTransform: "uppercase", marginBottom: 20 }}>Pôle {PRACTICES[activePractice].num}</div>
+              <h3 style={{ fontFamily: C.serif, fontSize: "clamp(32px, 4vw, 52px)", fontStyle: "italic", fontWeight: 400, color: C.cream, marginBottom: 24, letterSpacing: -1 }}>{PRACTICES[activePractice].name}</h3>
+              <p style={{ fontSize: 16, color: C.muted, lineHeight: 1.85, marginBottom: 40, maxWidth: 560 }}>{PRACTICES[activePractice].desc}</p>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginBottom: 48 }}>
+                {PRACTICES[activePractice].scope.map(s => (
+                  <span key={s} style={{ padding: "6px 16px", border: `1px solid ${C.gold}40`, fontSize: 12, color: C.gold, letterSpacing: 1 }}>{s}</span>
+                ))}
               </div>
+              <motion.button whileHover={{ background: C.gold, color: C.bg }} whileTap={{ scale: 0.97 }}
+                style={{ padding: "14px 32px", background: "transparent", color: C.gold, border: `1px solid ${C.gold}`, fontSize: 11, letterSpacing: 3, textTransform: "uppercase", cursor: "pointer", transition: "all 0.2s", fontFamily: C.sans }}>
+                Consulter un avocat →
+              </motion.button>
+            </motion.div>
+          </AnimatePresence>
+        </div>
+      </section>
 
-              <div className="grid md:grid-cols-3 gap-px bg-white/5 border border-white/5 shadow-2xl">
-                 {FUSION_REACTORS.map((reactor, i) => (
-                   <Reveal key={reactor.id} delay={i * 0.1}>
-                      <div className="bg-[#050402] p-20 flex flex-col h-full hover:bg-white/[0.02] transition-all group cursor-crosshair border-white/5 border-r last:border-r-0">
-                         <div className="flex justify-between items-start mb-16">
-                            <div className="w-16 h-16 bg-white/5 border border-white/10 flex items-center justify-center group-hover:bg-orange-700 group-hover:text-white transition-all duration-500">
-                               <Atom className="w-8 h-8" />
-                            </div>
-                            <span className={`px-4 py-2 bg-white/5 text-[9px] font-black uppercase tracking-[0.3em] ${reactor.status === "Online" ? "text-orange-500" : "text-white/40"}`}>{reactor.status}</span>
-                         </div>
-                         
-                         <h3 className="text-4xl font-black uppercase tracking-tighter mb-8 italic text-white group-hover:translate-x-4 transition-transform">{reactor.name}</h3>
-                         <div className="text-[10px] font-black text-white/20 uppercase tracking-[0.5em] mb-12">{reactor.type}</div>
-                         
-                         <div className="space-y-8 mb-20 border-l border-orange-500/20 pl-8">
-                            <div className="flex justify-between items-center text-[11px] font-bold uppercase tracking-widest">
-                               <span className="text-white/20">Temperature</span>
-                               <span className="text-white group-hover:text-orange-400 transition-colors">{reactor.temp}</span>
-                            </div>
-                            <div className="flex justify-between items-center text-[11px] font-bold uppercase tracking-widest">
-                               <span className="text-white/20">Efficiency</span>
-                               <span className="text-white group-hover:text-orange-400 transition-colors">{reactor.q_factor}</span>
-                            </div>
-                            <div className="flex justify-between items-center text-[11px] font-bold uppercase tracking-widest">
-                               <span className="text-white/20">Stability</span>
-                               <span className="text-white group-hover:text-orange-400 transition-colors">{reactor.stability}</span>
-                            </div>
-                         </div>
-
-                         <p className="text-[12px] text-white/30 leading-loose uppercase tracking-[0.2em] font-bold italic mb-16">
-                            {reactor.desc}
-                         </p>
-
-                         <div className="mt-auto pt-10 border-t border-white/5 flex justify-between items-center">
-                            <span className="text-[10px] font-black text-white/10 uppercase tracking-widest">Ref: {reactor.id}</span>
-                            <button className="text-[10px] font-black uppercase text-white/40 flex items-center gap-4 group-hover:text-white transition-all">
-                               Technical_Specs <ChevronRight className="w-5 h-5" />
-                            </button>
-                         </div>
-                      </div>
-                   </Reveal>
-                 ))}
+      {/* ASSOCIATES */}
+      <section ref={assocRef} style={{ padding: "80px 60px", borderTop: `1px solid ${C.border}` }}>
+        <h2 style={{ fontFamily: C.serif, fontSize: "clamp(36px, 4vw, 56px)", fontStyle: "italic", fontWeight: 400, color: C.cream, marginBottom: 56 }}>L'équipe.</h2>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 2 }}>
+          {ASSOCIATES.map((a, i) => (
+            <motion.div key={i} initial={{ opacity: 0, y: 30 }} animate={assocInView ? { opacity: 1, y: 0 } : {}} transition={{ delay: i * 0.15 }}
+              style={{ border: `1px solid ${C.border}`, padding: "48px 40px", position: "relative" }}>
+              <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: C.gold, opacity: 0.4 }} />
+              <div style={{ width: 56, height: 56, background: C.card, border: `1px solid ${C.gold}40`, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: C.serif, fontSize: 20, fontStyle: "italic", color: C.gold, marginBottom: 28 }}>
+                {a.name.split(" ").filter(w => w.length > 2).slice(0, 2).map(w => w[0]).join("")}
               </div>
-           </div>
-        </section>
-
-        {/* ==========================================
-            3. PLASMA MONITOR (INTERACTIVE DATA)
-            ========================================== */}
-        <section className="py-60 bg-black relative border-y border-white/5 overflow-hidden">
-           <div className="max-w-[1400px] mx-auto px-8 md:px-24">
-              <div className="grid lg:grid-cols-2 gap-40 items-center">
-                 <div>
-                    <Reveal>
-                       <span className="text-[10px] font-black uppercase tracking-[0.5em] text-orange-500 block mb-12 italic underline underline-offset-8 decoration-orange-500/20">Plasma // Performance</span>
-                       <h2 className="text-7xl md:text-[9vw] font-light italic leading-none text-white mb-16 uppercase tracking-tighter">
-                          The <br/> <span className="not-italic font-black text-white/5 italic">Confinement_Link.</span>
-                       </h2>
-                       <p className="text-2xl font-light text-white/20 leading-relaxed mb-24 italic uppercase tracking-[0.2em] max-w-xl">
-                          Surveillance magnétique en temps réel. Nos capteurs analysent la stabilité du plasma et ajustent les courants de bobines pour garantir un confinement parfait à 150 millions de degrés.
-                       </p>
-                       <div className="grid grid-cols-2 gap-px bg-white/5 border border-white/5 mb-24 shadow-2xl">
-                          {PLASMA_METRICS.map((metric, i) => (
-                            <div key={i} className="p-16 bg-[#0a0806] group hover:bg-white/[0.02] transition-all border-r border-b last:border-r-0 border-white/5">
-                               <div className="text-[10px] font-black uppercase text-orange-500 mb-6 tracking-[0.4em]">{metric.label}</div>
-                               <div className="text-5xl font-black text-white italic mb-6 tracking-tighter group-hover:translate-x-4 transition-transform">{metric.value}</div>
-                               <div className="flex items-center gap-3 text-[9px] font-bold uppercase tracking-[0.3em] text-white/10 italic">
-                                  <Activity className="w-4 h-4 text-orange-500" /> {metric.trend}
-                               </div>
-                            </div>
-                          ))}
-                       </div>
-                       <button 
-                         onClick={() => setIsPlasmaLocked(!isPlasmaLocked)}
-                         className="w-full py-8 bg-orange-700 text-white text-[11px] font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all shadow-2xl flex items-center justify-center gap-6 italic"
-                       >
-                          <Settings className="w-5 h-5" /> Re-Sync Magnetic Nodes
-                       </button>
-                    </Reveal>
-                 </div>
-                 
-                 <div className="relative">
-                    <Reveal delay={0.3} x={40}>
-                       <div className="aspect-square bg-[#0a0806] border border-white/10 p-20 flex flex-col justify-between relative group overflow-hidden shadow-2xl">
-                          <div className="absolute top-0 right-0 p-80 bg-orange-500 opacity-[0.02] blur-[150px] rounded-full group-hover:opacity-[0.05] transition-opacity" />
-                          
-                          <div className="flex justify-between items-start z-10">
-                             <div className="flex flex-col gap-3">
-                                <span className="text-[10px] font-black text-white/10 uppercase tracking-[0.5em]">Fusion_Link // SYNC-v42</span>
-                                <span className="text-[12px] font-black text-white/40 uppercase tracking-[0.6em]">Magnetic_Flux_Map</span>
-                             </div>
-                             <Wifi className="w-6 h-6 text-orange-500" />
-                          </div>
-                          
-                          {/* PLASMA VISUALIZER (SVG) */}
-                          <div className="relative z-10 flex flex-col items-center justify-center h-full">
-                             <div className="w-64 h-64 border border-orange-400/5 rounded-full flex items-center justify-center relative">
-                                <motion.div 
-                                  animate={{ rotate: 360 }}
-                                  transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
-                                  className="absolute inset-0 border-t-2 border-orange-400/20 rounded-full" 
-                                />
-                                <motion.div 
-                                  animate={{ rotate: -360 }}
-                                  transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-                                  className="absolute inset-8 border-b-2 border-orange-400/10 rounded-full" 
-                                />
-                                <Magnet className={`w-24 h-24 transition-colors duration-1000 ${isPlasmaLocked ? "text-orange-400 animate-pulse" : "text-white/5"}`} />
-                             </div>
-                             <div className="mt-16 text-center space-y-6">
-                                <div className={`text-4xl font-black italic tracking-tighter ${isPlasmaLocked ? "text-white" : "text-white/20"}`}>
-                                   {isPlasmaLocked ? "FLUX_LOCKED" : "FLUX_WARNING"}
-                                </div>
-                                <span className="text-[11px] font-bold text-white/10 uppercase tracking-[0.6em] block">Auth_Node: CORE_HEAD_01</span>
-                             </div>
-                          </div>
-
-                          <div className="relative z-10 flex gap-6">
-                             <div className="flex-1 h-1 bg-white/5 overflow-hidden">
-                                <motion.div 
-                                   animate={isPlasmaLocked ? { x: ["-100%", "100%"] } : {}}
-                                   transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-                                   className="w-1/2 h-full bg-orange-600"
-                                />
-                             </div>
-                          </div>
-                       </div>
-                    </Reveal>
-                 </div>
+              <div style={{ fontFamily: C.serif, fontSize: 20, fontStyle: "italic", color: C.cream, marginBottom: 6 }}>{a.name}</div>
+              <div style={{ fontSize: 12, color: C.gold, letterSpacing: 1, marginBottom: 16 }}>{a.title}</div>
+              <div style={{ fontSize: 13, color: C.muted, lineHeight: 1.7 }}>
+                {a.bar} · {a.exp} d'exercice<br />{a.spec}
               </div>
-           </div>
-        </section>
+            </motion.div>
+          ))}
+        </div>
+      </section>
 
-        {/* ==========================================
-            4. ENERGY STORY (TECH STORYTELLING)
-            ========================================== */}
-        <section className="py-60 bg-[#050402] relative overflow-hidden border-t border-white/5">
-           <div className="max-w-[1400px] mx-auto px-8 md:px-24">
-              <div className="grid lg:grid-cols-2 gap-40 items-center">
-                 <div className="relative aspect-[3/4] overflow-hidden group border border-white/5 shadow-2xl">
-                    <Image 
-                       src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=1200&auto=format&fit=crop" 
-                       alt="Fusion Reactor" 
-                       fill 
-                       className="object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-[2000ms]"
-                    />
-                    <div className="absolute inset-0 bg-orange-900/10 mix-blend-color group-hover:opacity-0 transition-opacity" />
-                    <div className="absolute inset-0 p-20 flex flex-col justify-end bg-gradient-to-t from-black via-black/40 to-transparent">
-                       <div className="text-white">
-                          <span className="text-[11px] font-black uppercase tracking-[0.6em] text-orange-500 mb-8 block italic underline underline-offset-8 decoration-orange-500/20">Atelier // Purity // Unit</span>
-                          <h4 className="text-6xl font-black tracking-tighter uppercase italic mb-12 mix-blend-difference text-white">Solar <br/> Fabric.</h4>
-                          <button className="flex items-center gap-6 text-[11px] font-black uppercase tracking-[0.4em] border-b border-white/20 pb-4 hover:border-orange-400 transition-all group">
-                             Reactor Protocols <ExternalLink className="w-5 h-5 group-hover:translate-x-2 group-hover:-translate-y-2 transition-transform" />
-                          </button>
-                       </div>
-                    </div>
-                 </div>
+      {/* TESTIMONIALS */}
+      <section style={{ padding: "80px 60px", borderTop: `1px solid ${C.border}`, background: "#0a0908" }}>
+        <h2 style={{ fontFamily: C.serif, fontSize: "clamp(36px, 4vw, 56px)", fontStyle: "italic", fontWeight: 400, color: C.cream, textAlign: "center", marginBottom: 64 }}>Ils nous font confiance.</h2>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 40, maxWidth: 1280, margin: "0 auto" }}>
+          {TESTIMONIALS.map((t, i) => (
+            <motion.div key={i} initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.15 }}>
+              <div style={{ fontFamily: C.serif, fontSize: 48, color: C.gold, lineHeight: 0.8, marginBottom: 24, fontStyle: "italic" }}>"</div>
+              <p style={{ fontFamily: C.serif, fontSize: 17, fontStyle: "italic", color: "rgba(232,228,220,0.7)", lineHeight: 1.8, marginBottom: 28 }}>{t.quote}</p>
+              <div style={{ width: 32, height: 1, background: C.gold, marginBottom: 16 }} />
+              <div style={{ fontSize: 12, color: C.muted, letterSpacing: 1 }}>{t.name}<br /><span style={{ color: C.goldDim }}>{t.role}</span></div>
+            </motion.div>
+          ))}
+        </div>
+      </section>
 
-                 <div>
-                    <Reveal>
-                       <div className="mb-24 text-left">
-                          <span className="text-[10px] font-black uppercase tracking-[0.5em] text-orange-400 mb-8 block italic">Chapitre III // Fusion</span>
-                          <h2 className="text-7xl md:text-[10vw] font-black tracking-tighter uppercase text-white italic leading-none text-white">Pure_Power.</h2>
-                       </div>
-                       <p className="text-2xl font-light text-white/20 leading-relaxed italic mb-20 uppercase tracking-[0.2em]">
-                          L'énergie du futur est celle des étoiles. Nous reproduisons les conditions extrêmes du cœur du soleil pour créer une source d'énergie infinie et propre.
-                       </p>
-                       <div className="space-y-20">
-                          {[
-                            { t: "Magnetic Confinement", d: "Utilisation de champs magnétiques ultra-puissants pour maintenir le plasma à distance des parois du réacteur." },
-                            { t: "Isotope Separation", d: "Extraction et purification du deutérium et du tritium pour alimenter le cycle de fusion continue." },
-                            { t: "Heat Exchange Unit", d: "Conversion de l'énergie cinétique des neutrons en chaleur pour alimenter les turbines à vapeur haute pression." }
-                          ].map((step, i) => (
-                            <div key={i} className="group flex gap-12 border-b border-white/5 pb-16 hover:border-orange-500/20 transition-all cursor-default">
-                               <div className="text-6xl font-black text-white/5 group-hover:text-orange-400/20 transition-colors italic leading-none">0{i+1}</div>
-                               <div>
-                                  <h5 className="text-3xl font-black uppercase tracking-tight text-white mb-6 italic group-hover:translate-x-4 transition-transform text-white">{step.t}</h5>
-                                  <p className="text-[12px] text-white/20 uppercase tracking-[0.3em] font-bold leading-loose italic">{step.d}</p>
-                               </div>
-                            </div>
-                          ))}
-                       </div>
-                    </Reveal>
-                 </div>
+      {/* PRICING */}
+      <section ref={pricingRef} style={{ borderTop: `1px solid ${C.border}` }}>
+        <div style={{ padding: "80px 60px 56px", display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
+          <h2 style={{ fontFamily: C.serif, fontSize: "clamp(36px, 4vw, 56px)", fontStyle: "italic", fontWeight: 400, color: C.cream }}>Honoraires</h2>
+          <div style={{ fontSize: 11, color: C.muted, letterSpacing: 3, textTransform: "uppercase" }}>Transparents & justifiés</div>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", borderTop: `1px solid ${C.border}` }}>
+          {PLANS.map((p, i) => (
+            <motion.div key={i} initial={{ opacity: 0, y: 30 }} animate={pricingInView ? { opacity: 1, y: 0 } : {}} transition={{ delay: i * 0.15 }}
+              style={{ borderRight: i < 2 ? `1px solid ${C.border}` : undefined, padding: "56px 48px", background: p.highlight ? "#141008" : "transparent", position: "relative" }}>
+              {p.highlight && <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: C.gold }} />}
+              <div style={{ fontSize: 10, letterSpacing: 4, color: p.highlight ? C.gold : C.muted, textTransform: "uppercase", marginBottom: 24 }}>{p.name}</div>
+              <div style={{ fontFamily: C.serif, fontSize: 36, fontStyle: "italic", color: C.cream, marginBottom: 4, lineHeight: 1 }}>{p.price}</div>
+              <div style={{ fontSize: 12, color: C.muted, marginBottom: 40 }}>{p.note}</div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 14, marginBottom: 44 }}>
+                {p.features.map((f, j) => (
+                  <div key={j} style={{ display: "flex", gap: 10, fontSize: 13, color: p.highlight ? "rgba(232,228,220,0.7)" : C.muted, alignItems: "flex-start" }}>
+                    <span style={{ color: C.gold, marginTop: 1 }}>—</span> {f}
+                  </div>
+                ))}
               </div>
-           </div>
-        </section>
+              <motion.button whileHover={{ background: C.gold, color: C.bg, borderColor: C.gold }} whileTap={{ scale: 0.97 }}
+                style={{ width: "100%", padding: "14px", background: "transparent", color: p.highlight ? C.gold : C.muted, border: `1px solid ${p.highlight ? C.gold : C.border}`, fontSize: 11, letterSpacing: 3, textTransform: "uppercase", cursor: "pointer", transition: "all 0.2s", fontFamily: C.sans }}>
+                Nous contacter
+              </motion.button>
+            </motion.div>
+          ))}
+        </div>
+      </section>
 
-        {/* MEGA FOOTER */}
-        <footer className="bg-black pt-60 pb-12 px-8 md:px-24 relative z-50">
-           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-32 mb-60 text-white">
-              <div className="lg:col-span-2">
-                 <div className="flex items-center gap-6 mb-16">
-                    <div className="w-16 h-16 bg-orange-700 flex items-center justify-center">
-                      <Zap className="w-10 h-10 text-white" />
-                    </div>
-                    <span className="text-4xl font-black uppercase tracking-tighter italic">SOLAR<span className="text-white/20">FLARE.</span></span>
-                 </div>
-                 <p className="text-white/20 text-[11px] font-black uppercase tracking-[0.5em] leading-loose max-w-sm mb-20 italic">
-                    "L'énergie des étoiles, à la portée de l'humanité." — Archive Solar V.42
-                 </p>
-                 <div className="flex gap-16">
-                    {["FusionLog", "ReactorRegistry", "GitHub", "X_Protocol"].map(s => (
-                      <Link key={s} href="#" className="text-[11px] font-black uppercase tracking-widest text-white/20 hover:text-orange-500 transition-colors italic underline underline-offset-8 decoration-white/5">{s}</Link>
-                    ))}
-                 </div>
-              </div>
-
-              {[
-                { t: "REACTORS", l: ["Tokamak Alpha-9", "Stellarator-Z", "Inertial Core X", "Hybrid Shield"] },
-                { t: "TECHNOLOGY", l: ["Magnetic Confinement", "Plasma Stability", "Heat Exchange", "SLA Reports"] },
-                { t: "ATELIER", l: ["Our Legacy", "Sustainability", "Locations", "Support"] }
-              ].map((col, i) => (
-                <div key={i} className="flex flex-col gap-12">
-                  <h4 className="text-[11px] font-black text-orange-500 uppercase tracking-[0.6em] italic">{col.t}</h4>
-                  <ul className="flex flex-col gap-8">
-                    {col.l.map(link => (
-                      <li key={link} className="text-[11px] font-bold text-white/20 hover:text-white transition-colors cursor-pointer uppercase tracking-[0.4em] italic">{link}</li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-           </div>
-
-           <div className="max-w-[1600px] mx-auto border-t border-white/5 pt-16 flex flex-col md:flex-row justify-between items-center gap-16 text-[10px] font-black text-white/10 uppercase tracking-[0.6em] italic">
-              <span>© 2026 SOLAR FLARE FUSION ENERGY AG. // ALL_RIGHTS_RESERVED</span>
-              <div className="flex gap-16">
-                 <span>STATUS: OPERATIONAL</span>
-                 <span>TEMP: 152.4M°C (AVG)</span>
-                 <span>v4.12.0-STABLE</span>
-              </div>
-           </div>
-        </footer>
-      </main>
-    </div>
-  )
-}
-
-/* ==========================================
-   TECHNICAL SUB-COMPONENTS
-   ========================================== */
-
-function HUD_Overlay({ isPlasmaLocked }: { isPlasmaLocked: boolean }) {
-  return (
-    <div className="fixed inset-0 pointer-events-none z-[100]">
-       {/* Corner Brackets */}
-       <div className={`absolute top-12 left-12 w-20 h-20 border-t-2 border-l-2 transition-colors duration-1000 ${isPlasmaLocked ? "border-orange-400" : "border-white/10"}`} />
-       <div className={`absolute top-12 right-12 w-20 h-20 border-t-2 border-r-2 transition-colors duration-1000 ${isPlasmaLocked ? "border-orange-400" : "border-white/10"}`} />
-       <div className={`absolute bottom-12 left-12 w-20 h-20 border-b-2 border-l-2 transition-colors duration-1000 ${isPlasmaLocked ? "border-orange-400" : "border-white/10"}`} />
-       <div className={`absolute bottom-12 right-12 w-20 h-20 border-b-2 border-r-2 transition-colors duration-1000 ${isPlasmaLocked ? "border-orange-400" : "border-white/10"}`} />
-
-       {/* Top Status Bar */}
-       <div className="absolute top-12 left-1/2 -translate-x-1/2 flex items-center gap-20 bg-black/60 backdrop-blur-2xl px-12 py-4 border border-white/10 rounded-none">
-          <div className="flex items-center gap-6 text-white">
-             <div className={`w-3 h-3 transition-colors duration-500 ${isPlasmaLocked ? "bg-orange-400 animate-pulse" : "bg-red-500 animate-ping"}`} />
-             <span className="text-[10px] font-black uppercase tracking-[0.4em] italic leading-none">Plasma_Sync: {isPlasmaLocked ? "NOMINAL" : "STABILITY_LOSS"} // Status: ACTIVE</span>
+      {/* FAQ */}
+      <section style={{ maxWidth: 800, margin: "0 auto", padding: "80px 60px", borderTop: `1px solid ${C.border}` }}>
+        <h2 style={{ fontFamily: C.serif, fontSize: 48, fontStyle: "italic", fontWeight: 400, color: C.cream, marginBottom: 48 }}>Questions.</h2>
+        {FAQS.map((f, i) => (
+          <div key={i} style={{ borderBottom: `1px solid ${C.border}` }}>
+            <button onClick={() => setOpenFaq(openFaq === i ? null : i)}
+              style={{ width: "100%", display: "flex", justifyContent: "space-between", alignItems: "center", padding: "24px 0", background: "none", border: "none", color: C.text, cursor: "pointer", textAlign: "left" }}>
+              <span style={{ fontFamily: C.serif, fontSize: 17, fontStyle: "italic", color: C.cream }}>{f.q}</span>
+              <motion.span animate={{ rotate: openFaq === i ? 45 : 0 }} style={{ fontSize: 22, color: C.gold, minWidth: 22 }}>+</motion.span>
+            </button>
+            <AnimatePresence>
+              {openFaq === i && (
+                <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }}>
+                  <p style={{ paddingBottom: 24, fontSize: 14, color: C.muted, lineHeight: 1.85 }}>{f.a}</p>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
-          <div className="h-4 w-px bg-white/20" />
-          <div className="flex items-center gap-6 text-white/20">
-             <Wifi className="w-4 h-4" /> 
-             <span className="text-[10px] font-black uppercase tracking-[0.4em] italic leading-none">Fusion_Grid: SECURE</span>
-          </div>
-       </div>
+        ))}
+      </section>
 
-       {/* Right Rotation Info */}
-       <div className="absolute right-12 top-1/2 -translate-y-1/2 rotate-90 origin-right hidden lg:block">
-          <span className="text-[10px] font-black uppercase tracking-[0.8em] text-white/5 italic">Unauthorized_Duplication_Of_Fusion_Patterns_Is_Strictly_Monitored_By_Global_Energy_Alliance</span>
-       </div>
+      {/* CTA */}
+      <section style={{ background: "#0a0908", borderTop: `1px solid ${C.border}`, display: "grid", gridTemplateColumns: "1fr 1fr" }}>
+        <div style={{ borderRight: `1px solid ${C.border}`, padding: "80px 80px" }}>
+          <h2 style={{ fontFamily: C.serif, fontSize: "clamp(40px, 6vw, 80px)", fontStyle: "italic", fontWeight: 300, color: C.cream, lineHeight: 1.05, marginBottom: 32 }}>
+            Votre dossier<br />mérite les<br /><span style={{ color: C.gold }}>meilleurs.</span>
+          </h2>
+          <div style={{ fontSize: 13, color: C.muted, lineHeight: 1.8 }}>Cabinet Legrand & Associés<br />12 rue du Faubourg Saint-Honoré, Paris 8e<br />+33 1 XX XX XX XX</div>
+        </div>
+        <div style={{ padding: "80px 60px", display: "flex", flexDirection: "column", justifyContent: "center", gap: 16 }}>
+          {[{ ph: "Nom & Prénom", type: "text" }, { ph: "Email professionnel", type: "email" }, { ph: "Société / Organisation", type: "text" }].map((inp, i) => (
+            <input key={i} placeholder={inp.ph} type={inp.type}
+              style={{ padding: "16px 20px", background: C.card, border: `1px solid ${C.border}`, color: C.text, fontFamily: C.sans, fontSize: 14, outline: "none", transition: "border-color 0.2s" }}
+              onFocus={e => (e.currentTarget.style.borderColor = C.gold)}
+              onBlur={e => (e.currentTarget.style.borderColor = C.border)} />
+          ))}
+          <textarea placeholder="Décrivez brièvement votre situation juridique…" rows={4}
+            style={{ padding: "16px 20px", background: C.card, border: `1px solid ${C.border}`, color: C.text, fontFamily: C.sans, fontSize: 14, outline: "none", resize: "none", transition: "border-color 0.2s" }}
+            onFocus={e => (e.currentTarget.style.borderColor = C.gold)}
+            onBlur={e => (e.currentTarget.style.borderColor = C.border)} />
+          <motion.button whileHover={{ background: C.cream, color: C.bg, borderColor: C.cream }} whileTap={{ scale: 0.97 }}
+            style={{ padding: "16px", background: C.gold, color: C.bg, border: `1px solid ${C.gold}`, fontSize: 12, letterSpacing: 3, textTransform: "uppercase", cursor: "pointer", transition: "all 0.2s", fontFamily: C.sans, fontWeight: 700 }}>
+            Demander une consultation
+          </motion.button>
+          <div style={{ fontSize: 11, color: C.muted, textAlign: "center" }}>Première consultation · 250 € HT · Réponse sous 24h</div>
+        </div>
+      </section>
+
+      {/* FOOTER */}
+      <footer style={{ padding: "36px 60px", borderTop: `1px solid ${C.border}`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div style={{ fontFamily: C.serif, fontSize: 15, fontStyle: "italic", color: C.goldDim }}>Legrand & Associés</div>
+        <div style={{ fontSize: 11, color: C.muted, letterSpacing: 2 }}>© 2025 · Barreaux de Paris et Lyon · Mentions légales · RGPD</div>
+      </footer>
     </div>
   )
 }
