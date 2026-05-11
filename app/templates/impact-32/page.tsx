@@ -1,452 +1,812 @@
 "use client";
 
+import { useRef, useState, useEffect } from "react";
 import { motion, useScroll, useTransform, useInView, AnimatePresence } from "framer-motion";
-import { useState, useRef, useEffect, Suspense } from "react";
-import Image from "next/image";
-import { ArrowUpRight, Menu, X, Layers, ShieldCheck, Plus, Play, ArrowRight, ChevronDown, Monitor, LayoutGrid, Zap, Flame, Droplet, Wind, Coffee, UtensilsCrossed, Sparkles, Command, Settings, Eye, Activity, Box } from "lucide-react";
-import "../premium.css";
+import Link from "next/link";
+import {
+  Star,
+  Phone,
+  Mail,
+  MapPin,
+  Clock,
+  ChevronDown,
+  ChevronRight,
+  CheckCircle,
+  Calendar,
+  Menu,
+  X,
+  Users,
+  Heart,
+  Shield,
+  Award,
+  Stethoscope,
+  Syringe,
+} from "lucide-react";
 
-// ─── DATA ──────────────────────────────────────────────────────────────────
+// ─── Design Tokens ─────────────────────────────────────────────────────────────
+const C = {
+  bg: "#fafffe",
+  bgLight: "#d8f3dc",
+  bgSection: "#f2fbf5",
+  text: "#1a3a2a",
+  textMuted: "#4a7060",
+  accent: "#2d6a4f",
+  accentLight: "#d8f3dc",
+  accentDark: "#1e4d38",
+  sand: "#f4a261",
+  sandLight: "#fef3e8",
+  white: "#FFFFFF",
+  border: "#b7d9c4",
+  shadow: "0 4px 24px rgba(45,106,79,0.09)",
+  shadowLg: "0 12px 48px rgba(45,106,79,0.16)",
+};
 
-const DISH_MANIFESTS = [
-  { 
-    id: "CUL_01",
-    title: "CARBON_VOID", 
-    category: "Signature Study",
-    temperature: "v94_KELVIN",
-    img: "https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=1200&q=80",
-    desc: "A high-fidelity minimalist study of carbonized textures within culinary objects. Zero-latency flavor synthesis."
-  },
-  { 
-    id: "CUL_02",
-    title: "NEURAL_FLUX", 
-    category: "Molecular Synthesis",
-    temperature: "v31_CELSIUS",
-    img: "https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=1200&q=80",
-    desc: "Planetary-scale distributed ingredients orchestrated through neural weight synthesis. High-fidelity caloric routing."
-  },
-  { 
-    id: "CUL_03",
-    title: "VOID_MEMBRANE", 
-    category: "Experimental Shell",
-    temperature: "v90_CRYOGENIC",
-    img: "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=1200&q=80",
-    desc: "A zero-latency culinary engine built for the real-time synthesis of non-standard flavor objects through radical heat injection."
-  }
-];
+const FONT = "'Nunito', system-ui, sans-serif";
 
-const METRICS = [
-  { label: "Extraction", val: "99.9%", desc: "Absolute architectural synchronization across all distributed culinary edge nodes." },
-  { label: "Throughput", val: "12 KG/s", desc: "Sustainable ingredient delivery through our dedicated high-fidelity prep backbone." },
-  { label: "Reliability", val: "IMMUNE", desc: "Zero-leak culinary logic verified through continuous adversarial stress-testing." }
-];
-
-const CAPABILITIES = [
-  { icon: Flame, title: "Heat Forge", desc: "Engineering thermal volumes through a lens of mathematical and structural purity." },
-  { icon: UtensilsCrossed, title: "Culinary Logic", desc: "Scaling taste interactions through distributed kitchen orchestration and logic synthesis." },
-  { icon: Activity, title: "Pulse Sync", desc: "Synchronizing plating spikes with real-time biological demand cycles for absolute sync." },
-  { icon: Box, title: "Immune Plate", desc: "Leveraging heavy archival ceramic fabrication for ultra-high fidelity culinary protection." }
-];
-
-// ─── COMPONENTS ──────────────────────────────────────────────────────────────
-
-function Reveal({ children, className = "", delay = 0, y = 30 }: { children: React.ReactNode; className?: string; delay?: number; y?: number }) {
-  const ref = useRef(null);
-  const inView = useInView(ref, { once: true, margin: "-100px" });
+// ─── Animated Paw SVG ─────────────────────────────────────────────────────────
+function AnimatedPaw() {
   return (
     <motion.div
-      ref={ref}
-      initial={{ opacity: 0, y }}
-      animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 1, delay, ease: [0.23, 1, 0.32, 1] }}
-      className={className}
+      style={{ position: "relative", width: 380, height: 400, display: "flex", alignItems: "center", justifyContent: "center" }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.6 }}
     >
-      {children}
+      {/* Glow */}
+      <motion.div
+        style={{
+          position: "absolute",
+          width: 300,
+          height: 300,
+          borderRadius: "50%",
+          background: `radial-gradient(circle, ${C.accentLight} 0%, transparent 70%)`,
+        }}
+        animate={{ scale: [1, 1.15, 1], opacity: [0.7, 1, 0.7] }}
+        transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
+      />
+
+      {/* Bouncing paw SVG */}
+      <motion.svg
+        viewBox="0 0 200 200"
+        width={230}
+        height={230}
+        style={{ position: "relative", zIndex: 1 }}
+        initial={{ y: -80, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.9, type: "spring", stiffness: 120, damping: 10 }}
+      >
+        {/* Main pad */}
+        <motion.ellipse
+          cx="100" cy="130"
+          rx="42" ry="38"
+          fill={C.accent}
+          animate={{ scale: [1, 1.03, 1] }}
+          transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
+        />
+        {/* Toe pads */}
+        <motion.circle cx="60" cy="82" r="22" fill={C.accent}
+          animate={{ y: [0, -4, 0] }} transition={{ duration: 2.5, repeat: Infinity, delay: 0.1 }} />
+        <motion.circle cx="100" cy="68" r="24" fill={C.accent}
+          animate={{ y: [0, -6, 0] }} transition={{ duration: 2.5, repeat: Infinity, delay: 0.25 }} />
+        <motion.circle cx="140" cy="82" r="22" fill={C.accent}
+          animate={{ y: [0, -4, 0] }} transition={{ duration: 2.5, repeat: Infinity, delay: 0.15 }} />
+        {/* Heart inside main pad */}
+        <motion.path
+          d="M100 115 C100 115, 86 100, 86 90 C86 84, 91 79, 100 88 C109 79, 114 84, 114 90 C114 100, 100 115, 100 115 Z"
+          fill="rgba(255,255,255,0.85)"
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ delay: 0.8, duration: 0.5, type: "spring" }}
+        />
+      </motion.svg>
+
+      {/* Floating badges */}
+      <motion.div
+        style={{
+          position: "absolute", top: 24, right: 8,
+          background: C.sand, color: C.white,
+          borderRadius: 12, padding: "7px 15px",
+          fontSize: 13, fontWeight: 800, fontFamily: FONT,
+          boxShadow: "0 4px 16px rgba(244,162,97,0.4)", zIndex: 2,
+        }}
+        initial={{ opacity: 0, x: 20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 1.4, duration: 0.5 }}
+      >
+        Urgences 24h/7j
+      </motion.div>
+      <motion.div
+        style={{
+          position: "absolute", bottom: 36, left: 0,
+          background: C.white, border: `1px solid ${C.border}`,
+          borderRadius: 12, padding: "9px 17px",
+          fontSize: 13, fontWeight: 700, fontFamily: FONT,
+          color: C.text, boxShadow: C.shadow, zIndex: 2,
+        }}
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 1.6, duration: 0.5 }}
+      >
+        ⭐ 4.8 / 5 — 2 400+ avis
+      </motion.div>
     </motion.div>
   );
 }
 
-// ─── MAIN SPA ────────────────────────────────────────────────────────────────
+// ─── Pet Species Tabs ──────────────────────────────────────────────────────────
+function PetTabs() {
+  const [active, setActive] = useState(0);
+  const ref = useRef<HTMLDivElement>(null);
+  const isInView = useInView(ref, { once: true, margin: "-60px" });
 
-export default function AeviaKitchenSPA() {
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [activeDish, setActiveDish] = useState(0);
-  const { scrollY } = useScroll();
-  
-  const heroOpacity = useTransform(scrollY, [0, 400], [1, 0]);
-  const heroScale = useTransform(scrollY, [0, 800], [1, 1.05]);
-  const smokeBlur = useTransform(scrollY, [0, 600], [0, 10]);
+  const species = [
+    {
+      label: "Chiens",
+      emoji: "🐕",
+      services: ["Vaccination annuelle", "Stérilisation", "Bilan santé senior", "Traitement antiparasitaire", "Chirurgie douce", "Dentisterie vétérinaire"],
+    },
+    {
+      label: "Chats",
+      emoji: "🐈",
+      services: ["Primo-vaccination", "Identification puce", "Castration / Stérilisation", "Traitement leucose FIV", "Soins dermatologiques", "Gestion diabète félin"],
+    },
+    {
+      label: "Exotiques",
+      emoji: "🐇",
+      services: ["Lapins & rongeurs", "Oiseaux & reptiles", "Poissons & tortues", "Examen complet", "Chirurgie spécialisée", "Alimentation conseils"],
+    },
+  ];
 
   return (
-    <div className="min-h-screen bg-[#0a0a0c] text-[#eee] font-mono selection:bg-[#eee] selection:text-black">
-      
-      {/* ── CULINARY OVERLAY ── */}
-      <div className="fixed inset-0 z-[9999] pointer-events-none opacity-[0.08] bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
-      <div className="fixed inset-0 z-[0] opacity-10 pointer-events-none overflow-hidden">
-        <div className="absolute inset-0" style={{ backgroundImage: "linear-gradient(rgba(212,175,55,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(212,175,55,0.1) 1px, transparent 1px)", backgroundSize: "60px 60px" }} />
-      </div>
-
-      {/* ── NAVIGATION ── */}
-      <motion.nav 
-        initial={{ y: -100 }}
-        animate={{ y: 0 }}
-        className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-8 md:px-16 py-10 mix-blend-difference"
+    <div ref={ref} style={{ fontFamily: FONT }}>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={isInView ? { opacity: 1, y: 0 } : {}}
+        style={{ display: "flex", gap: 12, justifyContent: "center", marginBottom: 40 }}
       >
-        <div className="flex items-center gap-4">
-          <UtensilsCrossed className="w-10 h-10 text-white" />
-          <span className="text-2xl font-black tracking-tighter uppercase italic text-white">AEVIA<span className="text-white/30">//</span>KITCHEN</span>
-        </div>
-        
-        <div className="hidden lg:flex items-center gap-16 text-[10px] font-bold uppercase tracking-[0.4em] text-white/40">
-          {["Manifest", "Reserve", "Logic", "Journal"].map(item => (
-            <a key={item} href={`#${item.toLowerCase()}`} className="hover:text-white transition-colors">/{item}</a>
+        {species.map((s, i) => (
+          <motion.button
+            key={s.label}
+            onClick={() => setActive(i)}
+            style={{
+              background: active === i ? C.accent : C.white,
+              color: active === i ? C.white : C.text,
+              border: `2px solid ${active === i ? C.accent : C.border}`,
+              borderRadius: 30,
+              padding: "10px 24px",
+              fontWeight: 700,
+              fontSize: 15,
+              cursor: "pointer",
+              fontFamily: FONT,
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              transition: "all 0.2s",
+            }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.97 }}
+          >
+            <span style={{ fontSize: 18 }}>{s.emoji}</span>
+            {s.label}
+          </motion.button>
+        ))}
+      </motion.div>
+
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={active}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          transition={{ duration: 0.3 }}
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+            gap: 14,
+            maxWidth: 800,
+            margin: "0 auto",
+          }}
+        >
+          {species[active].services.map((service) => (
+            <div
+              key={service}
+              style={{
+                background: C.white,
+                borderRadius: 12,
+                padding: "16px 20px",
+                border: `1px solid ${C.border}`,
+                display: "flex",
+                alignItems: "center",
+                gap: 10,
+                boxShadow: C.shadow,
+              }}
+            >
+              <CheckCircle size={16} color={C.accent} />
+              <span style={{ fontSize: 14, fontWeight: 600, color: C.text }}>{service}</span>
+            </div>
           ))}
+        </motion.div>
+      </AnimatePresence>
+    </div>
+  );
+}
+
+// ─── Navbar ───────────────────────────────────────────────────────────────────
+function Navbar() {
+  const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  useEffect(() => {
+    const handler = () => setScrolled(window.scrollY > 40);
+    window.addEventListener("scroll", handler);
+    return () => window.removeEventListener("scroll", handler);
+  }, []);
+
+  const links = ["Accueil", "Services", "Équipe", "Tarifs", "Contact"];
+
+  return (
+    <>
+      <motion.nav
+        style={{
+          position: "fixed", top: 0, left: 0, right: 0, zIndex: 100,
+          padding: "0 48px", height: 72,
+          display: "flex", alignItems: "center", justifyContent: "space-between",
+          background: scrolled ? "rgba(250,255,254,0.97)" : "transparent",
+          backdropFilter: scrolled ? "blur(12px)" : "none",
+          borderBottom: scrolled ? `1px solid ${C.border}` : "none",
+          boxShadow: scrolled ? C.shadow : "none",
+          transition: "all 0.3s ease", fontFamily: FONT,
+        }}
+      >
+        <motion.div style={{ display: "flex", alignItems: "center", gap: 10, cursor: "pointer" }} whileHover={{ scale: 1.03 }}>
+          <div style={{ width: 38, height: 38, background: C.accent, borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
+            🐾
+          </div>
+          <span style={{ fontWeight: 800, fontSize: 20, color: C.text, letterSpacing: -0.5 }}>
+            Paw<span style={{ color: C.accent }}>Care</span>
+          </span>
+        </motion.div>
+
+        <div style={{ display: "flex", gap: 32, alignItems: "center" }}>
+          {links.map((link) => (
+            <motion.a key={link} href="#" style={{ color: C.text, fontWeight: 600, fontSize: 15, textDecoration: "none" }} whileHover={{ color: C.accent }} transition={{ duration: 0.15 }}>
+              {link}
+            </motion.a>
+          ))}
+          <motion.button
+            style={{ background: C.accent, color: C.white, border: "none", borderRadius: 10, padding: "10px 22px", fontWeight: 800, fontSize: 15, cursor: "pointer", fontFamily: FONT }}
+            whileHover={{ background: C.accentDark, scale: 1.04 }}
+            whileTap={{ scale: 0.97 }}
+          >
+            Prendre RDV
+          </motion.button>
         </div>
 
-        <button 
-          onClick={() => setMenuOpen(true)}
-          className="px-6 py-2 border border-white/20 bg-white/5 backdrop-blur-md text-[10px] font-black uppercase tracking-widest hover:bg-white/20 transition-all text-white"
+        <motion.button
+          onClick={() => setMenuOpen(!menuOpen)}
+          style={{ display: "none", background: "none", border: "none", cursor: "pointer", color: C.text }}
         >
-          [INIT_RESERVATION]
-        </button>
+          {menuOpen ? <X size={24} /> : <Menu size={24} />}
+        </motion.button>
       </motion.nav>
 
-      {/* ── MOBILE MENU ── */}
       <AnimatePresence>
         {menuOpen && (
-          <motion.div 
-            initial={{ opacity: 0, x: "100%" }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: "100%" }}
-            transition={{ duration: 0.6, ease: [0.23, 1, 0.32, 1] }}
-            className="fixed inset-0 z-[60] bg-[#0a0a0c] text-[#eee] p-12 flex flex-col justify-between"
+          <motion.div
+            initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}
+            style={{ position: "fixed", top: 72, left: 0, right: 0, zIndex: 99, background: C.bg, padding: "24px 48px", borderBottom: `1px solid ${C.border}`, boxShadow: C.shadow, fontFamily: FONT }}
           >
-            <div className="flex justify-between items-center border-b border-white/10 pb-12">
-              <span className="text-xl font-black uppercase tracking-tighter italic">AEVIA//KITCHEN</span>
-              <button onClick={() => setMenuOpen(false)} className="w-12 h-12 flex items-center justify-center border border-white/20 rounded-full">
-                <X className="w-6 h-6" />
-              </button>
-            </div>
-            <div className="flex flex-col gap-10">
-              {["CULINARY_MANIFEST", "RESERVATION_ARCHIVE", "LOGIC_SHELL", "CORE_TOPOLOGY", "SECURE_AUTH"].map((item, i) => (
-                <motion.a 
-                  key={item}
-                  initial={{ opacity: 0, x: -50 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: i * 0.1 + 0.3 }}
-                  href="#"
-                  className="text-5xl md:text-8xl font-black uppercase italic tracking-tighter hover:text-white/40 transition-all leading-none"
-                  onClick={() => setMenuOpen(false)}
-                >
-                  {item}
-                </motion.a>
-              ))}
-            </div>
-            <div className="flex justify-between text-[10px] font-bold uppercase tracking-[0.5em] border-t border-white/10 pt-12 text-white/30">
-              <span>CORE_v9.4_STABLE</span>
-              <span>GLOBAL_SYNC // ACTIVE</span>
-            </div>
+            {links.map((link) => (
+              <a key={link} href="#" style={{ display: "block", padding: "12px 0", color: C.text, fontWeight: 600, textDecoration: "none", borderBottom: `1px solid ${C.border}` }}>{link}</a>
+            ))}
           </motion.div>
         )}
       </AnimatePresence>
+    </>
+  );
+}
 
-      {/* ── HERO SECTION ── */}
-      <section className="relative h-screen flex items-center justify-center overflow-hidden bg-black">
-        <motion.div 
-          style={{ opacity: heroOpacity, scale: heroScale }}
-          className="absolute inset-0 z-0"
+// ─── Hero ─────────────────────────────────────────────────────────────────────
+function Hero() {
+  const ref = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
+  const textY = useTransform(scrollYProgress, [0, 1], [0, -80]);
+  const textOpacity = useTransform(scrollYProgress, [0, 0.65], [1, 0]);
+
+  return (
+    <section
+      ref={ref}
+      style={{
+        minHeight: "100vh",
+        background: `linear-gradient(140deg, ${C.bg} 0%, ${C.accentLight} 100%)`,
+        display: "flex", alignItems: "center",
+        padding: "100px 80px 60px",
+        position: "relative", overflow: "hidden", fontFamily: FONT,
+      }}
+    >
+      {/* Bg deco */}
+      <div style={{ position: "absolute", top: -100, right: -100, width: 600, height: 600, borderRadius: "50%", background: `radial-gradient(circle, ${C.accentLight} 0%, transparent 68%)`, opacity: 0.5, pointerEvents: "none" }} />
+
+      {/* Left text */}
+      <motion.div style={{ flex: 1, maxWidth: 580, position: "relative", zIndex: 1, y: textY, opacity: textOpacity }}>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}
+          style={{ display: "inline-flex", alignItems: "center", gap: 8, background: C.white, border: `1px solid ${C.accent}`, borderRadius: 20, padding: "7px 16px", marginBottom: 24 }}
         >
-          <Image 
-            src="https://images.unsplash.com/photo-209977?w=1600&q=80" 
-            alt="Hero Culinary" 
-            fill 
-            className="object-cover grayscale brightness-50 contrast-125 opacity-20" 
-            unoptimized 
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#0a0a0c]" />
+          <Shield size={14} color={C.accent} />
+          <span style={{ color: C.accent, fontSize: 13, fontWeight: 700 }}>Clinique vétérinaire agréée CNOV</span>
         </motion.div>
 
-        <div className="relative z-10 text-center px-6">
-          <Reveal>
-             <div className="flex items-center justify-center gap-4 mb-12">
-               <span className="w-12 h-[1px] bg-white/20" />
-               <span className="text-[10px] font-bold uppercase tracking-[1.5em] text-white/40">Technical_Gastronomy_Laboratory</span>
-               <span className="w-12 h-[1px] bg-white/20" />
-             </div>
-          </Reveal>
-          <Reveal delay={0.2}>
-            <h1 className="text-8xl md:text-[16rem] font-black tracking-tighter leading-[0.75] uppercase italic text-white mb-20">
-              RAW <br/> <span className="not-italic text-white/10">AEVIA.</span>
-            </h1>
-          </Reveal>
-          <Reveal delay={0.4}>
-            <div className="max-w-2xl mx-auto flex flex-col items-center gap-16 border-t border-white/10 pt-20">
-              <p className="text-white/40 text-xl leading-relaxed font-light uppercase tracking-[0.2em] italic leading-loose text-center">
-                Engineering the ultimate culinary artifacts through distributed flavor orchestration. High-fidelity systems built for absolute structural precision and nutritional clarity.
-              </p>
-              <div className="flex gap-8">
-                <button className="px-16 py-6 bg-white text-black font-black uppercase text-xs tracking-[0.4em] hover:bg-black hover:text-white transition-all">
-                  Manifest_Access
-                </button>
-                <button className="px-16 py-6 border border-white/20 text-white font-black uppercase text-xs tracking-[0.4em] hover:bg-white/5 transition-colors">
-                  Atelier_Dossier
-                </button>
-              </div>
+        <motion.h1
+          initial={{ opacity: 0, y: 36 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.1 }}
+          style={{ fontSize: "clamp(36px, 4vw, 58px)", fontWeight: 800, color: C.text, lineHeight: 1.1, letterSpacing: -1.5, marginBottom: 24 }}
+        >
+          Vos animaux méritent{" "}
+          <span style={{ color: C.accent }}>le meilleur soin</span>
+        </motion.h1>
+
+        <motion.p
+          initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.2 }}
+          style={{ fontSize: 18, color: C.textMuted, lineHeight: 1.72, marginBottom: 36, maxWidth: 490 }}
+        >
+          PawCare Clinic, c'est une équipe de vétérinaires passionnés à Bordeaux, dédiée à la
+          santé et au bonheur de vos compagnons à poils, plumes ou écailles.
+        </motion.p>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.3 }}
+          style={{ display: "flex", gap: 14, flexWrap: "wrap", marginBottom: 48 }}
+        >
+          <motion.button
+            style={{ background: C.accent, color: C.white, border: "none", borderRadius: 10, padding: "16px 32px", fontWeight: 800, fontSize: 16, cursor: "pointer", display: "flex", alignItems: "center", gap: 8, fontFamily: FONT }}
+            whileHover={{ background: C.accentDark, scale: 1.04, y: -2 }}
+            whileTap={{ scale: 0.97 }}
+          >
+            <Calendar size={18} /> Prendre rendez-vous
+          </motion.button>
+          <motion.button
+            style={{ background: C.sandLight, color: C.sand, border: `2px solid ${C.sand}`, borderRadius: 10, padding: "14px 24px", fontWeight: 800, fontSize: 15, cursor: "pointer", display: "flex", alignItems: "center", gap: 8, fontFamily: FONT }}
+            whileHover={{ scale: 1.04 }}
+            whileTap={{ scale: 0.97 }}
+          >
+            <Phone size={16} /> Urgences 24h
+          </motion.button>
+        </motion.div>
+
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} style={{ display: "flex", gap: 36 }}>
+          {[{ value: "3 500+", label: "Animaux soignés" }, { value: "4.8★", label: "Note Google" }, { value: "20 ans", label: "D'expertise" }].map((s) => (
+            <div key={s.label}>
+              <div style={{ fontWeight: 900, fontSize: 22, color: C.text }}>{s.value}</div>
+              <div style={{ fontSize: 13, color: C.textMuted }}>{s.label}</div>
             </div>
-          </Reveal>
+          ))}
+        </motion.div>
+      </motion.div>
+
+      {/* Right: paw */}
+      <motion.div style={{ flex: 1, display: "flex", justifyContent: "center", alignItems: "center" }} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}>
+        <AnimatedPaw />
+      </motion.div>
+    </section>
+  );
+}
+
+// ─── Services ─────────────────────────────────────────────────────────────────
+const SERVICES = [
+  { icon: <Stethoscope size={26} color="#2d6a4f" />, title: "Consultations", desc: "Bilan de santé complet, suivi régulier et prévention pour votre animal.", tag: "Essentiel" },
+  { icon: <Syringe size={26} color="#2d6a4f" />, title: "Vaccinations", desc: "Protocoles vaccinaux adaptés à chaque espèce et mode de vie.", tag: "Prévention" },
+  { icon: <Shield size={26} color="#2d6a4f" />, title: "Chirurgie", desc: "Chirurgie douce avec anesthésie sécurisée et monitoring cardiaque.", tag: "Spécialisé" },
+  { icon: <Heart size={26} color="#2d6a4f" />, title: "Cardiologie", desc: "Échographie cardiaque et suivi des pathologies cardiovasculaires.", tag: "Expert" },
+  { icon: <Award size={26} color="#2d6a4f" />, title: "Dermatologie", desc: "Diagnostic et traitement des affections cutanées chroniques.", tag: "Spécialisé" },
+  { icon: <Users size={26} color="#2d6a4f" />, title: "Urgences 24h/7j", desc: "Équipe d'astreinte pour les urgences vitales, 24h/24, 7j/7.", tag: "Urgent", urgent: true },
+];
+
+function Services() {
+  const ref = useRef<HTMLElement>(null);
+  const isInView = useInView(ref, { once: true, margin: "-60px" });
+
+  return (
+    <section id="services" ref={ref} style={{ padding: "100px 80px", background: C.bgSection, fontFamily: FONT }}>
+      <motion.div initial={{ opacity: 0, y: 32 }} animate={isInView ? { opacity: 1, y: 0 } : {}} style={{ textAlign: "center", marginBottom: 60 }}>
+        <div style={{ display: "inline-block", background: C.accentLight, color: C.accent, borderRadius: 20, padding: "6px 18px", fontSize: 13, fontWeight: 700, marginBottom: 16, textTransform: "uppercase", letterSpacing: 0.8 }}>
+          Nos services
         </div>
+        <h2 style={{ fontSize: "clamp(28px, 3vw, 44px)", fontWeight: 800, color: C.text, letterSpacing: -1, marginBottom: 14 }}>
+          Des soins adaptés à chaque animal
+        </h2>
+        <p style={{ fontSize: 16, color: C.textMuted, maxWidth: 500, margin: "0 auto" }}>
+          Technologies de pointe, équipe bienveillante — pour que votre compagnon soit entre les meilleures mains.
+        </p>
+      </motion.div>
 
-        <div className="absolute bottom-12 left-12 right-12 flex justify-between items-end text-[10px] font-bold uppercase tracking-[0.5em] text-white/20">
-          <div className="flex flex-col gap-2">
-            <span>CULINARY_v9_SYNC</span>
-            <div className="w-48 h-[1px] bg-white/10" />
-          </div>
-          <div className="flex items-center gap-4 italic tracking-widest">
-             <div className="w-2 h-2 bg-white rounded-full animate-pulse" /> KITCHEN_STATUS: NOMINAL
-          </div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 24, maxWidth: 1100, margin: "0 auto 60px" }}>
+        {SERVICES.map((s, i) => (
+          <motion.div
+            key={s.title}
+            initial={{ opacity: 0, y: 44 }}
+            animate={isInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.5, delay: i * 0.08 }}
+            whileHover={{ y: -6, boxShadow: C.shadowLg }}
+            style={{
+              background: (s as any).urgent ? C.text : C.white,
+              borderRadius: 18,
+              padding: "28px 26px",
+              border: `1px solid ${(s as any).urgent ? C.text : C.border}`,
+              boxShadow: C.shadow,
+              position: "relative",
+            }}
+          >
+            <div style={{ position: "absolute", top: 16, right: 16, background: (s as any).urgent ? C.sand : C.accentLight, color: (s as any).urgent ? C.white : C.accent, borderRadius: 20, padding: "4px 12px", fontSize: 12, fontWeight: 700 }}>
+              {s.tag}
+            </div>
+            <div style={{ width: 52, height: 52, background: (s as any).urgent ? "rgba(255,255,255,0.12)" : C.accentLight, borderRadius: 14, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 18 }}>
+              {(s as any).urgent ? <Heart size={26} color="#fff" /> : s.icon}
+            </div>
+            <h3 style={{ fontSize: 19, fontWeight: 800, color: (s as any).urgent ? C.white : C.text, marginBottom: 10 }}>{s.title}</h3>
+            <p style={{ fontSize: 14, color: (s as any).urgent ? "rgba(255,255,255,0.7)" : C.textMuted, lineHeight: 1.65 }}>{s.desc}</p>
+          </motion.div>
+        ))}
+      </div>
+
+      {/* Pet species tabs */}
+      <motion.div initial={{ opacity: 0, y: 24 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ delay: 0.4 }}>
+        <h3 style={{ textAlign: "center", fontSize: 22, fontWeight: 800, color: C.text, marginBottom: 32 }}>
+          Soins par espèce
+        </h3>
+        <PetTabs />
+      </motion.div>
+    </section>
+  );
+}
+
+// ─── Stats ────────────────────────────────────────────────────────────────────
+function Stats() {
+  const ref = useRef<HTMLElement>(null);
+  const isInView = useInView(ref, { once: true, margin: "-60px" });
+  const stats = [
+    { value: "3 500+", label: "Animaux soignés / an", icon: "🐾" },
+    { value: "4.8/5", label: "Note Google Maps", icon: "⭐" },
+    { value: "20 ans", label: "D'expertise vétérinaire", icon: "🏆" },
+    { value: "24h/7j", label: "Service urgences", icon: "🚨" },
+  ];
+
+  return (
+    <section
+      ref={ref}
+      style={{ padding: "90px 80px", background: `linear-gradient(135deg, ${C.accent} 0%, ${C.accentDark} 100%)`, fontFamily: FONT }}
+    >
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 40, maxWidth: 960, margin: "0 auto" }}>
+        {stats.map((s, i) => (
+          <motion.div
+            key={s.label}
+            initial={{ opacity: 0, scale: 0.82 }}
+            animate={isInView ? { opacity: 1, scale: 1 } : {}}
+            transition={{ duration: 0.5, delay: i * 0.1 }}
+            style={{ textAlign: "center" }}
+          >
+            <div style={{ fontSize: 36, marginBottom: 12 }}>{s.icon}</div>
+            <div style={{ fontSize: "clamp(28px, 3vw, 42px)", fontWeight: 900, color: C.white, letterSpacing: -1, marginBottom: 8 }}>{s.value}</div>
+            <div style={{ color: "rgba(255,255,255,0.68)", fontSize: 15 }}>{s.label}</div>
+          </motion.div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+// ─── Team ─────────────────────────────────────────────────────────────────────
+const TEAM = [
+  { name: "Dr. Marie Fontaine", role: "Vétérinaire généraliste", specialty: "Chiens & chats, chirurgie douce", exp: "14 ans", initials: "MF", color: C.accent },
+  { name: "Dr. Pierre Leroy", role: "Vétérinaire spécialisé", specialty: "Cardiologie & imagerie médicale", exp: "10 ans", initials: "PL", color: "#4a7aa0" },
+  { name: "Dr. Nadia Sall", role: "Vétérinaire exotiques", specialty: "NAC — oiseaux, reptiles, rongeurs", exp: "8 ans", initials: "NS", color: "#7a5ea0" },
+];
+
+function Team() {
+  const ref = useRef<HTMLElement>(null);
+  const isInView = useInView(ref, { once: true, margin: "-60px" });
+
+  return (
+    <section id="team" ref={ref} style={{ padding: "100px 80px", background: C.bg, fontFamily: FONT }}>
+      <motion.div initial={{ opacity: 0, y: 32 }} animate={isInView ? { opacity: 1, y: 0 } : {}} style={{ textAlign: "center", marginBottom: 60 }}>
+        <div style={{ display: "inline-block", background: C.accentLight, color: C.accent, borderRadius: 20, padding: "6px 18px", fontSize: 13, fontWeight: 700, marginBottom: 16, textTransform: "uppercase", letterSpacing: 0.8 }}>
+          Notre équipe
         </div>
-      </section>
+        <h2 style={{ fontSize: "clamp(28px, 3vw, 44px)", fontWeight: 800, color: C.text, letterSpacing: -1 }}>
+          Des vétérinaires passionnés
+        </h2>
+      </motion.div>
 
-      {/* ── METRICS GRID ── */}
-      <section className="py-40 bg-[#0f0f12]">
-        <div className="max-w-[1600px] mx-auto px-8 md:px-16">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-px bg-white/5 border border-white/5">
-            {METRICS.map((s, i) => (
-              <Reveal key={s.label} delay={i * 0.1} className="bg-[#0a0a0c] p-24 group hover:bg-white/5 transition-colors">
-                <span className="text-[10px] font-bold uppercase tracking-[0.5em] text-white/30 mb-12 block group-hover:text-white/60">{s.label}</span>
-                <h3 className="text-7xl font-black italic text-white mb-8 group-hover:text-white transition-colors">{s.val}</h3>
-                <p className="text-xs text-white/30 font-light tracking-widest uppercase italic leading-loose">
-                  {s.desc}
-                </p>
-              </Reveal>
-            ))}
-          </div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 28, maxWidth: 960, margin: "0 auto" }}>
+        {TEAM.map((doc, i) => (
+          <motion.div
+            key={doc.name}
+            initial={{ opacity: 0, y: 44 }}
+            animate={isInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.55, delay: i * 0.12 }}
+            whileHover={{ y: -6, boxShadow: C.shadowLg }}
+            style={{ background: C.bgSection, borderRadius: 20, padding: 32, textAlign: "center", border: `1px solid ${C.border}`, boxShadow: C.shadow }}
+          >
+            <div style={{ width: 80, height: 80, borderRadius: "50%", background: doc.color, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px", fontSize: 24, fontWeight: 800, color: C.white, letterSpacing: 1 }}>
+              {doc.initials}
+            </div>
+            <h3 style={{ fontSize: 19, fontWeight: 800, color: C.text, marginBottom: 4 }}>{doc.name}</h3>
+            <div style={{ fontSize: 14, fontWeight: 700, color: doc.color, marginBottom: 8 }}>{doc.role}</div>
+            <p style={{ fontSize: 14, color: C.textMuted, marginBottom: 16, lineHeight: 1.55 }}>{doc.specialty}</p>
+            <div style={{ display: "inline-block", background: C.accentLight, borderRadius: 20, padding: "5px 14px", fontSize: 13, fontWeight: 700, color: C.accent }}>
+              {doc.exp} d'expérience
+            </div>
+          </motion.div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+// ─── Testimonials ─────────────────────────────────────────────────────────────
+const TESTIMONIALS = [
+  { name: "Julie & Max (Border Collie)", text: "L'équipe PawCare a sauvé la vie de Max lors d'une urgence nocturne. Réactivité exemplaire, soins impeccables. Nous ne changerons jamais de clinique.", stars: 5 },
+  { name: "Antoine & ses 2 chats", text: "Dr. Fontaine est une perle. Elle prend le temps d'expliquer chaque diagnostic, elle est douce avec les chats et toujours disponible pour répondre à nos questions.", stars: 5 },
+  { name: "Léa & Noisette (lapin)", text: "Difficile de trouver un vétérinaire pour les lapins. Dr. Sall est une vraie spécialiste NAC — Noisette est en parfaite santé grâce à elle !", stars: 5 },
+];
+
+function Testimonials() {
+  const ref = useRef<HTMLElement>(null);
+  const isInView = useInView(ref, { once: true, margin: "-60px" });
+
+  return (
+    <section ref={ref} style={{ padding: "100px 80px", background: C.bgSection, fontFamily: FONT }}>
+      <motion.div initial={{ opacity: 0, y: 32 }} animate={isInView ? { opacity: 1, y: 0 } : {}} style={{ textAlign: "center", marginBottom: 60 }}>
+        <div style={{ display: "inline-block", background: C.accentLight, color: C.accent, borderRadius: 20, padding: "6px 18px", fontSize: 13, fontWeight: 700, marginBottom: 16, textTransform: "uppercase", letterSpacing: 0.8 }}>
+          Témoignages
         </div>
-      </section>
+        <h2 style={{ fontSize: "clamp(28px, 3vw, 44px)", fontWeight: 800, color: C.text, letterSpacing: -1 }}>
+          Des propriétaires heureux
+        </h2>
+      </motion.div>
 
-      {/* CULINARY SHOWCASE ── */}
-      <section className="py-40 bg-black relative overflow-hidden">
-        <div className="max-w-[1600px] mx-auto px-8 md:px-16">
-          <Reveal className="mb-32">
-             <div className="flex flex-col lg:flex-row justify-between items-end gap-12 border-b border-white/10 pb-12">
-               <h2 className="text-7xl md:text-[10rem] font-black italic tracking-tighter leading-[0.8] uppercase text-white">
-                 Flavor <br/> <span className="text-white/20 not-italic">Archive.</span>
-               </h2>
-               <div className="text-right">
-                  <span className="text-[10px] font-bold uppercase tracking-[0.5em] text-white/30 mb-4 block italic">Manifest_Sequence_v9</span>
-                  <div className="flex gap-4">
-                    {DISH_MANIFESTS.map((_, i) => (
-                      <button 
-                        key={i} 
-                        onClick={() => setActiveDish(i)}
-                        className={`w-16 h-1 transition-all ${activeDish === i ? "bg-white w-32" : "bg-white/10"}`}
-                      />
-                    ))}
-                  </div>
-               </div>
-             </div>
-          </Reveal>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 24, maxWidth: 1000, margin: "0 auto" }}>
+        {TESTIMONIALS.map((t, i) => (
+          <motion.div
+            key={t.name}
+            initial={{ opacity: 0, y: 40 }}
+            animate={isInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.5, delay: i * 0.12 }}
+            style={{ background: C.white, borderRadius: 18, padding: 28, border: `1px solid ${C.border}`, boxShadow: C.shadow }}
+          >
+            <div style={{ display: "flex", gap: 3, marginBottom: 14 }}>
+              {Array.from({ length: t.stars }).map((_, k) => (<Star key={k} size={14} color="#f59e0b" fill="#f59e0b" />))}
+            </div>
+            <p style={{ fontSize: 15, color: C.text, lineHeight: 1.7, marginBottom: 18, fontStyle: "italic" }}>"{t.text}"</p>
+            <div style={{ fontWeight: 800, fontSize: 14, color: C.accent }}>— {t.name}</div>
+          </motion.div>
+        ))}
+      </div>
+    </section>
+  );
+}
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-24 items-center">
-            <div className="lg:col-span-8 relative aspect-video rounded-sm overflow-hidden border border-white/5 group bg-[#080808]">
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={activeDish}
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  transition={{ duration: 0.8, ease: [0.23, 1, 0.32, 1] }}
-                  className="absolute inset-0"
-                >
-                  <Image src={DISH_MANIFESTS[activeDish].img} alt={DISH_MANIFESTS[activeDish].title} fill className="object-cover grayscale contrast-125 opacity-40 group-hover:opacity-60 transition-opacity duration-1000" unoptimized />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-90" />
+// ─── Pricing ──────────────────────────────────────────────────────────────────
+const PLANS = [
+  {
+    name: "Basic Care",
+    price: "25",
+    period: "/ consultation",
+    desc: "Pour les soins courants et le suivi préventif.",
+    features: ["Consultation vétérinaire", "Déparasitage interne", "Conseils nutrition", "Carnet de santé digital", "Devis gratuit"],
+    cta: "Prendre RDV",
+    highlight: false,
+    emoji: "🐾",
+  },
+  {
+    name: "Complete Care",
+    price: "89",
+    period: "/ mois",
+    desc: "La formule tout-inclus pour un suivi serein.",
+    features: ["Consultations illimitées", "Vaccinations annuelles", "Bilan sanguin semestriel", "Détartrage dentaire", "Urgences prioritaires", "Application suivi santé"],
+    cta: "S'abonner",
+    highlight: true,
+    emoji: "⭐",
+  },
+  {
+    name: "Premium Care",
+    price: "149",
+    period: "/ mois",
+    desc: "Le meilleur pour les animaux qui méritent tout.",
+    features: ["Tout Complete Care", "Chirurgies incluses (hors implants)", "Suivi nutritionnel personnalisé", "Téléconsultation 7j/7", "Assurance accidents incluse", "Livraison médicaments"],
+    cta: "Choisir Premium",
+    highlight: false,
+    emoji: "💎",
+  },
+];
+
+function Pricing() {
+  const ref = useRef<HTMLElement>(null);
+  const isInView = useInView(ref, { once: true, margin: "-60px" });
+
+  return (
+    <section id="pricing" ref={ref} style={{ padding: "100px 80px", background: C.bg, fontFamily: FONT }}>
+      <motion.div initial={{ opacity: 0, y: 32 }} animate={isInView ? { opacity: 1, y: 0 } : {}} style={{ textAlign: "center", marginBottom: 60 }}>
+        <div style={{ display: "inline-block", background: C.accentLight, color: C.accent, borderRadius: 20, padding: "6px 18px", fontSize: 13, fontWeight: 700, marginBottom: 16, textTransform: "uppercase", letterSpacing: 0.8 }}>
+          Tarifs
+        </div>
+        <h2 style={{ fontSize: "clamp(28px, 3vw, 44px)", fontWeight: 800, color: C.text, letterSpacing: -1, marginBottom: 14 }}>
+          Plans de soins transparents
+        </h2>
+        <p style={{ color: C.textMuted, fontSize: 16 }}>Remboursement assurance animaux partenaires — Sans engagement</p>
+      </motion.div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 28, maxWidth: 980, margin: "0 auto", alignItems: "start" }}>
+        {PLANS.map((p, i) => (
+          <motion.div
+            key={p.name}
+            initial={{ opacity: 0, y: 44 }}
+            animate={isInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.55, delay: i * 0.1 }}
+            style={{
+              background: p.highlight ? C.text : C.bgSection,
+              borderRadius: 24, padding: "38px 32px",
+              border: p.highlight ? "none" : `1.5px solid ${C.border}`,
+              boxShadow: p.highlight ? C.shadowLg : C.shadow,
+              position: "relative", overflow: "hidden",
+            }}
+          >
+            {p.highlight && (
+              <>
+                <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 4, background: `linear-gradient(90deg, ${C.accent}, #52b788)` }} />
+                <div style={{ position: "absolute", top: 20, right: 20, background: C.accent, color: C.white, borderRadius: 20, padding: "4px 14px", fontSize: 12, fontWeight: 700 }}>
+                  Le plus choisi
+                </div>
+              </>
+            )}
+            <div style={{ fontSize: 28, marginBottom: 14 }}>{p.emoji}</div>
+            <h3 style={{ fontSize: 22, fontWeight: 800, color: p.highlight ? C.white : C.text, marginBottom: 8 }}>{p.name}</h3>
+            <p style={{ fontSize: 14, color: p.highlight ? "rgba(255,255,255,0.6)" : C.textMuted, marginBottom: 24, lineHeight: 1.55 }}>{p.desc}</p>
+            <div style={{ marginBottom: 28 }}>
+              <span style={{ fontSize: 42, fontWeight: 900, color: p.highlight ? C.white : C.text, letterSpacing: -1 }}>€{p.price}</span>
+              <span style={{ fontSize: 14, color: p.highlight ? "rgba(255,255,255,0.55)" : C.textMuted, marginLeft: 6 }}>{p.period}</span>
+            </div>
+            <ul style={{ listStyle: "none", padding: 0, margin: "0 0 28px", display: "flex", flexDirection: "column", gap: 11 }}>
+              {p.features.map((f) => (
+                <li key={f} style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <CheckCircle size={16} color={p.highlight ? C.sand : C.accent} />
+                  <span style={{ fontSize: 14, color: p.highlight ? "rgba(255,255,255,0.82)" : C.text }}>{f}</span>
+                </li>
+              ))}
+            </ul>
+            <motion.button
+              style={{ width: "100%", background: p.highlight ? C.accent : "transparent", color: p.highlight ? C.white : C.text, border: p.highlight ? "none" : `1.5px solid ${C.border}`, borderRadius: 10, padding: "14px", fontWeight: 800, fontSize: 15, cursor: "pointer", fontFamily: FONT }}
+              whileHover={{ background: p.highlight ? C.accentDark : C.accentLight, borderColor: C.accent, color: p.highlight ? C.white : C.accent, scale: 1.02 }}
+              whileTap={{ scale: 0.97 }}
+            >
+              {p.cta}
+            </motion.button>
+          </motion.div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+// ─── FAQ ──────────────────────────────────────────────────────────────────────
+const FAQS = [
+  { q: "Comment prendre rendez-vous en urgence ?", a: "Appelez directement notre ligne urgences au 05 56 78 90 12, disponible 24h/24 et 7j/7. Pour les urgences vitales, notre équipe d'astreinte intervient en moins de 30 minutes." },
+  { q: "Acceptez-vous les animaux exotiques (lapins, oiseaux, reptiles) ?", a: "Oui ! Dr. Nadia Sall est spécialisée NAC (Nouveaux Animaux de Compagnie). Elle reçoit lapins, cobayes, oiseaux, reptiles et poissons du lundi au vendredi sur rendez-vous." },
+  { q: "Travaillez-vous avec les assurances animaux ?", a: "Nous collaborons avec les principaux assureurs vétérinaires : Agria, Santévet, Assur O'Poil et April. Nous émettons les factures dans le format requis pour vos remboursements." },
+  { q: "Proposez-vous la téléconsultation ?", a: "Oui, la téléconsultation est disponible pour les abonnés Complete Care et Premium Care. Idéale pour les questions de suivi, l'interprétation de résultats ou les conseils comportementaux." },
+  { q: "Quelle est la durée d'une consultation standard ?", a: "Une consultation standard dure entre 20 et 30 minutes. Les consultations spécialisées (cardiologie, dermatologie) peuvent durer jusqu'à 45 minutes. Nous ne consultons jamais en flux tendu." },
+];
+
+function FAQ() {
+  const ref = useRef<HTMLElement>(null);
+  const isInView = useInView(ref, { once: true, margin: "-60px" });
+  const [open, setOpen] = useState<number | null>(null);
+
+  return (
+    <section ref={ref} style={{ padding: "100px 80px", background: C.bgSection, fontFamily: FONT }}>
+      <motion.div initial={{ opacity: 0, y: 32 }} animate={isInView ? { opacity: 1, y: 0 } : {}} style={{ textAlign: "center", marginBottom: 60 }}>
+        <div style={{ display: "inline-block", background: C.accentLight, color: C.accent, borderRadius: 20, padding: "6px 18px", fontSize: 13, fontWeight: 700, marginBottom: 16, textTransform: "uppercase", letterSpacing: 0.8 }}>
+          FAQ
+        </div>
+        <h2 style={{ fontSize: "clamp(28px, 3vw, 44px)", fontWeight: 800, color: C.text, letterSpacing: -1 }}>
+          Questions fréquentes
+        </h2>
+      </motion.div>
+
+      <div style={{ maxWidth: 720, margin: "0 auto", display: "flex", flexDirection: "column", gap: 12 }}>
+        {FAQS.map((faq, i) => (
+          <motion.div
+            key={i}
+            initial={{ opacity: 0, y: 18 }}
+            animate={isInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.4, delay: i * 0.08 }}
+            style={{ background: C.white, borderRadius: 14, border: `1px solid ${open === i ? C.accent : C.border}`, overflow: "hidden", transition: "border-color 0.2s" }}
+          >
+            <button
+              onClick={() => setOpen(open === i ? null : i)}
+              style={{ width: "100%", padding: "20px 24px", background: "none", border: "none", cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 16, textAlign: "left", fontFamily: FONT }}
+            >
+              <span style={{ fontWeight: 700, fontSize: 16, color: C.text, lineHeight: 1.4 }}>{faq.q}</span>
+              <motion.div animate={{ rotate: open === i ? 180 : 0 }} transition={{ duration: 0.25 }} style={{ flexShrink: 0 }}>
+                <ChevronDown size={20} color={open === i ? C.accent : C.textMuted} />
+              </motion.div>
+            </button>
+            <AnimatePresence initial={false}>
+              {open === i && (
+                <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.3 }} style={{ overflow: "hidden" }}>
+                  <div style={{ padding: "0 24px 22px", fontSize: 15, color: C.textMuted, lineHeight: 1.72 }}>{faq.a}</div>
                 </motion.div>
-              </AnimatePresence>
-              <div className="absolute bottom-12 left-12 flex flex-col gap-2">
-                 <span className="text-[10px] font-bold uppercase tracking-widest text-white/40">CORE_THERMAL</span>
-                 <span className="text-xl font-black text-white italic">{DISH_MANIFESTS[activeDish].temperature}</span>
-              </div>
-            </div>
+              )}
+            </AnimatePresence>
+          </motion.div>
+        ))}
+      </div>
+    </section>
+  );
+}
 
-            <div className="lg:col-span-4 space-y-12">
-               <motion.div
-                  key={activeDish}
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6 }}
-                  className="space-y-12"
-               >
-                 <span className="text-[10px] font-black uppercase tracking-[0.4em] text-white/40">{DISH_MANIFESTS[activeDish].id} // CUL_DATA</span>
-                 <h3 className="text-6xl font-black italic uppercase text-white tracking-tighter">{DISH_MANIFESTS[activeDish].title}</h3>
-                 <div className="space-y-6 border-y border-white/10 py-12">
-                    <div className="flex justify-between items-center">
-                       <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-white/30">Category</span>
-                       <span className="text-sm font-black text-white uppercase tracking-widest">{DISH_MANIFESTS[activeDish].category}</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                       <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-white/30">Culinary_Status</span>
-                       <span className="text-sm font-black text-white uppercase tracking-widest italic">STABLE_MICHELIN</span>
-                    </div>
-                 </div>
-                 <p className="text-white/30 text-lg font-light italic leading-loose uppercase tracking-wide">
-                   {DISH_MANIFESTS[activeDish].desc}
-                 </p>
-                 <button className="flex items-center gap-6 group">
-                    <span className="text-[10px] font-bold uppercase tracking-[0.8em] text-white">Access_Terminal</span>
-                    <div className="w-16 h-16 border border-white/10 rounded-full flex items-center justify-center group-hover:bg-white transition-all">
-                       <ArrowUpRight className="w-6 h-6 text-white group-hover:text-black" />
-                    </div>
-                 </button>
-               </motion.div>
-            </div>
+// ─── Footer ───────────────────────────────────────────────────────────────────
+function Footer() {
+  return (
+    <footer id="contact" style={{ background: C.text, color: C.white, padding: "70px 80px 32px", fontFamily: FONT }}>
+      <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr", gap: 48, marginBottom: 52 }}>
+        <div>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20 }}>
+            <div style={{ width: 38, height: 38, background: C.accent, borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>🐾</div>
+            <span style={{ fontWeight: 800, fontSize: 20 }}>PawCare Clinic</span>
           </div>
-        </div>
-      </section>
-
-      {/* ── CAPABILITIES ── */}
-      <section className="py-40 bg-[#0a0a0c] border-y border-white/10">
-        <div className="max-w-[1600px] mx-auto px-8 md:px-16">
-          <Reveal className="mb-32 text-center">
-             <span className="text-[10px] font-bold uppercase tracking-[1em] text-white/40 mb-8 block italic">Operational Scope</span>
-             <h2 className="text-7xl md:text-[10rem] font-black italic tracking-tighter leading-[0.8] uppercase text-white">
-                Technical <br/> <span className="text-white/20 not-italic">Expertise.</span>
-             </h2>
-          </Reveal>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {CAPABILITIES.map((item, i) => (
-              <Reveal key={item.title} delay={i * 0.1} className="bg-[#050508] border border-white/5 p-12 hover:border-white/20 transition-all group">
-                 <item.icon className="w-12 h-12 text-white/20 group-hover:text-white transition-colors mb-8" />
-                 <h3 className="text-2xl font-black italic uppercase text-white mb-6">{item.title}</h3>
-                 <p className="text-xs text-white/30 font-light tracking-widest uppercase italic leading-loose">
-                   {item.desc}
-                 </p>
-              </Reveal>
+          <p style={{ color: "rgba(255,255,255,0.58)", fontSize: 15, lineHeight: 1.65, marginBottom: 24 }}>
+            Clinique vétérinaire bienveillante à Bordeaux. Parce que votre animal mérite les mêmes soins d'excellence que vous.
+          </p>
+          <div style={{ display: "flex", flexDirection: "column", gap: 11 }}>
+            {[
+              { icon: <Phone size={15} />, text: "05 56 78 90 12" },
+              { icon: <Mail size={15} />, text: "contact@pawcare-bordeaux.fr" },
+              { icon: <MapPin size={15} />, text: "15 Cours de l'Intendance, 33000 Bordeaux" },
+              { icon: <Clock size={15} />, text: "Lun–Sam 8h–20h | Urgences 24h/7j" },
+            ].map((item, i) => (
+              <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, color: "rgba(255,255,255,0.62)", fontSize: 14 }}>
+                <span style={{ color: C.sand }}>{item.icon}</span>
+                {item.text}
+              </div>
             ))}
           </div>
         </div>
-      </section>
-
-      {/* ── KITCHEN INTERFACE ── */}
-      <section className="py-40 bg-black overflow-hidden">
-        <div className="max-w-[1600px] mx-auto px-8 md:px-16 grid grid-cols-1 lg:grid-cols-2 gap-32 items-center">
-          <Reveal>
-             <div className="relative aspect-square bg-[#080808] border border-white/10 p-12 flex flex-col justify-between overflow-hidden group">
-                <div className="absolute top-0 right-0 p-12">
-                   <Command className="w-16 h-16 text-white/5 group-hover:text-white/10 transition-colors" />
-                </div>
-                <div className="grid grid-cols-4 gap-4 flex-1">
-                   {Array(16).fill(null).map((_, i) => (
-                     <motion.div 
-                        key={i}
-                        whileHover={{ scale: 0.9, backgroundColor: "rgba(255,255,255,0.1)" }}
-                        className="border border-white/5 bg-white/5"
-                     />
-                   ))}
-                </div>
-                <div className="space-y-8 relative z-10 pt-12">
-                   <h3 className="text-5xl font-black italic uppercase text-white">Kitchen <br/> <span className="text-white/20 not-italic">Synthesis.</span></h3>
-                   <p className="text-white/30 text-lg leading-relaxed mb-12 font-light uppercase tracking-wide italic leading-loose">
-                     A unified shell environment for the high-fidelity orchestration of planetary-scale culinary enclaves. Built for those who monitor the systems.
-                   </p>
-                </div>
-             </div>
-          </Reveal>
-          <div className="space-y-24">
-             <Reveal delay={0.2}>
-                <span className="text-[10px] font-bold uppercase tracking-[1em] text-white/40 mb-8 block italic">Protocol_Sequence</span>
-                <h2 className="text-6xl md:text-8xl font-black italic tracking-tighter leading-none uppercase text-white">Culinary <br/> <span className="text-white/20 not-italic">Manifesto.</span></h2>
-             </Reveal>
-             <div className="space-y-12">
-                {[
-                  { n: "01", t: "Thermal Synapse", d: "Connecting disparate heat nodes into a unified reactive environment." },
-                  { n: "02", t: "Entropy Zero", d: "Aggressive reduction of system noise for absolute structural clarity." },
-                  { n: "03", t: "Fidelity Push", d: "Delivering high-fidelity visual and flavor outputs across all edge nodes." }
-                ].map((step, i) => (
-                  <Reveal key={step.n} delay={i * 0.1 + 0.3} className="flex gap-12 group border-l border-white/10 pl-8 hover:border-white transition-colors">
-                    <span className="text-4xl font-black italic text-white/10 group-hover:text-white transition-colors">{step.n}</span>
-                    <div>
-                      <h4 className="text-xl font-black uppercase italic text-white mb-2">{step.t}</h4>
-                      <p className="text-xs text-white/40 font-light tracking-widest uppercase italic leading-loose">{step.d}</p>
-                    </div>
-                  </Reveal>
-                ))}
-             </div>
+        {[
+          { title: "Services", links: ["Consultations", "Vaccinations", "Chirurgie", "Urgences", "Exotiques"] },
+          { title: "Clinique", links: ["Notre équipe", "Nos valeurs", "Tarifs", "Actualités"] },
+          { title: "Pratique", links: ["Rendez-vous", "Téléconsultation", "Accès", "Assurances"] },
+        ].map((col) => (
+          <div key={col.title}>
+            <h4 style={{ fontSize: 13, fontWeight: 700, marginBottom: 20, color: C.white, textTransform: "uppercase", letterSpacing: 0.8 }}>{col.title}</h4>
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              {col.links.map((link) => (<a key={link} href="#" style={{ color: "rgba(255,255,255,0.55)", fontSize: 14, textDecoration: "none" }}>{link}</a>))}
+            </div>
           </div>
+        ))}
+      </div>
+      <div style={{ borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: 24, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
+        <p style={{ color: "rgba(255,255,255,0.38)", fontSize: 14 }}>© 2025 PawCare Clinic. Tous droits réservés.</p>
+        <div style={{ display: "flex", gap: 20 }}>
+          {["Mentions légales", "Confidentialité", "RGPD"].map((link) => (<a key={link} href="#" style={{ color: "rgba(255,255,255,0.38)", fontSize: 13, textDecoration: "none" }}>{link}</a>))}
         </div>
-      </section>
+      </div>
+    </footer>
+  );
+}
 
-      {/* ── CTA / ACCESS ── */}
-      <section className="py-40 bg-[#0a0a0c] relative">
-         <div className="max-w-[1600px] mx-auto px-8 md:px-16">
-            <div className="bg-white text-black p-24 lg:p-40 relative overflow-hidden flex flex-col items-center text-center group">
-               <div className="absolute inset-0 opacity-10 grayscale brightness-50 group-hover:opacity-20 transition-opacity">
-                  <Image src="https://images.unsplash.com/photo-209977?w=1600&q=80" alt="CTA Culinary" fill className="object-cover" />
-               </div>
-               <Reveal>
-                  <span className="text-[10px] font-bold uppercase tracking-[1em] text-black/50 mb-12 block italic">Reservation_Required</span>
-                  <h2 className="text-7xl md:text-[12rem] font-black italic tracking-tighter leading-[0.8] uppercase mb-16">
-                     Initiate <br/> <span className="text-black/30 not-italic">The Table.</span>
-                  </h2>
-                  <div className="flex flex-wrap justify-center gap-12 relative z-10">
-                     <button className="px-20 py-8 bg-black text-white font-black uppercase text-sm tracking-[0.5em] hover:italic transition-all">
-                        Request_Access
-                     </button>
-                     <button className="px-20 py-8 border border-black/20 text-black font-black uppercase text-sm tracking-[0.5em] hover:bg-black/5 transition-all">
-                        Atelier_Dossier
-                     </button>
-                  </div>
-               </Reveal>
-            </div>
-         </div>
-      </section>
-
-      {/* ── FOOTER ── */}
-      <footer className="bg-black pt-40 pb-20 px-8 md:px-16 border-t border-white/10">
-         <div className="max-w-[1600px] mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-32 mb-40">
-            <div className="lg:col-span-6">
-               <div className="flex items-center gap-4 mb-12">
-                 <UtensilsCrossed className="w-10 h-10 text-white" />
-                 <span className="text-3xl font-black tracking-tighter uppercase italic text-white">AEVIA<span className="text-white/30">//</span>KITCHEN</span>
-               </div>
-               <p className="text-white/40 text-sm font-light leading-relaxed uppercase tracking-[0.3em] mb-12 italic max-w-md">
-                 Securing the future of culinary objects through high-fidelity orchestration and radical visual clarity.
-               </p>
-               <div className="flex gap-12">
-                 {["GITHUB", "TWITTER", "DISCORD", "LINKEDIN"].map(s => (
-                   <a key={s} href="#" className="text-[10px] font-bold hover:text-white text-white/30 transition-colors tracking-[0.5em]">[{s}]</a>
-                 ))}
-               </div>
-            </div>
-            
-            <div className="lg:col-span-2">
-               <h4 className="text-[10px] font-bold uppercase tracking-[0.5em] text-white/40 mb-12">Systems</h4>
-               <ul className="space-y-6 text-xs font-bold uppercase tracking-[0.4em]">
-                 {["Archives", "Telemetry", "Shell", "Journal"].map(item => (
-                   <li key={item}><a href="#" className="hover:text-white transition-colors">{item}</a></li>
-                 ))}
-               </ul>
-            </div>
-
-            <div className="lg:col-span-4">
-               <h4 className="text-[10px] font-bold uppercase tracking-[0.5em] text-white/40 mb-12">Support Inquiry</h4>
-               <p className="text-sm text-white/40 font-light mb-12 italic uppercase tracking-[0.2em] leading-loose">
-                 For high-priority enclaves, culinary integrations, or architectural consultations, contact our core command center.
-               </p>
-               <a href="mailto:ops@aevia-kitchen.io" className="text-3xl font-black italic hover:text-white transition-colors block border-b border-white/10 pb-8 uppercase tracking-tighter">
-                  ops@aevia-kitchen.io
-               </a>
-            </div>
-         </div>
-
-         <div className="max-w-[1600px] mx-auto flex flex-col md:row items-center justify-between gap-12 text-[9px] font-bold uppercase tracking-[0.8em] text-white/20 border-t border-white/5 pt-20">
-            <p>© 2024 AEVIA KITCHEN SYSTEMS. ALL RIGHTS RESERVED. GLOBAL // SYNC.</p>
-            <div className="flex gap-16">
-               <a href="#" className="hover:text-white transition-colors">[Culinary_Vault]</a>
-               <a href="#" className="hover:text-white transition-colors">[Terms_of_Service]</a>
-            </div>
-         </div>
-      </footer>
-    </div>
+// ─── Page Export ──────────────────────────────────────────────────────────────
+export default function Impact32() {
+  return (
+    <main style={{ background: C.bg, fontFamily: FONT, overflowX: "hidden" }}>
+      <Navbar />
+      <Hero />
+      <Services />
+      <Stats />
+      <Team />
+      <Testimonials />
+      <Pricing />
+      <FAQ />
+      <Footer />
+    </main>
   );
 }

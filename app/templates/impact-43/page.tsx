@@ -1,440 +1,336 @@
-"use client";
+"use client"
+import { motion, useScroll, useTransform, useInView, AnimatePresence } from "framer-motion"
+import { useRef, useState, useEffect } from "react"
+import Link from "next/link"
+import { Droplets, Wind, Leaf, Star, ChevronDown, ArrowRight, Clock, MapPin, Phone, CheckCircle, Heart, Sunrise, Moon, Sparkles, Users } from "lucide-react"
 
-import { motion, useScroll, useTransform, useInView, AnimatePresence } from "framer-motion";
-import { useState, useRef, useEffect, Suspense } from "react";
-import Image from "next/image";
-import { ArrowUpRight, Menu, X, Layers, ShieldCheck, Plus, Play, ArrowRight, ChevronDown, Monitor, LayoutGrid, Zap, Film, Eye, Maximize2, Minimize2, Box, Settings, Sparkles, Command, Activity, Ruler, Wind, Camera } from "lucide-react";
-import "../premium.css";
-
-// ─── DATA ──────────────────────────────────────────────────────────────────
-
-const SCENE_MANIFESTS = [
-  { 
-    id: "SCN_01",
-    title: "PARALLAX_VOID", 
-    category: "Anamorphic Study",
-    aspect: "v2.39_CINEMA",
-    img: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=1200&q=80",
-    desc: "A high-fidelity study of absolute cinematic volume within the spatial environment. Zero-latency visual synthesis."
-  },
-  { 
-    id: "SCN_02",
-    title: "NEURAL_STILL", 
-    category: "Tactile Frame",
-    aspect: "v1.85_FLAT",
-    img: "https://images.unsplash.com/photo-1478720568477-152d9b164e26?w=1200&q=80",
-    desc: "Planetary-scale distributed frames orchestrated through neural weight synthesis. High-fidelity narrative routing."
-  },
-  { 
-    id: "SCN_03",
-    title: "VOID_CAPTURE", 
-    category: "Spectral Scene",
-    aspect: "v1.33_ACADEMY",
-    img: "https://images.unsplash.com/photo-1501426026826-31c667bdf23d?w=1200&q=80",
-    desc: "A zero-latency capture engine built for the real-time synthesis of non-standard narrative artifacts through radical shutter injection."
-  }
-];
-
-const METRICS = [
-  { label: "Fidelity", val: "99.9%", desc: "Absolute architectural synchronization across all distributed cinematic edge nodes." },
-  { label: "Throughput", val: "12 EB/s", desc: "Sustainable visual delivery through our dedicated high-fidelity production backbone." },
-  { label: "Reliability", val: "IMMUNE", desc: "Zero-leak production logic verified through continuous adversarial stress-testing." }
-];
-
-const CAPABILITIES = [
-  { icon: Camera, title: "Optic Forge", desc: "Engineering film volumes through a lens of mathematical and structural purity." },
-  { icon: Eye, title: "Anamorphic Logic", desc: "Scaling viewer interactions through distributed focal orchestration and visual synthesis." },
-  { icon: Activity, title: "Pulse Sync", desc: "Synchronizing system spikes with real-time biological demand cycles for absolute sync." },
-  { icon: Box, title: "Production Shell", desc: "Leveraging heavy archival data fabrication for ultra-high fidelity film protection." }
-];
-
-// ─── COMPONENTS ──────────────────────────────────────────────────────────────
-
-function Reveal({ children, className = "", delay = 0, y = 30 }: { children: React.ReactNode; className?: string; delay?: number; y?: number }) {
-  const ref = useRef(null);
-  const inView = useInView(ref, { once: true, margin: "-100px" });
-  return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, y }}
-      animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 1, delay, ease: [0.23, 1, 0.32, 1] }}
-      className={className}
-    >
-      {children}
-    </motion.div>
-  );
+const C = {
+  bg: "#f5f3ee",
+  surface: "#ede9e0",
+  card: "#faf8f3",
+  dark: "#2d4a3e",
+  darkMid: "#3d5a4e",
+  gold: "#a8935a",
+  goldLight: "#c8b070",
+  sage: "#8aab8a",
+  text: "#1a2a22",
+  muted: "#5a7060",
+  subtle: "#8a9e90",
+  border: "#d4c8b0",
 }
 
-// ─── MAIN SPA ────────────────────────────────────────────────────────────────
+const TREATMENTS = [
+  { icon: Droplets, name: "Hammam Ritual", duration: "90 min", price: "€140", desc: "Ancient steam purification with black soap, kessa glove exfoliation, and ghassoul clay mask.", tag: "Bestseller" },
+  { icon: Wind, name: "Signature Massage", duration: "60 min", price: "€95", desc: "Swedish and deep tissue fusion tailored to your needs with warm essential oils.", tag: null },
+  { icon: Leaf, name: "Forest Bathing", duration: "120 min", price: "€185", desc: "Immersive botanical treatment with forest-harvested extracts and mindful breathwork.", tag: "Premium" },
+  { icon: Sparkles, name: "Gold Radiance Facial", duration: "75 min", price: "€165", desc: "24-karat gold leaf infusion with hyaluronic serum for luminous, lifted skin.", tag: "Luxury" },
+  { icon: Moon, name: "Evening Ceremony", duration: "180 min", price: "€240", desc: "Full moon ritual: thermal circuit, hot stone massage, and night-blooming jasmine wrap.", tag: "Signature" },
+  { icon: Sunrise, name: "Dawn Awakening", duration: "60 min", price: "€110", desc: "Sunrise meditation, invigorating cold plunge, and energizing citrus body polish.", tag: null },
+]
 
-export default function FilmUnitSPA() {
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [activeScn, setActiveScn] = useState(0);
-  const { scrollY } = useScroll();
-  
-  const heroOpacity = useTransform(scrollY, [0, 400], [1, 0]);
-  const heroScale = useTransform(scrollY, [0, 800], [1, 1.05]);
+const CIRCUIT_STEPS = [
+  { name: "Hammam", temp: "50°C", desc: "Open your pores in our traditional steam room" },
+  { name: "Thermal Pool", temp: "34°C", desc: "Drift in mineral-rich thermal waters" },
+  { name: "Cold Plunge", temp: "10°C", desc: "Invigorate circulation and close pores" },
+  { name: "Infrared Sauna", temp: "60°C", desc: "Deep tissue warmth and toxin release" },
+  { name: "Ice Fountain", temp: "5°C", desc: "Refresh and energise for the next phase" },
+  { name: "Rest Lounge", temp: "22°C", desc: "Restore in our aromatic relaxation room" },
+]
+
+const PACKAGES = [
+  { name: "Day Retreat", price: "€95", includes: ["Full thermal circuit (3h)", "Light lunch or tea", "Access to changing rooms", "Complimentary robe & slippers"], highlight: false },
+  { name: "Weekend Escape", price: "€285", includes: ["2-night accommodation", "Full thermal circuit daily", "1 signature treatment", "Breakfast included", "Evening apéritif"], highlight: true },
+  { name: "Week Renewal", price: "€990", includes: ["6-night accommodation", "Unlimited thermal access", "3 premium treatments", "Half-board dining", "Wellness consultation", "Yoga & meditation classes"], highlight: false },
+]
+
+const TESTIMONIALS = [
+  { name: "Isabelle Morel", location: "Paris", quote: "The most transformative 48 hours of my year. The Hammam Ritual alone was worth the journey.", rating: 5 },
+  { name: "David & Cécile R.", location: "Lyon", quote: "We come every anniversary. Serene Retreat is our sanctuary — the staff remembers our names and preferences.", rating: 5 },
+  { name: "Thomas Vernet", location: "Bordeaux", quote: "The thermal circuit followed by the Forest Bathing treatment left me feeling rebuilt from the inside out.", rating: 5 },
+]
+
+const FAQS = [
+  { q: "What should I bring?", a: "Just yourself. Robes, slippers, towels, and all toiletries are provided. We recommend arriving 30 minutes before your first treatment." },
+  { q: "Can I book treatments without a stay?", a: "Absolutely. Our Day Retreat pass gives full access to the thermal circuit plus dining. Single treatments can be booked from €95." },
+  { q: "Are there minimum age requirements?", a: "The spa is exclusively for adults aged 16+. The thermal pools and treatments are recommended for 18+ guests." },
+  { q: "What is the cancellation policy?", a: "Free cancellation up to 48 hours before arrival. Within 48 hours, a 50% fee applies. Same-day cancellations are non-refundable." },
+  { q: "Do you offer gift vouchers?", a: "Yes — our beautifully packaged gift vouchers are available for any treatment, package, or monetary value. Order online or at reception." },
+]
+
+function Reveal({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
+  const ref = useRef(null)
+  const inView = useInView(ref, { once: true, margin: "-80px" })
+  return (
+    <motion.div ref={ref} initial={{ opacity: 0, y: 28 }} animate={inView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.8, delay, ease: [0.22, 1, 0.36, 1] }}>
+      {children}
+    </motion.div>
+  )
+}
+
+function RippleCircle() {
+  return (
+    <div style={{ position: "relative", width: 280, height: 280, display: "flex", alignItems: "center", justifyContent: "center" }}>
+      {[0, 1, 2, 3].map(i => (
+        <motion.div key={i}
+          style={{ position: "absolute", border: `1px solid ${C.sage}`, borderRadius: "50%", width: 280 - i * 50, height: 280 - i * 50 }}
+          animate={{ scale: [1, 1.15, 1], opacity: [0.6, 0.2, 0.6] }}
+          transition={{ duration: 3, delay: i * 0.7, repeat: Infinity, ease: "easeInOut" }}
+        />
+      ))}
+      <div style={{ width: 80, height: 80, background: C.dark, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <Droplets size={36} color={C.goldLight} />
+      </div>
+    </div>
+  )
+}
+
+export default function SereneRetreatPage() {
+  const [openFaq, setOpenFaq] = useState<number | null>(null)
+  const [scrolled, setScrolled] = useState(false)
+  const containerRef = useRef<HTMLDivElement>(null)
+  const { scrollYProgress } = useScroll({ target: containerRef })
+  const heroY = useTransform(scrollYProgress, [0, 0.3], [0, -50])
+  const heroScale = useTransform(scrollYProgress, [0, 0.3], [1, 1.05])
+
+  useEffect(() => {
+    const h = () => setScrolled(window.scrollY > 60)
+    window.addEventListener("scroll", h)
+    return () => window.removeEventListener("scroll", h)
+  }, [])
 
   return (
-    <div className="min-h-screen bg-[#050508] text-[#eee] font-mono selection:bg-[#eee] selection:text-black">
-      
-      {/* ── FILM OVERLAY ── */}
-      <div className="fixed inset-0 z-[9999] pointer-events-none opacity-[0.08] bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
-      <div className="fixed inset-0 z-[0] opacity-10 pointer-events-none overflow-hidden">
-        <div className="absolute inset-0" style={{ backgroundImage: "linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px)", backgroundSize: "80px 80px" }} />
-      </div>
+    <div ref={containerRef} style={{ background: C.bg, color: C.text, fontFamily: "'Raleway', system-ui, sans-serif", minHeight: "100vh" }}>
+      <style>{`@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Raleway:wght@300;400;500;600&display=swap'); * { box-sizing: border-box; margin: 0; padding: 0; }`}</style>
 
-      {/* ── NAVIGATION ── */}
-      <motion.nav 
-        initial={{ y: -100 }}
-        animate={{ y: 0 }}
-        className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-8 md:px-16 py-10 mix-blend-difference"
-      >
-        <div className="flex items-center gap-4">
-          <Film className="w-10 h-10 text-white" />
-          <span className="text-2xl font-black tracking-tighter uppercase italic text-white">FILM<span className="text-white/30">//</span>UNIT</span>
-        </div>
-        
-        <div className="hidden lg:flex items-center gap-16 text-[10px] font-bold uppercase tracking-[0.4em] text-white/40">
-          {["Manifest", "Reserve", "Atelier", "Portal"].map(item => (
-            <a key={item} href={`#${item.toLowerCase()}`} className="hover:text-white transition-colors">/{item}</a>
+      {/* NAVBAR */}
+      <nav style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 50, padding: "0 32px", height: 72, display: "flex", alignItems: "center", justifyContent: "space-between", background: scrolled ? `${C.card}f0` : "transparent", backdropFilter: scrolled ? "blur(12px)" : "none", borderBottom: scrolled ? `1px solid ${C.border}` : "none", transition: "all 0.4s" }}>
+        <Link href="/" style={{ textDecoration: "none" }}>
+          <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 22, fontWeight: 500, color: scrolled ? C.dark : C.card, letterSpacing: "0.12em", textTransform: "uppercase", transition: "color 0.4s" }}>Serene Retreat</div>
+        </Link>
+        <div style={{ display: "flex", gap: 36, alignItems: "center" }}>
+          {["Spa", "Treatments", "Packages", "Contact"].map(l => (
+            <Link key={l} href="#" style={{ color: scrolled ? C.muted : `${C.card}cc`, textDecoration: "none", fontSize: 13, fontWeight: 500, letterSpacing: "0.08em", textTransform: "uppercase", transition: "color 0.2s" }}
+              onMouseEnter={e => (e.currentTarget.style.color = scrolled ? C.dark : C.card)}
+              onMouseLeave={e => (e.currentTarget.style.color = scrolled ? C.muted : `${C.card}cc`)}>{l}</Link>
           ))}
+          <Link href="#" style={{ padding: "10px 24px", background: C.gold, color: "#fff", borderRadius: 4, textDecoration: "none", fontSize: 13, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase" }}>Book Now</Link>
         </div>
+      </nav>
 
-        <button 
-          onClick={() => setMenuOpen(true)}
-          className="px-6 py-2 border border-white/20 bg-white/5 backdrop-blur-md text-[10px] font-black uppercase tracking-widest hover:bg-white/20 transition-all text-white"
-        >
-          [INIT_PRODUCTION]
-        </button>
-      </motion.nav>
+      {/* HERO */}
+      <section style={{ height: "100vh", display: "flex", alignItems: "center", justifyContent: "center", position: "relative", overflow: "hidden", background: C.dark }}>
+        <motion.div style={{ y: heroY, scale: heroScale, position: "absolute", inset: 0, background: `linear-gradient(135deg, ${C.dark} 0%, ${C.darkMid} 50%, ${C.dark} 100%)` }} />
+        <div style={{ position: "absolute", inset: 0, background: "url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%238aab8a22' stroke-width='1'%3E%3Ccircle cx='30' cy='30' r='20'/%3E%3Ccircle cx='30' cy='30' r='10'/%3E%3C/g%3E%3C/svg%3E\")", opacity: 0.3 }} />
 
-      {/* ── MOBILE MENU ── */}
-      <AnimatePresence>
-        {menuOpen && (
-          <motion.div 
-            initial={{ opacity: 0, scale: 1.1 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 1.1 }}
-            transition={{ duration: 0.8, ease: [0.19, 1, 0.22, 1] }}
-            className="fixed inset-0 z-[60] bg-[#050508] text-[#eee] p-12 flex flex-col justify-between"
-          >
-            <div className="flex justify-between items-center border-b border-white/10 pb-12">
-              <span className="text-xl font-black uppercase tracking-tighter italic">FILM//UNIT</span>
-              <button onClick={() => setMenuOpen(false)} className="w-12 h-12 flex items-center justify-center border border-white/20 rounded-full">
-                <X className="w-6 h-6" />
-              </button>
-            </div>
-            <div className="flex flex-col gap-12 text-center md:text-left">
-              {["SCENE_MANIFEST", "PRODUCTION_ARCHIVE", "FILM_FORGE", "ASSET_ENCLAVE", "SECURE_AUTH"].map((item, i) => (
-                <motion.a 
-                  key={item}
-                  initial={{ opacity: 0, y: 50 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.1 + 0.3 }}
-                  href="#"
-                  className="text-6xl md:text-9xl font-black uppercase italic tracking-tighter hover:text-white/40 transition-all leading-none"
-                  onClick={() => setMenuOpen(false)}
-                >
-                  {item}
-                </motion.a>
-              ))}
-            </div>
-            <div className="flex justify-between text-[10px] font-bold uppercase tracking-[0.5em] border-t border-white/10 pt-12 text-white/30">
-              <span>FILM_PRACTICE</span>
-              <span>EST. 2018 // PARIS</span>
+        <div style={{ position: "relative", zIndex: 2, display: "flex", flexDirection: "column", alignItems: "center", gap: 48 }}>
+          <RippleCircle />
+          <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1, delay: 0.3 }} style={{ textAlign: "center" }}>
+            <div style={{ fontFamily: "'Raleway', sans-serif", fontSize: 11, color: C.goldLight, letterSpacing: "0.4em", textTransform: "uppercase", marginBottom: 20 }}>Luxury Wellness & Spa</div>
+            <h1 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(48px, 8vw, 88px)", fontWeight: 300, color: C.card, lineHeight: 1.1, letterSpacing: "-0.02em", marginBottom: 24 }}>
+              Where stillness<br /><em>becomes strength</em>
+            </h1>
+            <p style={{ fontSize: 17, color: `${C.card}99`, maxWidth: 480, lineHeight: 1.7, marginBottom: 40, margin: "0 auto 40px" }}>An immersive sanctuary of thermal waters, ancient rituals, and bespoke wellness — designed to restore body and mind.</p>
+            <div style={{ display: "flex", gap: 16, justifyContent: "center" }}>
+              <Link href="#" style={{ padding: "14px 36px", background: C.gold, color: "#fff", borderRadius: 4, textDecoration: "none", fontSize: 14, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", display: "flex", alignItems: "center", gap: 8 }}>
+                Reserve your escape <ArrowRight size={16} />
+              </Link>
+              <Link href="#" style={{ padding: "14px 36px", border: `1px solid ${C.card}44`, color: `${C.card}cc`, borderRadius: 4, textDecoration: "none", fontSize: 14, fontWeight: 500, letterSpacing: "0.08em", textTransform: "uppercase" }}>
+                View treatments
+              </Link>
             </div>
           </motion.div>
-        )}
-      </AnimatePresence>
+        </div>
+      </section>
 
-      {/* ── HERO SECTION ── */}
-      <section className="relative h-screen flex items-center justify-center overflow-hidden bg-black">
-        <motion.div 
-          style={{ opacity: heroOpacity, scale: heroScale }}
-          className="absolute inset-0 z-0"
-        >
-          <Image 
-            src="https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=1600&q=80" 
-            alt="Hero Film" 
-            fill 
-            className="object-cover grayscale brightness-50 contrast-125 opacity-20" 
-            unoptimized 
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#050508]" />
-        </motion.div>
+      {/* STATS */}
+      <section style={{ padding: "60px 24px", background: C.dark }}>
+        <div style={{ maxWidth: 900, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 48, textAlign: "center" }}>
+          {[["1,800 m²", "Thermal space"], ["18", "Treatment rooms"], ["4.9 / 5", "Guest rating"], ["Since 2008", "Trusted sanctuary"]].map(([num, label]) => (
+            <div key={label}>
+              <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 36, fontWeight: 400, color: C.goldLight, marginBottom: 8 }}>{num}</div>
+              <div style={{ fontSize: 12, color: C.sage, letterSpacing: "0.1em", textTransform: "uppercase" }}>{label}</div>
+            </div>
+          ))}
+        </div>
+      </section>
 
-        <div className="relative z-10 text-center px-6">
+      {/* TREATMENTS */}
+      <section style={{ padding: "100px 24px" }}>
+        <div style={{ maxWidth: 1100, margin: "0 auto" }}>
           <Reveal>
-            <span className="text-[10px] font-bold uppercase tracking-[2.5em] text-white/40 mb-12 block italic">Cinematic Endurance</span>
-          </Reveal>
-          <Reveal delay={0.2}>
-            <h1 className="text-8xl md:text-[18rem] font-black tracking-tighter leading-[0.75] uppercase italic text-white mb-20">
-              RAW <br/> <span className="not-italic text-white/10">FILM.</span>
-            </h1>
-          </Reveal>
-          <Reveal delay={0.4}>
-            <div className="max-w-2xl mx-auto flex flex-col items-center gap-16 border-t border-white/10 pt-20">
-              <p className="text-white/40 text-xl leading-relaxed font-light uppercase tracking-[0.3em] italic leading-loose text-center">
-                Engineering the ultimate cinematic archives through distributed production orchestration. High-fidelity systems built for absolute structural precision and narrative clarity.
-              </p>
-              <div className="flex gap-8">
-                <button className="px-16 py-6 bg-white text-black font-black uppercase text-xs tracking-[0.4em] hover:bg-black hover:text-white transition-all">
-                  Manifest_Access
-                </button>
-                <button className="px-16 py-6 border border-white/20 text-white font-black uppercase text-xs tracking-[0.4em] hover:bg-white/5 transition-colors">
-                  Atelier_Dossier
-                </button>
-              </div>
+            <div style={{ textAlign: "center", marginBottom: 64 }}>
+              <div style={{ fontSize: 11, color: C.gold, letterSpacing: "0.3em", textTransform: "uppercase", marginBottom: 12 }}>Our Rituals</div>
+              <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(32px, 5vw, 56px)", fontWeight: 400, color: C.dark, marginBottom: 16 }}>Curated treatments</h2>
+              <p style={{ fontSize: 16, color: C.muted, maxWidth: 440, margin: "0 auto", lineHeight: 1.7 }}>Each ritual is designed by our expert therapists and rooted in centuries-old healing traditions.</p>
             </div>
           </Reveal>
-        </div>
-
-        <div className="absolute bottom-12 left-12 right-12 flex justify-between items-end text-[10px] font-bold uppercase tracking-[0.5em] text-white/20">
-          <div className="flex flex-col gap-2">
-            <span>PARIS // ATELIER</span>
-            <div className="w-48 h-[1px] bg-white/10" />
-          </div>
-          <div className="flex items-center gap-4 italic uppercase tracking-widest">
-             <span className="animate-pulse">●</span> FILM_STATUS: NOMINAL
-          </div>
-        </div>
-      </section>
-
-      {/* ── METRICS GRID ── */}
-      <section className="py-40 bg-[#0a0a0d]">
-        <div className="max-w-[1600px] mx-auto px-8 md:px-16">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-px bg-white/5 border border-white/5">
-            {METRICS.map((s, i) => (
-              <Reveal key={s.label} delay={i * 0.1} className="bg-[#050508] p-24 group hover:bg-white/5 transition-all duration-700">
-                <span className="text-[10px] font-bold uppercase tracking-[0.5em] text-white/30 mb-12 block group-hover:text-white/60">{s.label}</span>
-                <h3 className="text-7xl font-black italic text-white mb-8 group-hover:text-white transition-colors">{s.val}</h3>
-                <p className="text-xs text-white/30 font-light tracking-widest uppercase italic leading-loose group-hover:text-white/60">
-                  {s.desc}
-                </p>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* SCENE SHOWCASE ── */}
-      <section className="py-40 bg-black relative overflow-hidden">
-        <div className="max-w-[1600px] mx-auto px-8 md:px-16">
-          <Reveal className="mb-32">
-             <div className="flex flex-col lg:flex-row justify-between items-end gap-12 border-b border-white/10 pb-12">
-               <h2 className="text-7xl md:text-[10rem] font-black italic tracking-tighter leading-[0.8] uppercase text-white">
-                 Scene <br/> <span className="text-white/20 not-italic">Archive.</span>
-               </h2>
-               <div className="text-right">
-                  <span className="text-[10px] font-bold uppercase tracking-[0.5em] text-white/20 mb-4 block italic">Manifest_Sequence_2024</span>
-                  <div className="flex gap-4">
-                    {SCENE_MANIFESTS.map((_, i) => (
-                      <button 
-                        key={i} 
-                        onClick={() => setActiveScn(i)}
-                        className={`w-16 h-1 transition-all ${activeScn === i ? "bg-white w-32" : "bg-white/10"}`}
-                      />
-                    ))}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 24 }}>
+            {TREATMENTS.map((t, i) => (
+              <Reveal key={t.name} delay={i * 0.08}>
+                <div style={{ padding: 32, background: C.card, border: `1px solid ${C.border}`, borderRadius: 2, position: "relative", transition: "box-shadow 0.3s, transform 0.3s", cursor: "default" }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.boxShadow = `0 8px 32px ${C.dark}18`; (e.currentTarget as HTMLElement).style.transform = "translateY(-2px)" }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.boxShadow = "none"; (e.currentTarget as HTMLElement).style.transform = "translateY(0)" }}>
+                  {t.tag && <div style={{ position: "absolute", top: 16, right: 16, padding: "3px 10px", background: C.gold, color: "#fff", fontSize: 10, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", borderRadius: 2 }}>{t.tag}</div>}
+                  <div style={{ width: 48, height: 48, background: C.surface, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 20 }}>
+                    <t.icon size={22} color={C.gold} />
                   </div>
-               </div>
-             </div>
-          </Reveal>
-
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-24 items-center">
-            <div className="lg:col-span-8 relative aspect-video rounded-sm overflow-hidden border border-white/5 group bg-[#111]">
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={activeScn}
-                  initial={{ opacity: 0, scale: 1.1 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 1.1 }}
-                  transition={{ duration: 1, ease: [0.19, 1, 0.22, 1] }}
-                  className="absolute inset-0"
-                >
-                  <Image src={SCENE_MANIFESTS[activeScn].img} alt={SCENE_MANIFESTS[activeScn].title} fill className="object-cover grayscale contrast-125 opacity-40 group-hover:opacity-60 transition-opacity duration-1000" unoptimized />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-90" />
-                </motion.div>
-              </AnimatePresence>
-              <div className="absolute bottom-12 left-12 flex flex-col gap-4">
-                 <span className="text-[10px] font-black uppercase tracking-widest bg-white/10 backdrop-blur-md text-white px-6 py-2 border border-white/5">{SCENE_MANIFESTS[activeScn].aspect} // ADVISORY</span>
-              </div>
-            </div>
-
-            <div className="lg:col-span-4 space-y-12">
-               <motion.div
-                  key={activeScn}
-                  initial={{ opacity: 0, x: 50 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.6 }}
-                  className="space-y-12"
-               >
-                 <span className="text-[10px] font-black uppercase tracking-[0.4em] text-white/40">{SCENE_MANIFESTS[activeScn].id} // ASSET</span>
-                 <h3 className="text-6xl md:text-8xl font-black italic uppercase text-white tracking-tighter">{SCENE_MANIFESTS[activeScn].title}</h3>
-                 <div className="space-y-6 border-y border-white/10 py-12">
-                    <div className="flex justify-between items-center">
-                       <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-white/30">Category</span>
-                       <span className="text-sm font-black text-white uppercase tracking-widest">{SCENE_MANIFESTS[activeScn].category}</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                       <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-white/30">Scene_Status</span>
-                       <span className="text-sm font-black text-white uppercase tracking-widest italic">STABLE_OPTIC</span>
-                    </div>
-                 </div>
-                 <p className="text-white/30 text-lg font-light italic leading-loose uppercase tracking-wide">
-                   {SCENE_MANIFESTS[activeScn].desc}
-                 </p>
-                 <button className="flex items-center gap-6 group">
-                    <span className="text-[10px] font-bold uppercase tracking-[0.8em] text-white">Request_Manifest</span>
-                    <div className="w-16 h-16 border border-white/10 rounded-full flex items-center justify-center group-hover:bg-white transition-all">
-                       <ArrowUpRight className="w-6 h-6 text-white group-hover:text-black transition-colors" />
-                    </div>
-                 </button>
-               </motion.div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── CAPABILITIES ── */}
-      <section className="py-40 bg-[#050508] border-y border-white/10">
-        <div className="max-w-[1600px] mx-auto px-8 md:px-16">
-          <Reveal className="mb-32 text-center">
-             <span className="text-[10px] font-bold uppercase tracking-[1em] text-white/40 mb-8 block italic">Operational Scope</span>
-             <h2 className="text-7xl md:text-[10rem] font-black italic tracking-tighter leading-[0.8] uppercase text-white">
-                Technical <br/> <span className="text-white/20 not-italic">Expertise.</span>
-             </h2>
-          </Reveal>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-px bg-white/10 border border-white/10">
-            {CAPABILITIES.map((item, i) => (
-              <Reveal key={item.title} delay={i * 0.1} className="bg-[#0a0a0d] p-12 group hover:bg-white/5 transition-all duration-700">
-                 <item.icon className="w-12 h-12 text-white/20 group-hover:text-white transition-colors mb-8" />
-                 <h3 className="text-2xl font-black italic uppercase text-white mb-6">{item.title}</h3>
-                 <p className="text-xs text-white/40 group-hover:text-white font-light tracking-widest uppercase italic leading-loose transition-colors">
-                   {item.desc}
-                 </p>
+                  <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 22, fontWeight: 500, color: C.dark, marginBottom: 8 }}>{t.name}</h3>
+                  <div style={{ display: "flex", gap: 16, fontSize: 12, color: C.muted, marginBottom: 16, letterSpacing: "0.05em" }}>
+                    <span style={{ display: "flex", alignItems: "center", gap: 4 }}><Clock size={12} />{t.duration}</span>
+                    <span style={{ color: C.gold, fontWeight: 600, fontSize: 15 }}>{t.price}</span>
+                  </div>
+                  <p style={{ fontSize: 14, color: C.muted, lineHeight: 1.7 }}>{t.desc}</p>
+                </div>
               </Reveal>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ATELIER / LABORATORY ── */}
-      <section className="py-40 bg-black overflow-hidden">
-        <div className="max-w-[1600px] mx-auto px-8 md:px-16 grid grid-cols-1 lg:grid-cols-2 gap-32 items-center">
+      {/* THERMAL CIRCUIT */}
+      <section style={{ padding: "100px 24px", background: C.dark }}>
+        <div style={{ maxWidth: 1000, margin: "0 auto" }}>
           <Reveal>
-             <div className="relative aspect-square bg-[#050508] border border-white/5 p-20 flex flex-col justify-center group overflow-hidden">
-                <div className="absolute top-0 right-0 p-12">
-                   <Box className="w-16 h-16 text-white/5 group-hover:text-white/10 transition-colors" />
-                </div>
-                <Sparkles className="w-16 h-16 text-white mb-12" />
-                <h3 className="text-5xl font-black italic uppercase text-white mb-8">Film <br/> <span className="text-white/20 not-italic">Atelier.</span></h3>
-                <p className="text-white/40 text-lg leading-relaxed mb-12 font-light uppercase tracking-wide italic leading-loose">
-                  Our Paris atelier leverages heavy archival design fabrication and distributed spatial orchestration for the production of non-standard cinematic artifacts. We push the tectonic limits of spatial production.
-                </p>
-                <div className="flex gap-12 text-[10px] font-bold uppercase tracking-[0.5em] text-white/30">
-                   <span>[01] FILM_BOND</span>
-                   <span>[02] SPATIAL_SYNTHESIS</span>
-                </div>
-             </div>
+            <div style={{ textAlign: "center", marginBottom: 64 }}>
+              <div style={{ fontSize: 11, color: C.goldLight, letterSpacing: "0.3em", textTransform: "uppercase", marginBottom: 12 }}>The Journey</div>
+              <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(32px, 5vw, 56px)", fontWeight: 300, color: C.card }}>The thermal circuit</h2>
+            </div>
           </Reveal>
-          <div className="space-y-24">
-             <Reveal delay={0.2}>
-                <span className="text-[10px] font-bold uppercase tracking-[1em] text-white/40 mb-8 block italic">Curation_Sequence</span>
-                <h2 className="text-6xl md:text-8xl font-black italic tracking-tighter leading-none uppercase text-white">Film <br/> <span className="text-white/20 not-italic">Manifesto.</span></h2>
-             </Reveal>
-             <div className="space-y-12">
-                {[
-                  { n: "01", t: "Sectional Audit", d: "Rigorous cutting of complex film volumes to reveal interior structural potential." },
-                  { n: "02", t: "Film Stress", d: "Simulation of high-fidelity visual performance under extreme archival loads." },
-                  { n: "03", t: "Archive Aging", d: "Analyzing the interaction of archival film models with digital weathering." }
-                ].map((step, i) => (
-                  <Reveal key={step.n} delay={i * 0.1 + 0.3} className="flex gap-12 group border-l border-white/10 pl-8 hover:border-white transition-colors">
-                    <span className="text-4xl font-black italic text-white/10 group-hover:text-white transition-colors">{step.n}</span>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 2 }}>
+            {CIRCUIT_STEPS.map((step, i) => (
+              <Reveal key={step.name} delay={i * 0.1}>
+                <div style={{ padding: "32px 28px", background: `${C.darkMid}`, borderLeft: `3px solid ${i % 2 === 0 ? C.gold : C.sage}` }}>
+                  <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 36, fontWeight: 300, color: i % 2 === 0 ? C.goldLight : C.sage, marginBottom: 8 }}>{step.temp}</div>
+                  <h3 style={{ fontSize: 16, fontWeight: 600, color: C.card, marginBottom: 8, letterSpacing: "0.05em" }}>{step.name}</h3>
+                  <p style={{ fontSize: 13, color: C.sage, lineHeight: 1.6 }}>{step.desc}</p>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* TESTIMONIALS */}
+      <section style={{ padding: "100px 24px" }}>
+        <div style={{ maxWidth: 1000, margin: "0 auto" }}>
+          <Reveal><h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(32px, 5vw, 52px)", fontWeight: 400, textAlign: "center", marginBottom: 64, color: C.dark }}>Guest experiences</h2></Reveal>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 32 }}>
+            {TESTIMONIALS.map((t, i) => (
+              <Reveal key={t.name} delay={i * 0.1}>
+                <div style={{ padding: 32, background: C.card, border: `1px solid ${C.border}`, borderRadius: 2 }}>
+                  <div style={{ display: "flex", gap: 4, marginBottom: 20 }}>
+                    {[1,2,3,4,5].map(s => <Star key={s} size={14} color={C.gold} fill={C.gold} />)}
+                  </div>
+                  <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 18, fontWeight: 400, color: C.dark, lineHeight: 1.7, marginBottom: 24, fontStyle: "italic" }}>"{t.quote}"</p>
+                  <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+                    <div style={{ width: 36, height: 36, background: C.surface, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <Heart size={16} color={C.gold} />
+                    </div>
                     <div>
-                      <h4 className="text-xl font-black uppercase italic text-white mb-2">{step.t}</h4>
-                      <p className="text-xs text-white/40 font-light tracking-widest uppercase italic leading-loose">{step.d}</p>
+                      <div style={{ fontSize: 14, fontWeight: 600, color: C.dark }}>{t.name}</div>
+                      <div style={{ fontSize: 12, color: C.subtle }}><MapPin size={10} style={{ display: "inline", marginRight: 4 }} />{t.location}</div>
                     </div>
-                  </Reveal>
-                ))}
-             </div>
+                  </div>
+                </div>
+              </Reveal>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* ── CTA / INQUIRY ── */}
-      <section className="py-40 bg-[#050508] relative">
-         <div className="max-w-[1600px] mx-auto px-8 md:px-16">
-            <div className="bg-white text-black p-24 lg:p-40 relative overflow-hidden flex flex-col items-center text-center group">
-               <div className="absolute inset-0 opacity-10 grayscale brightness-110 group-hover:opacity-20 transition-opacity">
-                  <Image src="https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=1600&q=80" alt="CTA Film" fill className="object-cover" />
-               </div>
-               <Reveal>
-                  <span className="text-[10px] font-bold uppercase tracking-[1em] text-black/50 mb-12 block italic">Allocation Initiation</span>
-                  <h2 className="text-7xl md:text-[12rem] font-black italic tracking-tighter leading-[0.8] uppercase mb-16">
-                     Own <br/> <span className="text-black/30 not-italic">The Unit.</span>
-                  </h2>
-                  <div className="flex flex-wrap justify-center gap-12 relative z-10">
-                     <button className="px-20 py-8 bg-black text-white font-black uppercase text-sm tracking-[0.5em] hover:italic transition-all">
-                        Request_Access
-                     </button>
-                     <button className="px-20 py-8 border border-black/20 text-black font-black uppercase text-sm tracking-[0.5em] hover:bg-black/5 transition-all">
-                        Atelier_Dossier
-                     </button>
-                  </div>
-               </Reveal>
+      {/* PACKAGES */}
+      <section style={{ padding: "100px 24px", background: C.surface }}>
+        <div style={{ maxWidth: 1050, margin: "0 auto" }}>
+          <Reveal>
+            <div style={{ textAlign: "center", marginBottom: 64 }}>
+              <div style={{ fontSize: 11, color: C.gold, letterSpacing: "0.3em", textTransform: "uppercase", marginBottom: 12 }}>Retreats</div>
+              <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(32px, 5vw, 52px)", fontWeight: 400, color: C.dark }}>Escape packages</h2>
             </div>
-         </div>
+          </Reveal>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 24 }}>
+            {PACKAGES.map((pkg, i) => (
+              <Reveal key={pkg.name} delay={i * 0.1}>
+                <div style={{ padding: 40, background: pkg.highlight ? C.dark : C.card, border: `1px solid ${pkg.highlight ? C.gold : C.border}`, borderRadius: 2 }}>
+                  {pkg.highlight && <div style={{ fontSize: 10, color: C.goldLight, letterSpacing: "0.3em", textTransform: "uppercase", marginBottom: 16 }}>Most requested</div>}
+                  <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 28, fontWeight: 400, color: pkg.highlight ? C.card : C.dark, marginBottom: 8 }}>{pkg.name}</h3>
+                  <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 44, fontWeight: 300, color: pkg.highlight ? C.goldLight : C.gold, marginBottom: 28 }}>{pkg.price}</div>
+                  <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: 12, marginBottom: 36 }}>
+                    {pkg.includes.map(item => (
+                      <li key={item} style={{ display: "flex", alignItems: "flex-start", gap: 10, fontSize: 14, color: pkg.highlight ? C.sage : C.muted, lineHeight: 1.5 }}>
+                        <CheckCircle size={15} color={C.gold} style={{ marginTop: 1, flexShrink: 0 }} />{item}
+                      </li>
+                    ))}
+                  </ul>
+                  <Link href="#" style={{ display: "block", textAlign: "center", padding: "14px", background: pkg.highlight ? C.gold : C.dark, color: "#fff", borderRadius: 2, textDecoration: "none", fontSize: 13, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", cursor: "pointer" }}>Reserve</Link>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
       </section>
 
-      {/* ── FOOTER ── */}
-      <footer className="bg-black pt-40 pb-20 px-8 md:px-16 border-t border-white/10">
-         <div className="max-w-[1600px] mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-32 mb-40">
-            <div className="lg:col-span-6">
-               <div className="flex items-center gap-4 mb-12">
-                 <Film className="w-10 h-10 text-white" />
-                 <span className="text-3xl font-black tracking-tighter uppercase italic text-white">FILM<span className="text-white/30">//</span>UNIT</span>
-               </div>
-               <p className="text-white/40 text-sm font-light leading-relaxed uppercase tracking-[0.3em] mb-12 italic max-w-md">
-                 Securing the future of film objects through high-fidelity orchestration and radical visual clarity.
-               </p>
-               <div className="flex gap-12">
-                 {["TERMINAL", "FILM", "FORGE", "ALPHA"].map(s => (
-                   <a key={s} href="#" className="text-[10px] font-bold hover:text-white text-white/30 transition-colors tracking-[0.5em]">[{s}]</a>
-                 ))}
-               </div>
-            </div>
-            
-            <div className="lg:col-span-2">
-               <h4 className="text-[10px] font-bold uppercase tracking-[0.5em] text-white/40 mb-12">Systems</h4>
-               <ul className="space-y-6 text-xs font-bold uppercase tracking-[0.4em]">
-                 {["Archives", "Telemetry", "Shell", "Journal"].map(item => (
-                   <li key={item}><a href="#" className="hover:text-white transition-colors">{item}</a></li>
-                 ))}
-               </ul>
-            </div>
+      {/* FAQ */}
+      <section style={{ padding: "100px 24px" }}>
+        <div style={{ maxWidth: 720, margin: "0 auto" }}>
+          <Reveal><h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(28px, 5vw, 48px)", fontWeight: 400, textAlign: "center", marginBottom: 64, color: C.dark }}>Questions & answers</h2></Reveal>
+          <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
+            {FAQS.map((faq, i) => (
+              <div key={i} style={{ borderBottom: `1px solid ${C.border}` }}>
+                <button onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                  style={{ width: "100%", padding: "24px 0", background: "none", border: "none", display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer", fontSize: 16, fontWeight: 500, color: C.dark, textAlign: "left", fontFamily: "'Raleway', sans-serif" }}>
+                  {faq.q}
+                  <motion.div animate={{ rotate: openFaq === i ? 180 : 0 }} transition={{ duration: 0.2 }}>
+                    <ChevronDown size={18} color={C.muted} />
+                  </motion.div>
+                </button>
+                <AnimatePresence>
+                  {openFaq === i && (
+                    <motion.div initial={{ height: 0 }} animate={{ height: "auto" }} exit={{ height: 0 }} style={{ overflow: "hidden" }}>
+                      <div style={{ paddingBottom: 24, fontSize: 14, color: C.muted, lineHeight: 1.8 }}>{faq.a}</div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
-            <div className="lg:col-span-4">
-               <h4 className="text-[10px] font-bold uppercase tracking-[0.5em] text-white/40 mb-12">Partner Inquiry</h4>
-               <p className="text-sm text-white/40 font-light mb-12 italic uppercase tracking-[0.2em] leading-loose">
-                 For new commissions, film studies, or distribution enclaves, contact our primary command center in Paris.
-               </p>
-               <a href="mailto:ops@film-unit.fr" className="text-3xl font-black italic hover:text-white transition-colors block border-b border-white/10 pb-8 uppercase tracking-tighter">
-                  ops@film-unit.fr
-               </a>
+      {/* FOOTER */}
+      <footer style={{ background: C.dark, padding: "72px 24px 36px" }}>
+        <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr", gap: 48, marginBottom: 60 }}>
+            <div>
+              <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 24, fontWeight: 400, color: C.card, letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 16 }}>Serene Retreat</div>
+              <p style={{ fontSize: 14, color: C.sage, lineHeight: 1.7, maxWidth: 240, marginBottom: 24 }}>A sanctuary for restoration, renewal, and quiet luxury in the heart of the French countryside.</p>
+              <div style={{ display: "flex", gap: 8, fontSize: 13, color: C.sage, alignItems: "center" }}>
+                <MapPin size={14} /><span>Route des Thermes, 63130 Royat, France</span>
+              </div>
             </div>
-         </div>
-
-         <div className="max-w-[1600px] mx-auto flex flex-col md:row items-center justify-between gap-12 text-[9px] font-bold uppercase tracking-[0.8em] text-white/20 border-t border-white/5 pt-20">
-            <p>© 2024 FILM UNIT ATELIER AG. ALL RIGHTS RESERVED. PARIS // GLOBAL.</p>
-            <div className="flex gap-16">
-               <a href="#" className="hover:text-white transition-colors">[Film_Vault]</a>
-               <a href="#" className="hover:text-white transition-colors">[Terms_of_Service]</a>
+            {[
+              { title: "Spa", links: ["Treatments", "Thermal Circuit", "Packages", "Gift Vouchers"] },
+              { title: "Stay", links: ["Rooms & Suites", "Dining", "Wellness Programs", "Events"] },
+              { title: "Info", links: ["About", "Press", "FAQ", "Contact"] },
+            ].map(col => (
+              <div key={col.title}>
+                <h4 style={{ fontSize: 10, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.2em", color: C.goldLight, marginBottom: 20 }}>{col.title}</h4>
+                <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: 12 }}>
+                  {col.links.map(l => <li key={l}><Link href="#" style={{ color: C.sage, textDecoration: "none", fontSize: 14 }}
+                    onMouseEnter={e => (e.currentTarget.style.color = C.card)}
+                    onMouseLeave={e => (e.currentTarget.style.color = C.sage)}>{l}</Link></li>)}
+                </ul>
+              </div>
+            ))}
+          </div>
+          <div style={{ borderTop: `1px solid ${C.darkMid}`, paddingTop: 28, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16 }}>
+            <span style={{ fontSize: 12, color: C.sage, letterSpacing: "0.05em" }}>© 2026 Serene Retreat. All rights reserved.</span>
+            <div style={{ display: "flex", gap: 24 }}>
+              {["Privacy", "Terms", "Legal"].map(l => <Link key={l} href="#" style={{ color: C.sage, textDecoration: "none", fontSize: 12 }}>{l}</Link>)}
             </div>
-         </div>
+          </div>
+        </div>
       </footer>
     </div>
-  );
+  )
 }

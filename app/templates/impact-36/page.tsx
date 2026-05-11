@@ -1,439 +1,1570 @@
 "use client";
 
-import { motion, useScroll, useTransform, useInView, AnimatePresence } from "framer-motion";
-import { useState, useRef, useEffect, Suspense } from "react";
-import Image from "next/image";
-import { ArrowUpRight, Menu, X, Layers, ShieldCheck, Plus, Play, ArrowRight, ChevronDown, Monitor, LayoutGrid, Zap, ShoppingBag, Eye, Maximize2, Minimize2, Box, Settings, Sparkles, Command, Activity, Ruler, Wind } from "lucide-react";
-import "../premium.css";
+import { useRef, useState, useEffect } from "react";
+import { motion, useInView } from "framer-motion";
+import Link from "next/link";
+import {
+  ArrowRight,
+  Star,
+  Check,
+  ChevronDown,
+  Users,
+  TrendingUp,
+  Award,
+  Briefcase,
+  Target,
+  BarChart2,
+  Globe,
+  Shield,
+  Phone,
+  Mail,
+  MessageSquare,
+  GitBranch,
+  Link2,
+  Users2,
+  Code2,
+  Bookmark,
+  Building2,
+  Zap,
+  CheckCircle,
+} from "lucide-react";
 
-// ─── DATA ──────────────────────────────────────────────────────────────────
+const C = {
+  bg: "#f0f6ff",
+  bgAlt: "#ffffff",
+  text: "#0f1f3d",
+  textMuted: "#4b6a9b",
+  accent: "#2563eb",
+  accentLight: "#dbeafe",
+  accentDark: "#1d4ed8",
+  navy: "#0f1f3d",
+  white: "#ffffff",
+  border: "#dde7f5",
+  borderLight: "#eef4ff",
+};
 
-const OBJECT_MANIFESTS = [
-  { 
-    id: "OBJ_01",
-    title: "FORM_VOID", 
-    category: "Structural Study",
-    material: "v9.4_CERAMIC",
-    img: "https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?w=1200&q=80",
-    desc: "A high-fidelity minimalist study of object volumes within the spatial environment. Zero-latency tactile synthesis."
+const SERVICES = [
+  {
+    icon: Target,
+    name: "Executive Search",
+    desc: "C-suite and senior leadership placement across all industries. We access passive candidates that traditional recruiters miss.",
+    details: [
+      "Board-level placements",
+      "C-suite recruitment",
+      "VP & Director roles",
+      "Confidential searches",
+      "60-day placement guarantee",
+    ],
   },
-  { 
-    id: "OBJ_02",
-    title: "NEURAL_SHELL", 
-    category: "Tactile Interface",
-    material: "v3.1_POLYMER",
-    img: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=1200&q=80",
-    desc: "Planetary-scale distributed surfaces orchestrated through neural weight synthesis. High-fidelity material routing."
+  {
+    icon: Users,
+    name: "Recruitment Process Outsourcing",
+    desc: "Full-cycle RPO solutions for high-volume hiring. We become your embedded talent acquisition team.",
+    details: [
+      "End-to-end recruitment",
+      "Employer branding",
+      "ATS implementation",
+      "Workforce planning",
+      "Dedicated recruiters",
+    ],
   },
-  { 
-    id: "OBJ_03",
-    title: "VOID_OBJECT", 
-    category: "Functional Core",
-    material: "v9.0_STARK",
-    img: "https://images.unsplash.com/photo-1612195583950-b8fd34c87093?w=1200&q=80",
-    desc: "A zero-latency object engine built for the real-time synthesis of non-standard spatial artifacts through radical form injection."
-  }
+  {
+    icon: BarChart2,
+    name: "HR Consulting",
+    desc: "Strategic HR advisory for fast-growing companies. Org design, compensation benchmarking, and people strategy.",
+    details: [
+      "Org design & restructuring",
+      "Compensation benchmarking",
+      "Performance frameworks",
+      "DEI strategy",
+      "HR tech stack advisory",
+    ],
+  },
 ];
 
-const METRICS = [
-  { label: "Precision", val: "99.9%", desc: "Absolute architectural synchronization across all distributed object edge nodes." },
-  { label: "Throughput", val: "12 EB/s", desc: "Sustainable visual delivery through our dedicated high-fidelity object backbone." },
-  { label: "Reliability", val: "IMMUNE", desc: "Zero-leak object logic verified through continuous adversarial stress-testing." }
+const SECTORS = [
+  "Technology & SaaS",
+  "Financial Services",
+  "Healthcare & Life Sciences",
+  "Private Equity",
+  "Manufacturing",
+  "Professional Services",
+  "Retail & Consumer",
+  "Energy & Cleantech",
+  "Media & Entertainment",
+  "Real Estate",
+  "Legal",
+  "Non-Profit",
 ];
 
-const CAPABILITIES = [
-  { icon: Ruler, title: "Spatial Forge", desc: "Engineering object volumes through a lens of mathematical and structural purity." },
-  { icon: Eye, title: "Tactile Logic", desc: "Scaling surface interactions through distributed object orchestration and logic synthesis." },
-  { icon: Activity, title: "Pulse Sync", desc: "Synchronizing system spikes with real-time biological demand cycles for absolute sync." },
-  { icon: Box, title: "Archival Shell", desc: "Leveraging heavy archival data fabrication for ultra-high fidelity object protection." }
+const CASE_STUDIES = [
+  {
+    company: "NovaTech Capital",
+    sector: "Fintech",
+    challenge: "Needed a CTO and 3 VP-level engineers within 90 days ahead of a Series B close.",
+    outcome: "All 4 roles filled in 67 days. Two candidates sourced from passive talent — not on the open market.",
+    metric: "67 days",
+    metricLabel: "to full placement",
+  },
+  {
+    company: "Meridian Health Group",
+    sector: "Healthcare",
+    challenge: "Scaling from 80 to 300 employees across 6 new clinic locations. Needed an embedded RPO partner.",
+    outcome: "Delivered 220 quality hires over 14 months. Reduced cost-per-hire by 34% vs. previous agency model.",
+    metric: "34%",
+    metricLabel: "cost-per-hire reduction",
+  },
+  {
+    company: "Veritas Partners",
+    sector: "Private Equity",
+    challenge: "Post-acquisition HR integration across 3 portfolio companies with conflicting culture and comp structures.",
+    outcome: "Unified HR framework deployed in 90 days. Retention improved by 28% in year one post-integration.",
+    metric: "28%",
+    metricLabel: "retention improvement",
+  },
 ];
 
-// ─── COMPONENTS ──────────────────────────────────────────────────────────────
+const TESTIMONIALS = [
+  {
+    name: "Sarah Beckmann",
+    role: "CPO, Elevate Commerce",
+    avatar: "SB",
+    text: "Apex found our VP of Engineering in 5 weeks — a role we'd been trying to fill for 6 months internally. The quality of candidates was exceptional.",
+    rating: 5,
+  },
+  {
+    name: "David Osei",
+    role: "CEO, Groundwork AI",
+    avatar: "DO",
+    text: "What separates Apex is their network. They brought us candidates who weren't looking — including our now-COO who came from a competitor.",
+    rating: 5,
+  },
+  {
+    name: "Priya Malhotra",
+    role: "Head of People, CloudBridge",
+    avatar: "PM",
+    text: "Their HR consulting work was transformational. We went from reactive people ops to a proper talent strategy in under 3 months.",
+    rating: 5,
+  },
+];
 
-function Reveal({ children, className = "", delay = 0, y = 30 }: { children: React.ReactNode; className?: string; delay?: number; y?: number }) {
+const STATS = [
+  { end: 2400, suffix: "+", label: "Placements Made" },
+  { end: 340, suffix: "+", label: "Enterprise Clients" },
+  { end: 94, suffix: "%", label: "Retention at 12 Months" },
+  { end: 18, suffix: " yrs", label: "Industry Experience" },
+];
+
+const FAQS = [
+  {
+    q: "What is your typical time-to-fill for executive roles?",
+    a: "For director and VP-level roles, our average is 38 days from kickoff to signed offer. C-suite and board searches typically run 60-90 days depending on confidentiality requirements and market conditions.",
+  },
+  {
+    q: "Do you work on retained or contingency basis?",
+    a: "Executive Search is retained. RPO engagements are monthly fee-based. We do not work on contingency for senior roles — it creates incentive misalignment and lower candidate quality.",
+  },
+  {
+    q: "What industries do you specialize in?",
+    a: "We maintain deep networks across 12 sectors. Technology, Financial Services, Healthcare, and Private Equity represent our highest placement volume, but we operate across all major industries.",
+  },
+  {
+    q: "What is your placement guarantee?",
+    a: "All retained executive searches include a 6-month replacement guarantee at no additional fee. If a placed candidate departs within 6 months for any reason, we restart the search.",
+  },
+  {
+    q: "Can you help with international searches?",
+    a: "Yes. We operate globally through a network of affiliate partners in 28 countries. Roles in North America, Europe, and APAC are handled by our in-house team.",
+  },
+  {
+    q: "How do you source passive candidates?",
+    a: "Through 18 years of relationship-building, proprietary research methodologies, alumni networks, and our database of 180,000+ executive profiles. We do not rely solely on job boards.",
+  },
+];
+
+// Animated counter component
+function Counter({
+  end,
+  suffix,
+  label,
+  delay,
+}: {
+  end: number;
+  suffix: string;
+  label: string;
+  delay: number;
+}) {
   const ref = useRef(null);
-  const inView = useInView(ref, { once: true, margin: "-100px" });
+  const inView = useInView(ref, { once: true });
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    if (!inView) return;
+    const duration = 2000;
+    const startTime = Date.now();
+    const timer = setInterval(() => {
+      const elapsed = Date.now() - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const ease = 1 - Math.pow(1 - progress, 3);
+      setCount(Math.floor(ease * end));
+      if (progress >= 1) clearInterval(timer);
+    }, 16);
+    return () => clearInterval(timer);
+  }, [inView, end]);
+
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, y }}
+      initial={{ opacity: 0, y: 30 }}
       animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 1, delay, ease: [0.23, 1, 0.32, 1] }}
-      className={className}
+      transition={{ duration: 0.6, delay }}
+      style={{ textAlign: "center" }}
+    >
+      <div
+        style={{
+          fontSize: "clamp(40px, 4vw, 56px)",
+          fontWeight: 900,
+          color: C.white,
+          fontFamily: "'Plus Jakarta Sans', system-ui",
+          lineHeight: 1,
+        }}
+      >
+        {count}
+        {suffix}
+      </div>
+      <div
+        style={{
+          fontSize: 15,
+          color: "#93c5fd",
+          marginTop: 8,
+          fontWeight: 500,
+        }}
+      >
+        {label}
+      </div>
+    </motion.div>
+  );
+}
+
+function FAQItem({
+  faq,
+  delay,
+}: {
+  faq: { q: string; a: string };
+  delay: number;
+}) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true });
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 16 }}
+      animate={inView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.5, delay }}
+    >
+      <div
+        onClick={() => setOpen(!open)}
+        style={{
+          background: C.white,
+          border: `1px solid ${open ? C.accent : C.border}`,
+          borderRadius: 12,
+          padding: "20px 24px",
+          cursor: "pointer",
+          marginBottom: 8,
+          transition: "border-color 0.2s",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            gap: 16,
+          }}
+        >
+          <span
+            style={{ fontWeight: 600, fontSize: 16, color: C.navy }}
+          >
+            {faq.q}
+          </span>
+          <motion.div
+            animate={{ rotate: open ? 180 : 0 }}
+            transition={{ duration: 0.2 }}
+            style={{ flexShrink: 0 }}
+          >
+            <ChevronDown size={20} color={C.textMuted} />
+          </motion.div>
+        </div>
+        {open && (
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.25 }}
+            style={{
+              marginTop: 14,
+              fontSize: 15,
+              color: C.textMuted,
+              lineHeight: 1.75,
+            }}
+          >
+            {faq.a}
+          </motion.p>
+        )}
+      </div>
+    </motion.div>
+  );
+}
+
+function SectionReveal({
+  children,
+  delay = 0,
+}: {
+  children: React.ReactNode;
+  delay?: number;
+}) {
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, margin: "-80px" });
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 36 }}
+      animate={inView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.6, delay, ease: "easeOut" }}
     >
       {children}
     </motion.div>
   );
 }
 
-// ─── MAIN SPA ────────────────────────────────────────────────────────────────
-
-export default function MinimalObjectsSPA() {
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [activeObj, setActiveObj] = useState(0);
-  const { scrollY } = useScroll();
-  
-  const heroOpacity = useTransform(scrollY, [0, 400], [1, 0]);
-  const heroScale = useTransform(scrollY, [0, 800], [1, 1.05]);
+// Candidate match score visual
+function MatchScore({ score, label }: { score: number; label: string }) {
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true });
 
   return (
-    <div className="min-h-screen bg-[#fcfcfc] text-[#111] font-mono selection:bg-[#111] selection:text-white">
-      
-      {/* ── MINIMAL OVERLAY ── */}
-      <div className="fixed inset-0 z-[9999] pointer-events-none opacity-[0.05] bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
-      <div className="fixed inset-0 z-[0] opacity-[0.05] pointer-events-none overflow-hidden">
-        <div className="absolute inset-0" style={{ backgroundImage: "linear-gradient(#111 1px, transparent 1px), linear-gradient(90deg, #111 1px, transparent 1px)", backgroundSize: "80px 80px" }} />
-      </div>
-
-      {/* ── NAVIGATION ── */}
-      <motion.nav 
-        initial={{ y: -100 }}
-        animate={{ y: 0 }}
-        className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-8 md:px-16 py-10 mix-blend-difference"
+    <div
+      ref={ref}
+      style={{ display: "flex", flexDirection: "column", gap: 6 }}
+    >
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          fontSize: 13,
+          fontWeight: 600,
+          color: C.navy,
+        }}
       >
-        <div className="flex items-center gap-4">
-          <ShoppingBag className="w-10 h-10 text-white" />
-          <span className="text-2xl font-black tracking-tighter uppercase italic text-white">MINIMAL<span className="text-white/30">//</span>OBJECTS</span>
-        </div>
-        
-        <div className="hidden lg:flex items-center gap-16 text-[10px] font-bold uppercase tracking-[0.4em] text-white/40">
-          {["Manifest", "Shop", "Atelier", "Portal"].map(item => (
-            <a key={item} href={`#${item.toLowerCase()}`} className="hover:text-white transition-colors">/{item}</a>
-          ))}
-        </div>
+        <span>{label}</span>
+        <span style={{ color: C.accent }}>{score}%</span>
+      </div>
+      <div
+        style={{
+          height: 6,
+          background: C.border,
+          borderRadius: 99,
+          overflow: "hidden",
+        }}
+      >
+        <motion.div
+          initial={{ width: 0 }}
+          animate={inView ? { width: `${score}%` } : {}}
+          transition={{ duration: 1.2, delay: 0.3, ease: "easeOut" }}
+          style={{
+            height: "100%",
+            background: `linear-gradient(90deg, ${C.accent}, #60a5fa)`,
+            borderRadius: 99,
+          }}
+        />
+      </div>
+    </div>
+  );
+}
 
-        <button 
-          onClick={() => setMenuOpen(true)}
-          className="px-6 py-2 border border-white/20 bg-white/5 backdrop-blur-md text-[10px] font-black uppercase tracking-widest hover:bg-white/20 transition-all text-white"
+export default function ApexTalentPage() {
+  return (
+    <div
+      style={{
+        fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif",
+        background: C.bg,
+        color: C.text,
+        overflowX: "hidden",
+      }}
+    >
+      {/* NAVBAR */}
+      <nav
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          zIndex: 100,
+          background: C.navy,
+          padding: "0 5%",
+        }}
+      >
+        <div
+          style={{
+            maxWidth: 1200,
+            margin: "0 auto",
+            display: "flex",
+            alignItems: "center",
+            height: 72,
+            gap: 40,
+          }}
         >
-          [INIT_PURCHASE]
-        </button>
-      </motion.nav>
-
-      {/* ── MOBILE MENU ── */}
-      <AnimatePresence>
-        {menuOpen && (
-          <motion.div 
-            initial={{ opacity: 0, scale: 1.1 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 1.1 }}
-            transition={{ duration: 0.8, ease: [0.19, 1, 0.22, 1] }}
-            className="fixed inset-0 z-[60] bg-[#fcfcfc] text-black p-12 flex flex-col justify-between"
+          <Link
+            href="/"
+            style={{
+              textDecoration: "none",
+              display: "flex",
+              alignItems: "center",
+              gap: 10,
+            }}
           >
-            <div className="flex justify-between items-center border-b border-black/5 pb-12">
-              <span className="text-xl font-black uppercase tracking-tighter italic">MINIMAL//OBJECTS</span>
-              <button onClick={() => setMenuOpen(false)} className="w-12 h-12 flex items-center justify-center border border-black/10 rounded-full">
-                <X className="w-6 h-6" />
-              </button>
+            <div
+              style={{
+                width: 36,
+                height: 36,
+                background: C.accent,
+                borderRadius: 8,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <Award size={20} color={C.white} />
             </div>
-            <div className="flex flex-col gap-12 text-center md:text-left">
-              {["OBJECT_MANIFEST", "SHOP_ARCHIVE", "SPATIAL_FORGE", "ASSET_ENCLAVE", "SECURE_AUTH"].map((item, i) => (
-                <motion.a 
-                  key={item}
-                  initial={{ opacity: 0, y: 50 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.1 + 0.3 }}
-                  href="#"
-                  className="text-6xl md:text-9xl font-black uppercase italic tracking-tighter hover:text-black/40 transition-all leading-none"
-                  onClick={() => setMenuOpen(false)}
-                >
-                  {item}
-                </motion.a>
-              ))}
-            </div>
-            <div className="flex justify-between text-[10px] font-bold uppercase tracking-[0.5em] border-t border-black/5 pt-12 text-black/30">
-              <span>OBJECT_PRACTICE</span>
-              <span>EST. 2018 // BERLIN</span>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            <span
+              style={{
+                fontWeight: 800,
+                fontSize: 20,
+                color: C.white,
+              }}
+            >
+              Apex Talent
+            </span>
+          </Link>
 
-      {/* ── HERO SECTION ── */}
-      <section className="relative h-screen flex items-center justify-center overflow-hidden bg-black">
-        <motion.div 
-          style={{ opacity: heroOpacity, scale: heroScale }}
-          className="absolute inset-0 z-0"
-        >
-          <Image 
-            src="https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?w=1600&q=80" 
-            alt="Hero Object" 
-            fill 
-            className="object-cover grayscale brightness-50 contrast-125 opacity-30" 
-            unoptimized 
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#fcfcfc]" />
-        </motion.div>
+          <div style={{ flex: 1 }} />
 
-        <div className="relative z-10 text-center px-6">
-          <Reveal>
-            <span className="text-[10px] font-bold uppercase tracking-[2.5em] text-black/40 mb-12 block italic">Structural Endurance</span>
-          </Reveal>
-          <Reveal delay={0.2}>
-            <h1 className="text-8xl md:text-[18rem] font-black tracking-tighter leading-[0.75] uppercase italic text-black mb-20">
-              RAW <br/> <span className="not-italic text-black/10">FORM.</span>
-            </h1>
-          </Reveal>
-          <Reveal delay={0.4}>
-            <div className="max-w-2xl mx-auto flex flex-col items-center gap-16 border-t border-black/10 pt-20">
-              <p className="text-black/40 text-xl leading-relaxed font-light uppercase tracking-[0.3em] italic leading-loose text-center">
-                Engineering the ultimate object archives through distributed material orchestration. High-fidelity systems built for absolute structural precision and tactile clarity.
-              </p>
-              <div className="flex gap-8">
-                <button className="px-16 py-6 bg-black text-white font-black uppercase text-xs tracking-[0.4em] hover:bg-white hover:text-black transition-all">
-                  Manifest_Access
-                </button>
-                <button className="px-16 py-6 border border-black/20 text-black font-black uppercase text-xs tracking-[0.4em] hover:bg-black/5 transition-colors">
-                  Shop_Dossier
-                </button>
-              </div>
-            </div>
-          </Reveal>
-        </div>
-
-        <div className="absolute bottom-12 left-12 right-12 flex justify-between items-end text-[10px] font-bold uppercase tracking-[0.5em] text-black/20">
-          <div className="flex flex-col gap-2">
-            <span>BERLIN // ATELIER</span>
-            <div className="w-48 h-[1px] bg-black/10" />
+          <div
+            style={{
+              display: "flex",
+              gap: 32,
+              alignItems: "center",
+            }}
+          >
+            {["Services", "Sectors", "Results", "About"].map((item) => (
+              <a
+                key={item}
+                href={`#${item.toLowerCase()}`}
+                style={{
+                  fontSize: 14,
+                  fontWeight: 500,
+                  color: "#93c5fd",
+                  textDecoration: "none",
+                }}
+              >
+                {item}
+              </a>
+            ))}
           </div>
-          <div className="flex items-center gap-4 italic uppercase tracking-widest">
-             <span className="animate-pulse">●</span> OBJECT_STATUS: NOMINAL
+
+          <div style={{ display: "flex", gap: 12 }}>
+            <a
+              href="#contact"
+              style={{
+                background: "rgba(255,255,255,0.1)",
+                color: C.white,
+                padding: "10px 20px",
+                borderRadius: 8,
+                fontWeight: 600,
+                fontSize: 14,
+                textDecoration: "none",
+                border: "1px solid rgba(255,255,255,0.2)",
+              }}
+            >
+              I'm a Candidate
+            </a>
+            <a
+              href="#contact"
+              style={{
+                background: C.accent,
+                color: C.white,
+                padding: "10px 20px",
+                borderRadius: 8,
+                fontWeight: 700,
+                fontSize: 14,
+                textDecoration: "none",
+              }}
+            >
+              Hire Talent
+            </a>
+          </div>
+        </div>
+      </nav>
+
+      {/* HERO */}
+      <section
+        style={{
+          background: C.navy,
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
+          paddingTop: 72,
+          position: "relative",
+          overflow: "hidden",
+        }}
+      >
+        {/* Background grid */}
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            backgroundImage: `linear-gradient(rgba(37,99,235,0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(37,99,235,0.07) 1px, transparent 1px)`,
+            backgroundSize: "60px 60px",
+          }}
+        />
+
+        {/* Blue glow */}
+        <div
+          style={{
+            position: "absolute",
+            bottom: "-20%",
+            left: "30%",
+            width: 700,
+            height: 700,
+            background: `radial-gradient(circle, ${C.accent}25 0%, transparent 60%)`,
+            borderRadius: "50%",
+            pointerEvents: "none",
+          }}
+        />
+
+        <div
+          style={{
+            position: "relative",
+            zIndex: 2,
+            maxWidth: 1200,
+            margin: "0 auto",
+            padding: "80px 5%",
+            width: "100%",
+          }}
+        >
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: 80,
+              alignItems: "center",
+            }}
+          >
+            {/* Left: Copy */}
+            <div>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 8,
+                  background: `${C.accent}22`,
+                  border: `1px solid ${C.accent}44`,
+                  borderRadius: 30,
+                  padding: "6px 16px",
+                  marginBottom: 28,
+                }}
+              >
+                <Award size={14} color="#60a5fa" />
+                <span
+                  style={{
+                    color: "#60a5fa",
+                    fontSize: 13,
+                    fontWeight: 600,
+                  }}
+                >
+                  2,400+ executive placements since 2007
+                </span>
+              </motion.div>
+
+              <motion.h1
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7, delay: 0.1 }}
+                style={{
+                  fontSize: "clamp(38px, 5vw, 62px)",
+                  fontWeight: 900,
+                  color: C.white,
+                  lineHeight: 1.1,
+                  marginBottom: 24,
+                }}
+              >
+                The people who{" "}
+                <span
+                  style={{
+                    color: C.accent,
+                    background: `linear-gradient(135deg, ${C.accent}, #60a5fa)`,
+                    WebkitBackgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                  }}
+                >
+                  build
+                </span>{" "}
+                category leaders
+              </motion.h1>
+
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.7, delay: 0.25 }}
+                style={{
+                  fontSize: 18,
+                  color: "#93c5fd",
+                  lineHeight: 1.75,
+                  marginBottom: 40,
+                  maxWidth: 460,
+                }}
+              >
+                Apex Talent places C-suite leaders and senior executives for companies that refuse to compromise on talent. Executive search, RPO, and HR consulting.
+              </motion.p>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.35 }}
+                style={{ display: "flex", gap: 16, flexWrap: "wrap" }}
+              >
+                <a
+                  href="#contact"
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 8,
+                    background: C.accent,
+                    color: C.white,
+                    padding: "16px 32px",
+                    borderRadius: 10,
+                    fontWeight: 700,
+                    fontSize: 16,
+                    textDecoration: "none",
+                  }}
+                >
+                  Hire Executive Talent <ArrowRight size={18} />
+                </a>
+                <a
+                  href="#contact"
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 8,
+                    background: "transparent",
+                    color: C.white,
+                    padding: "16px 32px",
+                    borderRadius: 10,
+                    fontWeight: 600,
+                    fontSize: 16,
+                    textDecoration: "none",
+                    border: "1.5px solid rgba(255,255,255,0.2)",
+                  }}
+                >
+                  I'm a Candidate
+                </a>
+              </motion.div>
+            </div>
+
+            {/* Right: Candidate match score visual */}
+            <motion.div
+              initial={{ opacity: 0, x: 40 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8, delay: 0.3 }}
+            >
+              <div
+                style={{
+                  background: "rgba(255,255,255,0.04)",
+                  border: "1px solid rgba(255,255,255,0.1)",
+                  borderRadius: 20,
+                  padding: 32,
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 12,
+                    marginBottom: 28,
+                  }}
+                >
+                  <div
+                    style={{
+                      width: 48,
+                      height: 48,
+                      background: `${C.accent}30`,
+                      borderRadius: 12,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <Target size={24} color={C.accent} />
+                  </div>
+                  <div>
+                    <div
+                      style={{
+                        color: C.white,
+                        fontWeight: 700,
+                        fontSize: 16,
+                      }}
+                    >
+                      Candidate Match Report
+                    </div>
+                    <div
+                      style={{ color: "#64748b", fontSize: 13 }}
+                    >
+                      VP of Engineering — NovaTech Capital
+                    </div>
+                  </div>
+                  <div
+                    style={{
+                      marginLeft: "auto",
+                      background: "#22c55e22",
+                      border: "1px solid #22c55e44",
+                      borderRadius: 20,
+                      padding: "4px 12px",
+                      fontSize: 12,
+                      fontWeight: 700,
+                      color: "#4ade80",
+                    }}
+                  >
+                    SHORTLISTED
+                  </div>
+                </div>
+
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 16,
+                    marginBottom: 24,
+                  }}
+                >
+                  <MatchScore score={97} label="Technical Expertise" />
+                  <MatchScore score={93} label="Leadership Experience" />
+                  <MatchScore score={89} label="Culture Alignment" />
+                  <MatchScore score={95} label="Compensation Fit" />
+                  <MatchScore score={91} label="Industry Background" />
+                </div>
+
+                <div
+                  style={{
+                    background: `${C.accent}15`,
+                    border: `1px solid ${C.accent}30`,
+                    borderRadius: 12,
+                    padding: "14px 18px",
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                  }}
+                >
+                  <span
+                    style={{
+                      color: "#93c5fd",
+                      fontSize: 14,
+                      fontWeight: 600,
+                    }}
+                  >
+                    Overall Match Score
+                  </span>
+                  <span
+                    style={{
+                      fontSize: 24,
+                      fontWeight: 900,
+                      color: C.accent,
+                    }}
+                  >
+                    93%
+                  </span>
+                </div>
+
+                <div
+                  style={{
+                    marginTop: 20,
+                    paddingTop: 20,
+                    borderTop: "1px solid rgba(255,255,255,0.08)",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 12,
+                  }}
+                >
+                  <CheckCircle size={16} color="#4ade80" />
+                  <span style={{ fontSize: 13, color: "#94a3b8" }}>
+                    Passive candidate — not actively searching
+                  </span>
+                </div>
+              </div>
+            </motion.div>
           </div>
         </div>
       </section>
 
-      {/* ── METRICS GRID ── */}
-      <section className="py-40 bg-[#fcfcfc]">
-        <div className="max-w-[1600px] mx-auto px-8 md:px-16">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-px bg-black/5 border border-black/5">
-            {METRICS.map((s, i) => (
-              <Reveal key={s.label} delay={i * 0.1} className="bg-white p-24 group hover:bg-black/5 transition-all duration-700">
-                <span className="text-[10px] font-bold uppercase tracking-[0.5em] text-black/30 mb-12 block group-hover:text-black/60">{s.label}</span>
-                <h3 className="text-7xl font-black italic text-black mb-8 group-hover:text-black transition-colors">{s.val}</h3>
-                <p className="text-xs text-black/30 font-light tracking-widest uppercase italic leading-loose group-hover:text-black/60">
-                  {s.desc}
-                </p>
-              </Reveal>
+      {/* SERVICES */}
+      <section
+        id="services"
+        style={{ padding: "100px 5%", background: C.bgAlt }}
+      >
+        <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+          <SectionReveal>
+            <div style={{ textAlign: "center", marginBottom: 64 }}>
+              <div
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 8,
+                  background: C.accentLight,
+                  borderRadius: 30,
+                  padding: "6px 16px",
+                  marginBottom: 16,
+                }}
+              >
+                <Briefcase size={14} color={C.accentDark} />
+                <span
+                  style={{
+                    color: C.accentDark,
+                    fontSize: 13,
+                    fontWeight: 600,
+                  }}
+                >
+                  What We Do
+                </span>
+              </div>
+              <h2
+                style={{
+                  fontSize: "clamp(30px, 4vw, 46px)",
+                  fontWeight: 800,
+                  color: C.navy,
+                  marginBottom: 16,
+                }}
+              >
+                Three ways we deliver results
+              </h2>
+              <p
+                style={{
+                  fontSize: 17,
+                  color: C.textMuted,
+                  maxWidth: 520,
+                  margin: "0 auto",
+                  lineHeight: 1.7,
+                }}
+              >
+                From single executive searches to full HR transformation — we work at the intersection of talent strategy and business outcomes.
+              </p>
+            </div>
+          </SectionReveal>
+
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(3, 1fr)",
+              gap: 28,
+            }}
+          >
+            {SERVICES.map((service, i) => (
+              <SectionReveal key={service.name} delay={i * 0.12}>
+                <div
+                  style={{
+                    background: C.white,
+                    borderRadius: 20,
+                    padding: 36,
+                    border: `1px solid ${C.border}`,
+                    height: "100%",
+                    display: "flex",
+                    flexDirection: "column",
+                    transition: "box-shadow 0.2s, transform 0.2s",
+                  }}
+                  onMouseEnter={(e) => {
+                    const el = e.currentTarget as HTMLElement;
+                    el.style.boxShadow =
+                      "0 20px 60px rgba(37,99,235,0.12)";
+                    el.style.transform = "translateY(-4px)";
+                  }}
+                  onMouseLeave={(e) => {
+                    const el = e.currentTarget as HTMLElement;
+                    el.style.boxShadow = "none";
+                    el.style.transform = "translateY(0)";
+                  }}
+                >
+                  <div
+                    style={{
+                      width: 52,
+                      height: 52,
+                      background: C.accentLight,
+                      borderRadius: 14,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      marginBottom: 20,
+                    }}
+                  >
+                    <service.icon size={26} color={C.accent} />
+                  </div>
+                  <h3
+                    style={{
+                      fontSize: 22,
+                      fontWeight: 800,
+                      color: C.navy,
+                      marginBottom: 12,
+                    }}
+                  >
+                    {service.name}
+                  </h3>
+                  <p
+                    style={{
+                      fontSize: 15,
+                      color: C.textMuted,
+                      lineHeight: 1.7,
+                      marginBottom: 24,
+                    }}
+                  >
+                    {service.desc}
+                  </p>
+                  <div
+                    style={{
+                      flex: 1,
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: 8,
+                    }}
+                  >
+                    {service.details.map((d) => (
+                      <div
+                        key={d}
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 10,
+                        }}
+                      >
+                        <Check
+                          size={14}
+                          color={C.accent}
+                          style={{ flexShrink: 0 }}
+                        />
+                        <span
+                          style={{ fontSize: 14, color: C.text }}
+                        >
+                          {d}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                  <a
+                    href="#contact"
+                    style={{
+                      marginTop: 28,
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: 6,
+                      color: C.accent,
+                      fontWeight: 700,
+                      fontSize: 14,
+                      textDecoration: "none",
+                    }}
+                  >
+                    Learn more <ArrowRight size={14} />
+                  </a>
+                </div>
+              </SectionReveal>
             ))}
           </div>
         </div>
       </section>
 
-      {/* OBJECT SHOWCASE ── */}
-      <section className="py-40 bg-white relative overflow-hidden">
-        <div className="max-w-[1600px] mx-auto px-8 md:px-16">
-          <Reveal className="mb-32">
-             <div className="flex flex-col lg:flex-row justify-between items-end gap-12 border-b border-black/10 pb-12">
-               <h2 className="text-7xl md:text-[10rem] font-black italic tracking-tighter leading-[0.8] uppercase text-black">
-                 Object <br/> <span className="text-black/20 not-italic">Archive.</span>
-               </h2>
-               <div className="text-right">
-                  <span className="text-[10px] font-bold uppercase tracking-[0.5em] text-black/20 mb-4 block italic">Manifest_Sequence_2024</span>
-                  <div className="flex gap-4">
-                    {OBJECT_MANIFESTS.map((_, i) => (
-                      <button 
-                        key={i} 
-                        onClick={() => setActiveObj(i)}
-                        className={`w-16 h-1 transition-all ${activeObj === i ? "bg-black w-32" : "bg-black/10"}`}
+      {/* STATS — Animated counters */}
+      <section
+        id="results"
+        style={{ padding: "100px 5%", background: C.navy }}
+      >
+        <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+          <SectionReveal>
+            <div style={{ textAlign: "center", marginBottom: 72 }}>
+              <h2
+                style={{
+                  fontSize: "clamp(30px, 4vw, 46px)",
+                  fontWeight: 800,
+                  color: C.white,
+                  marginBottom: 16,
+                }}
+              >
+                18 years of measurable results
+              </h2>
+              <p
+                style={{
+                  fontSize: 17,
+                  color: "#93c5fd",
+                  maxWidth: 480,
+                  margin: "0 auto",
+                }}
+              >
+                Numbers that define our commitment to quality over volume.
+              </p>
+            </div>
+          </SectionReveal>
+
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(4, 1fr)",
+              gap: 40,
+            }}
+          >
+            {STATS.map((s, i) => (
+              <Counter
+                key={s.label}
+                end={s.end}
+                suffix={s.suffix}
+                label={s.label}
+                delay={i * 0.15}
+              />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CASE STUDIES */}
+      <section style={{ padding: "100px 5%", background: C.bg }}>
+        <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+          <SectionReveal>
+            <div style={{ textAlign: "center", marginBottom: 64 }}>
+              <h2
+                style={{
+                  fontSize: "clamp(30px, 4vw, 46px)",
+                  fontWeight: 800,
+                  color: C.navy,
+                  marginBottom: 16,
+                }}
+              >
+                Success stories
+              </h2>
+            </div>
+          </SectionReveal>
+
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(3, 1fr)",
+              gap: 24,
+            }}
+          >
+            {CASE_STUDIES.map((cs, i) => (
+              <SectionReveal key={cs.company} delay={i * 0.12}>
+                <div
+                  style={{
+                    background: C.white,
+                    borderRadius: 20,
+                    padding: 32,
+                    border: `1px solid ${C.border}`,
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 20,
+                    height: "100%",
+                  }}
+                >
+                  <div>
+                    <div
+                      style={{
+                        display: "inline-block",
+                        background: C.accentLight,
+                        color: C.accent,
+                        fontSize: 11,
+                        fontWeight: 700,
+                        padding: "3px 10px",
+                        borderRadius: 20,
+                        textTransform: "uppercase",
+                        letterSpacing: "0.06em",
+                        marginBottom: 10,
+                      }}
+                    >
+                      {cs.sector}
+                    </div>
+                    <h3
+                      style={{
+                        fontSize: 20,
+                        fontWeight: 800,
+                        color: C.navy,
+                      }}
+                    >
+                      {cs.company}
+                    </h3>
+                  </div>
+                  <div>
+                    <div
+                      style={{
+                        fontSize: 12,
+                        fontWeight: 700,
+                        color: C.textMuted,
+                        textTransform: "uppercase",
+                        letterSpacing: "0.06em",
+                        marginBottom: 6,
+                      }}
+                    >
+                      Challenge
+                    </div>
+                    <p
+                      style={{
+                        fontSize: 14,
+                        color: C.text,
+                        lineHeight: 1.65,
+                      }}
+                    >
+                      {cs.challenge}
+                    </p>
+                  </div>
+                  <div>
+                    <div
+                      style={{
+                        fontSize: 12,
+                        fontWeight: 700,
+                        color: C.textMuted,
+                        textTransform: "uppercase",
+                        letterSpacing: "0.06em",
+                        marginBottom: 6,
+                      }}
+                    >
+                      Outcome
+                    </div>
+                    <p
+                      style={{
+                        fontSize: 14,
+                        color: C.text,
+                        lineHeight: 1.65,
+                      }}
+                    >
+                      {cs.outcome}
+                    </p>
+                  </div>
+                  <div
+                    style={{
+                      marginTop: "auto",
+                      paddingTop: 20,
+                      borderTop: `1px solid ${C.border}`,
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 12,
+                    }}
+                  >
+                    <div
+                      style={{
+                        fontSize: 32,
+                        fontWeight: 900,
+                        color: C.accent,
+                      }}
+                    >
+                      {cs.metric}
+                    </div>
+                    <div
+                      style={{ fontSize: 13, color: C.textMuted }}
+                    >
+                      {cs.metricLabel}
+                    </div>
+                  </div>
+                </div>
+              </SectionReveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* TESTIMONIALS */}
+      <section style={{ padding: "100px 5%", background: C.navy }}>
+        <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+          <SectionReveal>
+            <div style={{ textAlign: "center", marginBottom: 64 }}>
+              <h2
+                style={{
+                  fontSize: "clamp(30px, 4vw, 46px)",
+                  fontWeight: 800,
+                  color: C.white,
+                  marginBottom: 12,
+                }}
+              >
+                What our clients say
+              </h2>
+            </div>
+          </SectionReveal>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(3, 1fr)",
+              gap: 24,
+            }}
+          >
+            {TESTIMONIALS.map((t, i) => (
+              <SectionReveal key={t.name} delay={i * 0.1}>
+                <div
+                  style={{
+                    background: "rgba(255,255,255,0.04)",
+                    border: "1px solid rgba(255,255,255,0.1)",
+                    borderRadius: 20,
+                    padding: 32,
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 18,
+                  }}
+                >
+                  <div style={{ display: "flex", gap: 4 }}>
+                    {Array.from({ length: t.rating }).map((_, j) => (
+                      <Star
+                        key={j}
+                        size={16}
+                        fill={C.accent}
+                        color={C.accent}
                       />
                     ))}
                   </div>
-               </div>
-             </div>
-          </Reveal>
-
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-24 items-center">
-            <div className="lg:col-span-8 relative aspect-video rounded-sm overflow-hidden border border-black/5 group bg-[#ddd]">
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={activeObj}
-                  initial={{ opacity: 0, scale: 1.1 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 1.1 }}
-                  transition={{ duration: 1, ease: [0.19, 1, 0.22, 1] }}
-                  className="absolute inset-0"
-                >
-                  <Image src={OBJECT_MANIFESTS[activeObj].img} alt={OBJECT_MANIFESTS[activeObj].title} fill className="object-cover grayscale brightness-75 group-hover:grayscale-0 transition-all duration-[2s]" unoptimized />
-                  <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-transparent opacity-80" />
-                </motion.div>
-              </AnimatePresence>
-              <div className="absolute bottom-12 left-12 flex flex-col gap-4">
-                 <span className="text-[10px] font-black uppercase tracking-widest bg-black/80 backdrop-blur-md text-white px-6 py-2 border border-white/5">{OBJECT_MANIFESTS[activeObj].material} // ADVISORY</span>
-              </div>
-            </div>
-
-            <div className="lg:col-span-4 space-y-12">
-               <motion.div
-                  key={activeObj}
-                  initial={{ opacity: 0, x: 50 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.6 }}
-                  className="space-y-12"
-               >
-                 <span className="text-[10px] font-black uppercase tracking-[0.4em] text-black/60">{OBJECT_MANIFESTS[activeObj].id} // ASSET</span>
-                 <h3 className="text-6xl md:text-8xl font-black italic uppercase text-black tracking-tighter">{OBJECT_MANIFESTS[activeObj].title}</h3>
-                 <div className="space-y-6 border-y border-black/10 py-12">
-                    <div className="flex justify-between items-center">
-                       <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-black/30">Category</span>
-                       <span className="text-sm font-black text-black uppercase tracking-widest">{OBJECT_MANIFESTS[activeObj].category}</span>
+                  <p
+                    style={{
+                      fontSize: 15,
+                      color: "#cbd5e1",
+                      lineHeight: 1.75,
+                      flex: 1,
+                    }}
+                  >
+                    "{t.text}"
+                  </p>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 12,
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: 42,
+                        height: 42,
+                        borderRadius: "50%",
+                        background: `${C.accent}30`,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontWeight: 700,
+                        fontSize: 13,
+                        color: "#60a5fa",
+                        flexShrink: 0,
+                      }}
+                    >
+                      {t.avatar}
                     </div>
-                    <div className="flex justify-between items-center">
-                       <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-black/30">Object_Status</span>
-                       <span className="text-sm font-black text-black uppercase tracking-widest italic">Stable_Optical</span>
+                    <div>
+                      <div
+                        style={{
+                          fontWeight: 700,
+                          fontSize: 15,
+                          color: C.white,
+                        }}
+                      >
+                        {t.name}
+                      </div>
+                      <div
+                        style={{ fontSize: 13, color: "#64748b" }}
+                      >
+                        {t.role}
+                      </div>
                     </div>
-                 </div>
-                 <p className="text-black/30 text-lg font-light italic leading-loose uppercase tracking-wide">
-                   {OBJECT_MANIFESTS[activeObj].desc}
-                 </p>
-                 <button className="flex items-center gap-6 group">
-                    <span className="text-[10px] font-bold uppercase tracking-[0.8em] text-black">Request_Manifest</span>
-                    <div className="w-16 h-16 border border-black/10 rounded-full flex items-center justify-center group-hover:bg-black transition-all">
-                       <ArrowUpRight className="w-6 h-6 text-black group-hover:text-white transition-colors" />
-                    </div>
-                 </button>
-               </motion.div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── CAPABILITIES ── */}
-      <section className="py-40 bg-[#fcfcfc] border-y border-black/10">
-        <div className="max-w-[1600px] mx-auto px-8 md:px-16">
-          <Reveal className="mb-32 text-center">
-             <span className="text-[10px] font-bold uppercase tracking-[1em] text-black/40 mb-8 block italic">Operational Scope</span>
-             <h2 className="text-7xl md:text-[10rem] font-black italic tracking-tighter leading-[0.8] uppercase text-black">
-                Technical <br/> <span className="text-black/20 not-italic">Expertise.</span>
-             </h2>
-          </Reveal>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-px bg-black/10 border border-black/10">
-            {CAPABILITIES.map((item, i) => (
-              <Reveal key={item.title} delay={i * 0.1} className="bg-white p-12 group hover:bg-black/5 transition-all duration-700">
-                 <item.icon className="w-12 h-12 text-black/20 group-hover:text-black transition-colors mb-8" />
-                 <h3 className="text-2xl font-black italic uppercase text-black mb-6">{item.title}</h3>
-                 <p className="text-xs text-black/40 group-hover:text-black font-light tracking-widest uppercase italic leading-loose transition-colors">
-                   {item.desc}
-                 </p>
-              </Reveal>
+                  </div>
+                </div>
+              </SectionReveal>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ATELIER / LABORATORY ── */}
-      <section className="py-40 bg-white overflow-hidden">
-        <div className="max-w-[1600px] mx-auto px-8 md:px-16 grid grid-cols-1 lg:grid-cols-2 gap-32 items-center">
-          <Reveal>
-             <div className="relative aspect-square bg-[#fcfcfc] border border-black/5 p-20 flex flex-col justify-center group overflow-hidden">
-                <div className="absolute top-0 right-0 p-12">
-                   <Box className="w-16 h-16 text-black/5 group-hover:text-black/10 transition-colors" />
+      {/* SECTORS GRID */}
+      <section
+        id="sectors"
+        style={{ padding: "100px 5%", background: C.bgAlt }}
+      >
+        <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+          <SectionReveal>
+            <div style={{ textAlign: "center", marginBottom: 56 }}>
+              <h2
+                style={{
+                  fontSize: "clamp(28px, 4vw, 42px)",
+                  fontWeight: 800,
+                  color: C.navy,
+                  marginBottom: 12,
+                }}
+              >
+                Industries we serve
+              </h2>
+              <p
+                style={{
+                  fontSize: 16,
+                  color: C.textMuted,
+                  maxWidth: 480,
+                  margin: "0 auto",
+                }}
+              >
+                Deep networks in 12 sectors, built over 18 years of specialized placement.
+              </p>
+            </div>
+          </SectionReveal>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(4, 1fr)",
+              gap: 14,
+            }}
+          >
+            {SECTORS.map((sector, i) => (
+              <SectionReveal key={sector} delay={i * 0.05}>
+                <div
+                  style={{
+                    background: C.white,
+                    border: `1px solid ${C.border}`,
+                    borderRadius: 12,
+                    padding: "16px 20px",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 10,
+                    transition: "all 0.2s",
+                    cursor: "default",
+                  }}
+                  onMouseEnter={(e) => {
+                    const el = e.currentTarget as HTMLElement;
+                    el.style.background = C.accentLight;
+                    el.style.borderColor = `${C.accent}50`;
+                  }}
+                  onMouseLeave={(e) => {
+                    const el = e.currentTarget as HTMLElement;
+                    el.style.background = C.white;
+                    el.style.borderColor = C.border;
+                  }}
+                >
+                  <Globe size={14} color={C.accent} style={{ flexShrink: 0 }} />
+                  <span
+                    style={{
+                      fontSize: 14,
+                      fontWeight: 600,
+                      color: C.navy,
+                    }}
+                  >
+                    {sector}
+                  </span>
                 </div>
-                <Sparkles className="w-16 h-16 text-black mb-12" />
-                <h3 className="text-5xl font-black italic uppercase text-black mb-8">Object <br/> <span className="text-black/20 not-italic">Atelier.</span></h3>
-                <p className="text-black/40 text-lg leading-relaxed mb-12 font-light uppercase tracking-wide italic leading-loose">
-                  Our Berlin atelier leverages heavy archival data fabrication and distributed object orchestration for the production of non-standard spatial artifacts. We push the tectonic limits of spatial design.
-                </p>
-                <div className="flex gap-12 text-[10px] font-bold uppercase tracking-[0.5em] text-black/30">
-                   <span>[01] OBJECT_BOND</span>
-                   <span>[02] TACTILE_SYNTHESIS</span>
-                </div>
-             </div>
-          </Reveal>
-          <div className="space-y-24">
-             <Reveal delay={0.2}>
-                <span className="text-[10px] font-bold uppercase tracking-[1em] text-black/40 mb-8 block italic">Curation_Sequence</span>
-                <h2 className="text-6xl md:text-8xl font-black italic tracking-tighter leading-none uppercase text-black">Object <br/> <span className="text-black/20 not-italic">Manifesto.</span></h2>
-             </Reveal>
-             <div className="space-y-12">
-                {[
-                  { n: "01", t: "Sectional Audit", d: "Rigorous cutting of complex object volumes to reveal interior structural potential." },
-                  { n: "02", t: "Tactile Stress", d: "Simulation of high-fidelity visual performance under extreme archival loads." },
-                  { n: "03", t: "Archive Aging", d: "Analyzing the interaction of archival object models with digital weathering." }
-                ].map((step, i) => (
-                  <Reveal key={step.n} delay={i * 0.1 + 0.3} className="flex gap-12 group border-l border-black/10 pl-8 hover:border-black transition-colors">
-                    <span className="text-4xl font-black italic text-black/10 group-hover:text-black transition-colors">{step.n}</span>
-                    <div>
-                      <h4 className="text-xl font-black uppercase italic text-white mb-2">{step.t}</h4>
-                      <p className="text-xs text-black/40 font-light tracking-widest uppercase italic leading-loose">{step.d}</p>
-                    </div>
-                  </Reveal>
-                ))}
-             </div>
+              </SectionReveal>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* ── CTA / INQUIRY ── */}
-      <section className="py-40 bg-[#fcfcfc] relative">
-         <div className="max-w-[1600px] mx-auto px-8 md:px-16">
-            <div className="bg-black text-white p-24 lg:p-40 relative overflow-hidden flex flex-col items-center text-center group">
-               <div className="absolute inset-0 opacity-10 grayscale brightness-110 group-hover:opacity-20 transition-opacity">
-                  <Image src="https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?w=1600&q=80" alt="CTA Object" fill className="object-cover" />
-               </div>
-               <Reveal>
-                  <span className="text-[10px] font-bold uppercase tracking-[1em] text-white/50 mb-12 block italic">Commission Initiation</span>
-                  <h2 className="text-7xl md:text-[12rem] font-black italic tracking-tighter leading-[0.8] uppercase mb-16">
-                     Own <br/> <span className="text-white/30 not-italic">The Form.</span>
-                  </h2>
-                  <div className="flex flex-wrap justify-center gap-12 relative z-10">
-                     <button className="px-20 py-8 bg-white text-black font-black uppercase text-sm tracking-[0.5em] hover:italic transition-all">
-                        Request_Selection
-                     </button>
-                     <button className="px-20 py-8 border border-white/20 text-white font-black uppercase text-sm tracking-[0.5em] hover:bg-white/5 transition-all">
-                        Atelier_Dossier
-                     </button>
-                  </div>
-               </Reveal>
+      {/* FAQ */}
+      <section style={{ padding: "100px 5%", background: C.bg }}>
+        <div style={{ maxWidth: 760, margin: "0 auto" }}>
+          <SectionReveal>
+            <div style={{ textAlign: "center", marginBottom: 56 }}>
+              <h2
+                style={{
+                  fontSize: "clamp(28px, 4vw, 42px)",
+                  fontWeight: 800,
+                  color: C.navy,
+                  marginBottom: 12,
+                }}
+              >
+                Common questions
+              </h2>
+              <p style={{ fontSize: 16, color: C.textMuted }}>
+                Everything you need to know before starting a search.
+              </p>
             </div>
-         </div>
+          </SectionReveal>
+          <div style={{ display: "flex", flexDirection: "column" }}>
+            {FAQS.map((faq, i) => (
+              <FAQItem key={i} faq={faq} delay={i * 0.07} />
+            ))}
+          </div>
+        </div>
       </section>
 
-      {/* ── FOOTER ── */}
-      <footer className="bg-white pt-40 pb-20 px-8 md:px-16 border-t border-black/10">
-         <div className="max-w-[1600px] mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-32 mb-40">
-            <div className="lg:col-span-6">
-               <div className="flex items-center gap-4 mb-12">
-                 <ShoppingBag className="w-10 h-10 text-black" />
-                 <span className="text-3xl font-black tracking-tighter uppercase italic text-black">MINIMAL<span className="text-black/30">//</span>OBJECTS</span>
-               </div>
-               <p className="text-black/40 text-sm font-light leading-relaxed uppercase tracking-[0.3em] mb-12 italic max-w-md">
-                 Securing the future of spatial objects through high-fidelity orchestration and radical visual clarity.
-               </p>
-               <div className="flex gap-12">
-                 {["TERMINAL", "OBJECT", "FORGE", "ALPHA"].map(s => (
-                   <a key={s} href="#" className="text-[10px] font-bold hover:text-black text-black/30 transition-colors tracking-[0.5em]">[{s}]</a>
-                 ))}
-               </div>
-            </div>
-            
-            <div className="lg:col-span-2">
-               <h4 className="text-[10px] font-bold uppercase tracking-[0.5em] text-black/40 mb-12">Systems</h4>
-               <ul className="space-y-6 text-xs font-bold uppercase tracking-[0.4em]">
-                 {["Archives", "Telemetry", "Shell", "Journal"].map(item => (
-                   <li key={item}><a href="#" className="hover:text-black transition-colors">{item}</a></li>
-                 ))}
-               </ul>
+      {/* FOOTER */}
+      <footer style={{ background: C.navy, padding: "80px 5% 40px" }}>
+        <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "2fr 1fr 1fr 1fr",
+              gap: 60,
+              marginBottom: 60,
+            }}
+          >
+            <div>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 10,
+                  marginBottom: 20,
+                }}
+              >
+                <div
+                  style={{
+                    width: 36,
+                    height: 36,
+                    background: C.accent,
+                    borderRadius: 8,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <Award size={20} color={C.white} />
+                </div>
+                <span
+                  style={{
+                    fontWeight: 800,
+                    fontSize: 20,
+                    color: C.white,
+                  }}
+                >
+                  Apex Talent
+                </span>
+              </div>
+              <p
+                style={{
+                  fontSize: 14,
+                  color: "#64748b",
+                  lineHeight: 1.75,
+                  maxWidth: 280,
+                }}
+              >
+                Executive search and HR consulting firm. Placing senior leaders at companies that set the standard.
+              </p>
+              <div
+                style={{ display: "flex", gap: 12, marginTop: 20 }}
+              >
+                {[MessageSquare, Link2, Users2].map((Icon, i) => (
+                  <a
+                    key={i}
+                    href="#"
+                    style={{
+                      width: 36,
+                      height: 36,
+                      background: "rgba(255,255,255,0.07)",
+                      borderRadius: 8,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      textDecoration: "none",
+                    }}
+                  >
+                    <Icon size={16} color="#64748b" />
+                  </a>
+                ))}
+              </div>
             </div>
 
-            <div className="lg:col-span-4">
-               <h4 className="text-[10px] font-bold uppercase tracking-[0.5em] text-black/40 mb-12">Partner Inquiry</h4>
-               <p className="text-sm text-black/40 font-light mb-12 italic uppercase tracking-[0.2em] leading-loose">
-                 For new commissions, spatial studies, or distribution enclaves, contact our primary command center in Berlin.
-               </p>
-               <a href="mailto:ops@minimal-objects.de" className="text-3xl font-black italic hover:text-black transition-colors block border-b border-black/10 pb-8 uppercase tracking-tighter">
-                  ops@minimal-objects.de
-               </a>
-            </div>
-         </div>
+            {[
+              {
+                title: "Services",
+                links: [
+                  "Executive Search",
+                  "RPO Solutions",
+                  "HR Consulting",
+                  "Board Advisory",
+                  "Interim Placement",
+                ],
+              },
+              {
+                title: "Company",
+                links: [
+                  "About Apex",
+                  "Our Team",
+                  "Case Studies",
+                  "Careers",
+                  "Press",
+                ],
+              },
+              {
+                title: "Contact",
+                links: [
+                  "info@apextalent.com",
+                  "+1 212 555 0190",
+                  "300 Park Avenue",
+                  "New York NY 10022",
+                  "Mon-Fri 8am-7pm ET",
+                ],
+              },
+            ].map((col) => (
+              <div key={col.title}>
+                <h4
+                  style={{
+                    fontSize: 12,
+                    fontWeight: 700,
+                    color: C.white,
+                    marginBottom: 16,
+                    textTransform: "uppercase",
+                    letterSpacing: "0.1em",
+                  }}
+                >
+                  {col.title}
+                </h4>
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 10,
+                  }}
+                >
+                  {col.links.map((link) => (
+                    <a
+                      key={link}
+                      href="#"
+                      style={{
+                        fontSize: 14,
+                        color: "#64748b",
+                        textDecoration: "none",
+                      }}
+                    >
+                      {link}
+                    </a>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
 
-         <div className="max-w-[1600px] mx-auto flex flex-col md:row items-center justify-between gap-12 text-[9px] font-bold uppercase tracking-[0.8em] text-black/20 border-t border-black/5 pt-20">
-            <p>© 2024 MINIMAL OBJECTS ATELIER AG. ALL RIGHTS RESERVED. BERLIN // GLOBAL.</p>
-            <div className="flex gap-16">
-               <a href="#" className="hover:text-black transition-colors">[Object_Vault]</a>
-               <a href="#" className="hover:text-white transition-colors">[Terms_of_Service]</a>
+          <div
+            style={{
+              borderTop: "1px solid rgba(255,255,255,0.07)",
+              paddingTop: 32,
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
+            <p style={{ fontSize: 13, color: "#334155" }}>
+              2025 Apex Talent Group. All rights reserved.
+            </p>
+            <div style={{ display: "flex", gap: 24 }}>
+              {["Privacy", "Terms", "Accessibility"].map((item) => (
+                <a
+                  key={item}
+                  href="#"
+                  style={{
+                    fontSize: 13,
+                    color: "#334155",
+                    textDecoration: "none",
+                  }}
+                >
+                  {item}
+                </a>
+              ))}
             </div>
-         </div>
+          </div>
+        </div>
       </footer>
     </div>
   );

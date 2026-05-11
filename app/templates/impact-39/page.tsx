@@ -1,439 +1,798 @@
 "use client";
 
-import { motion, useScroll, useTransform, useInView, AnimatePresence } from "framer-motion";
-import { useState, useRef, useEffect, Suspense } from "react";
-import Image from "next/image";
-import { ArrowUpRight, Menu, X, Layers, ShieldCheck, Plus, Play, ArrowRight, ChevronDown, Monitor, LayoutGrid, Zap, Building, Eye, Maximize2, Minimize2, Box, Settings, Sparkles, Command, Activity, Ruler, Compass } from "lucide-react";
-import "../premium.css";
+import { useRef, useState } from "react";
+import { motion, useScroll, useTransform, useInView } from "framer-motion";
+import Link from "next/link";
+import {
+  ArrowRight,
+  Star,
+  Check,
+  ChevronDown,
+  MapPin,
+  Phone,
+  Shield,
+  Clock,
+  Package,
+  Truck,
+  Home,
+  Building2,
+  Calendar,
+  Users,
+  MessageSquare,
+  Link2,
+  Users2,
+  Camera,
+  Bookmark,
+  Code2,
+  Zap,
+  CheckCircle,
+  BarChart2,
+} from "lucide-react";
 
-// ─── DATA ──────────────────────────────────────────────────────────────────
+const C = {
+  bg: "#ffffff",
+  bgAlt: "#f1f5f9",
+  text: "#1e3a5f",
+  textMuted: "#64748b",
+  orange: "#ea580c",
+  orangeLight: "#fff7ed",
+  orangeDark: "#c2410c",
+  navy: "#1e3a5f",
+  navyLight: "#2d5282",
+  white: "#ffffff",
+  border: "#e2e8f0",
+  borderLight: "#f8fafc",
+};
 
-const ARCHITECTURAL_MANIFESTS = [
-  { 
-    id: "ARC_01",
-    title: "AXIS_VOID", 
-    category: "High-Rise",
-    phase: "v9.4_PLAN",
-    img: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1200&q=80",
-    desc: "A singular exploration of absolute architectural volume within the urban landscape. High-fidelity structural metrics."
+const SERVICES = [
+  {
+    icon: Home,
+    name: "Local Moving",
+    tagline: "In your city",
+    desc: "Same-day and scheduled moves within 50 miles. Our local teams know every neighborhood and building regulation.",
+    features: ["Trained 2-person crews", "Padded blankets & dollies", "Floor protection included", "Furniture disassembly/reassembly"],
+    from: "299",
   },
-  { 
-    id: "ARC_02",
-    title: "NEURAL_CAMPUS", 
-    category: "Institutional",
-    phase: "v3.1_DEV",
-    img: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200&q=80",
-    desc: "Planetary-scale distributed learning orchestrated through neural weight synthesis. Zero-latency spatial objects."
+  {
+    icon: Truck,
+    name: "Long Distance",
+    tagline: "Cross-country",
+    desc: "State-to-state and nationwide moves with GPS-tracked vehicles, guaranteed delivery windows, and full insurance.",
+    features: ["GPS tracking en route", "Guaranteed delivery date", "Full value protection", "Climate-sensitive handling"],
+    from: "1,299",
   },
-  { 
-    id: "ARC_03",
-    title: "VOID_ESTATE", 
-    category: "Residential",
-    phase: "v9.0_STARK",
-    img: "https://images.unsplash.com/photo-1541829070764-84a7d30dee62?w=1200&q=80",
-    desc: "A zero-latency living engine built for the real-time synthesis of non-standard spatial objects through radical code injection."
-  }
+  {
+    icon: Building2,
+    name: "Commercial Moving",
+    tagline: "Business relocations",
+    desc: "Office, retail, and warehouse moves planned and executed to minimize downtime. Weekend and overnight available.",
+    features: ["Dedicated project manager", "IT equipment specialists", "Weekend/overnight moves", "Detailed asset tracking"],
+    from: "999",
+  },
+  {
+    icon: Package,
+    name: "Storage Solutions",
+    tagline: "Secure & accessible",
+    desc: "Climate-controlled storage units from 25 to 1,500 sq ft. Month-to-month, no long-term commitment required.",
+    features: ["Climate controlled", "24/7 CCTV monitoring", "Digital access logs", "Free first month included"],
+    from: "79",
+  },
 ];
 
-const METRICS = [
-  { label: "Precision", val: "99.9%", desc: "Absolute architectural synchronization across all distributed design edge nodes." },
-  { label: "Throughput", val: "12 EB/s", desc: "Sustainable visual delivery through our dedicated high-fidelity blueprint backbone." },
-  { label: "Reliability", val: "IMMUNE", desc: "Zero-leak architectural logic verified through continuous adversarial stress-testing." }
+const HOW_IT_WORKS = [
+  {
+    step: "01",
+    title: "Get a Quote",
+    desc: "Tell us your move details online or call. Receive a binding estimate within 2 hours — no surprise charges.",
+  },
+  {
+    step: "02",
+    title: "Book Your Date",
+    desc: "Choose your preferred move date. We confirm your crew and truck assignment 48 hours in advance.",
+  },
+  {
+    step: "03",
+    title: "We Pack & Load",
+    desc: "Our trained crew arrives on time, packs carefully, and loads with precision. Every item is documented.",
+  },
+  {
+    step: "04",
+    title: "Delivered & Settled",
+    desc: "We deliver, unload, and place items exactly where you want them. We don't leave until you're satisfied.",
+  },
 ];
 
-const CAPABILITIES = [
-  { icon: Ruler, title: "Blueprint Forge", desc: "Engineering architectural volumes through a lens of mathematical and structural purity." },
-  { icon: Compass, title: "Node Logic", desc: "Scaling viewer interactions through distributed focal orchestration and visual synthesis." },
-  { icon: Activity, title: "Pulse Sync", desc: "Synchronizing system spikes with real-time biological demand cycles for absolute sync." },
-  { icon: Box, title: "Asset Shell", desc: "Leveraging heavy archival data fabrication for ultra-high fidelity architectural protection." }
+const STATS = [
+  { value: "18,400+", label: "Successful Moves" },
+  { value: "47", label: "Cities Covered" },
+  { value: "4.9", label: "Average Rating" },
+  { value: "12", label: "Years in Business" },
 ];
 
-// ─── COMPONENTS ──────────────────────────────────────────────────────────────
+const PRICING_CARDS = [
+  {
+    name: "Studio / 1-Bed",
+    price: "299",
+    suffix: "from",
+    period: "local move",
+    features: [
+      "2-person crew",
+      "Up to 4 hours",
+      "Truck included",
+      "Basic protection plan",
+      "Floor runners",
+    ],
+    highlight: false,
+  },
+  {
+    name: "2-3 Bedroom",
+    price: "549",
+    suffix: "from",
+    period: "local move",
+    features: [
+      "3-person crew",
+      "Up to 7 hours",
+      "Large truck included",
+      "Full protection plan",
+      "Furniture disassembly",
+      "Floor & wall protection",
+      "Wardrobe boxes (3)",
+    ],
+    highlight: true,
+  },
+  {
+    name: "4+ Bedroom",
+    price: "899",
+    suffix: "from",
+    period: "local move",
+    features: [
+      "4-person crew",
+      "Full-day move",
+      "26ft truck included",
+      "Premium protection",
+      "Full packing service",
+      "White-glove handling",
+      "Dedicated coordinator",
+      "Complimentary storage (30 days)",
+    ],
+    highlight: false,
+  },
+];
 
-function Reveal({ children, className = "", delay = 0, y = 30 }: { children: React.ReactNode; className?: string; delay?: number; y?: number }) {
-  const ref = useRef(null);
-  const inView = useInView(ref, { once: true, margin: "-100px" });
+const TESTIMONIALS = [
+  {
+    name: "Rachel Torres",
+    role: "Homeowner, Chicago",
+    avatar: "RT",
+    rating: 5,
+    text: "Swift Move handled our 4-bedroom house move in 6 hours flat. Zero damage, incredibly professional crew. I've used 4 movers over the years — Swift is the only call I'll make going forward.",
+  },
+  {
+    name: "David Park",
+    role: "Operations Director, NovaCo",
+    avatar: "DP",
+    rating: 5,
+    text: "They moved our entire 80-person office over a weekend. Monday morning, everything was set up and labeled correctly. Zero operational disruption. Genuinely impressive execution.",
+  },
+  {
+    name: "Monica Alves",
+    role: "Renter, Austin TX",
+    avatar: "MA",
+    rating: 5,
+    text: "I was moving cross-country solo and nervous about entrusting my belongings. Swift gave me GPS updates throughout and delivered 2 days early. Couldn't ask for more.",
+  },
+];
+
+const FAQS = [
+  {
+    q: "How far in advance should I book?",
+    a: "For local moves, 1-2 weeks is ideal. For long-distance or commercial moves, 3-4 weeks. We can sometimes accommodate last-minute local moves with 48-72 hours notice depending on availability.",
+  },
+  {
+    q: "Is my furniture insured during the move?",
+    a: "All moves include basic Released Value Protection at no charge (60 cents per pound per article). We strongly recommend upgrading to Full Value Protection, which covers repair or replacement at current market value. Ask your coordinator for pricing.",
+  },
+  {
+    q: "Do you provide packing materials?",
+    a: "Yes. We sell boxes, tape, bubble wrap, and specialty materials at cost. Full and partial packing services are also available. Wardrobe boxes and TV boxes are included on 2-3BR and larger packages.",
+  },
+  {
+    q: "What items can't you move?",
+    a: "Hazardous materials (paint, gasoline, propane), plants (cross-state), and animals. We recommend moving jewelry, cash, and important documents personally. Our team will advise you during the estimate.",
+  },
+  {
+    q: "What is your cancellation policy?",
+    a: "Free cancellation up to 7 days before your move date. 3-7 days notice: 10% cancellation fee. Less than 72 hours: 25% fee. We understand plans change — contact us as early as possible.",
+  },
+  {
+    q: "Do you offer storage if my new place isn't ready?",
+    a: "Yes — we can store your belongings in our secure, climate-controlled facility. The first 30 days are complimentary for 4-bedroom+ local moves. Monthly rates start at 79 USD/month for a standard unit.",
+  },
+];
+
+// Animated truck SVG
+function TruckSVG({ truckX }: { truckX: any }) {
   return (
     <motion.div
-      ref={ref}
-      initial={{ opacity: 0, y }}
-      animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 1, delay, ease: [0.23, 1, 0.32, 1] }}
-      className={className}
+      style={{
+        x: truckX,
+        position: "absolute",
+        bottom: 80,
+        left: "50%",
+        transform: "translateX(-50%)",
+      }}
     >
+      <svg viewBox="0 0 200 80" style={{ width: 220, height: 88 }}>
+        {/* Truck body */}
+        <rect x="60" y="10" width="130" height="50" rx="4" fill={C.orange} />
+        {/* Cab */}
+        <rect x="10" y="20" width="55" height="40" rx="4" fill={C.orangeDark} />
+        {/* Windshield */}
+        <rect x="15" y="24" width="42" height="22" rx="2" fill="#93c5fd" opacity="0.7" />
+        {/* Wheels */}
+        <circle cx="35" cy="62" r="12" fill={C.navy} />
+        <circle cx="35" cy="62" r="6" fill="#94a3b8" />
+        <circle cx="155" cy="62" r="12" fill={C.navy} />
+        <circle cx="155" cy="62" r="6" fill="#94a3b8" />
+        <circle cx="135" cy="62" r="12" fill={C.navy} />
+        <circle cx="135" cy="62" r="6" fill="#94a3b8" />
+        {/* Road line */}
+        <line x1="0" y1="74" x2="200" y2="74" stroke={C.border} strokeWidth="2" />
+        {/* Swift Move text */}
+        <text x="125" y="40" textAnchor="middle" fontSize="12" fontWeight="700" fill="white" fontFamily="'Manrope', system-ui">
+          SWIFT MOVE
+        </text>
+      </svg>
+    </motion.div>
+  );
+}
+
+// Step timeline
+function StepTimeline() {
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true });
+
+  return (
+    <div ref={ref} style={{ position: "relative" }}>
+      {/* Timeline line */}
+      <div style={{ position: "absolute", top: 28, left: 0, right: 0, height: 2, background: C.border }} />
+      <motion.div
+        initial={{ width: 0 }}
+        animate={inView ? { width: "100%" } : {}}
+        transition={{ duration: 1.5, delay: 0.3, ease: "easeOut" }}
+        style={{ position: "absolute", top: 28, left: 0, height: 2, background: C.orange }}
+      />
+
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 0, position: "relative" }}>
+        {HOW_IT_WORKS.map((step, i) => (
+          <motion.div
+            key={step.step}
+            initial={{ opacity: 0, y: 24 }}
+            animate={inView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.6, delay: 0.4 + i * 0.2 }}
+            style={{ textAlign: "center", padding: "0 16px" }}
+          >
+            <div style={{ width: 56, height: 56, borderRadius: "50%", background: C.orange, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px", position: "relative", zIndex: 1, fontFamily: "'Manrope', system-ui", fontWeight: 800, fontSize: 16, color: C.white }}>
+              {step.step}
+            </div>
+            <h3 style={{ fontSize: 17, fontWeight: 800, color: C.navy, marginBottom: 10 }}>{step.title}</h3>
+            <p style={{ fontSize: 14, color: C.textMuted, lineHeight: 1.7 }}>{step.desc}</p>
+          </motion.div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function FAQItem({ faq, delay }: { faq: { q: string; a: string }; delay: number }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true });
+
+  return (
+    <motion.div ref={ref} initial={{ opacity: 0, y: 14 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.5, delay }}>
+      <div
+        onClick={() => setOpen(!open)}
+        style={{ background: C.bg, border: `1px solid ${open ? C.orange : C.border}`, borderRadius: 12, padding: "20px 24px", cursor: "pointer", marginBottom: 8, transition: "border-color 0.2s" }}
+      >
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 16 }}>
+          <span style={{ fontWeight: 700, fontSize: 16, color: C.navy }}>{faq.q}</span>
+          <motion.div animate={{ rotate: open ? 180 : 0 }} transition={{ duration: 0.2 }} style={{ flexShrink: 0 }}>
+            <ChevronDown size={20} color={C.textMuted} />
+          </motion.div>
+        </div>
+        {open && (
+          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.25 }}
+            style={{ marginTop: 14, fontSize: 15, color: C.textMuted, lineHeight: 1.75 }}>
+            {faq.a}
+          </motion.p>
+        )}
+      </div>
+    </motion.div>
+  );
+}
+
+function SectionReveal({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, margin: "-70px" });
+
+  return (
+    <motion.div ref={ref} initial={{ opacity: 0, y: 36 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6, delay, ease: "easeOut" }}>
       {children}
     </motion.div>
   );
 }
 
-// ─── MAIN SPA ────────────────────────────────────────────────────────────────
-
-export default function BlueprintNodeSPA() {
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [activeArc, setActiveArc] = useState(0);
-  const { scrollY } = useScroll();
-  
-  const heroOpacity = useTransform(scrollY, [0, 400], [1, 0]);
-  const heroScale = useTransform(scrollY, [0, 800], [1, 1.05]);
+function StatCard({ stat, delay }: { stat: typeof STATS[0]; delay: number }) {
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true });
 
   return (
-    <div className="min-h-screen bg-[#050508] text-[#eee] font-mono selection:bg-[#eee] selection:text-black">
-      
-      {/* ── BLUEPRINT OVERLAY ── */}
-      <div className="fixed inset-0 z-[9999] pointer-events-none opacity-[0.08] bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
-      <div className="fixed inset-0 z-[0] opacity-10 pointer-events-none overflow-hidden">
-        <div className="absolute inset-0" style={{ backgroundImage: "linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px)", backgroundSize: "80px 80px" }} />
-      </div>
+    <motion.div ref={ref} initial={{ opacity: 0, scale: 0.9 }} animate={inView ? { opacity: 1, scale: 1 } : {}} transition={{ duration: 0.5, delay }} style={{ textAlign: "center" }}>
+      <div style={{ fontFamily: "'Manrope', system-ui", fontSize: "clamp(36px, 4vw, 52px)", fontWeight: 900, color: C.white }}>{stat.value}</div>
+      <div style={{ fontSize: 15, color: "#93c5fd", marginTop: 6, fontWeight: 500 }}>{stat.label}</div>
+    </motion.div>
+  );
+}
 
-      {/* ── NAVIGATION ── */}
-      <motion.nav 
-        initial={{ y: -100 }}
-        animate={{ y: 0 }}
-        className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-8 md:px-16 py-10 mix-blend-difference"
-      >
-        <div className="flex items-center gap-4">
-          <Building className="w-10 h-10 text-white" />
-          <span className="text-2xl font-black tracking-tighter uppercase italic text-white">BLUEPRINT<span className="text-white/30">//</span>NODE</span>
-        </div>
-        
-        <div className="hidden lg:flex items-center gap-16 text-[10px] font-bold uppercase tracking-[0.4em] text-white/40">
-          {["Manifest", "Reserve", "Atelier", "Portal"].map(item => (
-            <a key={item} href={`#${item.toLowerCase()}`} className="hover:text-white transition-colors">/{item}</a>
-          ))}
-        </div>
+export default function SwiftMovePage() {
+  const heroRef = useRef(null);
+  const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
 
-        <button 
-          onClick={() => setMenuOpen(true)}
-          className="px-6 py-2 border border-white/20 bg-white/5 backdrop-blur-md text-[10px] font-black uppercase tracking-widest hover:bg-white/20 transition-all text-white"
-        >
-          [INIT_BLUEPRINT]
-        </button>
-      </motion.nav>
+  const truckX = useTransform(scrollYProgress, [0, 1], [-120, 120]);
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.75], [1, 0]);
+  const heroY = useTransform(scrollYProgress, [0, 1], ["0%", "20%"]);
 
-      {/* ── MOBILE MENU ── */}
-      <AnimatePresence>
-        {menuOpen && (
-          <motion.div 
-            initial={{ opacity: 0, scale: 1.1 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 1.1 }}
-            transition={{ duration: 0.8, ease: [0.19, 1, 0.22, 1] }}
-            className="fixed inset-0 z-[60] bg-[#050508] text-[#eee] p-12 flex flex-col justify-between"
-          >
-            <div className="flex justify-between items-center border-b border-white/10 pb-12">
-              <span className="text-xl font-black uppercase tracking-tighter italic">BLUEPRINT//NODE</span>
-              <button onClick={() => setMenuOpen(false)} className="w-12 h-12 flex items-center justify-center border border-white/20 rounded-full">
-                <X className="w-6 h-6" />
-              </button>
+  return (
+    <div style={{ fontFamily: "'Manrope', system-ui, sans-serif", background: C.bg, color: C.text, overflowX: "hidden" }}>
+      {/* NAVBAR */}
+      <nav style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 100, background: C.white, borderBottom: `1px solid ${C.border}`, padding: "0 5%" }}>
+        <div style={{ maxWidth: 1200, margin: "0 auto", display: "flex", alignItems: "center", height: 72, gap: 40 }}>
+          <Link href="/" style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: 10 }}>
+            <div style={{ width: 38, height: 38, background: C.orange, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <Truck size={22} color={C.white} />
             </div>
-            <div className="flex flex-col gap-12 text-center md:text-left">
-              {["BLUEPRINT_MANIFEST", "RESERVE_ARCHIVE", "SPATIAL_FORGE", "ASSET_ENCLAVE", "SECURE_AUTH"].map((item, i) => (
-                <motion.a 
-                  key={item}
-                  initial={{ opacity: 0, y: 50 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.1 + 0.3 }}
-                  href="#"
-                  className="text-6xl md:text-9xl font-black uppercase italic tracking-tighter hover:text-white/40 transition-all leading-none"
-                  onClick={() => setMenuOpen(false)}
-                >
-                  {item}
-                </motion.a>
-              ))}
-            </div>
-            <div className="flex justify-between text-[10px] font-bold uppercase tracking-[0.5em] border-t border-white/10 pt-12 text-white/30">
-              <span>ARCHITECTURAL_PRACTICE</span>
-              <span>EST. 2018 // ZURICH</span>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            <span style={{ fontWeight: 800, fontSize: 20, color: C.navy }}>Swift Move</span>
+          </Link>
 
-      {/* ── HERO SECTION ── */}
-      <section className="relative h-screen flex items-center justify-center overflow-hidden bg-black">
-        <motion.div 
-          style={{ opacity: heroOpacity, scale: heroScale }}
-          className="absolute inset-0 z-0"
-        >
-          <Image 
-            src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1600&q=80" 
-            alt="Hero Architectural" 
-            fill 
-            className="object-cover grayscale brightness-50 contrast-125 opacity-20" 
-            unoptimized 
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#050508]" />
-        </motion.div>
+          <div style={{ flex: 1 }} />
 
-        <div className="relative z-10 text-center px-6">
-          <Reveal>
-            <span className="text-[10px] font-bold uppercase tracking-[2.5em] text-white/40 mb-12 block italic">Structural Endurance</span>
-          </Reveal>
-          <Reveal delay={0.2}>
-            <h1 className="text-8xl md:text-[18rem] font-black tracking-tighter leading-[0.75] uppercase italic text-white mb-20">
-              RAW <br/> <span className="not-italic text-white/10">NODE.</span>
-            </h1>
-          </Reveal>
-          <Reveal delay={0.4}>
-            <div className="max-w-2xl mx-auto flex flex-col items-center gap-16 border-t border-white/10 pt-20">
-              <p className="text-white/40 text-xl leading-relaxed font-light uppercase tracking-[0.3em] italic leading-loose text-center">
-                Engineering the ultimate architectural archives through distributed design orchestration. High-fidelity systems built for absolute structural precision and narrative clarity.
-              </p>
-              <div className="flex gap-8">
-                <button className="px-16 py-6 bg-white text-black font-black uppercase text-xs tracking-[0.4em] hover:bg-black hover:text-white transition-all">
-                  Manifest_Access
-                </button>
-                <button className="px-16 py-6 border border-white/20 text-white font-black uppercase text-xs tracking-[0.4em] hover:bg-white/5 transition-colors">
-                  Atelier_Dossier
-                </button>
-              </div>
-            </div>
-          </Reveal>
-        </div>
-
-        <div className="absolute bottom-12 left-12 right-12 flex justify-between items-end text-[10px] font-bold uppercase tracking-[0.5em] text-white/20">
-          <div className="flex flex-col gap-2">
-            <span>ZURICH // ATELIER</span>
-            <div className="w-48 h-[1px] bg-white/10" />
+          <div style={{ display: "flex", gap: 32, alignItems: "center" }}>
+            {["Services", "How It Works", "Pricing", "About"].map((item) => (
+              <a key={item} href={`#${item.toLowerCase().replace(" ", "-")}`} style={{ fontSize: 14, fontWeight: 600, color: C.textMuted, textDecoration: "none" }}>
+                {item}
+              </a>
+            ))}
           </div>
-          <div className="flex items-center gap-4 italic uppercase tracking-widest">
-             <span className="animate-pulse">●</span> SYSTEM_STATUS: NOMINAL
+
+          <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+            <a href="tel:+18885550100" style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 14, fontWeight: 700, color: C.navy, textDecoration: "none" }}>
+              <Phone size={15} color={C.orange} />
+              (888) 555-0100
+            </a>
+            <a href="#quote" style={{ background: C.orange, color: C.white, padding: "10px 22px", borderRadius: 8, fontWeight: 800, fontSize: 14, textDecoration: "none" }}>
+              Free Quote
+            </a>
           </div>
         </div>
-      </section>
+      </nav>
 
-      {/* ── METRICS GRID ── */}
-      <section className="py-40 bg-[#0a0a0d]">
-        <div className="max-w-[1600px] mx-auto px-8 md:px-16">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-px bg-white/5 border border-white/5">
-            {METRICS.map((s, i) => (
-              <Reveal key={s.label} delay={i * 0.1} className="bg-[#050508] p-24 group hover:bg-white/5 transition-colors duration-700">
-                <span className="text-[10px] font-bold uppercase tracking-[0.5em] text-white/30 mb-12 block group-hover:text-white/60">{s.label}</span>
-                <h3 className="text-7xl font-black italic text-white mb-8 group-hover:text-white transition-colors">{s.val}</h3>
-                <p className="text-xs text-white/30 font-light tracking-widest uppercase italic leading-loose group-hover:text-white/60">
-                  {s.desc}
-                </p>
-              </Reveal>
+      {/* HERO */}
+      <section ref={heroRef} style={{ position: "relative", minHeight: "100vh", display: "flex", alignItems: "center", background: C.navy, overflow: "hidden", paddingTop: 72 }}>
+        {/* Background pattern */}
+        <motion.div style={{
+          position: "absolute", inset: 0, y: heroY,
+          backgroundImage: `linear-gradient(rgba(234,88,12,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(234,88,12,0.06) 1px, transparent 1px)`,
+          backgroundSize: "48px 48px",
+        }} />
+
+        {/* Orange glow */}
+        <div style={{ position: "absolute", top: "0", right: "-5%", width: 600, height: 600, background: `radial-gradient(circle, ${C.orange}18 0%, transparent 65%)`, borderRadius: "50%", pointerEvents: "none" }} />
+
+        {/* Road at bottom */}
+        <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 100, background: `${C.navy}cc` }}>
+          <div style={{ position: "absolute", top: 16, left: 0, right: 0, height: 2, background: C.border, opacity: 0.2 }} />
+          <div style={{ position: "absolute", top: 50, left: 0, right: 0, display: "flex", gap: 60, paddingLeft: 80 }}>
+            {Array.from({ length: 12 }).map((_, i) => (
+              <div key={i} style={{ width: 60, height: 4, background: C.orange, opacity: 0.3, borderRadius: 2 }} />
             ))}
           </div>
         </div>
+
+        {/* Animated truck */}
+        <TruckSVG truckX={truckX} />
+
+        <motion.div style={{ position: "relative", zIndex: 2, maxWidth: 1200, margin: "0 auto", padding: "60px 5% 140px", width: "100%", opacity: heroOpacity }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 80, alignItems: "center" }}>
+            {/* Left: Copy */}
+            <div>
+              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}
+                style={{ display: "inline-flex", alignItems: "center", gap: 8, background: `${C.orange}20`, border: `1px solid ${C.orange}40`, borderRadius: 30, padding: "6px 16px", marginBottom: 28 }}>
+                <Zap size={14} color={C.orange} />
+                <span style={{ color: C.orange, fontSize: 13, fontWeight: 700 }}>Rated #1 Moving Company — Chicago, Austin, Denver</span>
+              </motion.div>
+
+              <motion.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.1 }}
+                style={{ fontSize: "clamp(40px, 5vw, 68px)", fontWeight: 900, color: C.white, lineHeight: 1.05, marginBottom: 24 }}>
+                Moving made{" "}
+                <span style={{ color: C.orange }}>simple</span>,<br />
+                done right
+              </motion.h1>
+
+              <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.7, delay: 0.25 }}
+                style={{ fontSize: 18, color: "#93c5fd", lineHeight: 1.8, marginBottom: 40, maxWidth: 460, fontWeight: 400 }}>
+                Local and long-distance moving with trained crews, GPS-tracked trucks, and a binding quote. 18,400+ moves completed. Zero surprise charges.
+              </motion.p>
+
+              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.35 }}
+                style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
+                <a href="#quote" style={{ display: "inline-flex", alignItems: "center", gap: 8, background: C.orange, color: C.white, padding: "16px 32px", borderRadius: 10, fontWeight: 800, fontSize: 16, textDecoration: "none" }}>
+                  Get Free Quote <ArrowRight size={18} />
+                </a>
+                <a href="tel:+18885550100" style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "transparent", color: C.white, padding: "16px 32px", borderRadius: 10, fontWeight: 700, fontSize: 16, textDecoration: "none", border: "1.5px solid rgba(255,255,255,0.25)" }}>
+                  <Phone size={16} /> Call Now
+                </a>
+              </motion.div>
+
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}
+                style={{ display: "flex", gap: 32, marginTop: 52 }}>
+                {[
+                  { val: "4.9★", label: "Google Rating" },
+                  { val: "18K+", label: "Happy Customers" },
+                  { val: "100%", label: "Licensed & Insured" },
+                ].map((s) => (
+                  <div key={s.label}>
+                    <div style={{ fontSize: 22, fontWeight: 900, color: C.orange }}>{s.val}</div>
+                    <div style={{ fontSize: 13, color: "#93c5fd", marginTop: 4 }}>{s.label}</div>
+                  </div>
+                ))}
+              </motion.div>
+            </div>
+
+            {/* Right: Instant quote card */}
+            <motion.div initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8, delay: 0.3 }}>
+              <div style={{ background: C.white, borderRadius: 20, padding: 32, boxShadow: "0 24px 80px rgba(0,0,0,0.30)" }}>
+                <h3 style={{ fontSize: 20, fontWeight: 800, color: C.navy, marginBottom: 6 }}>Get a Free Quote</h3>
+                <p style={{ fontSize: 14, color: C.textMuted, marginBottom: 24 }}>Binding estimate in under 2 hours. No obligation.</p>
+
+                <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                  {[
+                    { label: "Moving from", placeholder: "City, State" },
+                    { label: "Moving to", placeholder: "City, State" },
+                  ].map((field) => (
+                    <div key={field.label}>
+                      <label style={{ display: "block", fontSize: 13, fontWeight: 700, color: C.navy, marginBottom: 6 }}>{field.label}</label>
+                      <div style={{ display: "flex", alignItems: "center", gap: 10, background: C.bgAlt, border: `1px solid ${C.border}`, borderRadius: 8, padding: "10px 14px" }}>
+                        <MapPin size={16} color={C.orange} />
+                        <input placeholder={field.placeholder} style={{ background: "none", border: "none", outline: "none", fontSize: 15, color: C.text, width: "100%", fontFamily: "'Manrope', system-ui" }} />
+                      </div>
+                    </div>
+                  ))}
+
+                  <div>
+                    <label style={{ display: "block", fontSize: 13, fontWeight: 700, color: C.navy, marginBottom: 6 }}>Home Size</label>
+                    <select style={{ width: "100%", background: C.bgAlt, border: `1px solid ${C.border}`, borderRadius: 8, padding: "11px 14px", fontSize: 15, color: C.text, fontFamily: "'Manrope', system-ui", outline: "none", appearance: "none", cursor: "pointer" }}>
+                      <option>Studio / 1-Bedroom</option>
+                      <option>2-3 Bedrooms</option>
+                      <option>4+ Bedrooms</option>
+                      <option>Office / Commercial</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label style={{ display: "block", fontSize: 13, fontWeight: 700, color: C.navy, marginBottom: 6 }}>Move Date</label>
+                    <div style={{ display: "flex", alignItems: "center", gap: 10, background: C.bgAlt, border: `1px solid ${C.border}`, borderRadius: 8, padding: "10px 14px" }}>
+                      <Calendar size={16} color={C.orange} />
+                      <input type="date" style={{ background: "none", border: "none", outline: "none", fontSize: 15, color: C.text, fontFamily: "'Manrope', system-ui", width: "100%" }} />
+                    </div>
+                  </div>
+
+                  <button style={{ background: C.orange, color: C.white, padding: "16px 24px", borderRadius: 10, fontWeight: 800, fontSize: 16, border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontFamily: "'Manrope', system-ui" }}>
+                    Get My Free Quote <ArrowRight size={18} />
+                  </button>
+                </div>
+
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 16, justifyContent: "center" }}>
+                  <Shield size={14} color={C.textMuted} />
+                  <span style={{ fontSize: 12, color: C.textMuted }}>No spam, no obligation. Binding estimate only.</span>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        </motion.div>
       </section>
 
-      {/* ARCHITECTURAL SHOWCASE ── */}
-      <section className="py-40 bg-black relative overflow-hidden">
-        <div className="max-w-[1600px] mx-auto px-8 md:px-16">
-          <Reveal className="mb-32">
-             <div className="flex flex-col lg:flex-row justify-between items-end gap-12 border-b border-white/10 pb-12">
-               <h2 className="text-7xl md:text-[10rem] font-black italic tracking-tighter leading-[0.8] uppercase text-white">
-                 Node <br/> <span className="text-white/20 not-italic">Archive.</span>
-               </h2>
-               <div className="text-right">
-                  <span className="text-[10px] font-bold uppercase tracking-[0.5em] text-white/20 mb-4 block italic">Manifest_Sequence_2024</span>
-                  <div className="flex gap-4">
-                    {ARCHITECTURAL_MANIFESTS.map((_, i) => (
-                      <button 
-                        key={i} 
-                        onClick={() => setActiveArc(i)}
-                        className={`w-16 h-1 transition-all ${activeArc === i ? "bg-white w-32" : "bg-white/10"}`}
-                      />
+      {/* SERVICES */}
+      <section id="services" style={{ padding: "100px 5%", background: C.bg }}>
+        <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+          <SectionReveal>
+            <div style={{ textAlign: "center", marginBottom: 64 }}>
+              <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: C.orangeLight, borderRadius: 30, padding: "6px 16px", marginBottom: 16 }}>
+                <Truck size={14} color={C.orange} />
+                <span style={{ color: C.orange, fontSize: 13, fontWeight: 700 }}>Our Services</span>
+              </div>
+              <h2 style={{ fontSize: "clamp(30px, 4vw, 46px)", fontWeight: 900, color: C.navy, marginBottom: 16 }}>
+                Every kind of move, covered
+              </h2>
+              <p style={{ fontSize: 17, color: C.textMuted, maxWidth: 500, margin: "0 auto", lineHeight: 1.7 }}>
+                From studio apartments to corporate headquarters, we have the experience, equipment, and people for the job.
+              </p>
+            </div>
+          </SectionReveal>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 20 }}>
+            {SERVICES.map((service, i) => (
+              <SectionReveal key={service.name} delay={i * 0.1}>
+                <div style={{
+                  background: C.bg,
+                  borderRadius: 16,
+                  padding: 28,
+                  border: `1px solid ${C.border}`,
+                  height: "100%",
+                  display: "flex",
+                  flexDirection: "column",
+                  transition: "all 0.2s",
+                }}
+                  onMouseEnter={(e) => {
+                    const el = e.currentTarget as HTMLElement;
+                    el.style.boxShadow = "0 16px 48px rgba(234,88,12,0.12)";
+                    el.style.borderColor = `${C.orange}50`;
+                    el.style.transform = "translateY(-4px)";
+                  }}
+                  onMouseLeave={(e) => {
+                    const el = e.currentTarget as HTMLElement;
+                    el.style.boxShadow = "none";
+                    el.style.borderColor = C.border;
+                    el.style.transform = "translateY(0)";
+                  }}
+                >
+                  <div style={{ width: 50, height: 50, background: C.orangeLight, borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 16 }}>
+                    <service.icon size={24} color={C.orange} />
+                  </div>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: C.orange, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6 }}>
+                    {service.tagline}
+                  </div>
+                  <h3 style={{ fontSize: 18, fontWeight: 800, color: C.navy, marginBottom: 10 }}>{service.name}</h3>
+                  <p style={{ fontSize: 14, color: C.textMuted, lineHeight: 1.7, flex: 1, marginBottom: 16 }}>{service.desc}</p>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: 20 }}>
+                    {service.features.map((f) => (
+                      <div key={f} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                        <CheckCircle size={13} color={C.orange} style={{ flexShrink: 0 }} />
+                        <span style={{ fontSize: 13, color: C.text }}>{f}</span>
+                      </div>
                     ))}
                   </div>
-               </div>
-             </div>
-          </Reveal>
-
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-24 items-center">
-            <div className="lg:col-span-8 relative aspect-video rounded-sm overflow-hidden border border-white/5 group bg-[#111]">
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={activeArc}
-                  initial={{ opacity: 0, scale: 1.1 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 1.1 }}
-                  transition={{ duration: 1, ease: [0.19, 1, 0.22, 1] }}
-                  className="absolute inset-0"
-                >
-                  <Image src={ARCHITECTURAL_MANIFESTS[activeArc].img} alt={ARCHITECTURAL_MANIFESTS[activeArc].title} fill className="object-cover grayscale contrast-125 opacity-40 group-hover:opacity-60 transition-opacity duration-1000" unoptimized />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-90" />
-                </motion.div>
-              </AnimatePresence>
-              <div className="absolute bottom-12 left-12 flex flex-col gap-4">
-                 <span className="text-[10px] font-black uppercase tracking-widest bg-white/10 backdrop-blur-md text-white px-6 py-2 border border-white/5">{ARCHITECTURAL_MANIFESTS[activeArc].phase} // ADVISORY</span>
-              </div>
-            </div>
-
-            <div className="lg:col-span-4 space-y-12">
-               <motion.div
-                  key={activeArc}
-                  initial={{ opacity: 0, x: 50 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.6 }}
-                  className="space-y-12"
-               >
-                 <span className="text-[10px] font-black uppercase tracking-[0.4em] text-white/40">{ARCHITECTURAL_MANIFESTS[activeArc].id} // ASSET</span>
-                 <h3 className="text-6xl md:text-8xl font-black italic uppercase text-white tracking-tighter">{ARCHITECTURAL_MANIFESTS[activeArc].title}</h3>
-                 <div className="space-y-6 border-y border-white/10 py-12">
-                    <div className="flex justify-between items-center">
-                       <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-white/30">Category</span>
-                       <span className="text-sm font-black text-white uppercase tracking-widest">{ARCHITECTURAL_MANIFESTS[activeArc].category}</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                       <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-white/30">System_Status</span>
-                       <span className="text-sm font-black text-white uppercase tracking-widest italic">STABLE_OPTIC</span>
-                    </div>
-                 </div>
-                 <p className="text-white/30 text-lg font-light italic leading-loose uppercase tracking-wide">
-                   {ARCHITECTURAL_MANIFESTS[activeArc].desc}
-                 </p>
-                 <button className="flex items-center gap-6 group">
-                    <span className="text-[10px] font-bold uppercase tracking-[0.8em] text-white">Request_Manifest</span>
-                    <div className="w-16 h-16 border border-white/10 rounded-full flex items-center justify-center group-hover:bg-white transition-all">
-                       <ArrowUpRight className="w-6 h-6 text-white group-hover:text-black transition-colors" />
-                    </div>
-                 </button>
-               </motion.div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── CAPABILITIES ── */}
-      <section className="py-40 bg-[#050508] border-y border-white/10">
-        <div className="max-w-[1600px] mx-auto px-8 md:px-16">
-          <Reveal className="mb-32 text-center">
-             <span className="text-[10px] font-bold uppercase tracking-[1em] text-white/40 mb-8 block italic">Operational Scope</span>
-             <h2 className="text-7xl md:text-[10rem] font-black italic tracking-tighter leading-[0.8] uppercase text-white">
-                Technical <br/> <span className="text-white/20 not-italic">Expertise.</span>
-             </h2>
-          </Reveal>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-px bg-white/10 border border-white/10">
-            {CAPABILITIES.map((item, i) => (
-              <Reveal key={item.title} delay={i * 0.1} className="bg-[#0a0a0d] p-12 group hover:bg-white/5 transition-all duration-700">
-                 <item.icon className="w-12 h-12 text-white/20 group-hover:text-white transition-colors mb-8" />
-                 <h3 className="text-2xl font-black italic uppercase text-white mb-6">{item.title}</h3>
-                 <p className="text-xs text-white/40 group-hover:text-white font-light tracking-widest uppercase italic leading-loose transition-colors">
-                   {item.desc}
-                 </p>
-              </Reveal>
+                  <div style={{ paddingTop: 16, borderTop: `1px solid ${C.border}` }}>
+                    <span style={{ fontSize: 13, color: C.textMuted }}>From </span>
+                    <span style={{ fontSize: 22, fontWeight: 800, color: C.navy }}>{service.price}</span>
+                    <span style={{ fontSize: 13, color: C.textMuted }}> USD</span>
+                  </div>
+                </div>
+              </SectionReveal>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ATELIER / LABORATORY ── */}
-      <section className="py-40 bg-black overflow-hidden">
-        <div className="max-w-[1600px] mx-auto px-8 md:px-16 grid grid-cols-1 lg:grid-cols-2 gap-32 items-center">
-          <Reveal>
-             <div className="relative aspect-square bg-[#050508] border border-white/5 p-20 flex flex-col justify-center group overflow-hidden">
-                <div className="absolute top-0 right-0 p-12">
-                   <Box className="w-16 h-16 text-white/5 group-hover:text-white/10 transition-colors" />
-                </div>
-                <Sparkles className="w-16 h-16 text-white mb-12" />
-                <h3 className="text-5xl font-black italic uppercase text-white mb-8">Architectural <br/> <span className="text-white/20 not-italic">Atelier.</span></h3>
-                <p className="text-white/40 text-lg leading-relaxed mb-12 font-light uppercase tracking-wide italic leading-loose">
-                  Our Zurich atelier leverages heavy archival design fabrication and distributed spatial orchestration for the production of non-standard architectural artifacts. We push the tectonic limits of spatial design.
-                </p>
-                <div className="flex gap-12 text-[10px] font-bold uppercase tracking-[0.5em] text-white/30">
-                   <span>[01] NODE_BOND</span>
-                   <span>[02] SPATIAL_SYNTHESIS</span>
-                </div>
-             </div>
-          </Reveal>
-          <div className="space-y-24">
-             <Reveal delay={0.2}>
-                <span className="text-[10px] font-bold uppercase tracking-[1em] text-white/40 mb-8 block italic">Curation_Sequence</span>
-                <h2 className="text-6xl md:text-8xl font-black italic tracking-tighter leading-none uppercase text-white">Blueprint <br/> <span className="text-white/20 not-italic">Manifesto.</span></h2>
-             </Reveal>
-             <div className="space-y-12">
-                {[
-                  { n: "01", t: "Sectional Audit", d: "Rigorous cutting of complex spatial volumes to reveal interior structural potential." },
-                  { n: "02", t: "Spatial Stress", d: "Simulation of high-fidelity visual performance under extreme archival loads." },
-                  { n: "03", t: "Archive Aging", d: "Analyzing the interaction of archival design models with digital weathering." }
-                ].map((step, i) => (
-                  <Reveal key={step.n} delay={i * 0.1 + 0.3} className="flex gap-12 group border-l border-white/10 pl-8 hover:border-white transition-colors">
-                    <span className="text-4xl font-black italic text-white/10 group-hover:text-white transition-colors">{step.n}</span>
-                    <div>
-                      <h4 className="text-xl font-black uppercase italic text-white mb-2">{step.t}</h4>
-                      <p className="text-xs text-white/40 font-light tracking-widest uppercase italic leading-loose">{step.d}</p>
+      {/* HOW IT WORKS */}
+      <section id="how-it-works" style={{ padding: "100px 5%", background: C.bgAlt }}>
+        <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+          <SectionReveal>
+            <div style={{ textAlign: "center", marginBottom: 72 }}>
+              <h2 style={{ fontSize: "clamp(30px, 4vw, 46px)", fontWeight: 900, color: C.navy, marginBottom: 14 }}>
+                How it works
+              </h2>
+              <p style={{ fontSize: 17, color: C.textMuted, maxWidth: 440, margin: "0 auto", lineHeight: 1.7 }}>
+                Four simple steps. Zero surprises. Your belongings, moved with care.
+              </p>
+            </div>
+          </SectionReveal>
+
+          <StepTimeline />
+        </div>
+      </section>
+
+      {/* STATS */}
+      <section style={{ padding: "80px 5%", background: C.navy }}>
+        <div style={{ maxWidth: 1200, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 40 }}>
+          {STATS.map((s, i) => (
+            <StatCard key={s.label} stat={s} delay={i * 0.1} />
+          ))}
+        </div>
+      </section>
+
+      {/* TESTIMONIALS */}
+      <section style={{ padding: "100px 5%", background: C.bg }}>
+        <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+          <SectionReveal>
+            <div style={{ textAlign: "center", marginBottom: 64 }}>
+              <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: C.orangeLight, borderRadius: 30, padding: "6px 16px", marginBottom: 16 }}>
+                <Users2 size={14} color={C.orange} />
+                <span style={{ color: C.orange, fontSize: 13, fontWeight: 700 }}>Customer Reviews</span>
+              </div>
+              <h2 style={{ fontSize: "clamp(30px, 4vw, 46px)", fontWeight: 900, color: C.navy, marginBottom: 12 }}>
+                18,400+ happy moves
+              </h2>
+            </div>
+          </SectionReveal>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 24 }}>
+            {TESTIMONIALS.map((t, i) => (
+              <SectionReveal key={t.name} delay={i * 0.1}>
+                <div style={{ background: C.bgAlt, borderRadius: 16, padding: 32, border: `1px solid ${C.border}`, display: "flex", flexDirection: "column", gap: 18 }}>
+                  <div style={{ display: "flex", gap: 4 }}>
+                    {Array.from({ length: t.rating }).map((_, j) => (
+                      <Star key={j} size={16} fill={C.orange} color={C.orange} />
+                    ))}
+                  </div>
+                  <p style={{ fontSize: 15, color: C.text, lineHeight: 1.75, flex: 1 }}>"{t.text}"</p>
+                  <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+                    <div style={{ width: 44, height: 44, borderRadius: "50%", background: C.orangeLight, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: 14, color: C.orange, flexShrink: 0 }}>
+                      {t.avatar}
                     </div>
-                  </Reveal>
-                ))}
-             </div>
+                    <div>
+                      <div style={{ fontWeight: 800, fontSize: 15, color: C.navy }}>{t.name}</div>
+                      <div style={{ fontSize: 13, color: C.textMuted }}>{t.role}</div>
+                    </div>
+                  </div>
+                </div>
+              </SectionReveal>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* ── CTA / INQUIRY ── */}
-      <section className="py-40 bg-[#050508] relative">
-         <div className="max-w-[1600px] mx-auto px-8 md:px-16">
-            <div className="bg-white text-black p-24 lg:p-40 relative overflow-hidden flex flex-col items-center text-center group">
-               <div className="absolute inset-0 opacity-10 grayscale brightness-110 group-hover:opacity-20 transition-opacity">
-                  <Image src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1600&q=80" alt="CTA Architectural" fill className="object-cover" />
-               </div>
-               <Reveal>
-                  <span className="text-[10px] font-bold uppercase tracking-[1em] text-black/50 mb-12 block italic">Allocation Initiation</span>
-                  <h2 className="text-7xl md:text-[12rem] font-black italic tracking-tighter leading-[0.8] uppercase mb-16">
-                     Own <br/> <span className="text-black/30 not-italic">The Node.</span>
-                  </h2>
-                  <div className="flex flex-wrap justify-center gap-12 relative z-10">
-                     <button className="px-20 py-8 bg-black text-white font-black uppercase text-sm tracking-[0.5em] hover:italic transition-all">
-                        Request_Access
-                     </button>
-                     <button className="px-20 py-8 border border-black/20 text-black font-black uppercase text-sm tracking-[0.5em] hover:bg-black/5 transition-all">
-                        Atelier_Dossier
-                     </button>
-                  </div>
-               </Reveal>
+      {/* PRICING */}
+      <section id="pricing" style={{ padding: "100px 5%", background: C.bgAlt }}>
+        <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+          <SectionReveal>
+            <div style={{ textAlign: "center", marginBottom: 64 }}>
+              <h2 style={{ fontSize: "clamp(30px, 4vw, 46px)", fontWeight: 900, color: C.navy, marginBottom: 14 }}>
+                Transparent local move pricing
+              </h2>
+              <p style={{ fontSize: 17, color: C.textMuted, maxWidth: 480, margin: "0 auto" }}>
+                Binding estimates only. What we quote is what you pay. Long-distance quotes are provided after a virtual walk-through.
+              </p>
             </div>
-         </div>
+          </SectionReveal>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 24, maxWidth: 900, margin: "0 auto" }}>
+            {PRICING_CARDS.map((plan, i) => (
+              <SectionReveal key={plan.name} delay={i * 0.12}>
+                <div style={{
+                  background: plan.highlight ? C.navy : C.white,
+                  borderRadius: 16,
+                  padding: 32,
+                  border: plan.highlight ? `2px solid ${C.orange}` : `1px solid ${C.border}`,
+                  display: "flex",
+                  flexDirection: "column",
+                  position: "relative",
+                  height: "100%",
+                }}>
+                  {plan.highlight && (
+                    <div style={{ position: "absolute", top: -1, right: 20, background: C.orange, color: C.white, fontSize: 11, fontWeight: 800, padding: "5px 14px", borderRadius: "0 0 8px 8px", textTransform: "uppercase", letterSpacing: "0.06em" }}>
+                      Most Common
+                    </div>
+                  )}
+                  <h3 style={{ fontSize: 18, fontWeight: 800, color: plan.highlight ? C.white : C.navy, marginBottom: 4 }}>{plan.name}</h3>
+                  <div style={{ fontSize: 12, color: plan.highlight ? "#93c5fd" : C.textMuted, marginBottom: 20 }}>{plan.period}</div>
+                  <div style={{ marginBottom: 24 }}>
+                    <span style={{ fontSize: 11, color: plan.highlight ? "#93c5fd" : C.textMuted, textTransform: "uppercase", fontWeight: 700, letterSpacing: "0.06em" }}>{plan.suffix} </span>
+                    <span style={{ fontSize: 42, fontWeight: 900, color: plan.highlight ? C.orange : C.navy }}>{plan.price}</span>
+                    <span style={{ fontSize: 13, color: plan.highlight ? "#93c5fd" : C.textMuted }}> USD</span>
+                  </div>
+                  <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 10, marginBottom: 28 }}>
+                    {plan.features.map((f) => (
+                      <div key={f} style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                        <div style={{ width: 18, height: 18, borderRadius: "50%", background: plan.highlight ? `${C.orange}30` : C.orangeLight, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                          <Check size={11} color={C.orange} />
+                        </div>
+                        <span style={{ fontSize: 13, color: plan.highlight ? "#cbd5e1" : C.text }}>{f}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <a href="#quote" style={{ display: "block", textAlign: "center", background: plan.highlight ? C.orange : C.orangeLight, color: plan.highlight ? C.white : C.orange, padding: "14px 24px", borderRadius: 10, fontWeight: 800, fontSize: 15, textDecoration: "none" }}>
+                    Get Quote
+                  </a>
+                </div>
+              </SectionReveal>
+            ))}
+          </div>
+
+          <SectionReveal delay={0.3}>
+            <div style={{ marginTop: 40, textAlign: "center", display: "flex", alignItems: "center", justifyContent: "center", gap: 24, flexWrap: "wrap" }}>
+              {[
+                { icon: Shield, label: "Fully Licensed & Insured" },
+                { icon: Clock, label: "On-Time Guarantee" },
+                { icon: CheckCircle, label: "Binding Quotes Only" },
+              ].map(({ icon: Icon, label }) => (
+                <div key={label} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <Icon size={16} color={C.orange} />
+                  <span style={{ fontSize: 14, fontWeight: 700, color: C.navy }}>{label}</span>
+                </div>
+              ))}
+            </div>
+          </SectionReveal>
+        </div>
       </section>
 
-      {/* ── FOOTER ── */}
-      <footer className="bg-black pt-40 pb-20 px-8 md:px-16 border-t border-white/10">
-         <div className="max-w-[1600px] mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-32 mb-40">
-            <div className="lg:col-span-6">
-               <div className="flex items-center gap-4 mb-12">
-                 <Building className="w-10 h-10 text-white" />
-                 <span className="text-3xl font-black tracking-tighter uppercase italic text-white">BLUEPRINT<span className="text-white/30">//</span>NODE</span>
-               </div>
-               <p className="text-white/40 text-sm font-light leading-relaxed uppercase tracking-[0.3em] mb-12 italic max-w-md">
-                 Securing the future of architectural objects through high-fidelity orchestration and radical visual clarity.
-               </p>
-               <div className="flex gap-12">
-                 {["TERMINAL", "BLUEPRINT", "FORGE", "ALPHA"].map(s => (
-                   <a key={s} href="#" className="text-[10px] font-bold hover:text-white text-white/30 transition-colors tracking-[0.5em]">[{s}]</a>
-                 ))}
-               </div>
+      {/* FAQ */}
+      <section style={{ padding: "100px 5%", background: C.bg }}>
+        <div style={{ maxWidth: 760, margin: "0 auto" }}>
+          <SectionReveal>
+            <div style={{ textAlign: "center", marginBottom: 56 }}>
+              <h2 style={{ fontSize: "clamp(28px, 4vw, 44px)", fontWeight: 900, color: C.navy, marginBottom: 12 }}>
+                Moving FAQ
+              </h2>
+              <p style={{ fontSize: 16, color: C.textMuted }}>
+                Still have questions? Call us at (888) 555-0100 — we answer 7 days a week.
+              </p>
             </div>
-            
-            <div className="lg:col-span-2">
-               <h4 className="text-[10px] font-bold uppercase tracking-[0.5em] text-white/40 mb-12">Systems</h4>
-               <ul className="space-y-6 text-xs font-bold uppercase tracking-[0.4em]">
-                 {["Archives", "Telemetry", "Shell", "Journal"].map(item => (
-                   <li key={item}><a href="#" className="hover:text-white transition-colors">{item}</a></li>
-                 ))}
-               </ul>
-            </div>
+          </SectionReveal>
 
-            <div className="lg:col-span-4">
-               <h4 className="text-[10px] font-bold uppercase tracking-[0.5em] text-white/40 mb-12">Partner Inquiry</h4>
-               <p className="text-sm text-white/40 font-light mb-12 italic uppercase tracking-[0.2em] leading-loose">
-                 For new commissions, spatial studies, or distribution enclaves, contact our primary command center in Zurich.
-               </p>
-               <a href="mailto:ops@blueprint-node.ch" className="text-3xl font-black italic hover:text-white transition-colors block border-b border-white/10 pb-8 uppercase tracking-tighter">
-                  ops@blueprint-node.ch
-               </a>
-            </div>
-         </div>
+          <div style={{ display: "flex", flexDirection: "column" }}>
+            {FAQS.map((faq, i) => (
+              <FAQItem key={i} faq={faq} delay={i * 0.07} />
+            ))}
+          </div>
+        </div>
+      </section>
 
-         <div className="max-w-[1600px] mx-auto flex flex-col md:row items-center justify-between gap-12 text-[9px] font-bold uppercase tracking-[0.8em] text-white/20 border-t border-white/5 pt-20">
-            <p>© 2024 BLUEPRINT NODE ATELIER AG. ALL RIGHTS RESERVED. ZURICH // GLOBAL.</p>
-            <div className="flex gap-16">
-               <a href="#" className="hover:text-white transition-colors">[Design_Vault]</a>
-               <a href="#" className="hover:text-white transition-colors">[Terms_of_Service]</a>
+      {/* FOOTER */}
+      <footer style={{ background: C.navy, padding: "80px 5% 40px" }}>
+        <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr", gap: 60, marginBottom: 60 }}>
+            <div>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20 }}>
+                <div style={{ width: 38, height: 38, background: C.orange, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <Truck size={22} color={C.white} />
+                </div>
+                <span style={{ fontWeight: 800, fontSize: 20, color: C.white }}>Swift Move</span>
+              </div>
+              <p style={{ fontSize: 14, color: "#64748b", lineHeight: 1.75, maxWidth: 260 }}>
+                Licensed, insured moving company serving 47 cities. Local and long-distance moves done right the first time.
+              </p>
+              <div style={{ display: "flex", gap: 12, marginTop: 20 }}>
+                {[MessageSquare, Link2, Camera].map((Icon, i) => (
+                  <a key={i} href="#" style={{ width: 36, height: 36, background: "rgba(255,255,255,0.07)", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", textDecoration: "none" }}>
+                    <Icon size={15} color="#64748b" />
+                  </a>
+                ))}
+              </div>
+              <div style={{ marginTop: 20, display: "flex", alignItems: "center", gap: 8 }}>
+                <Phone size={15} color={C.orange} />
+                <a href="tel:+18885550100" style={{ fontSize: 16, fontWeight: 800, color: C.white, textDecoration: "none" }}>
+                  (888) 555-0100
+                </a>
+              </div>
             </div>
-         </div>
+            {[
+              { title: "Services", links: ["Local Moving", "Long Distance", "Commercial", "Storage", "Packing"] },
+              { title: "Company", links: ["About Swift Move", "Careers", "Blog", "Reviews", "Press"] },
+              { title: "Service Areas", links: ["Chicago IL", "Austin TX", "Denver CO", "Atlanta GA", "View All Cities"] },
+            ].map((col) => (
+              <div key={col.title}>
+                <h4 style={{ fontSize: 13, fontWeight: 700, color: C.white, marginBottom: 16, textTransform: "uppercase", letterSpacing: "0.08em" }}>
+                  {col.title}
+                </h4>
+                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                  {col.links.map((link) => (
+                    <a key={link} href="#" style={{ fontSize: 14, color: "#64748b", textDecoration: "none" }}>{link}</a>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div style={{ borderTop: "1px solid rgba(255,255,255,0.07)", paddingTop: 32, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <p style={{ fontSize: 13, color: "#334155" }}>2025 Swift Move LLC. Licensed & Insured in all 50 states. USDOT #1234567.</p>
+            <div style={{ display: "flex", gap: 24 }}>
+              {["Privacy", "Terms", "Licenses"].map((item) => (
+                <a key={item} href="#" style={{ fontSize: 13, color: "#334155", textDecoration: "none" }}>{item}</a>
+              ))}
+            </div>
+          </div>
+        </div>
       </footer>
     </div>
   );

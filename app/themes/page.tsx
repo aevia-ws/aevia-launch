@@ -12,8 +12,6 @@ import { TEMPLATES_REGISTRY } from "@/lib/templates/registry";
 const HIDDEN_IMPACT = new Set([
   // ── Stubs / never built (< 400 lines) ──────────────────────────────────────
   "impact-06","impact-07","impact-08","impact-09",
-  "impact-30","impact-31","impact-32","impact-33","impact-34","impact-35","impact-36","impact-37","impact-38","impact-39",
-  "impact-40","impact-41","impact-42","impact-43","impact-44","impact-45","impact-46","impact-47","impact-48","impact-49",
   "impact-50","impact-51","impact-52","impact-53","impact-54",
   "impact-55","impact-60","impact-67","impact-70","impact-71","impact-73","impact-74","impact-75",
   "impact-76","impact-77","impact-78","impact-79","impact-80",

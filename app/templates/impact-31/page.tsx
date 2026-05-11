@@ -1,441 +1,916 @@
 "use client";
 
+import { useRef, useState, useEffect } from "react";
 import { motion, useScroll, useTransform, useInView, AnimatePresence } from "framer-motion";
-import { useState, useRef, useEffect, Suspense } from "react";
-import Image from "next/image";
-import { ArrowUpRight, Menu, X, Layers, ShieldCheck, Plus, Play, ArrowRight, ChevronDown, Monitor, LayoutGrid, Zap, Camera, Maximize2, Minimize2, Box, Eye, Settings, Sparkles, Command, Activity, Image as ImageIcon } from "lucide-react";
-import "../premium.css";
+import Link from "next/link";
+import {
+  Star,
+  Clock,
+  MapPin,
+  Mail,
+  Phone,
+  ChevronDown,
+  ChevronRight,
+  CheckCircle,
+  Calendar,
+  Menu,
+  X,
+  Users,
+  Heart,
+  Sunrise,
+  Wind,
+  Award,
+  Leaf,
+} from "lucide-react";
 
-// ─── DATA ──────────────────────────────────────────────────────────────────
+// ─── Design Tokens ─────────────────────────────────────────────────────────────
+const C = {
+  bg: "#faf7f2",
+  bgLight: "#f2ede4",
+  bgSection: "#fdf9f5",
+  text: "#3d2b1f",
+  textMuted: "#7a6558",
+  accent: "#c0614a",
+  accentDark: "#a84f3a",
+  accentLight: "#fbeae6",
+  sage: "#6b8f6b",
+  sageDark: "#4f6e4f",
+  sageLight: "#e8f0e8",
+  white: "#FFFFFF",
+  border: "#e8ddd4",
+  cream: "#fdf6ec",
+  shadow: "0 4px 24px rgba(61,43,31,0.08)",
+  shadowLg: "0 12px 48px rgba(61,43,31,0.14)",
+};
 
-const EXHIBITIONS = [
-  { 
-    id: "EX_01",
-    title: "SILENT_VOID", 
-    category: "Monochrome Study",
-    year: "2024",
-    img: "https://images.unsplash.com/photo-1541643600914-78b084683702?w=1200&q=80",
-    desc: "A singular exploration of absolute negative space within urban structures. High-fidelity contrast metrics."
-  },
-  { 
-    id: "EX_02",
-    title: "NEURAL_FLUX", 
-    category: "Generative Lens",
-    year: "2025",
-    img: "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?w=1200&q=80",
-    desc: "Planetary-scale distributed imagery synthesized through neural weight orchestration. Zero-latency visual objects."
-  },
-  { 
-    id: "EX_03",
-    title: "VOID_MEMBRANE", 
-    category: "Abstract Macro",
-    year: "2026",
-    img: "https://images.unsplash.com/photo-1547005327-834182f8e05a?w=1200&q=80",
-    desc: "A study in material reduction at the molecular level. Removing every decorative element until only the essential structure remains."
-  }
-];
+const FONT_HEADING = "'Playfair Display', Georgia, serif";
+const FONT_BODY = "'Lato', system-ui, sans-serif";
 
-const METRICS = [
-  { label: "Capture_Rate", val: "120 FPS", desc: "Absolute architectural synchronization across all distributed visual edge nodes." },
-  { label: "Resolution", val: "16K RAW", desc: "Sustainable visual delivery through our dedicated high-fidelity optical backbone." },
-  { label: "Archival", val: "IMMUNE", desc: "Zero-leak visual logic verified through continuous adversarial stress-testing." }
-];
+// ─── Breathing Circle (Hero Animation) ────────────────────────────────────────
+function BreathingCircle() {
+  const [phase, setPhase] = useState<"inhale" | "hold" | "exhale">("inhale");
+  const phases = [
+    { label: "Inspirez", duration: 4000, scale: 1.35 },
+    { label: "Retenez", duration: 2000, scale: 1.35 },
+    { label: "Expirez", duration: 6000, scale: 1 },
+  ];
+  const [phaseIdx, setPhaseIdx] = useState(0);
 
-const CAPABILITIES = [
-  { icon: Camera, title: "Optical Forge", desc: "Engineering visual volumes through a lens of mathematical and structural purity." },
-  { icon: Eye, title: "Lens Logic", desc: "Scaling viewer interactions through distributed focal orchestration and visual synthesis." },
-  { icon: Activity, title: "Neural Sync", desc: "Synchronizing capture spikes with real-time biological demand cycles for absolute sync." },
-  { icon: Box, title: "Frame Shell", desc: "Leveraging heavy archival glass fabrication for ultra-high fidelity visual protection." }
-];
+  useEffect(() => {
+    const current = phases[phaseIdx];
+    const t = setTimeout(() => {
+      setPhaseIdx((prev) => (prev + 1) % 3);
+    }, current.duration);
+    setPhase(phaseIdx === 0 ? "inhale" : phaseIdx === 1 ? "hold" : "exhale");
+    return () => clearTimeout(t);
+  }, [phaseIdx]);
 
-// ─── COMPONENTS ──────────────────────────────────────────────────────────────
+  const current = phases[phaseIdx];
 
-function Reveal({ children, className = "", delay = 0, y = 30 }: { children: React.ReactNode; className?: string; delay?: number; y?: number }) {
-  const ref = useRef(null);
-  const inView = useInView(ref, { once: true, margin: "-100px" });
+  return (
+    <div style={{ position: "relative", width: 380, height: 380, display: "flex", alignItems: "center", justifyContent: "center" }}>
+      {/* Outer glow ring */}
+      <motion.div
+        style={{
+          position: "absolute",
+          width: 340,
+          height: 340,
+          borderRadius: "50%",
+          border: `2px solid ${C.accent}`,
+          opacity: 0.18,
+        }}
+        animate={{ scale: current.scale * 1.1 }}
+        transition={{ duration: current.duration / 1000, ease: "easeInOut" }}
+      />
+      {/* Middle ring */}
+      <motion.div
+        style={{
+          position: "absolute",
+          width: 280,
+          height: 280,
+          borderRadius: "50%",
+          border: `1.5px solid ${C.sage}`,
+          opacity: 0.25,
+        }}
+        animate={{ scale: current.scale * 1.05 }}
+        transition={{ duration: current.duration / 1000, ease: "easeInOut" }}
+      />
+      {/* Main breathing circle */}
+      <motion.div
+        style={{
+          position: "absolute",
+          width: 200,
+          height: 200,
+          borderRadius: "50%",
+          background: `radial-gradient(circle at 38% 38%, ${C.accentLight}, ${C.accent})`,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          boxShadow: `0 8px 48px rgba(192,97,74,0.35)`,
+        }}
+        animate={{ scale: current.scale }}
+        transition={{ duration: current.duration / 1000, ease: "easeInOut" }}
+      >
+        {/* Lotus SVG inside */}
+        <svg viewBox="0 0 80 80" width={56} height={56}>
+          <motion.ellipse cx="40" cy="58" rx="14" ry="18" fill="rgba(255,255,255,0.9)" animate={{ scaleY: [1, 1.06, 1] }} transition={{ duration: 3, repeat: Infinity }} />
+          <motion.ellipse cx="20" cy="46" rx="12" ry="17" fill="rgba(255,255,255,0.7)" transform="rotate(-30, 20, 46)" animate={{ rotate: [-30, -26, -30] }} transition={{ duration: 3, repeat: Infinity }} />
+          <motion.ellipse cx="60" cy="46" rx="12" ry="17" fill="rgba(255,255,255,0.7)" transform="rotate(30, 60, 46)" animate={{ rotate: [30, 26, 30] }} transition={{ duration: 3, repeat: Infinity }} />
+          <motion.ellipse cx="10" cy="58" rx="9" ry="13" fill="rgba(255,255,255,0.5)" transform="rotate(-55, 10, 58)" animate={{ rotate: [-55, -50, -55] }} transition={{ duration: 3, repeat: Infinity }} />
+          <motion.ellipse cx="70" cy="58" rx="9" ry="13" fill="rgba(255,255,255,0.5)" transform="rotate(55, 70, 58)" animate={{ rotate: [55, 50, 55] }} transition={{ duration: 3, repeat: Infinity }} />
+        </svg>
+      </motion.div>
+
+      {/* Phase label */}
+      <motion.div
+        key={current.label}
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        style={{
+          position: "absolute",
+          bottom: 10,
+          left: "50%",
+          transform: "translateX(-50%)",
+          background: C.white,
+          border: `1px solid ${C.border}`,
+          borderRadius: 20,
+          padding: "6px 18px",
+          fontSize: 13,
+          fontWeight: 700,
+          color: C.accent,
+          fontFamily: FONT_BODY,
+          whiteSpace: "nowrap",
+          boxShadow: C.shadow,
+        }}
+      >
+        {current.label}
+      </motion.div>
+    </div>
+  );
+}
+
+// ─── Floating Lotus ────────────────────────────────────────────────────────────
+function FloatingLotus() {
   return (
     <motion.div
-      ref={ref}
-      initial={{ opacity: 0, y }}
-      animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 1, delay, ease: [0.23, 1, 0.32, 1] }}
-      className={className}
+      style={{ position: "absolute", bottom: 40, right: 60, opacity: 0.12 }}
+      animate={{ y: [0, -12, 0], rotate: [0, 3, 0] }}
+      transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
     >
-      {children}
+      <svg viewBox="0 0 120 120" width={120} height={120}>
+        <ellipse cx="60" cy="88" rx="22" ry="28" fill={C.accent} />
+        <ellipse cx="32" cy="70" rx="18" ry="26" fill={C.accent} transform="rotate(-30, 32, 70)" />
+        <ellipse cx="88" cy="70" rx="18" ry="26" fill={C.accent} transform="rotate(30, 88, 70)" />
+        <ellipse cx="14" cy="86" rx="13" ry="20" fill={C.accent} transform="rotate(-55, 14, 86)" />
+        <ellipse cx="106" cy="86" rx="13" ry="20" fill={C.accent} transform="rotate(55, 106, 86)" />
+      </svg>
     </motion.div>
   );
 }
 
-// ─── MAIN SPA ────────────────────────────────────────────────────────────────
-
-export default function LensStudioSPA() {
+// ─── Navbar ───────────────────────────────────────────────────────────────────
+function Navbar() {
+  const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [activeEx, setActiveEx] = useState(0);
-  const { scrollY } = useScroll();
-  
-  const heroOpacity = useTransform(scrollY, [0, 400], [1, 0]);
-  const heroScale = useTransform(scrollY, [0, 800], [1, 1.05]);
-  const lensBlur = useTransform(scrollY, [0, 600], [0, 10]);
+
+  useEffect(() => {
+    const handler = () => setScrolled(window.scrollY > 40);
+    window.addEventListener("scroll", handler);
+    return () => window.removeEventListener("scroll", handler);
+  }, []);
+
+  const links = ["Accueil", "Cours", "Professeurs", "Tarifs", "Contact"];
 
   return (
-    <div className="min-h-screen bg-[#fcfcfc] text-[#111] font-mono selection:bg-[#111] selection:text-white">
-      
-      {/* ── OPTICAL OVERLAY ── */}
-      <div className="fixed inset-0 z-[9999] pointer-events-none opacity-[0.05] bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
-      <div className="fixed inset-0 z-[0] opacity-[0.05] pointer-events-none overflow-hidden">
-        <div className="absolute inset-0" style={{ backgroundImage: "linear-gradient(#111 1px, transparent 1px), linear-gradient(90deg, #111 1px, transparent 1px)", backgroundSize: "80px 80px" }} />
-      </div>
-
-      {/* ── NAVIGATION ── */}
-      <motion.nav 
-        initial={{ y: -100 }}
-        animate={{ y: 0 }}
-        className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-8 md:px-16 py-10 mix-blend-difference"
+    <>
+      <motion.nav
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          zIndex: 100,
+          padding: "0 48px",
+          height: 72,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          background: scrolled ? "rgba(250,247,242,0.97)" : "transparent",
+          backdropFilter: scrolled ? "blur(12px)" : "none",
+          borderBottom: scrolled ? `1px solid ${C.border}` : "none",
+          boxShadow: scrolled ? C.shadow : "none",
+          transition: "all 0.3s ease",
+          fontFamily: FONT_BODY,
+        }}
       >
-        <div className="flex items-center gap-4">
-          <Camera className="w-10 h-10 text-white" />
-          <span className="text-2xl font-black tracking-tighter uppercase italic text-white">LENS<span className="text-white/30">//</span>STUDIO</span>
-        </div>
-        
-        <div className="hidden lg:flex items-center gap-16 text-[10px] font-bold uppercase tracking-[0.5em] text-white/40">
-          {["Manifest", "Gallery", "Atelier", "Archive"].map(item => (
-            <a key={item} href={`#${item.toLowerCase()}`} className="hover:text-white transition-colors">/{item}</a>
+        <motion.div style={{ display: "flex", alignItems: "center", gap: 10, cursor: "pointer" }} whileHover={{ scale: 1.03 }}>
+          <div style={{ width: 38, height: 38, background: C.accent, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <Leaf size={20} color={C.white} />
+          </div>
+          <span style={{ fontWeight: 700, fontSize: 21, color: C.text, fontFamily: FONT_HEADING, letterSpacing: -0.3 }}>
+            Ananda<span style={{ color: C.accent }}>Flow</span>
+          </span>
+        </motion.div>
+
+        <div style={{ display: "flex", gap: 32, alignItems: "center" }}>
+          {links.map((link) => (
+            <motion.a
+              key={link}
+              href="#"
+              style={{ color: C.text, fontWeight: 400, fontSize: 15, textDecoration: "none", fontFamily: FONT_BODY }}
+              whileHover={{ color: C.accent }}
+              transition={{ duration: 0.15 }}
+            >
+              {link}
+            </motion.a>
           ))}
+          <motion.button
+            style={{
+              background: C.accent,
+              color: C.white,
+              border: "none",
+              borderRadius: 25,
+              padding: "10px 24px",
+              fontWeight: 700,
+              fontSize: 14,
+              cursor: "pointer",
+              fontFamily: FONT_BODY,
+            }}
+            whileHover={{ background: C.accentDark, scale: 1.04 }}
+            whileTap={{ scale: 0.97 }}
+          >
+            Essai gratuit
+          </motion.button>
         </div>
 
-        <button 
-          onClick={() => setMenuOpen(true)}
-          className="w-16 h-16 flex items-center justify-center border border-white/10 group bg-white/5 backdrop-blur-md"
+        <motion.button
+          onClick={() => setMenuOpen(!menuOpen)}
+          style={{ display: "none", background: "none", border: "none", cursor: "pointer", color: C.text }}
+          whileTap={{ scale: 0.9 }}
         >
-          <Menu className="w-6 h-6 text-white group-hover:scale-y-50 transition-transform" />
-        </button>
+          {menuOpen ? <X size={24} /> : <Menu size={24} />}
+        </motion.button>
       </motion.nav>
 
-      {/* ── MOBILE MENU ── */}
       <AnimatePresence>
         {menuOpen && (
-          <motion.div 
-            initial={{ opacity: 0, scale: 1.1 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 1.1 }}
-            transition={{ duration: 0.8, ease: [0.19, 1, 0.22, 1] }}
-            className="fixed inset-0 z-[60] bg-[#fcfcfc] text-black p-12 flex flex-col justify-between"
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            style={{
+              position: "fixed", top: 72, left: 0, right: 0, zIndex: 99,
+              background: C.bg, padding: "24px 48px",
+              borderBottom: `1px solid ${C.border}`, boxShadow: C.shadow,
+              fontFamily: FONT_BODY,
+            }}
           >
-            <div className="flex justify-between items-center border-b border-black/5 pb-12">
-              <span className="text-xl font-black uppercase tracking-tighter italic">LENS//STUDIO</span>
-              <button onClick={() => setMenuOpen(false)} className="w-12 h-12 flex items-center justify-center border border-black/10 rounded-full">
-                <X className="w-6 h-6" />
-              </button>
-            </div>
-            <div className="flex flex-col gap-12 text-center md:text-left">
-              {["OPTICAL_MANIFEST", "GALLERY_ARCHIVE", "LENS_FORGE", "VISUAL_ENCLAVE", "SECURE_AUTH"].map((item, i) => (
-                <motion.a 
-                  key={item}
-                  initial={{ opacity: 0, y: 50 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.1 + 0.3 }}
-                  href="#"
-                  className="text-6xl md:text-9xl font-black uppercase italic tracking-tighter hover:text-black/40 transition-all leading-none"
-                  onClick={() => setMenuOpen(false)}
-                >
-                  {item}
-                </motion.a>
-              ))}
-            </div>
-            <div className="flex justify-between text-[10px] font-bold uppercase tracking-[0.5em] border-t border-black/5 pt-12 text-black/30">
-              <span>FINE_ART_PRACTICE</span>
-              <span>EST. 2018 // PARIS</span>
-            </div>
+            {links.map((link) => (
+              <a key={link} href="#" style={{ display: "block", padding: "12px 0", color: C.text, fontWeight: 500, textDecoration: "none", borderBottom: `1px solid ${C.border}` }}>
+                {link}
+              </a>
+            ))}
           </motion.div>
         )}
       </AnimatePresence>
+    </>
+  );
+}
 
-      {/* ── HERO SECTION ── */}
-      <section className="relative h-screen flex items-center justify-center overflow-hidden bg-black">
-        <motion.div 
-          style={{ opacity: heroOpacity, scale: heroScale }}
-          className="absolute inset-0 z-0"
+// ─── Hero ─────────────────────────────────────────────────────────────────────
+function Hero() {
+  const ref = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
+  const heroScale = useTransform(scrollYProgress, [0, 1], [1, 1.08]);
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.6], [1, 0]);
+  const textY = useTransform(scrollYProgress, [0, 1], [0, -70]);
+
+  return (
+    <section
+      ref={ref}
+      style={{
+        minHeight: "100vh",
+        background: `linear-gradient(160deg, ${C.bg} 0%, ${C.bgLight} 60%, ${C.sageLight} 100%)`,
+        display: "flex",
+        alignItems: "center",
+        padding: "100px 80px 60px",
+        position: "relative",
+        overflow: "hidden",
+        fontFamily: FONT_BODY,
+      }}
+    >
+      {/* Background organic shapes */}
+      <motion.div
+        style={{
+          position: "absolute",
+          top: -80,
+          right: -80,
+          width: 500,
+          height: 500,
+          borderRadius: "60% 40% 70% 30%",
+          background: `${C.sageLight}`,
+          opacity: 0.6,
+          zIndex: 0,
+        }}
+        animate={{ borderRadius: ["60% 40% 70% 30%", "40% 60% 30% 70%", "60% 40% 70% 30%"] }}
+        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+      />
+      <FloatingLotus />
+
+      {/* Left: text */}
+      <motion.div
+        style={{ flex: 1, maxWidth: 580, position: "relative", zIndex: 2, y: textY, opacity: heroOpacity }}
+      >
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7 }}
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 8,
+            background: C.sageLight,
+            border: `1px solid ${C.sage}`,
+            borderRadius: 20,
+            padding: "7px 16px",
+            marginBottom: 28,
+          }}
         >
-          <Image 
-            src="https://images.unsplash.com/photo-1541643600914-78b084683702?w=1600&q=80" 
-            alt="Hero Lens" 
-            fill 
-            className="object-cover grayscale brightness-50 contrast-125 opacity-30" 
-            unoptimized 
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#fcfcfc]" />
+          <Leaf size={14} color={C.sage} />
+          <span style={{ color: C.sage, fontSize: 13, fontWeight: 600 }}>Studio certifié Yoga Alliance</span>
         </motion.div>
 
-        <div className="relative z-10 text-center px-6">
-          <Reveal>
-            <span className="text-[10px] font-bold uppercase tracking-[2.5em] text-black/40 mb-12 block italic">Optical Endurance</span>
-          </Reveal>
-          <Reveal delay={0.2}>
-            <h1 className="text-8xl md:text-[18rem] font-black tracking-tighter leading-[0.75] uppercase italic text-black mb-20">
-              RAW <br/> <span className="not-italic text-black/10">LENS.</span>
-            </h1>
-          </Reveal>
-          <Reveal delay={0.4}>
-            <div className="max-w-2xl mx-auto flex flex-col items-center gap-16 border-t border-black/10 pt-20">
-              <p className="text-black/40 text-xl leading-relaxed font-light uppercase tracking-[0.3em] italic leading-loose text-center">
-                Refining the visual environment through radical optical reduction. Where high-end forge meets domestic synthesis.
-              </p>
-              <div className="flex gap-8">
-                <button className="px-16 py-6 bg-black text-white font-black uppercase text-xs tracking-[0.4em] hover:bg-white hover:text-black transition-all">
-                  Manifest_Access
-                </button>
-                <button className="px-16 py-6 border border-black/20 text-black font-black uppercase text-xs tracking-[0.4em] hover:bg-black/5 transition-colors">
-                  Atelier_Dossier
-                </button>
+        <motion.h1
+          initial={{ opacity: 0, y: 36 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.1 }}
+          style={{
+            fontFamily: FONT_HEADING,
+            fontSize: "clamp(38px, 4.5vw, 64px)",
+            fontWeight: 700,
+            color: C.text,
+            lineHeight: 1.12,
+            letterSpacing: -1,
+            marginBottom: 24,
+          }}
+        >
+          Trouvez votre{" "}
+          <em style={{ color: C.accent, fontStyle: "italic" }}>équilibre intérieur</em>
+        </motion.h1>
+
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, delay: 0.2 }}
+          style={{ fontSize: 17, color: C.textMuted, lineHeight: 1.78, marginBottom: 36, maxWidth: 480 }}
+        >
+          Ananda Flow vous invite à un voyage vers la sérénité. Cours de yoga, méditation et
+          pranayama pour tous les niveaux, dans un cadre chaleureux au cœur de Lyon.
+        </motion.p>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, delay: 0.3 }}
+          style={{ display: "flex", gap: 14, flexWrap: "wrap", marginBottom: 48 }}
+        >
+          <motion.button
+            style={{
+              background: C.accent,
+              color: C.white,
+              border: "none",
+              borderRadius: 30,
+              padding: "16px 34px",
+              fontWeight: 700,
+              fontSize: 16,
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              fontFamily: FONT_BODY,
+            }}
+            whileHover={{ background: C.accentDark, scale: 1.04, y: -2 }}
+            whileTap={{ scale: 0.97 }}
+          >
+            <Calendar size={18} />
+            Cours d'essai gratuit
+          </motion.button>
+          <motion.button
+            style={{
+              background: "transparent",
+              color: C.text,
+              border: `1.5px solid ${C.border}`,
+              borderRadius: 30,
+              padding: "15px 28px",
+              fontWeight: 600,
+              fontSize: 15,
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              fontFamily: FONT_BODY,
+            }}
+            whileHover={{ borderColor: C.accent, color: C.accent }}
+            whileTap={{ scale: 0.97 }}
+          >
+            Voir les cours <ChevronRight size={16} />
+          </motion.button>
+        </motion.div>
+
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} style={{ display: "flex", gap: 36 }}>
+          {[
+            { value: "850+", label: "Élèves actifs" },
+            { value: "12", label: "Professeurs certifiés" },
+            { value: "30+", label: "Cours / semaine" },
+          ].map((s) => (
+            <div key={s.label}>
+              <div style={{ fontFamily: FONT_HEADING, fontWeight: 700, fontSize: 24, color: C.accent }}>{s.value}</div>
+              <div style={{ fontSize: 13, color: C.textMuted }}>{s.label}</div>
+            </div>
+          ))}
+        </motion.div>
+      </motion.div>
+
+      {/* Right: breathing circle */}
+      <motion.div
+        style={{ flex: 1, display: "flex", justifyContent: "center", alignItems: "center", position: "relative", zIndex: 1 }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.3 }}
+      >
+        <BreathingCircle />
+      </motion.div>
+    </section>
+  );
+}
+
+// ─── Class Schedule ────────────────────────────────────────────────────────────
+const CLASSES = [
+  { day: "Lundi", time: "07h00", name: "Hatha Flow", level: "Débutant", teacher: "Emma D.", spots: 8, icon: <Sunrise size={18} color="#c0614a" /> },
+  { day: "Lundi", time: "19h00", name: "Vinyasa Power", level: "Intermédiaire", teacher: "Lucas R.", spots: 4, icon: <Wind size={18} color="#6b8f6b" /> },
+  { day: "Mercredi", time: "09h30", name: "Yin & Méditation", level: "Tous niveaux", teacher: "Sophie M.", spots: 12, icon: <Heart size={18} color="#c0614a" /> },
+  { day: "Jeudi", time: "18h30", name: "Ashtanga", level: "Avancé", teacher: "Lucas R.", spots: 6, icon: <Award size={18} color="#6b8f6b" /> },
+  { day: "Samedi", time: "10h00", name: "Yoga Nidra", level: "Tous niveaux", teacher: "Emma D.", spots: 14, icon: <Leaf size={18} color="#c0614a" /> },
+  { day: "Dimanche", time: "09h00", name: "Kundalini", level: "Intermédiaire", teacher: "Amara B.", spots: 2, icon: <Sunrise size={18} color="#6b8f6b" /> },
+];
+
+function Classes() {
+  const ref = useRef<HTMLElement>(null);
+  const isInView = useInView(ref, { once: true, margin: "-60px" });
+
+  return (
+    <section ref={ref} style={{ padding: "100px 80px", background: C.bgSection, fontFamily: FONT_BODY }}>
+      <motion.div
+        initial={{ opacity: 0, y: 32 }}
+        animate={isInView ? { opacity: 1, y: 0 } : {}}
+        style={{ textAlign: "center", marginBottom: 60 }}
+      >
+        <div style={{ display: "inline-block", background: C.sageLight, color: C.sage, borderRadius: 20, padding: "6px 18px", fontSize: 13, fontWeight: 700, marginBottom: 16, textTransform: "uppercase", letterSpacing: 0.8 }}>
+          Planning
+        </div>
+        <h2 style={{ fontFamily: FONT_HEADING, fontSize: "clamp(28px, 3vw, 44px)", fontWeight: 700, color: C.text, letterSpacing: -0.5, marginBottom: 14 }}>
+          Nos cours de la semaine
+        </h2>
+        <p style={{ fontSize: 16, color: C.textMuted, maxWidth: 500, margin: "0 auto" }}>
+          Des cours pour tous les niveaux, du lundi au dimanche. Réservez votre place en ligne.
+        </p>
+      </motion.div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 20, maxWidth: 1100, margin: "0 auto" }}>
+        {CLASSES.map((c, i) => (
+          <motion.div
+            key={`${c.day}-${c.time}`}
+            initial={{ opacity: 0, y: 40 }}
+            animate={isInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.5, delay: i * 0.08 }}
+            whileHover={{ y: -5, boxShadow: C.shadowLg }}
+            style={{ background: C.white, borderRadius: 16, padding: "24px 26px", border: `1px solid ${C.border}`, boxShadow: C.shadow, display: "flex", flexDirection: "column", gap: 12 }}
+          >
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+              <div>
+                <div style={{ fontSize: 13, fontWeight: 700, color: C.textMuted, textTransform: "uppercase", letterSpacing: 0.8, marginBottom: 4 }}>{c.day}</div>
+                <div style={{ fontSize: 22, fontWeight: 800, color: C.text, fontFamily: FONT_HEADING }}>{c.time}</div>
+              </div>
+              <div style={{ background: C.accentLight, borderRadius: 12, padding: "8px 10px" }}>{c.icon}</div>
+            </div>
+            <div>
+              <h3 style={{ fontFamily: FONT_HEADING, fontSize: 19, fontWeight: 700, color: C.text, marginBottom: 4 }}>{c.name}</h3>
+              <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                <span style={{ fontSize: 13, background: c.level === "Débutant" ? C.sageLight : c.level === "Avancé" ? C.accentLight : C.bgLight, color: c.level === "Débutant" ? C.sage : c.level === "Avancé" ? C.accent : C.textMuted, borderRadius: 20, padding: "3px 10px", fontWeight: 600 }}>
+                  {c.level}
+                </span>
+                <span style={{ fontSize: 13, color: C.textMuted }}>avec {c.teacher}</span>
               </div>
             </div>
-          </Reveal>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 4 }}>
+              <span style={{ fontSize: 13, color: c.spots <= 3 ? C.accent : C.textMuted, fontWeight: c.spots <= 3 ? 700 : 400 }}>
+                {c.spots <= 3 ? `⚡ ${c.spots} places` : `${c.spots} places dispo`}
+              </span>
+              <motion.button
+                style={{ background: C.accent, color: C.white, border: "none", borderRadius: 20, padding: "8px 18px", fontWeight: 700, fontSize: 13, cursor: "pointer", fontFamily: FONT_BODY }}
+                whileHover={{ background: C.accentDark, scale: 1.05 }}
+                whileTap={{ scale: 0.96 }}
+              >
+                Réserver
+              </motion.button>
+            </div>
+          </motion.div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+// ─── Stats ────────────────────────────────────────────────────────────────────
+function Stats() {
+  const ref = useRef<HTMLElement>(null);
+  const isInView = useInView(ref, { once: true, margin: "-60px" });
+
+  const stats = [
+    { value: "850+", label: "Élèves actifs", icon: <Users size={22} color="#fff" /> },
+    { value: "12", label: "Professeurs certifiés", icon: <Award size={22} color="#fff" /> },
+    { value: "30+", label: "Cours par semaine", icon: <Calendar size={22} color="#fff" /> },
+    { value: "4.8★", label: "Note Google", icon: <Star size={22} color="#fff" /> },
+  ];
+
+  return (
+    <section
+      ref={ref}
+      style={{
+        padding: "90px 80px",
+        background: `linear-gradient(135deg, ${C.text} 0%, #5a3a28 100%)`,
+        fontFamily: FONT_BODY,
+      }}
+    >
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 40, maxWidth: 960, margin: "0 auto" }}>
+        {stats.map((s, i) => (
+          <motion.div
+            key={s.label}
+            initial={{ opacity: 0, y: 28 }}
+            animate={isInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.5, delay: i * 0.1 }}
+            style={{ textAlign: "center" }}
+          >
+            <div style={{ width: 50, height: 50, background: "rgba(192,97,74,0.25)", borderRadius: 14, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>
+              {s.icon}
+            </div>
+            <div style={{ fontFamily: FONT_HEADING, fontSize: "clamp(28px, 3vw, 44px)", fontWeight: 700, color: C.white, marginBottom: 8 }}>
+              {s.value}
+            </div>
+            <div style={{ color: "rgba(255,255,255,0.58)", fontSize: 15 }}>{s.label}</div>
+          </motion.div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+// ─── Teachers ─────────────────────────────────────────────────────────────────
+const TEACHERS = [
+  { name: "Emma Dubois", role: "Hatha & Yin Yoga", bio: "18 ans de pratique, certifiée RYT-500. Spécialiste du yoga thérapeutique et de la méditation pleine conscience.", exp: "12 ans d'enseignement", initials: "ED", color: C.accent },
+  { name: "Lucas Renaud", role: "Vinyasa & Ashtanga", bio: "Formé à Mysore auprès de maîtres indiens. Sa pratique dynamique guide vers la maîtrise de soi et la discipline.", exp: "8 ans d'enseignement", initials: "LR", color: "#6b8f6b" },
+  { name: "Amara Bah", role: "Kundalini & Pranayama", bio: "Experte en techniques respiratoires et en éveil de l'énergie. Elle accompagne les transformations profondes.", exp: "10 ans d'enseignement", initials: "AB", color: "#9b7b6b" },
+];
+
+function Teachers() {
+  const ref = useRef<HTMLElement>(null);
+  const isInView = useInView(ref, { once: true, margin: "-60px" });
+
+  return (
+    <section ref={ref} style={{ padding: "100px 80px", background: C.bg, fontFamily: FONT_BODY }}>
+      <motion.div initial={{ opacity: 0, y: 32 }} animate={isInView ? { opacity: 1, y: 0 } : {}} style={{ textAlign: "center", marginBottom: 60 }}>
+        <div style={{ display: "inline-block", background: C.accentLight, color: C.accent, borderRadius: 20, padding: "6px 18px", fontSize: 13, fontWeight: 700, marginBottom: 16, textTransform: "uppercase", letterSpacing: 0.8 }}>
+          Nos professeurs
         </div>
+        <h2 style={{ fontFamily: FONT_HEADING, fontSize: "clamp(28px, 3vw, 44px)", fontWeight: 700, color: C.text, letterSpacing: -0.5 }}>
+          Des guides inspirants
+        </h2>
+      </motion.div>
 
-        <div className="absolute bottom-12 left-12 right-12 flex justify-between items-end text-[10px] font-bold uppercase tracking-[0.5em] text-black/20">
-          <div className="flex flex-col gap-2">
-            <span>PARIS // ATELIER</span>
-            <div className="w-48 h-[1px] bg-black/10" />
-          </div>
-          <div className="flex items-center gap-4 italic uppercase tracking-widest">
-             <span className="animate-pulse">●</span> OPTIC_STATUS: CRYSTAL
-          </div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 28, maxWidth: 960, margin: "0 auto" }}>
+        {TEACHERS.map((t, i) => (
+          <motion.div
+            key={t.name}
+            initial={{ opacity: 0, y: 44 }}
+            animate={isInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.55, delay: i * 0.12 }}
+            whileHover={{ y: -6, boxShadow: C.shadowLg }}
+            style={{ background: C.bgSection, borderRadius: 20, padding: 32, textAlign: "center", border: `1px solid ${C.border}`, boxShadow: C.shadow }}
+          >
+            <div style={{ width: 80, height: 80, borderRadius: "50%", background: t.color, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px", fontSize: 24, fontWeight: 700, color: C.white, fontFamily: FONT_HEADING, letterSpacing: 1 }}>
+              {t.initials}
+            </div>
+            <h3 style={{ fontFamily: FONT_HEADING, fontSize: 21, fontWeight: 700, color: C.text, marginBottom: 4 }}>{t.name}</h3>
+            <div style={{ fontSize: 14, fontWeight: 600, color: t.color, marginBottom: 12 }}>{t.role}</div>
+            <p style={{ fontSize: 14, color: C.textMuted, lineHeight: 1.65, marginBottom: 16 }}>{t.bio}</p>
+            <div style={{ display: "inline-block", background: C.bgLight, borderRadius: 20, padding: "5px 14px", fontSize: 13, fontWeight: 600, color: C.textMuted }}>
+              {t.exp}
+            </div>
+          </motion.div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+// ─── Testimonials ─────────────────────────────────────────────────────────────
+const TESTIMONIALS = [
+  { name: "Céline F.", text: "Ananda Flow a complètement transformé ma relation au stress. Les cours de Sophie sont une parenthèse de paix dans mes journées chargées.", stars: 5, practice: "Yin & Méditation" },
+  { name: "Romain G.", text: "J'ai commencé le yoga sans aucune souplesse. Lucas est incroyablement patient et pédagogue. En 6 mois, je ne me reconnais plus.", stars: 5, practice: "Vinyasa Power" },
+  { name: "Naomi L.", text: "Le Kundalini d'Amara m'a ouvert des portes intérieures que je ne soupçonnais pas. Une expérience profondément transformatrice.", stars: 5, practice: "Kundalini" },
+];
+
+function Testimonials() {
+  const ref = useRef<HTMLElement>(null);
+  const isInView = useInView(ref, { once: true, margin: "-60px" });
+
+  return (
+    <section ref={ref} style={{ padding: "100px 80px", background: C.bgSection, fontFamily: FONT_BODY }}>
+      <motion.div initial={{ opacity: 0, y: 32 }} animate={isInView ? { opacity: 1, y: 0 } : {}} style={{ textAlign: "center", marginBottom: 60 }}>
+        <div style={{ display: "inline-block", background: C.sageLight, color: C.sage, borderRadius: 20, padding: "6px 18px", fontSize: 13, fontWeight: 700, marginBottom: 16, textTransform: "uppercase", letterSpacing: 0.8 }}>
+          Témoignages
         </div>
-      </section>
+        <h2 style={{ fontFamily: FONT_HEADING, fontSize: "clamp(28px, 3vw, 44px)", fontWeight: 700, color: C.text, letterSpacing: -0.5 }}>
+          Ils ont trouvé leur équilibre
+        </h2>
+      </motion.div>
 
-      {/* ── METRICS GRID ── */}
-      <section className="py-40 bg-[#fcfcfc]">
-        <div className="max-w-[1600px] mx-auto px-8 md:px-16">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-px bg-black/5 border border-black/5">
-            {METRICS.map((s, i) => (
-              <Reveal key={s.label} delay={i * 0.1} className="bg-white p-24 group hover:bg-black/5 transition-all duration-700">
-                <span className="text-[10px] font-bold uppercase tracking-[0.5em] text-black/30 mb-12 block group-hover:text-black/60">{s.label}</span>
-                <h3 className="text-7xl font-black italic text-black mb-8 group-hover:text-black transition-colors">{s.val}</h3>
-                <p className="text-xs text-black/30 font-light tracking-widest uppercase italic leading-loose group-hover:text-black/60">
-                  {s.desc}
-                </p>
-              </Reveal>
-            ))}
-          </div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 24, maxWidth: 1000, margin: "0 auto" }}>
+        {TESTIMONIALS.map((t, i) => (
+          <motion.div
+            key={t.name}
+            initial={{ opacity: 0, y: 40 }}
+            animate={isInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.5, delay: i * 0.12 }}
+            style={{ background: C.white, borderRadius: 20, padding: 32, border: `1px solid ${C.border}`, boxShadow: C.shadow }}
+          >
+            <div style={{ display: "flex", gap: 3, marginBottom: 16 }}>
+              {Array.from({ length: t.stars }).map((_, k) => (<Star key={k} size={16} color="#d4832a" fill="#d4832a" />))}
+            </div>
+            <p style={{ fontSize: 15, color: C.text, lineHeight: 1.72, marginBottom: 20, fontStyle: "italic" }}>
+              "{t.text}"
+            </p>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div>
+                <div style={{ fontWeight: 700, fontSize: 15, color: C.text }}>{t.name}</div>
+                <div style={{ fontSize: 13, color: C.textMuted }}>{t.practice}</div>
+              </div>
+              <div style={{ width: 40, height: 40, borderRadius: "50%", background: C.accentLight, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <Heart size={18} color={C.accent} />
+              </div>
+            </div>
+          </motion.div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+// ─── Pricing ──────────────────────────────────────────────────────────────────
+const PLANS = [
+  {
+    name: "Découverte",
+    price: "29",
+    period: "/ semaine",
+    desc: "Idéal pour commencer votre pratique en douceur.",
+    features: ["3 cours par semaine", "Accès à tous les niveaux", "Cours en ligne inclus", "Application mobile", "Support par email"],
+    cta: "Commencer",
+    highlight: false,
+  },
+  {
+    name: "Équilibre",
+    price: "89",
+    period: "/ mois",
+    desc: "La formule complète pour une pratique régulière.",
+    features: ["Cours illimités en studio", "Cours en ligne illimités", "1 atelier / mois offert", "Accès prioritaire réservations", "Communauté privée", "Bilan trimestriel avec enseignant"],
+    cta: "Rejoindre",
+    highlight: true,
+  },
+  {
+    name: "Immersion",
+    price: "149",
+    period: "/ mois",
+    desc: "Pour les pratiquants avancés et la transformation totale.",
+    features: ["Tout le plan Équilibre", "2 cours privés / mois", "Accès retraites exclusives", "Programme nutrition inclus", "Coaching bien-être mensuel", "Réductions sur nos ateliers"],
+    cta: "Choisir Immersion",
+    highlight: false,
+  },
+];
+
+function Pricing() {
+  const ref = useRef<HTMLElement>(null);
+  const isInView = useInView(ref, { once: true, margin: "-60px" });
+
+  return (
+    <section ref={ref} style={{ padding: "100px 80px", background: C.bg, fontFamily: FONT_BODY }}>
+      <motion.div initial={{ opacity: 0, y: 32 }} animate={isInView ? { opacity: 1, y: 0 } : {}} style={{ textAlign: "center", marginBottom: 60 }}>
+        <div style={{ display: "inline-block", background: C.accentLight, color: C.accent, borderRadius: 20, padding: "6px 18px", fontSize: 13, fontWeight: 700, marginBottom: 16, textTransform: "uppercase", letterSpacing: 0.8 }}>
+          Abonnements
         </div>
-      </section>
+        <h2 style={{ fontFamily: FONT_HEADING, fontSize: "clamp(28px, 3vw, 44px)", fontWeight: 700, color: C.text, letterSpacing: -0.5, marginBottom: 14 }}>
+          Investissez dans votre bien-être
+        </h2>
+        <p style={{ color: C.textMuted, fontSize: 16 }}>Premier cours d'essai toujours gratuit — Sans engagement</p>
+      </motion.div>
 
-      {/* ── EXHIBITION SHOWCASE ── */}
-      <section className="py-40 bg-white relative overflow-hidden">
-        <div className="max-w-[1600px] mx-auto px-8 md:px-16">
-          <Reveal className="mb-32">
-             <div className="flex flex-col lg:flex-row justify-between items-end gap-12 border-b border-black/10 pb-12">
-               <h2 className="text-7xl md:text-[10rem] font-black italic tracking-tighter leading-[0.8] uppercase text-black">
-                 Gallery <br/> <span className="text-black/20 not-italic">Archive.</span>
-               </h2>
-               <div className="text-right">
-                  <span className="text-[10px] font-bold uppercase tracking-[0.5em] text-black/20 mb-4 block italic">Manifest_Sequence_2024</span>
-                  <div className="flex gap-4">
-                    {EXHIBITIONS.map((_, i) => (
-                      <button 
-                        key={i} 
-                        onClick={() => setActiveEx(i)}
-                        className={`w-16 h-1 transition-all ${activeEx === i ? "bg-black w-32" : "bg-black/10"}`}
-                      />
-                    ))}
-                  </div>
-               </div>
-             </div>
-          </Reveal>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 28, maxWidth: 980, margin: "0 auto", alignItems: "start" }}>
+        {PLANS.map((p, i) => (
+          <motion.div
+            key={p.name}
+            initial={{ opacity: 0, y: 44 }}
+            animate={isInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.55, delay: i * 0.1 }}
+            style={{
+              background: p.highlight ? C.text : C.bgSection,
+              borderRadius: 24,
+              padding: "38px 32px",
+              border: p.highlight ? "none" : `1.5px solid ${C.border}`,
+              boxShadow: p.highlight ? C.shadowLg : C.shadow,
+              position: "relative",
+              overflow: "hidden",
+            }}
+          >
+            {p.highlight && (
+              <>
+                <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 4, background: `linear-gradient(90deg, ${C.accent}, #e07c62)` }} />
+                <div style={{ position: "absolute", top: 20, right: 20, background: C.accent, color: C.white, borderRadius: 20, padding: "4px 14px", fontSize: 12, fontWeight: 700 }}>
+                  Populaire
+                </div>
+              </>
+            )}
+            <h3 style={{ fontFamily: FONT_HEADING, fontSize: 22, fontWeight: 700, color: p.highlight ? C.white : C.text, marginBottom: 8 }}>{p.name}</h3>
+            <p style={{ fontSize: 14, color: p.highlight ? "rgba(255,255,255,0.6)" : C.textMuted, marginBottom: 24, lineHeight: 1.55 }}>{p.desc}</p>
+            <div style={{ marginBottom: 28 }}>
+              <span style={{ fontFamily: FONT_HEADING, fontSize: 44, fontWeight: 700, color: p.highlight ? C.white : C.text }}>€{p.price}</span>
+              <span style={{ fontSize: 14, color: p.highlight ? "rgba(255,255,255,0.55)" : C.textMuted, marginLeft: 6 }}>{p.period}</span>
+            </div>
+            <ul style={{ listStyle: "none", padding: 0, margin: "0 0 28px", display: "flex", flexDirection: "column", gap: 11 }}>
+              {p.features.map((f) => (
+                <li key={f} style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <CheckCircle size={16} color={p.highlight ? C.accent : C.sage} />
+                  <span style={{ fontSize: 14, color: p.highlight ? "rgba(255,255,255,0.82)" : C.text }}>{f}</span>
+                </li>
+              ))}
+            </ul>
+            <motion.button
+              style={{
+                width: "100%",
+                background: p.highlight ? C.accent : "transparent",
+                color: p.highlight ? C.white : C.text,
+                border: p.highlight ? "none" : `1.5px solid ${C.border}`,
+                borderRadius: 25,
+                padding: "14px",
+                fontWeight: 700,
+                fontSize: 15,
+                cursor: "pointer",
+                fontFamily: FONT_BODY,
+              }}
+              whileHover={{ background: p.highlight ? C.accentDark : C.accentLight, borderColor: C.accent, color: p.highlight ? C.white : C.accent, scale: 1.02 }}
+              whileTap={{ scale: 0.97 }}
+            >
+              {p.cta}
+            </motion.button>
+          </motion.div>
+        ))}
+      </div>
+    </section>
+  );
+}
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-24 items-center">
-            <div className="lg:col-span-8 relative aspect-video rounded-sm overflow-hidden border border-black/5 group bg-[#ddd]">
-              <AnimatePresence mode="wait">
+// ─── FAQ ──────────────────────────────────────────────────────────────────────
+const FAQS = [
+  { q: "Je suis débutant(e), puis-je commencer le yoga ?", a: "Absolument ! Tous nos cours débutants sont conçus pour les personnes sans aucune expérience. Emma et nos autres professeurs adaptent chaque posture selon les capacités de chacun. Votre premier cours est entièrement gratuit." },
+  { q: "Quels accessoires dois-je apporter ?", a: "Nous mettons des tapis à disposition gratuitement. Venez simplement en tenue confortable. Les props (blocs, sangles, coussins) sont fournis. Vous pouvez bien sûr apporter votre propre tapis si vous en avez un." },
+  { q: "Puis-je me joindre à n'importe quel moment ?", a: "Oui, les inscriptions sont ouvertes toute l'année. Nous vous recommandons de commencer par notre cours de découverte (gratuit) pour trouver le format qui vous convient le mieux avant de vous abonner." },
+  { q: "Y a-t-il des cours en ligne ?", a: "Oui ! Tous nos abonnements payants incluent un accès illimité à notre plateforme en ligne avec plus de 200 cours enregistrés et 3 sessions live par semaine." },
+  { q: "Quelle est votre politique d'annulation ?", a: "Vous pouvez annuler un cours jusqu'à 4h avant son début sans pénalité. En dessous de 4h, la séance est décomptée. Notre abonnement mensuel est résiliable à tout moment sans frais." },
+];
+
+function FAQ() {
+  const ref = useRef<HTMLElement>(null);
+  const isInView = useInView(ref, { once: true, margin: "-60px" });
+  const [open, setOpen] = useState<number | null>(null);
+
+  return (
+    <section ref={ref} style={{ padding: "100px 80px", background: C.bgSection, fontFamily: FONT_BODY }}>
+      <motion.div initial={{ opacity: 0, y: 32 }} animate={isInView ? { opacity: 1, y: 0 } : {}} style={{ textAlign: "center", marginBottom: 60 }}>
+        <div style={{ display: "inline-block", background: C.accentLight, color: C.accent, borderRadius: 20, padding: "6px 18px", fontSize: 13, fontWeight: 700, marginBottom: 16, textTransform: "uppercase", letterSpacing: 0.8 }}>
+          FAQ
+        </div>
+        <h2 style={{ fontFamily: FONT_HEADING, fontSize: "clamp(28px, 3vw, 44px)", fontWeight: 700, color: C.text, letterSpacing: -0.5 }}>
+          Questions fréquentes
+        </h2>
+      </motion.div>
+
+      <div style={{ maxWidth: 720, margin: "0 auto", display: "flex", flexDirection: "column", gap: 12 }}>
+        {FAQS.map((faq, i) => (
+          <motion.div
+            key={i}
+            initial={{ opacity: 0, y: 18 }}
+            animate={isInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.4, delay: i * 0.08 }}
+            style={{ background: C.white, borderRadius: 14, border: `1px solid ${open === i ? C.accent : C.border}`, overflow: "hidden", transition: "border-color 0.2s" }}
+          >
+            <button
+              onClick={() => setOpen(open === i ? null : i)}
+              style={{ width: "100%", padding: "20px 24px", background: "none", border: "none", cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 16, textAlign: "left", fontFamily: FONT_BODY }}
+            >
+              <span style={{ fontWeight: 600, fontSize: 16, color: C.text, lineHeight: 1.4 }}>{faq.q}</span>
+              <motion.div animate={{ rotate: open === i ? 180 : 0 }} transition={{ duration: 0.25 }} style={{ flexShrink: 0 }}>
+                <ChevronDown size={20} color={open === i ? C.accent : C.textMuted} />
+              </motion.div>
+            </button>
+            <AnimatePresence initial={false}>
+              {open === i && (
                 <motion.div
-                  key={activeEx}
-                  initial={{ opacity: 0, scale: 1.1 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 1.1 }}
-                  transition={{ duration: 1, ease: [0.19, 1, 0.22, 1] }}
-                  className="absolute inset-0"
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.3 }}
+                  style={{ overflow: "hidden" }}
                 >
-                  <Image src={EXHIBITIONS[activeEx].img} alt={EXHIBITIONS[activeEx].title} fill className="object-cover grayscale brightness-75 group-hover:grayscale-0 transition-all duration-[2s]" unoptimized />
-                  <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-transparent opacity-80" />
+                  <div style={{ padding: "0 24px 22px", fontSize: 15, color: C.textMuted, lineHeight: 1.72 }}>{faq.a}</div>
                 </motion.div>
-              </AnimatePresence>
-              <div className="absolute bottom-12 left-12 flex flex-col gap-4">
-                 <span className="text-[10px] font-black uppercase tracking-widest bg-black/80 backdrop-blur-md text-white px-6 py-2 border border-white/5">{EXHIBITIONS[activeEx].year} // MANIFEST</span>
-              </div>
-            </div>
+              )}
+            </AnimatePresence>
+          </motion.div>
+        ))}
+      </div>
+    </section>
+  );
+}
 
-            <div className="lg:col-span-4 space-y-12">
-               <motion.div
-                  key={activeEx}
-                  initial={{ opacity: 0, x: 50 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.6 }}
-                  className="space-y-12"
-               >
-                 <span className="text-[10px] font-black uppercase tracking-[0.4em] text-black/60">{EXHIBITIONS[activeEx].id} // EXHIBIT</span>
-                 <h3 className="text-6xl md:text-8xl font-black italic uppercase text-black tracking-tighter">{EXHIBITIONS[activeEx].title}</h3>
-                 <div className="space-y-6 border-y border-black/10 py-12">
-                    <div className="flex justify-between items-center">
-                       <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-black/30">Category</span>
-                       <span className="text-sm font-black text-black uppercase tracking-widest">{EXHIBITIONS[activeEx].category}</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                       <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-black/30">LENS_STATUS</span>
-                       <span className="text-sm font-black text-black uppercase tracking-widest italic">Stable_Optical</span>
-                    </div>
-                 </div>
-                 <p className="text-black/30 text-lg font-light italic leading-loose uppercase tracking-wide">
-                   {EXHIBITIONS[activeEx].desc}
-                 </p>
-                 <button className="flex items-center gap-6 group">
-                    <span className="text-[10px] font-bold uppercase tracking-[0.8em] text-black">Request_Manifest</span>
-                    <div className="w-16 h-16 border border-black/10 rounded-full flex items-center justify-center group-hover:bg-black transition-all">
-                       <ArrowUpRight className="w-6 h-6 text-black group-hover:text-white transition-colors" />
-                    </div>
-                 </button>
-               </motion.div>
+// ─── Footer ───────────────────────────────────────────────────────────────────
+function Footer() {
+  return (
+    <footer style={{ background: C.text, color: C.white, padding: "70px 80px 32px", fontFamily: FONT_BODY }}>
+      <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr", gap: 48, marginBottom: 52 }}>
+        <div>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20 }}>
+            <div style={{ width: 38, height: 38, background: C.accent, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <Leaf size={20} color={C.white} />
             </div>
+            <span style={{ fontFamily: FONT_HEADING, fontWeight: 700, fontSize: 21 }}>AnandaFlow</span>
           </div>
-        </div>
-      </section>
-
-      {/* ── CAPABILITIES ── */}
-      <section className="py-40 bg-[#fcfcfc] border-y border-black/10">
-        <div className="max-w-[1600px] mx-auto px-8 md:px-16">
-          <Reveal className="mb-32 text-center">
-             <span className="text-[10px] font-bold uppercase tracking-[1em] text-black/40 mb-8 block italic">Operational Scope</span>
-             <h2 className="text-7xl md:text-[10rem] font-black italic tracking-tighter leading-[0.8] uppercase text-black">
-                Technical <br/> <span className="text-black/20 not-italic">Expertise.</span>
-             </h2>
-          </Reveal>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-px bg-black/10 border border-black/10">
-            {CAPABILITIES.map((item, i) => (
-              <Reveal key={item.title} delay={i * 0.1} className="bg-white p-12 group hover:bg-black/5 transition-all duration-700">
-                 <item.icon className="w-12 h-12 text-black/20 group-hover:text-black transition-colors mb-8" />
-                 <h3 className="text-2xl font-black italic uppercase text-black mb-6">{item.title}</h3>
-                 <p className="text-xs text-black/40 group-hover:text-black font-light tracking-widest uppercase italic leading-loose transition-colors">
-                   {item.desc}
-                 </p>
-              </Reveal>
+          <p style={{ color: "rgba(255,255,255,0.58)", fontSize: 15, lineHeight: 1.65, marginBottom: 24 }}>
+            Studio de yoga et méditation au cœur de Lyon. Un espace chaleureux pour trouver la paix intérieure et cultiver votre équilibre.
+          </p>
+          <div style={{ display: "flex", flexDirection: "column", gap: 11 }}>
+            {[
+              { icon: <Phone size={15} />, text: "04 72 34 56 78" },
+              { icon: <Mail size={15} />, text: "namaste@anandaflow.fr" },
+              { icon: <MapPin size={15} />, text: "18 Rue de la Paix, 69002 Lyon" },
+              { icon: <Clock size={15} />, text: "Lun–Ven 7h–21h | Week-end 8h–19h" },
+            ].map((item, i) => (
+              <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, color: "rgba(255,255,255,0.62)", fontSize: 14 }}>
+                <span style={{ color: C.accent }}>{item.icon}</span>
+                {item.text}
+              </div>
             ))}
           </div>
         </div>
-      </section>
 
-      {/* ── ATELIER / LABORATORY ── */}
-      <section className="py-40 bg-white overflow-hidden">
-        <div className="max-w-[1600px] mx-auto px-8 md:px-16 grid grid-cols-1 lg:grid-cols-2 gap-32 items-center">
-          <Reveal>
-             <div className="relative aspect-square bg-[#fcfcfc] border border-black/5 p-20 flex flex-col justify-center group overflow-hidden">
-                <div className="absolute top-0 right-0 p-12">
-                   <Box className="w-16 h-16 text-black/5 group-hover:text-black/10 transition-colors" />
-                </div>
-                <Sparkles className="w-16 h-16 text-black mb-12" />
-                <h3 className="text-5xl font-black italic uppercase text-black mb-8">Visual <br/> <span className="text-black/20 not-italic">Atelier.</span></h3>
-                <p className="text-black/40 text-lg leading-relaxed mb-12 font-light uppercase tracking-wide italic leading-loose">
-                  Our Paris atelier leverages heavy archival glass fabrication and distributed visual orchestration for the production of non-standard optical artifacts. We push the tectonic limits of spatial photography.
-                </p>
-                <div className="flex gap-12 text-[10px] font-bold uppercase tracking-[0.5em] text-black/30">
-                   <span>[01] OPTIC_BOND</span>
-                   <span>[02] LENS_SYNTHESIS</span>
-                </div>
-             </div>
-          </Reveal>
-          <div className="space-y-24">
-             <Reveal delay={0.2}>
-                <span className="text-[10px] font-bold uppercase tracking-[1em] text-black/40 mb-8 block italic">Curation_Sequence</span>
-                <h2 className="text-6xl md:text-8xl font-black italic tracking-tighter leading-none uppercase text-black">Visual <br/> <span className="text-black/20 not-italic">Manifesto.</span></h2>
-             </Reveal>
-             <div className="space-y-12">
-                {[
-                  { n: "01", t: "Sectional Audit", d: "Rigorous cutting of complex visual volumes to reveal interior spatial potential." },
-                  { n: "02", t: "Optical Stress", d: "Simulation of high-fidelity visual performance under extreme archival loads." },
-                  { n: "03", t: "Archive Aging", d: "Analyzing the interaction of archival visual models with digital weathering." }
-                ].map((step, i) => (
-                  <Reveal key={step.n} delay={i * 0.1 + 0.3} className="flex gap-12 group border-l border-black/10 pl-8 hover:border-black transition-colors">
-                    <span className="text-4xl font-black italic text-black/10 group-hover:text-black transition-colors">{step.n}</span>
-                    <div>
-                      <h4 className="text-xl font-black uppercase italic text-white mb-2">{step.t}</h4>
-                      <p className="text-xs text-black/40 font-light tracking-widest uppercase italic leading-loose">{step.d}</p>
-                    </div>
-                  </Reveal>
-                ))}
-             </div>
+        {[
+          { title: "Cours", links: ["Hatha Flow", "Vinyasa", "Yin Yoga", "Méditation", "Kundalini"] },
+          { title: "Studio", links: ["Notre histoire", "Professeurs", "Tarifs", "Blog", "Événements"] },
+          { title: "Pratique", links: ["Cours débutants", "Cours en ligne", "Retraites", "Ateliers"] },
+        ].map((col) => (
+          <div key={col.title}>
+            <h4 style={{ fontSize: 13, fontWeight: 700, marginBottom: 20, color: C.white, textTransform: "uppercase", letterSpacing: 0.8 }}>{col.title}</h4>
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              {col.links.map((link) => (
+                <a key={link} href="#" style={{ color: "rgba(255,255,255,0.55)", fontSize: 14, textDecoration: "none" }}>{link}</a>
+              ))}
+            </div>
           </div>
+        ))}
+      </div>
+
+      <div style={{ borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: 24, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
+        <p style={{ color: "rgba(255,255,255,0.38)", fontSize: 14 }}>© 2025 Ananda Flow. Tous droits réservés.</p>
+        <div style={{ display: "flex", gap: 20 }}>
+          {["Mentions légales", "Confidentialité", "CGV"].map((link) => (
+            <a key={link} href="#" style={{ color: "rgba(255,255,255,0.38)", fontSize: 13, textDecoration: "none" }}>{link}</a>
+          ))}
         </div>
-      </section>
+      </div>
+    </footer>
+  );
+}
 
-      {/* ── CTA / INQUIRY ── */}
-      <section className="py-40 bg-[#fcfcfc] relative">
-         <div className="max-w-[1600px] mx-auto px-8 md:px-16">
-            <div className="bg-black text-white p-24 lg:p-40 relative overflow-hidden flex flex-col items-center text-center group">
-               <div className="absolute inset-0 opacity-10 grayscale brightness-110 group-hover:opacity-20 transition-opacity">
-                  <Image src="https://images.unsplash.com/photo-1541643600914-78b084683702?w=1600&q=80" alt="CTA Lens" fill className="object-cover" />
-               </div>
-               <Reveal>
-                  <span className="text-[10px] font-bold uppercase tracking-[1em] text-white/50 mb-12 block italic">Commission Initiation</span>
-                  <h2 className="text-7xl md:text-[12rem] font-black italic tracking-tighter leading-[0.8] uppercase mb-16">
-                     Own <br/> <span className="text-white/30 not-italic">The Visual.</span>
-                  </h2>
-                  <div className="flex flex-wrap justify-center gap-12 relative z-10">
-                     <button className="px-20 py-8 bg-white text-black font-black uppercase text-sm tracking-[0.5em] hover:italic transition-all">
-                        Request_Selection
-                     </button>
-                     <button className="px-20 py-8 border border-white/20 text-white font-black uppercase text-sm tracking-[0.5em] hover:bg-white/5 transition-all">
-                        Atelier_Dossier
-                     </button>
-                  </div>
-               </Reveal>
-            </div>
-         </div>
-      </section>
-
-      {/* ── FOOTER ── */}
-      <footer className="bg-white pt-40 pb-20 px-8 md:px-16 border-t border-black/10">
-         <div className="max-w-[1600px] mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-32 mb-40">
-            <div className="lg:col-span-6">
-               <div className="flex items-center gap-4 mb-12">
-                 <Camera className="w-10 h-10 text-black" />
-                 <span className="text-3xl font-black tracking-tighter uppercase italic text-black">LENS<span className="text-black/30">//</span>STUDIO</span>
-               </div>
-               <p className="text-black/40 text-sm font-light leading-relaxed uppercase tracking-[0.3em] mb-12 italic max-w-md">
-                 Securing the future of optical objects through high-fidelity orchestration and radical visual clarity.
-               </p>
-               <div className="flex gap-12">
-                 {["TERMINAL", "OPTICAL", "FORGE", "ALPHA"].map(s => (
-                   <a key={s} href="#" className="text-[10px] font-bold hover:text-black text-black/30 transition-colors tracking-[0.5em]">[{s}]</a>
-                 ))}
-               </div>
-            </div>
-            
-            <div className="lg:col-span-2">
-               <h4 className="text-[10px] font-bold uppercase tracking-[0.5em] text-black/40 mb-12">Atelier</h4>
-               <ul className="space-y-6 text-xs font-bold uppercase tracking-[0.4em]">
-                 {["Gallery", "Manifests", "Atelier", "Journal"].map(item => (
-                   <li key={item}><a href="#" className="hover:text-black transition-colors">{item}</a></li>
-                 ))}
-               </ul>
-            </div>
-
-            <div className="lg:col-span-4">
-               <h4 className="text-[10px] font-bold uppercase tracking-[0.5em] text-black/40 mb-12">Partner Inquiry</h4>
-               <p className="text-sm text-black/40 font-light mb-12 italic uppercase tracking-[0.2em] leading-loose">
-                 For new commissions, optical studies, or distribution enclaves, contact our primary command center in Paris.
-               </p>
-               <a href="mailto:atelier@lens-studio.fr" className="text-3xl font-black italic hover:text-black transition-colors block border-b border-black/10 pb-8 uppercase tracking-tighter">
-                  atelier@lens-studio.fr
-               </a>
-            </div>
-         </div>
-
-         <div className="max-w-[1600px] mx-auto flex flex-col md:row items-center justify-between gap-12 text-[9px] font-bold uppercase tracking-[0.8em] text-black/20 border-t border-black/5 pt-20">
-            <p>© 2024 LENS STUDIO ATELIER AG. ALL RIGHTS RESERVED. PARIS // GLOBAL.</p>
-            <div className="flex gap-16">
-               <a href="#" className="hover:text-black transition-colors">[Optical_Vault]</a>
-               <a href="#" className="hover:text-white transition-colors">[Terms_of_Form]</a>
-            </div>
-         </div>
-      </footer>
-    </div>
+// ─── Page Export ──────────────────────────────────────────────────────────────
+export default function Impact31() {
+  return (
+    <main style={{ background: C.bg, overflowX: "hidden" }}>
+      <Navbar />
+      <Hero />
+      <Classes />
+      <Stats />
+      <Teachers />
+      <Testimonials />
+      <Pricing />
+      <FAQ />
+      <Footer />
+    </main>
   );
 }

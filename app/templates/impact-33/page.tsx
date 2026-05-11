@@ -1,455 +1,803 @@
 "use client";
 
+import { useRef, useState, useEffect } from "react";
 import { motion, useScroll, useTransform, useInView, AnimatePresence } from "framer-motion";
-import { useState, useRef, useEffect, Suspense } from "react";
-import Image from "next/image";
-import { ArrowUpRight, Menu, X, Layers, ShieldCheck, Plus, Play, ArrowRight, ChevronDown, Monitor, LayoutGrid, Zap, Activity, Cpu, Globe, Database, Command, Settings, Eye, Maximize2, Minimize2, Box, Wind } from "lucide-react";
-import "../premium.css";
+import Link from "next/link";
+import {
+  Star,
+  Clock,
+  MapPin,
+  Phone,
+  Mail,
+  ChevronDown,
+  ChevronRight,
+  Heart,
+  Award,
+  Users,
+  Leaf,
+  CheckCircle,
+  ShoppingBag,
+  Calendar,
+  Menu,
+  X,
+} from "lucide-react";
 
-// ─── DATA ──────────────────────────────────────────────────────────────────
+// ─── Design Tokens ─────────────────────────────────────────────────────────────
+const C = {
+  bg: "#fdf8f0",
+  bgLight: "#f5e6c8",
+  bgSection: "#fdf3e3",
+  text: "#5c3317",
+  textMuted: "#8c6440",
+  accent: "#d4832a",
+  accentDark: "#b86e1e",
+  accentLight: "#fdedc8",
+  brown: "#5c3317",
+  brownLight: "#8c6440",
+  cream: "#f5e6c8",
+  white: "#FFFFFF",
+  border: "#e8d5b0",
+  shadow: "0 4px 24px rgba(92,51,23,0.09)",
+  shadowLg: "0 12px 48px rgba(92,51,23,0.15)",
+};
 
-const WAVEFORM_MANIFESTS = [
-  { 
-    id: "WV_01",
-    title: "QUANTUM_FLUX", 
-    category: "Data Topology",
-    frequency: "v9.4_TERAHERTZ",
-    img: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=1200&q=80",
-    desc: "A high-fidelity minimalist study of quantum wavefront processing across distributed edge nodes. Zero-latency data routing."
-  },
-  { 
-    id: "WV_02",
-    title: "NEURAL_SYNC", 
-    category: "Bio-Telemetry",
-    frequency: "v3.1_EXAHERTZ",
-    img: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=1200&q=80",
-    desc: "Planetary-scale distributed neural synchronization orchestrated through quantum weight synthesis. High-fidelity signal routing."
-  },
-  { 
-    id: "WV_03",
-    title: "VOID_MEMBRANE", 
-    category: "Spectral Shell",
-    frequency: "v9.0_ZETTAHERTZ",
-    img: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&q=80",
-    desc: "A zero-latency spectral engine built for the real-time synthesis of non-standard waveform objects through radical code injection."
-  }
-];
+const FONT_HEADING = "'Playfair Display', Georgia, serif";
+const FONT_BODY = "'Source Sans Pro', system-ui, sans-serif";
 
-const METRICS = [
-  { label: "Stability", val: "99.9%", desc: "Absolute architectural synchronization across all distributed wave edge nodes." },
-  { label: "Bandwidth", val: "12 EB/s", desc: "Sustainable signal delivery through our dedicated high-fidelity spectral backbone." },
-  { label: "Integrity", val: "IMMUNE", desc: "Zero-leak waveform logic verified through continuous adversarial stress-testing." }
-];
+// ─── Marquee Products ──────────────────────────────────────────────────────────
+function Marquee() {
+  const items = [
+    { emoji: "🥐", name: "Croissant pur beurre" },
+    { emoji: "🍞", name: "Pain de campagne" },
+    { emoji: "🥖", name: "Baguette tradition" },
+    { emoji: "🧁", name: "Madeleine au miel" },
+    { emoji: "🎂", name: "Tarte aux fraises" },
+    { emoji: "🥨", name: "Bretzel artisanal" },
+    { emoji: "🍰", name: "Mille-feuille" },
+    { emoji: "🫓", name: "Fougasse aux olives" },
+    { emoji: "🍩", name: "Kouign-amann" },
+    { emoji: "🥧", name: "Éclair au chocolat" },
+  ];
 
-const CAPABILITIES = [
-  { icon: Activity, title: "Wave Forge", desc: "Engineering spectral volumes through a lens of mathematical and structural purity." },
-  { icon: Activity, title: "Signal Logic", desc: "Scaling signal interactions through distributed wave orchestration and logic synthesis." },
-  { icon: Cpu, title: "Pulse Sync", desc: "Synchronizing system spikes with real-time biological demand cycles for absolute sync." },
-  { icon: Box, title: "Immune Shell", desc: "Leveraging heavy archival data fabrication for ultra-high fidelity signal protection." }
-];
+  const doubled = [...items, ...items];
 
-// ─── COMPONENTS ──────────────────────────────────────────────────────────────
-
-function Reveal({ children, className = "", delay = 0, y = 30 }: { children: React.ReactNode; className?: string; delay?: number; y?: number }) {
-  const ref = useRef(null);
-  const inView = useInView(ref, { once: true, margin: "-100px" });
   return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, y }}
-      animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 1, delay, ease: [0.23, 1, 0.32, 1] }}
-      className={className}
-    >
-      {children}
-    </motion.div>
+    <div style={{ overflow: "hidden", width: "100%", padding: "20px 0" }}>
+      <motion.div
+        style={{ display: "flex", gap: 20, width: "max-content" }}
+        animate={{ x: ["0%", "-50%"] }}
+        transition={{ duration: 28, repeat: Infinity, ease: "linear" }}
+      >
+        {doubled.map((item, i) => (
+          <div
+            key={i}
+            style={{
+              background: C.white,
+              borderRadius: 14,
+              padding: "14px 22px",
+              display: "flex",
+              alignItems: "center",
+              gap: 10,
+              border: `1px solid ${C.border}`,
+              boxShadow: C.shadow,
+              whiteSpace: "nowrap",
+              flexShrink: 0,
+            }}
+          >
+            <span style={{ fontSize: 22 }}>{item.emoji}</span>
+            <span style={{ fontFamily: FONT_HEADING, fontSize: 15, color: C.text, fontWeight: 600 }}>
+              {item.name}
+            </span>
+          </div>
+        ))}
+      </motion.div>
+    </div>
   );
 }
 
-// ─── MAIN SPA ────────────────────────────────────────────────────────────────
-
-export default function WaveOSSPA() {
+// ─── Navbar ───────────────────────────────────────────────────────────────────
+function Navbar() {
+  const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [activeWave, setActiveWave] = useState(0);
-  const { scrollY } = useScroll();
-  
-  const heroOpacity = useTransform(scrollY, [0, 400], [1, 0]);
-  const heroScale = useTransform(scrollY, [0, 800], [1, 1.05]);
-  const waveDisplacement = useTransform(scrollY, [0, 1000], [0, 50]);
+
+  useEffect(() => {
+    const handler = () => setScrolled(window.scrollY > 40);
+    window.addEventListener("scroll", handler);
+    return () => window.removeEventListener("scroll", handler);
+  }, []);
+
+  const links = ["Accueil", "Menu", "Notre histoire", "Boutique", "Contact"];
 
   return (
-    <div className="min-h-screen bg-[#020205] text-[#eee] font-mono selection:bg-[#eee] selection:text-black">
-      
-      {/* ── SPECTRAL OVERLAY ── */}
-      <div className="fixed inset-0 z-[9999] pointer-events-none opacity-[0.08] bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
-      <div className="fixed inset-0 z-[0] opacity-10 pointer-events-none overflow-hidden">
-        <div className="absolute inset-0" style={{ backgroundImage: "linear-gradient(rgba(0,255,136,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(0,255,136,0.1) 1px, transparent 1px)", backgroundSize: "40px 40px" }} />
-      </div>
-
-      {/* ── NAVIGATION ── */}
-      <motion.nav 
-        initial={{ y: -100 }}
-        animate={{ y: 0 }}
-        className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-8 md:px-16 py-10 mix-blend-difference"
+    <>
+      <motion.nav
+        style={{
+          position: "fixed", top: 0, left: 0, right: 0, zIndex: 100,
+          padding: "0 48px", height: 72,
+          display: "flex", alignItems: "center", justifyContent: "space-between",
+          background: scrolled ? "rgba(253,248,240,0.97)" : "transparent",
+          backdropFilter: scrolled ? "blur(12px)" : "none",
+          borderBottom: scrolled ? `1px solid ${C.border}` : "none",
+          boxShadow: scrolled ? C.shadow : "none",
+          transition: "all 0.3s ease", fontFamily: FONT_BODY,
+        }}
       >
-        <div className="flex items-center gap-4">
-          <Activity className="w-10 h-10 text-white" />
-          <span className="text-2xl font-black tracking-tighter uppercase italic text-white">WAVE<span className="text-white/30">//</span>OS</span>
-        </div>
-        
-        <div className="hidden lg:flex items-center gap-16 text-[10px] font-bold uppercase tracking-[0.4em] text-white/40">
-          {["Manifest", "Reserve", "Logic", "Portal"].map(item => (
-            <a key={item} href={`#${item.toLowerCase()}`} className="hover:text-white transition-colors">/{item}</a>
+        <motion.div style={{ display: "flex", alignItems: "center", gap: 10, cursor: "pointer" }} whileHover={{ scale: 1.03 }}>
+          <div style={{ width: 40, height: 40, background: C.accent, borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
+            🥖
+          </div>
+          <div>
+            <div style={{ fontFamily: FONT_HEADING, fontWeight: 700, fontSize: 20, color: C.text, lineHeight: 1 }}>La Fournée</div>
+            <div style={{ fontSize: 10, color: C.textMuted, letterSpacing: 1.5, textTransform: "uppercase" }}>Artisan Boulanger</div>
+          </div>
+        </motion.div>
+
+        <div style={{ display: "flex", gap: 32, alignItems: "center" }}>
+          {links.map((link) => (
+            <motion.a key={link} href="#" style={{ color: C.text, fontWeight: 400, fontSize: 16, textDecoration: "none", fontFamily: FONT_BODY }} whileHover={{ color: C.accent }} transition={{ duration: 0.15 }}>
+              {link}
+            </motion.a>
           ))}
+          <motion.button
+            style={{ background: C.accent, color: C.white, border: "none", borderRadius: 8, padding: "10px 22px", fontWeight: 700, fontSize: 15, cursor: "pointer", fontFamily: FONT_BODY, display: "flex", alignItems: "center", gap: 7 }}
+            whileHover={{ background: C.accentDark, scale: 1.04 }}
+            whileTap={{ scale: 0.97 }}
+          >
+            <ShoppingBag size={16} />
+            Commander
+          </motion.button>
         </div>
 
-        <button 
-          onClick={() => setMenuOpen(true)}
-          className="px-6 py-2 border border-white/20 bg-white/5 backdrop-blur-md text-[10px] font-black uppercase tracking-widest hover:bg-white/20 transition-all text-white"
-        >
-          [INIT_SYSTEM]
-        </button>
+        <motion.button onClick={() => setMenuOpen(!menuOpen)} style={{ display: "none", background: "none", border: "none", cursor: "pointer", color: C.text }} whileTap={{ scale: 0.9 }}>
+          {menuOpen ? <X size={24} /> : <Menu size={24} />}
+        </motion.button>
       </motion.nav>
 
-      {/* ── MOBILE MENU ── */}
       <AnimatePresence>
         {menuOpen && (
-          <motion.div 
-            initial={{ opacity: 0, x: "100%" }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: "100%" }}
-            transition={{ duration: 0.6, ease: [0.23, 1, 0.32, 1] }}
-            className="fixed inset-0 z-[60] bg-[#020205] text-[#eee] p-12 flex flex-col justify-between"
+          <motion.div
+            initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}
+            style={{ position: "fixed", top: 72, left: 0, right: 0, zIndex: 99, background: C.bg, padding: "24px 48px", borderBottom: `1px solid ${C.border}`, boxShadow: C.shadow, fontFamily: FONT_BODY }}
           >
-            <div className="flex justify-between items-center border-b border-white/10 pb-12">
-              <span className="text-xl font-black uppercase tracking-tighter italic">WAVE//OS</span>
-              <button onClick={() => setMenuOpen(false)} className="w-12 h-12 flex items-center justify-center border border-white/20 rounded-full">
-                <X className="w-6 h-6" />
-              </button>
-            </div>
-            <div className="flex flex-col gap-10">
-              {["WAVEFORM_MANIFEST", "TELEMETRY_ARCHIVE", "LOGIC_SHELL", "CORE_TOPOLOGY", "SECURE_AUTH"].map((item, i) => (
-                <motion.a 
-                  key={item}
-                  initial={{ opacity: 0, x: -50 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: i * 0.1 + 0.3 }}
-                  href="#"
-                  className="text-5xl md:text-8xl font-black uppercase italic tracking-tighter hover:text-white/40 transition-all leading-none"
-                  onClick={() => setMenuOpen(false)}
-                >
-                  {item}
-                </motion.a>
-              ))}
-            </div>
-            <div className="flex justify-between text-[10px] font-bold uppercase tracking-[0.5em] border-t border-white/10 pt-12 text-white/30">
-              <span>CORE_v9.4_STABLE</span>
-              <span>GLOBAL_SYNC // ACTIVE</span>
-            </div>
+            {links.map((link) => (
+              <a key={link} href="#" style={{ display: "block", padding: "12px 0", color: C.text, textDecoration: "none", borderBottom: `1px solid ${C.border}` }}>{link}</a>
+            ))}
           </motion.div>
         )}
       </AnimatePresence>
+    </>
+  );
+}
 
-      {/* ── HERO SECTION ── */}
-      <section className="relative h-screen flex items-center justify-center overflow-hidden bg-black">
-        <motion.div 
-          style={{ opacity: heroOpacity, scale: heroScale }}
-          className="absolute inset-0 z-0"
+// ─── Hero ─────────────────────────────────────────────────────────────────────
+function Hero() {
+  const ref = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
+  const textY = useTransform(scrollYProgress, [0, 1], [0, -100]);
+  const bgScale = useTransform(scrollYProgress, [0, 1], [1, 1.12]);
+  const textOpacity = useTransform(scrollYProgress, [0, 0.6], [1, 0]);
+
+  return (
+    <section
+      ref={ref}
+      style={{
+        minHeight: "100vh",
+        position: "relative",
+        overflow: "hidden",
+        display: "flex",
+        alignItems: "center",
+        fontFamily: FONT_BODY,
+      }}
+    >
+      {/* Background warm gradient */}
+      <motion.div
+        style={{
+          position: "absolute", inset: 0, zIndex: 0,
+          background: `linear-gradient(160deg, ${C.bg} 0%, ${C.bgLight} 50%, ${C.cream} 100%)`,
+          scale: bgScale,
+        }}
+      />
+
+      {/* Decorative circles */}
+      <div style={{ position: "absolute", top: -80, right: -80, width: 500, height: 500, borderRadius: "50%", background: `radial-gradient(circle, ${C.accentLight} 0%, transparent 70%)`, opacity: 0.6, zIndex: 0 }} />
+      <div style={{ position: "absolute", bottom: -60, left: -60, width: 350, height: 350, borderRadius: "50%", background: `radial-gradient(circle, ${C.cream} 0%, transparent 70%)`, zIndex: 0 }} />
+
+      {/* Large decorative emoji */}
+      <motion.div
+        style={{ position: "absolute", right: "8%", top: "50%", transform: "translateY(-50%)", fontSize: 180, opacity: 0.12, zIndex: 0, userSelect: "none" }}
+        animate={{ rotate: [0, 3, 0, -3, 0] }}
+        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+      >
+        🥖
+      </motion.div>
+
+      {/* Content */}
+      <motion.div
+        style={{ position: "relative", zIndex: 1, padding: "120px 80px 80px", maxWidth: 760, y: textY, opacity: textOpacity }}
+      >
+        <motion.div
+          initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}
+          style={{ display: "inline-flex", alignItems: "center", gap: 8, background: C.accentLight, border: `1px solid ${C.accent}`, borderRadius: 20, padding: "7px 16px", marginBottom: 28 }}
         >
-          <Image 
-            src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=1600&q=80" 
-            alt="Hero Spectral" 
-            fill 
-            className="object-cover grayscale brightness-50 contrast-125 opacity-20" 
-            unoptimized 
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#020205]" />
+          <Leaf size={14} color={C.accent} />
+          <span style={{ color: C.accent, fontSize: 13, fontWeight: 700 }}>Artisan boulanger depuis 1987 · Paris 11e</span>
         </motion.div>
 
-        <div className="relative z-10 text-center px-6">
-          <Reveal>
-             <div className="flex items-center justify-center gap-4 mb-12">
-               <span className="w-12 h-[1px] bg-white/20" />
-               <span className="text-[10px] font-bold uppercase tracking-[1.5em] text-white/40">Quantum_Data_Visualizer</span>
-               <span className="w-12 h-[1px] bg-white/20" />
-             </div>
-          </Reveal>
-          <Reveal delay={0.2}>
-            <h1 className="text-8xl md:text-[16rem] font-black tracking-tighter leading-[0.75] uppercase italic text-white mb-20">
-              WAVE <br/> <span className="not-italic text-white/10">OS.</span>
-            </h1>
-          </Reveal>
-          <Reveal delay={0.4}>
-            <div className="max-w-2xl mx-auto flex flex-col items-center gap-16 border-t border-white/10 pt-20">
-              <p className="text-white/40 text-xl leading-relaxed font-light uppercase tracking-[0.2em] italic leading-loose text-center">
-                Engineering the ultimate spectral archives through distributed wave orchestration. High-fidelity systems built for absolute structural precision and signal clarity.
-              </p>
-              <div className="flex gap-8">
-                <button className="px-16 py-6 bg-white text-black font-black uppercase text-xs tracking-[0.4em] hover:bg-black hover:text-white transition-all">
-                  Manifest_Access
-                </button>
-                <button className="px-16 py-6 border border-white/20 text-white font-black uppercase text-xs tracking-[0.4em] hover:bg-white/5 transition-colors">
-                  System_Dossier
-                </button>
-              </div>
+        <motion.h1
+          initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.1 }}
+          style={{ fontFamily: FONT_HEADING, fontSize: "clamp(40px, 5vw, 72px)", fontWeight: 700, color: C.text, lineHeight: 1.08, letterSpacing: -1.5, marginBottom: 24 }}
+        >
+          Le pain, l'art,{" "}
+          <em style={{ color: C.accent, fontStyle: "italic" }}>la tradition</em>
+        </motion.h1>
+
+        <motion.p
+          initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.22 }}
+          style={{ fontSize: 19, color: C.textMuted, lineHeight: 1.76, marginBottom: 40, maxWidth: 560 }}
+        >
+          La Fournée, c'est l'amour du pain au levain, des viennoiseries pur beurre et des pâtisseries
+          de saison. Tout est fait maison chaque jour dès 4h du matin dans notre fournil ouvert sur la rue.
+        </motion.p>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.32 }}
+          style={{ display: "flex", gap: 14, flexWrap: "wrap", marginBottom: 52 }}
+        >
+          <motion.button
+            style={{ background: C.accent, color: C.white, border: "none", borderRadius: 10, padding: "16px 34px", fontWeight: 700, fontSize: 17, cursor: "pointer", display: "flex", alignItems: "center", gap: 8, fontFamily: FONT_BODY }}
+            whileHover={{ background: C.accentDark, scale: 1.04, y: -2 }}
+            whileTap={{ scale: 0.97 }}
+          >
+            <ShoppingBag size={19} /> Commander en ligne
+          </motion.button>
+          <motion.button
+            style={{ background: "transparent", color: C.text, border: `2px solid ${C.border}`, borderRadius: 10, padding: "14px 28px", fontWeight: 600, fontSize: 16, cursor: "pointer", display: "flex", alignItems: "center", gap: 8, fontFamily: FONT_BODY }}
+            whileHover={{ borderColor: C.accent, color: C.accent }}
+            whileTap={{ scale: 0.97 }}
+          >
+            Notre carte <ChevronRight size={18} />
+          </motion.button>
+        </motion.div>
+
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} style={{ display: "flex", gap: 36 }}>
+          {[{ value: "37 ans", label: "De savoir-faire" }, { value: "4.9★", label: "Google Avis" }, { value: "100%", label: "Fait maison" }].map((s) => (
+            <div key={s.label}>
+              <div style={{ fontFamily: FONT_HEADING, fontWeight: 700, fontSize: 24, color: C.accent }}>{s.value}</div>
+              <div style={{ fontSize: 13, color: C.textMuted }}>{s.label}</div>
             </div>
-          </Reveal>
-        </div>
+          ))}
+        </motion.div>
+      </motion.div>
+    </section>
+  );
+}
 
-        <div className="absolute bottom-12 left-12 right-12 flex justify-between items-end text-[10px] font-bold uppercase tracking-[0.5em] text-white/20">
-          <div className="flex flex-col gap-2">
-            <span>PACKET_v9_SYNC</span>
-            <div className="w-48 h-[1px] bg-white/10" />
-          </div>
-          <div className="flex items-center gap-4 italic tracking-widest">
-             <div className="w-2 h-2 bg-white rounded-full animate-pulse" /> WAVE_STATUS: NOMINAL
-          </div>
-        </div>
-      </section>
+// ─── Marquee Section ──────────────────────────────────────────────────────────
+function MarqueeSection() {
+  return (
+    <section style={{ padding: "48px 0", background: C.bgSection, overflow: "hidden" }}>
+      <div style={{ textAlign: "center", marginBottom: 28, fontFamily: FONT_HEADING, fontSize: 16, color: C.textMuted, letterSpacing: 2, textTransform: "uppercase" }}>
+        Nos créations du moment
+      </div>
+      <Marquee />
+    </section>
+  );
+}
 
-      {/* ── METRICS GRID ── */}
-      <section className="py-40 bg-[#0a0a0c]">
-        <div className="max-w-[1600px] mx-auto px-8 md:px-16">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-px bg-white/5 border border-white/5">
-            {METRICS.map((s, i) => (
-              <Reveal key={s.label} delay={i * 0.1} className="bg-[#020205] p-24 group hover:bg-white/5 transition-colors">
-                <span className="text-[10px] font-bold uppercase tracking-[0.5em] text-white/30 mb-12 block group-hover:text-white/60">{s.label}</span>
-                <h3 className="text-7xl font-black italic text-white mb-8 group-hover:text-white transition-colors">{s.val}</h3>
-                <p className="text-xs text-white/30 font-light tracking-widest uppercase italic leading-loose">
-                  {s.desc}
-                </p>
-              </Reveal>
+// ─── Menu Categories ──────────────────────────────────────────────────────────
+const CATEGORIES = [
+  {
+    name: "Pains & Miches",
+    emoji: "🍞",
+    items: [
+      { name: "Pain de campagne", desc: "Levain naturel, croûte croustillante, mie alvéolée", price: "5,50 €" },
+      { name: "Baguette Tradition", desc: "Farine de blé T65, façonnée à la main", price: "1,40 €" },
+      { name: "Pain aux noix", desc: "Mie dense, noix françaises, levain de seigle", price: "4,80 €" },
+      { name: "Épi de froment", desc: "Classique festif, idéal pour le partage", price: "2,20 €" },
+    ],
+  },
+  {
+    name: "Viennoiseries",
+    emoji: "🥐",
+    items: [
+      { name: "Croissant pur beurre", desc: "Feuilletage 27 couches, beurre AOP Poitou-Charentes", price: "1,80 €" },
+      { name: "Pain au chocolat", desc: "Deux barres Valrhona, pâte feuilletée maison", price: "2,10 €" },
+      { name: "Kouign-amann", desc: "Spécialité bretonne, caramélisé minute", price: "3,20 €" },
+      { name: "Brioche tressée", desc: "Pur beurre, sucre perlé, vanille Bourbon", price: "5,90 €" },
+    ],
+  },
+  {
+    name: "Pâtisseries",
+    emoji: "🎂",
+    items: [
+      { name: "Tarte aux fraises", desc: "Fraises Gariguette, crème pâtissière vanille", price: "4,50 €" },
+      { name: "Éclair café", desc: "Ganache café, glaçage satiné, crème légère", price: "3,80 €" },
+      { name: "Mille-feuille", desc: "Feuilletage caramélisé, crème diplomate vanille", price: "4,20 €" },
+      { name: "Opéra maison", desc: "Biscuit joconde, ganache café, praliné", price: "5,00 €" },
+    ],
+  },
+];
+
+function MenuSection() {
+  const ref = useRef<HTMLElement>(null);
+  const isInView = useInView(ref, { once: true, margin: "-60px" });
+  const [activeCategory, setActiveCategory] = useState(0);
+
+  return (
+    <section id="menu" ref={ref} style={{ padding: "100px 80px", background: C.bg, fontFamily: FONT_BODY }}>
+      <motion.div initial={{ opacity: 0, y: 32 }} animate={isInView ? { opacity: 1, y: 0 } : {}} style={{ textAlign: "center", marginBottom: 48 }}>
+        <div style={{ display: "inline-block", background: C.accentLight, color: C.accent, borderRadius: 20, padding: "6px 18px", fontSize: 13, fontWeight: 700, marginBottom: 16, textTransform: "uppercase", letterSpacing: 0.8 }}>
+          Notre carte
+        </div>
+        <h2 style={{ fontFamily: FONT_HEADING, fontSize: "clamp(28px, 3vw, 44px)", fontWeight: 700, color: C.text, letterSpacing: -0.5 }}>
+          Fait avec amour, chaque matin
+        </h2>
+      </motion.div>
+
+      {/* Category tabs */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ delay: 0.15 }}
+        style={{ display: "flex", gap: 14, justifyContent: "center", marginBottom: 44 }}
+      >
+        {CATEGORIES.map((cat, i) => (
+          <motion.button
+            key={cat.name}
+            onClick={() => setActiveCategory(i)}
+            style={{
+              background: activeCategory === i ? C.accent : C.white,
+              color: activeCategory === i ? C.white : C.text,
+              border: `1.5px solid ${activeCategory === i ? C.accent : C.border}`,
+              borderRadius: 25, padding: "10px 22px",
+              fontWeight: 700, fontSize: 15, cursor: "pointer",
+              fontFamily: FONT_BODY, display: "flex", alignItems: "center", gap: 8,
+              transition: "all 0.2s",
+            }}
+            whileHover={{ scale: 1.04 }}
+            whileTap={{ scale: 0.97 }}
+          >
+            <span style={{ fontSize: 18 }}>{cat.emoji}</span>
+            {cat.name}
+          </motion.button>
+        ))}
+      </motion.div>
+
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={activeCategory}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          transition={{ duration: 0.3 }}
+          style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 20, maxWidth: 1100, margin: "0 auto" }}
+        >
+          {CATEGORIES[activeCategory].items.map((item, i) => (
+            <motion.div
+              key={item.name}
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.08 }}
+              whileHover={{ y: -5, boxShadow: C.shadowLg }}
+              style={{ background: C.bgSection, borderRadius: 16, padding: "24px 26px", border: `1px solid ${C.border}`, boxShadow: C.shadow }}
+            >
+              <h3 style={{ fontFamily: FONT_HEADING, fontSize: 18, fontWeight: 700, color: C.text, marginBottom: 8 }}>{item.name}</h3>
+              <p style={{ fontSize: 14, color: C.textMuted, lineHeight: 1.6, marginBottom: 16 }}>{item.desc}</p>
+              <div style={{ fontWeight: 700, color: C.accent, fontSize: 18, fontFamily: FONT_HEADING }}>{item.price}</div>
+            </motion.div>
+          ))}
+        </motion.div>
+      </AnimatePresence>
+    </section>
+  );
+}
+
+// ─── Our Story ────────────────────────────────────────────────────────────────
+function Story() {
+  const ref = useRef<HTMLElement>(null);
+  const isInView = useInView(ref, { once: true, margin: "-60px" });
+
+  return (
+    <section ref={ref} style={{ padding: "100px 80px", background: C.bgSection, fontFamily: FONT_BODY }}>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 80, alignItems: "center", maxWidth: 1100, margin: "0 auto" }}>
+        <motion.div initial={{ opacity: 0, x: -40 }} animate={isInView ? { opacity: 1, x: 0 } : {}} transition={{ duration: 0.7 }}>
+          <div style={{ display: "inline-block", background: C.accentLight, color: C.accent, borderRadius: 20, padding: "6px 18px", fontSize: 13, fontWeight: 700, marginBottom: 24, textTransform: "uppercase", letterSpacing: 0.8 }}>
+            Notre histoire
+          </div>
+          <h2 style={{ fontFamily: FONT_HEADING, fontSize: "clamp(26px, 3vw, 40px)", fontWeight: 700, color: C.text, lineHeight: 1.2, letterSpacing: -0.5, marginBottom: 24 }}>
+            Une boulangerie de quartier, <em style={{ color: C.accent }}>depuis 1987</em>
+          </h2>
+          <p style={{ fontSize: 16, color: C.textMuted, lineHeight: 1.8, marginBottom: 20 }}>
+            La Fournée est née de la passion de Marcel Girard pour le pain au levain naturel. À l'époque où les industriels envahissaient les boulangeries, Marcel choisissait l'artisanat, la lenteur et le respect des céréales.
+          </p>
+          <p style={{ fontSize: 16, color: C.textMuted, lineHeight: 1.8, marginBottom: 32 }}>
+            Aujourd'hui, sa fille Camille perpétue cet héritage avec la même exigence : farines Label Rouge, beurre AOP, levain vivant nourri depuis 20 ans. Chaque baguette est façonnée à la main, chaque croissant feuilleté à la main.
+          </p>
+          <div style={{ display: "flex", gap: 28 }}>
+            {[
+              { icon: <Leaf size={18} color="#d4832a" />, text: "Farines Bio Label Rouge" },
+              { icon: <Heart size={18} color="#d4832a" />, text: "Beurre AOP Poitou" },
+              { icon: <Award size={18} color="#d4832a" />, text: "Meilleur artisan 2023" },
+            ].map((item, i) => (
+              <div key={i} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8, textAlign: "center" }}>
+                <div style={{ width: 44, height: 44, background: C.accentLight, borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center" }}>{item.icon}</div>
+                <span style={{ fontSize: 12, fontWeight: 600, color: C.textMuted, lineHeight: 1.3 }}>{item.text}</span>
+              </div>
             ))}
           </div>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, x: 40 }}
+          animate={isInView ? { opacity: 1, x: 0 } : {}}
+          transition={{ duration: 0.7, delay: 0.15 }}
+          style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}
+        >
+          {["🥐", "🍞", "🎂", "🥖"].map((emoji, i) => (
+            <motion.div
+              key={i}
+              style={{
+                background: C.cream,
+                borderRadius: 20,
+                aspectRatio: "1",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: 60,
+                border: `1px solid ${C.border}`,
+              }}
+              whileHover={{ scale: 1.05, y: -4 }}
+              animate={{ y: [0, -5, 0] }}
+              transition={{ duration: 3 + i * 0.5, repeat: Infinity, ease: "easeInOut", delay: i * 0.3 }}
+            >
+              {emoji}
+            </motion.div>
+          ))}
+        </motion.div>
+      </div>
+    </section>
+  );
+}
+
+// ─── Stats ────────────────────────────────────────────────────────────────────
+function Stats() {
+  const ref = useRef<HTMLElement>(null);
+  const isInView = useInView(ref, { once: true, margin: "-60px" });
+  const stats = [
+    { value: "37 ans", label: "De savoir-faire artisanal", emoji: "🏆" },
+    { value: "4.9★", label: "Note Google Maps", emoji: "⭐" },
+    { value: "300+", label: "Commandes par jour", emoji: "🥖" },
+    { value: "20 ans", label: "Notre levain naturel", emoji: "🌾" },
+  ];
+
+  return (
+    <section
+      ref={ref}
+      style={{ padding: "90px 80px", background: C.text, fontFamily: FONT_BODY }}
+    >
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 40, maxWidth: 960, margin: "0 auto" }}>
+        {stats.map((s, i) => (
+          <motion.div
+            key={s.label}
+            initial={{ opacity: 0, y: 28 }}
+            animate={isInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.5, delay: i * 0.1 }}
+            style={{ textAlign: "center" }}
+          >
+            <div style={{ fontSize: 36, marginBottom: 12 }}>{s.emoji}</div>
+            <div style={{ fontFamily: FONT_HEADING, fontSize: "clamp(26px, 3vw, 42px)", fontWeight: 700, color: C.white, marginBottom: 8 }}>{s.value}</div>
+            <div style={{ color: "rgba(255,255,255,0.55)", fontSize: 15 }}>{s.label}</div>
+          </motion.div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+// ─── Products Showcase ────────────────────────────────────────────────────────
+function ProductsShowcase() {
+  const ref = useRef<HTMLElement>(null);
+  const isInView = useInView(ref, { once: true, margin: "-60px" });
+
+  const products = [
+    { name: "Box Week-end Découverte", desc: "Baguette tradition + 4 viennoiseries + une pâtisserie du jour. Idéale pour un brunch en famille.", price: "18,90 €", badge: "Best-seller", emoji: "🧺" },
+    { name: "Abonnement Pain Hebdo", desc: "Recevez votre pain de campagne ou baguette tradition 5j/7 directement en boutique. -10 % de remise.", price: "28 € / mois", badge: "Économique", emoji: "📅" },
+    { name: "Plateau Pâtisseries Prestige", desc: "Sélection de 8 pâtisseries de saison pour vos événements ou cadeaux gourmands.", price: "38,00 €", badge: "Cadeau", emoji: "🎁" },
+    { name: "Kit Boulangerie Maison", desc: "Levain vivant, farine Label Rouge et guide personnalisé pour faire votre premier pain.", price: "24,90 €", badge: "Atelier", emoji: "🫙" },
+  ];
+
+  return (
+    <section ref={ref} style={{ padding: "100px 80px", background: C.bg, fontFamily: FONT_BODY }}>
+      <motion.div initial={{ opacity: 0, y: 32 }} animate={isInView ? { opacity: 1, y: 0 } : {}} style={{ textAlign: "center", marginBottom: 60 }}>
+        <div style={{ display: "inline-block", background: C.accentLight, color: C.accent, borderRadius: 20, padding: "6px 18px", fontSize: 13, fontWeight: 700, marginBottom: 16, textTransform: "uppercase", letterSpacing: 0.8 }}>
+          À emporter
         </div>
-      </section>
+        <h2 style={{ fontFamily: FONT_HEADING, fontSize: "clamp(28px, 3vw, 44px)", fontWeight: 700, color: C.text, letterSpacing: -0.5 }}>
+          Nos offres spéciales
+        </h2>
+      </motion.div>
 
-      {/* WAVE SHOWCASE ── */}
-      <section className="py-40 bg-black relative overflow-hidden">
-        <div className="max-w-[1600px] mx-auto px-8 md:px-16">
-          <Reveal className="mb-32">
-             <div className="flex flex-col lg:flex-row justify-between items-end gap-12 border-b border-white/10 pb-12">
-               <h2 className="text-7xl md:text-[10rem] font-black italic tracking-tighter leading-[0.8] uppercase text-white">
-                 Signal <br/> <span className="text-white/20 not-italic">Archive.</span>
-               </h2>
-               <div className="text-right">
-                  <span className="text-[10px] font-bold uppercase tracking-[0.5em] text-white/30 mb-4 block italic">Manifest_Sequence_v9</span>
-                  <div className="flex gap-4">
-                    {WAVEFORM_MANIFESTS.map((_, i) => (
-                      <button 
-                        key={i} 
-                        onClick={() => setActiveWave(i)}
-                        className={`w-16 h-1 transition-all ${activeWave === i ? "bg-white w-32" : "bg-white/10"}`}
-                      />
-                    ))}
-                  </div>
-               </div>
-             </div>
-          </Reveal>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 24, maxWidth: 1100, margin: "0 auto" }}>
+        {products.map((p, i) => (
+          <motion.div
+            key={p.name}
+            initial={{ opacity: 0, y: 44 }}
+            animate={isInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.55, delay: i * 0.1 }}
+            whileHover={{ y: -6, boxShadow: C.shadowLg }}
+            style={{ background: C.bgSection, borderRadius: 20, padding: 28, border: `1px solid ${C.border}`, boxShadow: C.shadow, position: "relative", overflow: "hidden" }}
+          >
+            <div style={{ position: "absolute", top: 16, right: 16, background: C.accentLight, color: C.accent, borderRadius: 20, padding: "4px 12px", fontSize: 12, fontWeight: 700 }}>{p.badge}</div>
+            <div style={{ fontSize: 44, marginBottom: 18 }}>{p.emoji}</div>
+            <h3 style={{ fontFamily: FONT_HEADING, fontSize: 19, fontWeight: 700, color: C.text, marginBottom: 10 }}>{p.name}</h3>
+            <p style={{ fontSize: 14, color: C.textMuted, lineHeight: 1.65, marginBottom: 20 }}>{p.desc}</p>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <span style={{ fontFamily: FONT_HEADING, fontWeight: 700, color: C.accent, fontSize: 20 }}>{p.price}</span>
+              <motion.button
+                style={{ background: C.accent, color: C.white, border: "none", borderRadius: 8, padding: "9px 18px", fontWeight: 700, fontSize: 13, cursor: "pointer", fontFamily: FONT_BODY }}
+                whileHover={{ background: C.accentDark, scale: 1.05 }}
+                whileTap={{ scale: 0.97 }}
+              >
+                Commander
+              </motion.button>
+            </div>
+          </motion.div>
+        ))}
+      </div>
+    </section>
+  );
+}
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-24 items-center">
-            <div className="lg:col-span-8 relative aspect-video rounded-sm overflow-hidden border border-white/5 group bg-[#080808]">
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={activeWave}
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  transition={{ duration: 0.8, ease: [0.23, 1, 0.32, 1] }}
-                  className="absolute inset-0"
-                >
-                  <Image src={WAVEFORM_MANIFESTS[activeWave].img} alt={WAVEFORM_MANIFESTS[activeWave].title} fill className="object-cover grayscale contrast-125 opacity-40 group-hover:opacity-60 transition-opacity duration-1000" unoptimized />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-90" />
+// ─── Testimonials ─────────────────────────────────────────────────────────────
+const TESTIMONIALS = [
+  { name: "Isabelle T.", text: "La meilleure baguette tradition de Paris, sans hésitation. Le croissant est à se damner — feuilleté, aérien, pur beurre. J'y vais chaque samedi matin depuis 8 ans.", stars: 5 },
+  { name: "Grégoire M.", text: "L'abonnement hebdomadaire est une révélation. Du pain frais sans y penser, livré directement en boutique avant mon passage. Qualité constante, équipe adorable.", stars: 5 },
+  { name: "Sakina B.", text: "J'ai commandé le plateau prestige pour l'anniversaire de ma mère — succès total. Chaque pâtisserie était un chef-d'œuvre de saveurs. Merci Camille !", stars: 5 },
+];
+
+function Testimonials() {
+  const ref = useRef<HTMLElement>(null);
+  const isInView = useInView(ref, { once: true, margin: "-60px" });
+
+  return (
+    <section ref={ref} style={{ padding: "100px 80px", background: C.bgSection, fontFamily: FONT_BODY }}>
+      <motion.div initial={{ opacity: 0, y: 32 }} animate={isInView ? { opacity: 1, y: 0 } : {}} style={{ textAlign: "center", marginBottom: 60 }}>
+        <div style={{ display: "inline-block", background: C.accentLight, color: C.accent, borderRadius: 20, padding: "6px 18px", fontSize: 13, fontWeight: 700, marginBottom: 16, textTransform: "uppercase", letterSpacing: 0.8 }}>
+          Avis clients
+        </div>
+        <h2 style={{ fontFamily: FONT_HEADING, fontSize: "clamp(28px, 3vw, 44px)", fontWeight: 700, color: C.text, letterSpacing: -0.5 }}>
+          Ils nous font confiance
+        </h2>
+      </motion.div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 24, maxWidth: 1000, margin: "0 auto" }}>
+        {TESTIMONIALS.map((t, i) => (
+          <motion.div
+            key={t.name}
+            initial={{ opacity: 0, y: 40 }}
+            animate={isInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.5, delay: i * 0.12 }}
+            style={{ background: C.white, borderRadius: 18, padding: 28, border: `1px solid ${C.border}`, boxShadow: C.shadow }}
+          >
+            <div style={{ display: "flex", gap: 3, marginBottom: 14 }}>
+              {Array.from({ length: t.stars }).map((_, k) => (<Star key={k} size={14} color={C.accent} fill={C.accent} />))}
+            </div>
+            <p style={{ fontSize: 15, color: C.text, lineHeight: 1.72, marginBottom: 20, fontStyle: "italic", fontFamily: FONT_HEADING }}>"{t.text}"</p>
+            <div style={{ fontWeight: 700, fontSize: 14, color: C.accent }}>— {t.name}</div>
+          </motion.div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+// ─── Horaires & Contact ────────────────────────────────────────────────────────
+function HorairesContact() {
+  const ref = useRef<HTMLElement>(null);
+  const isInView = useInView(ref, { once: true, margin: "-60px" });
+
+  const horaires = [
+    { day: "Mardi – Vendredi", time: "07h00 – 20h00" },
+    { day: "Samedi", time: "07h00 – 19h30" },
+    { day: "Dimanche", time: "07h00 – 13h30" },
+    { day: "Lundi", time: "Fermé" },
+  ];
+
+  return (
+    <section ref={ref} id="contact" style={{ padding: "100px 80px", background: C.bg, fontFamily: FONT_BODY }}>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 80, maxWidth: 1000, margin: "0 auto" }}>
+        {/* Horaires */}
+        <motion.div initial={{ opacity: 0, x: -30 }} animate={isInView ? { opacity: 1, x: 0 } : {}} transition={{ duration: 0.6 }}>
+          <div style={{ display: "inline-block", background: C.accentLight, color: C.accent, borderRadius: 20, padding: "6px 18px", fontSize: 13, fontWeight: 700, marginBottom: 24, textTransform: "uppercase", letterSpacing: 0.8 }}>
+            Horaires
+          </div>
+          <h2 style={{ fontFamily: FONT_HEADING, fontSize: 30, fontWeight: 700, color: C.text, marginBottom: 32, letterSpacing: -0.3 }}>
+            Quand nous rendre visite
+          </h2>
+          <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+            {horaires.map((h) => (
+              <div
+                key={h.day}
+                style={{
+                  display: "flex", justifyContent: "space-between", alignItems: "center",
+                  padding: "16px 20px", borderRadius: 12,
+                  background: h.time === "Fermé" ? C.bgSection : C.white,
+                  border: `1px solid ${C.border}`,
+                }}
+              >
+                <span style={{ fontWeight: 600, color: h.time === "Fermé" ? C.textMuted : C.text }}>{h.day}</span>
+                <span style={{ fontWeight: 700, color: h.time === "Fermé" ? C.textMuted : C.accent }}>{h.time}</span>
+              </div>
+            ))}
+          </div>
+          <div style={{ marginTop: 24, padding: "14px 20px", background: C.accentLight, borderRadius: 12, border: `1px solid ${C.border}` }}>
+            <span style={{ fontSize: 14, color: C.textMuted, lineHeight: 1.5 }}>
+              ☀️ En été (juillet–août) et jours fériés, horaires réduits. Consultez notre Camera pour les fermetures exceptionnelles.
+            </span>
+          </div>
+        </motion.div>
+
+        {/* Contact */}
+        <motion.div initial={{ opacity: 0, x: 30 }} animate={isInView ? { opacity: 1, x: 0 } : {}} transition={{ duration: 0.6, delay: 0.15 }}>
+          <div style={{ display: "inline-block", background: C.accentLight, color: C.accent, borderRadius: 20, padding: "6px 18px", fontSize: 13, fontWeight: 700, marginBottom: 24, textTransform: "uppercase", letterSpacing: 0.8 }}>
+            Nous trouver
+          </div>
+          <h2 style={{ fontFamily: FONT_HEADING, fontSize: 30, fontWeight: 700, color: C.text, marginBottom: 32, letterSpacing: -0.3 }}>
+            Adresse & contact
+          </h2>
+          <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+            {[
+              { icon: <MapPin size={20} color={C.accent} />, title: "Adresse", text: "42 Rue de la Roquette, 75011 Paris" },
+              { icon: <Phone size={20} color={C.accent} />, title: "Téléphone", text: "01 43 55 67 89" },
+              { icon: <Mail size={20} color={C.accent} />, title: "Email", text: "bonjour@lafournee.paris" },
+              { icon: <ShoppingBag size={20} color={C.accent} />, title: "Commande", text: "Disponible en ligne 24h/24" },
+            ].map((item, i) => (
+              <div key={i} style={{ display: "flex", gap: 14, alignItems: "flex-start" }}>
+                <div style={{ width: 44, height: 44, background: C.accentLight, borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  {item.icon}
+                </div>
+                <div>
+                  <div style={{ fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.8, color: C.textMuted, marginBottom: 4 }}>{item.title}</div>
+                  <div style={{ fontWeight: 600, color: C.text }}>{item.text}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+          <motion.button
+            style={{ marginTop: 32, width: "100%", background: C.accent, color: C.white, border: "none", borderRadius: 10, padding: "15px", fontWeight: 700, fontSize: 16, cursor: "pointer", fontFamily: FONT_BODY }}
+            whileHover={{ background: C.accentDark, scale: 1.02 }}
+            whileTap={{ scale: 0.97 }}
+          >
+            Commander en ligne
+          </motion.button>
+        </motion.div>
+      </div>
+    </section>
+  );
+}
+
+// ─── FAQ ──────────────────────────────────────────────────────────────────────
+const FAQS = [
+  { q: "Proposez-vous la livraison à domicile ?", a: "Oui, nous livrons dans un rayon de 3 km autour de la boutique du mardi au samedi, de 8h à 12h. Commandez en ligne avant 20h la veille. Livraison offerte à partir de 25 € d'achat." },
+  { q: "Puis-je commander des pâtisseries personnalisées ?", a: "Absolument ! Camille réalise des gâteaux sur commande pour vos anniversaires, mariages et événements professionnels. Délai minimum : 5 jours ouvrés. Contactez-nous pour un devis gratuit." },
+  { q: "Utilisez-vous des farines biologiques ?", a: "Nous utilisons principalement des farines Label Rouge provenant de moulins français. Notre farine de tradition T65 vient du Moulin Decollogne en Bourgogne. Certains pains spéciaux sont en agriculture biologique certifiée." },
+  { q: "Avez-vous des produits sans gluten ou végans ?", a: "Nous proposons quelques références véganes (pain aux céréales, brioche végane). Pour le sans gluten, nos équipements partagés ne permettent pas de garantir l'absence totale de contamination croisée." },
+  { q: "Comment fonctionne l'abonnement pain hebdomadaire ?", a: "Vous choisissez votre pain favori (baguette tradition ou pain de campagne), votre fréquence (5j/7 ou 3j/7) et un créneau de récupération. Facturation mensuelle, résiliable à tout moment. -10 % garanti." },
+];
+
+function FAQ() {
+  const ref = useRef<HTMLElement>(null);
+  const isInView = useInView(ref, { once: true, margin: "-60px" });
+  const [open, setOpen] = useState<number | null>(null);
+
+  return (
+    <section ref={ref} style={{ padding: "100px 80px", background: C.bgSection, fontFamily: FONT_BODY }}>
+      <motion.div initial={{ opacity: 0, y: 32 }} animate={isInView ? { opacity: 1, y: 0 } : {}} style={{ textAlign: "center", marginBottom: 60 }}>
+        <div style={{ display: "inline-block", background: C.accentLight, color: C.accent, borderRadius: 20, padding: "6px 18px", fontSize: 13, fontWeight: 700, marginBottom: 16, textTransform: "uppercase", letterSpacing: 0.8 }}>
+          FAQ
+        </div>
+        <h2 style={{ fontFamily: FONT_HEADING, fontSize: "clamp(28px, 3vw, 44px)", fontWeight: 700, color: C.text, letterSpacing: -0.5 }}>
+          Vos questions, nos réponses
+        </h2>
+      </motion.div>
+
+      <div style={{ maxWidth: 720, margin: "0 auto", display: "flex", flexDirection: "column", gap: 12 }}>
+        {FAQS.map((faq, i) => (
+          <motion.div
+            key={i}
+            initial={{ opacity: 0, y: 18 }}
+            animate={isInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.4, delay: i * 0.08 }}
+            style={{ background: C.white, borderRadius: 14, border: `1px solid ${open === i ? C.accent : C.border}`, overflow: "hidden", transition: "border-color 0.2s" }}
+          >
+            <button
+              onClick={() => setOpen(open === i ? null : i)}
+              style={{ width: "100%", padding: "20px 24px", background: "none", border: "none", cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 16, textAlign: "left", fontFamily: FONT_BODY }}
+            >
+              <span style={{ fontWeight: 600, fontSize: 16, color: C.text, lineHeight: 1.4 }}>{faq.q}</span>
+              <motion.div animate={{ rotate: open === i ? 180 : 0 }} transition={{ duration: 0.25 }} style={{ flexShrink: 0 }}>
+                <ChevronDown size={20} color={open === i ? C.accent : C.textMuted} />
+              </motion.div>
+            </button>
+            <AnimatePresence initial={false}>
+              {open === i && (
+                <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.3 }} style={{ overflow: "hidden" }}>
+                  <div style={{ padding: "0 24px 22px", fontSize: 15, color: C.textMuted, lineHeight: 1.72 }}>{faq.a}</div>
                 </motion.div>
-              </AnimatePresence>
-              <div className="absolute bottom-12 left-12 flex flex-col gap-2">
-                 <span className="text-[10px] font-bold uppercase tracking-widest text-white/40">CORE_FREQUENCY</span>
-                 <span className="text-xl font-black text-white italic">{WAVEFORM_MANIFESTS[activeWave].frequency}</span>
-              </div>
-            </div>
+              )}
+            </AnimatePresence>
+          </motion.div>
+        ))}
+      </div>
+    </section>
+  );
+}
 
-            <div className="lg:col-span-4 space-y-12">
-               <motion.div
-                  key={activeWave}
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6 }}
-                  className="space-y-12"
-               >
-                 <span className="text-[10px] font-black uppercase tracking-[0.4em] text-white/40">{WAVEFORM_MANIFESTS[activeWave].id} // WV_DATA</span>
-                 <h3 className="text-6xl font-black italic uppercase text-white tracking-tighter">{WAVEFORM_MANIFESTS[activeWave].title}</h3>
-                 <div className="space-y-6 border-y border-white/10 py-12">
-                    <div className="flex justify-between items-center">
-                       <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-white/30">Category</span>
-                       <span className="text-sm font-black text-white uppercase tracking-widest">{WAVEFORM_MANIFESTS[activeWave].category}</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                       <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-white/30">Spectral_Status</span>
-                       <span className="text-sm font-black text-white uppercase tracking-widest italic">STABLE_QUANTUM</span>
-                    </div>
-                 </div>
-                 <p className="text-white/30 text-lg font-light italic leading-loose uppercase tracking-wide">
-                   {WAVEFORM_MANIFESTS[activeWave].desc}
-                 </p>
-                 <button className="flex items-center gap-6 group">
-                    <span className="text-[10px] font-bold uppercase tracking-[0.8em] text-white">Access_Terminal</span>
-                    <div className="w-16 h-16 border border-white/10 rounded-full flex items-center justify-center group-hover:bg-white transition-all">
-                       <ArrowUpRight className="w-6 h-6 text-white group-hover:text-black" />
-                    </div>
-                 </button>
-               </motion.div>
+// ─── Footer ───────────────────────────────────────────────────────────────────
+function Footer() {
+  return (
+    <footer style={{ background: C.brown, color: C.white, padding: "70px 80px 32px", fontFamily: FONT_BODY }}>
+      <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr", gap: 48, marginBottom: 52 }}>
+        <div>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20 }}>
+            <div style={{ width: 40, height: 40, background: C.accent, borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>🥖</div>
+            <div>
+              <div style={{ fontFamily: FONT_HEADING, fontWeight: 700, fontSize: 20 }}>La Fournée</div>
+              <div style={{ fontSize: 10, color: "rgba(255,255,255,0.5)", letterSpacing: 1.5, textTransform: "uppercase" }}>Artisan Boulanger</div>
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* ── CAPABILITIES ── */}
-      <section className="py-40 bg-[#0a0a0c] border-y border-white/10">
-        <div className="max-w-[1600px] mx-auto px-8 md:px-16">
-          <Reveal className="mb-32 text-center">
-             <span className="text-[10px] font-bold uppercase tracking-[1em] text-white/40 mb-8 block italic">Operational Scope</span>
-             <h2 className="text-7xl md:text-[10rem] font-black italic tracking-tighter leading-[0.8] uppercase text-white">
-                Technical <br/> <span className="text-white/20 not-italic">Expertise.</span>
-             </h2>
-          </Reveal>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {CAPABILITIES.map((item, i) => (
-              <Reveal key={item.title} delay={i * 0.1} className="bg-[#050508] border border-white/5 p-12 hover:border-white/20 transition-all group">
-                 <item.icon className="w-12 h-12 text-white/20 group-hover:text-white transition-colors mb-8" />
-                 <h3 className="text-2xl font-black italic uppercase text-white mb-6">{item.title}</h3>
-                 <p className="text-xs text-white/30 font-light tracking-widest uppercase italic leading-loose">
-                   {item.desc}
-                 </p>
-              </Reveal>
+          <p style={{ color: "rgba(255,255,255,0.58)", fontSize: 15, lineHeight: 1.65, marginBottom: 24 }}>
+            Boulangerie artisanale au levain naturel depuis 1987. Chaque jour, nous pétrissons, façonnons et cuisons avec passion pour votre quartier.
+          </p>
+          <div style={{ display: "flex", flexDirection: "column", gap: 11 }}>
+            {[
+              { icon: <MapPin size={15} />, text: "42 Rue de la Roquette, 75011 Paris" },
+              { icon: <Phone size={15} />, text: "01 43 55 67 89" },
+              { icon: <Clock size={15} />, text: "Mar–Ven 7h–20h | Sam 7h–19h30 | Dim 7h–13h30" },
+            ].map((item, i) => (
+              <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, color: "rgba(255,255,255,0.62)", fontSize: 14 }}>
+                <span style={{ color: C.accent }}>{item.icon}</span>
+                {item.text}
+              </div>
             ))}
           </div>
         </div>
-      </section>
-
-      {/* ── SPECTRAL INTERFACE ── */}
-      <section className="py-40 bg-black overflow-hidden">
-        <div className="max-w-[1600px] mx-auto px-8 md:px-16 grid grid-cols-1 lg:grid-cols-2 gap-32 items-center">
-          <Reveal>
-             <div className="relative aspect-square bg-[#080808] border border-white/10 p-12 flex flex-col justify-between overflow-hidden group">
-                <div className="absolute top-0 right-0 p-12">
-                   <Command className="w-16 h-16 text-white/5 group-hover:text-white/10 transition-colors" />
-                </div>
-                <div className="flex-1 flex items-center justify-center">
-                   <div className="flex gap-4 items-end h-64">
-                      {Array(20).fill(null).map((_, i) => (
-                        <motion.div 
-                           key={i}
-                           animate={{ height: ["20%", "80%", "20%"] }}
-                           transition={{ duration: 1 + Math.random(), repeat: Infinity, ease: "easeInOut" }}
-                           className="w-4 bg-white/10 group-hover:bg-white transition-colors"
-                        />
-                      ))}
-                   </div>
-                </div>
-                <div className="space-y-8 relative z-10 pt-12">
-                   <h3 className="text-5xl font-black italic uppercase text-white">Spectral <br/> <span className="text-white/20 not-italic">Synthesis.</span></h3>
-                   <p className="text-white/30 text-lg leading-relaxed mb-12 font-light uppercase tracking-wide italic leading-loose">
-                     A unified shell environment for the high-fidelity orchestration of planetary-scale spectral enclaves. Built for those who monitor the systems.
-                   </p>
-                </div>
-             </div>
-          </Reveal>
-          <div className="space-y-24">
-             <Reveal delay={0.2}>
-                <span className="text-[10px] font-bold uppercase tracking-[1em] text-white/40 mb-8 block italic">Protocol_Sequence</span>
-                <h2 className="text-6xl md:text-8xl font-black italic tracking-tighter leading-none uppercase text-white">Signal <br/> <span className="text-white/20 not-italic">Manifesto.</span></h2>
-             </Reveal>
-             <div className="space-y-12">
-                {[
-                  { n: "01", t: "Spectral Synapse", d: "Connecting disparate wave nodes into a unified reactive environment." },
-                  { n: "02", t: "Entropy Zero", d: "Aggressive reduction of system noise for absolute structural clarity." },
-                  { n: "03", t: "Fidelity Push", d: "Delivering high-fidelity visual and spectral outputs across all edge nodes." }
-                ].map((step, i) => (
-                  <Reveal key={step.n} delay={i * 0.1 + 0.3} className="flex gap-12 group border-l border-white/10 pl-8 hover:border-white transition-colors">
-                    <span className="text-4xl font-black italic text-white/10 group-hover:text-white transition-colors">{step.n}</span>
-                    <div>
-                      <h4 className="text-xl font-black uppercase italic text-white mb-2">{step.t}</h4>
-                      <p className="text-xs text-white/40 font-light tracking-widest uppercase italic leading-loose">{step.d}</p>
-                    </div>
-                  </Reveal>
-                ))}
-             </div>
+        {[
+          { title: "Notre carte", links: ["Pains & Miches", "Viennoiseries", "Pâtisseries", "Café & Boissons"] },
+          { title: "Services", links: ["Commande en ligne", "Abonnements", "Commandes spéciales", "Livraison"] },
+          { title: "La boulangerie", links: ["Notre histoire", "Camille Girard", "Nos engagements", "Actualités"] },
+        ].map((col) => (
+          <div key={col.title}>
+            <h4 style={{ fontSize: 13, fontWeight: 700, marginBottom: 20, color: C.white, textTransform: "uppercase", letterSpacing: 0.8 }}>{col.title}</h4>
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              {col.links.map((link) => (<a key={link} href="#" style={{ color: "rgba(255,255,255,0.55)", fontSize: 14, textDecoration: "none" }}>{link}</a>))}
+            </div>
           </div>
+        ))}
+      </div>
+      <div style={{ borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: 24, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
+        <p style={{ color: "rgba(255,255,255,0.38)", fontSize: 14 }}>© 2025 La Fournée · Artisan Boulanger Paris. Tous droits réservés.</p>
+        <div style={{ display: "flex", gap: 20 }}>
+          {["Mentions légales", "Confidentialité", "CGV"].map((link) => (<a key={link} href="#" style={{ color: "rgba(255,255,255,0.38)", fontSize: 13, textDecoration: "none" }}>{link}</a>))}
         </div>
-      </section>
+      </div>
+    </footer>
+  );
+}
 
-      {/* ── CTA / ACCESS ── */}
-      <section className="py-40 bg-[#0a0a0c] relative">
-         <div className="max-w-[1600px] mx-auto px-8 md:px-16">
-            <div className="bg-white text-black p-24 lg:p-40 relative overflow-hidden flex flex-col items-center text-center group">
-               <div className="absolute inset-0 opacity-10 grayscale brightness-50 group-hover:opacity-20 transition-opacity">
-                  <Image src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=1600&q=80" alt="CTA Spectral" fill className="object-cover" />
-               </div>
-               <Reveal>
-                  <span className="text-[10px] font-bold uppercase tracking-[1em] text-black/50 mb-12 block italic">Authorization_Required</span>
-                  <h2 className="text-7xl md:text-[12rem] font-black italic tracking-tighter leading-[0.8] uppercase mb-16">
-                     Initiate <br/> <span className="text-black/30 not-italic">The System.</span>
-                  </h2>
-                  <div className="flex flex-wrap justify-center gap-12 relative z-10">
-                     <button className="px-20 py-8 bg-black text-white font-black uppercase text-sm tracking-[0.5em] hover:italic transition-all">
-                        Request_Access
-                     </button>
-                     <button className="px-20 py-8 border border-black/20 text-black font-black uppercase text-sm tracking-[0.5em] hover:bg-black/5 transition-all">
-                        System_Dossier
-                     </button>
-                  </div>
-               </Reveal>
-            </div>
-         </div>
-      </section>
-
-      {/* ── FOOTER ── */}
-      <footer className="bg-black pt-40 pb-20 px-8 md:px-16 border-t border-white/10">
-         <div className="max-w-[1600px] mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-32 mb-40">
-            <div className="lg:col-span-6">
-               <div className="flex items-center gap-4 mb-12">
-                 <Activity className="w-10 h-10 text-white" />
-                 <span className="text-3xl font-black tracking-tighter uppercase italic text-white">WAVE<span className="text-white/30">//</span>OS</span>
-               </div>
-               <p className="text-white/40 text-sm font-light leading-relaxed uppercase tracking-[0.3em] mb-12 italic max-w-md">
-                 Securing the future of spectral objects through high-fidelity orchestration and radical visual clarity.
-               </p>
-               <div className="flex gap-12">
-                 {["GITHUB", "TWITTER", "DISCORD", "LINKEDIN"].map(s => (
-                   <a key={s} href="#" className="text-[10px] font-bold hover:text-white text-white/30 transition-colors tracking-[0.5em]">[{s}]</a>
-                 ))}
-               </div>
-            </div>
-            
-            <div className="lg:col-span-2">
-               <h4 className="text-[10px] font-bold uppercase tracking-[0.5em] text-white/40 mb-12">Systems</h4>
-               <ul className="space-y-6 text-xs font-bold uppercase tracking-[0.4em]">
-                 {["Archives", "Telemetry", "Shell", "Journal"].map(item => (
-                   <li key={item}><a href="#" className="hover:text-white transition-colors">{item}</a></li>
-                 ))}
-               </ul>
-            </div>
-
-            <div className="lg:col-span-4">
-               <h4 className="text-[10px] font-bold uppercase tracking-[0.5em] text-white/40 mb-12">Support Inquiry</h4>
-               <p className="text-sm text-white/40 font-light mb-12 italic uppercase tracking-[0.2em] leading-loose">
-                 For high-priority enclaves, spectral integrations, or architectural consultations, contact our core command center.
-               </p>
-               <a href="mailto:ops@wave-os.io" className="text-3xl font-black italic hover:text-white transition-colors block border-b border-white/10 pb-8 uppercase tracking-tighter">
-                  ops@wave-os.io
-               </a>
-            </div>
-         </div>
-
-         <div className="max-w-[1600px] mx-auto flex flex-col md:row items-center justify-between gap-12 text-[9px] font-bold uppercase tracking-[0.8em] text-white/20 border-t border-white/5 pt-20">
-            <p>© 2024 WAVE OS SYSTEMS. ALL RIGHTS RESERVED. GLOBAL // SYNC.</p>
-            <div className="flex gap-16">
-               <a href="#" className="hover:text-white transition-colors">[Spectral_Vault]</a>
-               <a href="#" className="hover:text-white transition-colors">[Terms_of_Service]</a>
-            </div>
-         </div>
-      </footer>
-    </div>
+// ─── Page Export ──────────────────────────────────────────────────────────────
+export default function Impact33() {
+  return (
+    <main style={{ background: C.bg, overflowX: "hidden" }}>
+      <Navbar />
+      <Hero />
+      <MarqueeSection />
+<MenuSection />
+      <Story />
+      <Stats />
+      <ProductsShowcase />
+      <Testimonials />
+      <HorairesContact />
+      <FAQ />
+      <Footer />
+    </main>
   );
 }

@@ -1,440 +1,738 @@
 "use client";
 
-import { motion, useScroll, useTransform, useInView, AnimatePresence } from "framer-motion";
-import { useState, useRef, useEffect, Suspense } from "react";
-import Image from "next/image";
-import { ArrowUpRight, Menu, X, Layers, ShieldCheck, Plus, Play, ArrowRight, ChevronDown, Monitor, LayoutGrid, Zap, Activity, Ruler, Wind, Command, Sparkles, Box, Eye, Maximize2, Minimize2, Cpu, Database, Terminal, Unplug } from "lucide-react";
-import "../premium.css";
+import { useRef, useState, useEffect } from "react";
+import { motion, useScroll, useTransform, useInView, useSpring } from "framer-motion";
+import Link from "next/link";
+import {
+  Menu, X, Phone, Mail, MapPin, Clock, Star, ChevronDown,
+  ArrowRight, Check, Scale, BookOpen, Briefcase, Shield,
+  Users, Award, FileText, MessageSquare, ChevronRight
+} from "lucide-react";
 
-// ─── DATA ──────────────────────────────────────────────────────────────────
+const C = {
+  bg: "#f7f8fa",
+  bgDark: "#0a1628",
+  bgCard: "#ffffff",
+  bgGold: "rgba(184,149,42,0.08)",
+  text: "#0a1628",
+  textLight: "#ffffff",
+  textMuted: "#5a6478",
+  textDim: "#9aa3b2",
+  accent: "#b8952a",
+  accentHover: "#d4aa30",
+  accentLight: "rgba(184,149,42,0.12)",
+  navy: "#0a1628",
+  navyLight: "#142238",
+  border: "rgba(10,22,40,0.08)",
+  borderDark: "rgba(255,255,255,0.1)",
+  borderGold: "rgba(184,149,42,0.3)",
+  white: "#ffffff",
+};
 
-const CORE_MANIFESTS = [
-  { 
-    id: "COR_01",
-    title: "GLITCH_SYNTAX", 
-    category: "System Error",
-    status: "CRITICAL_OVR",
-    img: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=1200&q=80",
-    desc: "A high-fidelity study of absolute glitch volume within the spatial environment. Zero-latency system synthesis."
+const navLinks = [
+  { label: "Practice Areas", href: "#practice" },
+  { label: "Attorneys", href: "#attorneys" },
+  { label: "Results", href: "#results" },
+  { label: "Testimonials", href: "#testimonials" },
+  { label: "Consultation", href: "#consultation" },
+  { label: "FAQ", href: "#faq" },
+];
+
+const practiceAreas = [
+  { icon: Briefcase, title: "Corporate Law", desc: "Entity formation, governance, shareholder agreements, and ongoing corporate counsel for businesses at every stage." },
+  { icon: Scale, title: "Mergers & Acquisitions", desc: "Buy-side and sell-side M&A, due diligence, deal structuring, and post-merger integration support." },
+  { icon: Shield, title: "Intellectual Property", desc: "Patent strategy, trademark registration, licensing, and IP portfolio management for technology and creative enterprises." },
+  { icon: BookOpen, title: "Commercial Litigation", desc: "Business disputes, contract enforcement, shareholder conflicts, and complex commercial arbitration." },
+  { icon: Users, title: "Employment Law", desc: "Employment contracts, executive compensation, non-compete agreements, and workplace compliance programs." },
+  { icon: FileText, title: "Tax & Structuring", desc: "Corporate tax planning, transaction structuring, international tax strategy, and regulatory compliance." },
+];
+
+const attorneys = [
+  {
+    name: "Édouard Dumont",
+    title: "Founding Partner",
+    bar: "Paris Bar, 1998",
+    education: "Sciences Po Paris, Harvard Law LLM",
+    focus: "M&A, Corporate Governance",
+    bio: "Édouard founded the firm after 12 years at a Magic Circle firm. He has led over 140 M&A transactions across France, Germany, and the United States, with aggregate deal values exceeding €4.2 billion.",
+    matters: "140+ transactions",
+    value: "€4.2B+",
+    languages: "French, English, German",
   },
-  { 
-    id: "COR_02",
-    title: "NODE_BREACH", 
-    category: "Data Leak",
-    status: "UNSTABLE_X",
-    img: "https://images.unsplash.com/photo-1584824486509-112e4181ff6b?w=1200&q=80",
-    desc: "Planetary-scale distributed leaks orchestrated through neural weight synthesis. High-fidelity system routing."
+  {
+    name: "Claire Vernet",
+    title: "Partner",
+    bar: "Paris Bar, 2004",
+    education: "Université Paris I, NYU School of Law LLM",
+    focus: "Intellectual Property, Technology",
+    bio: "Claire leads the firm's IP and technology practice. She has represented leading French tech companies, media groups, and multinational corporations in patent disputes, licensing negotiations, and technology acquisitions.",
+    matters: "80+ IP mandates",
+    value: "€800M+",
+    languages: "French, English",
   },
-  { 
-    id: "COR_03",
-    title: "VOID_KERNEL", 
-    category: "Kernel Panic",
-    status: "ZERO_VOID",
-    img: "https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=1200&q=80",
-    desc: "A zero-latency kernel engine built for the real-time synthesis of non-standard glitch artifacts through radical weight injection."
-  }
+  {
+    name: "Marc-Antoine Lebrun",
+    title: "Partner",
+    bar: "Paris Bar, 2007",
+    education: "Université Paris II, Columbia Law LLM",
+    focus: "Commercial Litigation, Arbitration",
+    bio: "Marc-Antoine is one of Paris's leading commercial litigators, with an exceptional record in ICC arbitration and French commercial court proceedings. He handles the firm's most complex adversarial matters.",
+    matters: "200+ cases",
+    value: "€1.1B+",
+    languages: "French, English, Spanish",
+  },
 ];
 
-const METRICS = [
-  { label: "Corruption", val: "99.9%", desc: "Absolute architectural synchronization across all distributed glitch edge nodes." },
-  { label: "Entropy", val: "12 EB/s", desc: "Sustainable visual delivery through our dedicated high-fidelity glitch backbone." },
-  { label: "Reliability", val: "IMMUNE", desc: "Zero-leak system logic verified through continuous adversarial stress-testing." }
+const caseResults = [
+  { value: "€4.2B+", label: "M&A Deal Value Advised" },
+  { value: "97%", label: "Favorable Outcomes" },
+  { value: "28", label: "Years in Practice" },
+  { value: "340+", label: "Corporate Clients" },
 ];
 
-const CAPABILITIES = [
-  { icon: Terminal, title: "Syntax Forge", desc: "Engineering glitch volumes through a lens of mathematical and structural purity." },
-  { icon: Unplug, title: "Breach Logic", desc: "Scaling viewer interactions through distributed focal orchestration and visual synthesis." },
-  { icon: Activity, title: "Pulse Sync", desc: "Synchronizing system spikes with real-time biological demand cycles for absolute sync." },
-  { icon: Box, title: "System Shell", desc: "Leveraging heavy archival data fabrication for ultra-high fidelity glitch protection." }
+const testimonials = [
+  {
+    name: "Jean-Baptiste Moreau",
+    title: "CEO, Lumière Technologies",
+    rating: 5,
+    text: "Dumont & Associates guided us through a complex €220M acquisition in under three months. Their M&A team anticipated every issue before it became a problem. Exceptional.",
+    matter: "Cross-border Acquisition",
+  },
+  {
+    name: "Sophie Andreani",
+    title: "General Counsel, Meridian Group",
+    rating: 5,
+    text: "Claire Vernet's IP work for us has been transformative. She rebuilt our entire patent strategy, negotiated three major licensing deals, and helped us avoid a catastrophic dispute. Outstanding.",
+    matter: "IP Strategy & Licensing",
+  },
+  {
+    name: "François-Xavier Blanchard",
+    title: "Founder, Atelier Capital",
+    rating: 5,
+    text: "When we needed litigation counsel in an urgent shareholder dispute, Marc-Antoine had a strategy within 48 hours. We prevailed completely. I trust this firm with everything.",
+    matter: "Shareholder Litigation",
+  },
 ];
 
-// ─── COMPONENTS ──────────────────────────────────────────────────────────────
+const consultationTiers = [
+  {
+    name: "Initial Consultation",
+    price: "Free",
+    duration: "45 min",
+    desc: "A complimentary introductory meeting to understand your matter and assess how we can assist you.",
+    includes: ["Matter overview", "Team introduction", "Preliminary assessment", "Fee structure discussion"],
+    cta: "Schedule Free Meeting",
+    featured: false,
+  },
+  {
+    name: "Standard Mandate",
+    price: "€450/hr",
+    duration: "Hourly",
+    desc: "Full legal counsel on defined matters — corporate, IP, employment, litigation, and advisory work.",
+    includes: ["Dedicated partner", "Associate support team", "Document review", "Regular reporting", "Strategic advice"],
+    cta: "Engage Counsel",
+    featured: false,
+  },
+  {
+    name: "General Counsel Retainer",
+    price: "€8,500/mo",
+    duration: "Monthly",
+    desc: "Embedded legal partnership for businesses that need ongoing sophisticated counsel without building an in-house team.",
+    includes: ["Unlimited consultations", "Designated partner", "Proactive legal review", "Contract review SLA 48h", "Board-level advisory", "Priority access"],
+    cta: "Start Retainer",
+    featured: true,
+  },
+];
 
-function Reveal({ children, className = "", delay = 0, y = 30 }: { children: React.ReactNode; className?: string; delay?: number; y?: number }) {
-  const ref = useRef(null);
-  const inView = useInView(ref, { once: true, margin: "-100px" });
+const faqs = [
+  {
+    q: "Is our conversation confidential from the first contact?",
+    a: "Yes. Attorney-client privilege attaches from your first substantive communication with our firm, even prior to a formal engagement. Everything you share is fully protected.",
+  },
+  {
+    q: "How are your fees structured?",
+    a: "We offer hourly billing, fixed fees for defined projects, and monthly retainer arrangements. We provide transparent fee estimates before beginning any matter and invoice monthly with detailed breakdowns.",
+  },
+  {
+    q: "Do you represent individuals or only corporations?",
+    a: "Our primary focus is business law — corporations, private equity, founders, and executive-level individuals on commercial matters. We do not practice criminal law or family law.",
+  },
+  {
+    q: "What is your typical response time?",
+    a: "We commit to responding to all client communications within 24 business hours. Retainer clients have direct mobile access to their partner and can expect same-day responses for urgent matters.",
+  },
+  {
+    q: "Do you work on international matters?",
+    a: "Yes. We advise on cross-border transactions, international arbitration, and EU regulatory matters. We maintain a network of correspondent firms in 22 countries for local counsel when required.",
+  },
+  {
+    q: "How do I get started?",
+    a: "Contact us by phone, email, or the contact form below to schedule a complimentary 45-minute consultation. We will assess your matter, identify the right team, and propose an engagement structure.",
+  },
+];
+
+function ScaleSVG({ scrollProgress }: { scrollProgress: any }) {
+  const rotate = useTransform(scrollProgress, [0, 0.3, 0.6], [0, -6, 4]);
+  const springRotate = useSpring(rotate, { stiffness: 60, damping: 20 });
+
   return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, y }}
-      animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 1, delay, ease: [0.23, 1, 0.32, 1] }}
-      className={className}
-    >
-      {children}
+    <motion.div style={{ rotate: springRotate, transformOrigin: "50% 20%" }}>
+      <svg viewBox="0 0 280 320" style={{ width: "100%", maxWidth: 280 }} fill="none">
+        {/* Beam */}
+        <line x1="140" y1="40" x2="140" y2="240" stroke={C.accent} strokeWidth="2" opacity="0.6" />
+        {/* Crossbar */}
+        <line x1="40" y1="100" x2="240" y2="100" stroke={C.accent} strokeWidth="2.5" />
+        {/* Top orb */}
+        <circle cx="140" cy="40" r="10" fill={C.accent} opacity="0.9" />
+        {/* Left pan chain */}
+        <line x1="60" y1="100" x2="60" y2="150" stroke={C.accent} strokeWidth="1.5" opacity="0.7" strokeDasharray="3 3" />
+        <line x1="40" y1="100" x2="80" y2="100" stroke={C.accent} strokeWidth="2" />
+        {/* Left pan */}
+        <ellipse cx="60" cy="165" rx="38" ry="10" fill="none" stroke={C.accent} strokeWidth="1.5" opacity="0.8" />
+        {/* Right pan chain */}
+        <line x1="220" y1="100" x2="220" y2="160" stroke={C.accent} strokeWidth="1.5" opacity="0.7" strokeDasharray="3 3" />
+        <line x1="200" y1="100" x2="240" y2="100" stroke={C.accent} strokeWidth="2" />
+        {/* Right pan — slightly lower to show tilt */}
+        <ellipse cx="220" cy="175" rx="38" ry="10" fill="none" stroke={C.accent} strokeWidth="1.5" opacity="0.8" />
+        {/* Base */}
+        <rect x="120" y="238" width="40" height="8" rx="2" fill={C.accent} opacity="0.6" />
+        <rect x="100" y="246" width="80" height="6" rx="2" fill={C.accent} opacity="0.4" />
+        {/* Decorative rings */}
+        <circle cx="140" cy="100" r="6" fill={C.accent} opacity="0.7" />
+      </svg>
     </motion.div>
   );
 }
 
-// ─── MAIN SPA ────────────────────────────────────────────────────────────────
+function Navbar() {
+  const [scrolled, setScrolled] = useState(false);
 
-export default function GlitchCoreSPA() {
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [activeCor, setActiveCor] = useState(0);
-  const { scrollY } = useScroll();
-  
-  const heroOpacity = useTransform(scrollY, [0, 400], [1, 0]);
-  const heroScale = useTransform(scrollY, [0, 800], [1, 1.05]);
+  useEffect(() => {
+    const fn = () => setScrolled(window.scrollY > 40);
+    window.addEventListener("scroll", fn);
+    return () => window.removeEventListener("scroll", fn);
+  }, []);
 
   return (
-    <div className="min-h-screen bg-[#050508] text-[#eee] font-mono selection:bg-[#eee] selection:text-black">
-      
-      {/* ── GLITCH OVERLAY ── */}
-      <div className="fixed inset-0 z-[9999] pointer-events-none opacity-[0.08] bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
-      <div className="fixed inset-0 z-[0] opacity-10 pointer-events-none overflow-hidden">
-        <div className="absolute inset-0" style={{ backgroundImage: "linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px)", backgroundSize: "80px 80px" }} />
-      </div>
+    <nav style={{
+      position: "fixed", top: 0, left: 0, right: 0, zIndex: 100,
+      background: scrolled ? "rgba(10,22,40,0.98)" : C.navy,
+      borderBottom: `1px solid ${C.borderDark}`,
+      backdropFilter: scrolled ? "blur(16px)" : "none",
+      transition: "all 0.4s ease",
+    }}>
+      <div style={{ maxWidth: 1280, margin: "0 auto", padding: "0 32px", display: "flex", alignItems: "center", justifyContent: "space-between", height: 76 }}>
+        <Link href="#" style={{ textDecoration: "none" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+            <div style={{ width: 36, height: 36, border: `1.5px solid ${C.accent}`, display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <Scale size={18} color={C.accent} />
+            </div>
+            <div>
+              <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 17, fontWeight: 700, color: C.white, letterSpacing: "0.04em" }}>Dumont & Associates</div>
+              <div style={{ fontFamily: "'Source Sans Pro', system-ui", fontSize: 10, color: C.accent, letterSpacing: "0.16em", textTransform: "uppercase" as const }}>Avocats au Barreau de Paris</div>
+            </div>
+          </div>
+        </Link>
 
-      {/* ── NAVIGATION ── */}
-      <motion.nav 
-        initial={{ y: -100 }}
-        animate={{ y: 0 }}
-        className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-8 md:px-16 py-10 mix-blend-difference"
-      >
-        <div className="flex items-center gap-4">
-          <Terminal className="w-10 h-10 text-white" />
-          <span className="text-2xl font-black tracking-tighter uppercase italic text-white">GLITCH<span className="text-white/30">//</span>CORE</span>
+        <div style={{ display: "flex", gap: 32, alignItems: "center" }}>
+          {navLinks.slice(0, 4).map((l) => (
+            <Link key={l.href} href={l.href}
+              style={{ color: "rgba(255,255,255,0.65)", fontSize: 13, letterSpacing: "0.04em", textDecoration: "none", fontFamily: "'Source Sans Pro', system-ui" }}
+              onMouseEnter={e => (e.currentTarget.style.color = C.accent)}
+              onMouseLeave={e => (e.currentTarget.style.color = "rgba(255,255,255,0.65)")}
+            >{l.label}</Link>
+          ))}
+          <Link href="#consultation"
+            style={{ background: C.accent, color: C.white, padding: "10px 26px", fontSize: 12, letterSpacing: "0.1em", textTransform: "uppercase" as const, textDecoration: "none", fontFamily: "'Source Sans Pro', system-ui", fontWeight: 700 }}
+            onMouseEnter={e => (e.currentTarget.style.background = C.accentHover)}
+            onMouseLeave={e => (e.currentTarget.style.background = C.accent)}
+          >Free Consultation</Link>
         </div>
-        
-        <div className="hidden lg:flex items-center gap-16 text-[10px] font-bold uppercase tracking-[0.4em] text-white/40">
-          {["Manifest", "Reserve", "Atelier", "Portal"].map(item => (
-            <a key={item} href={`#${item.toLowerCase()}`} className="hover:text-white transition-colors">/{item}</a>
+      </div>
+    </nav>
+  );
+}
+
+function HeroSection() {
+  const ref = useRef(null);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
+  const y = useTransform(scrollYProgress, [0, 1], [0, 160]);
+  const opacity = useTransform(scrollYProgress, [0, 0.6], [1, 0]);
+
+  return (
+    <section ref={ref} id="hero" style={{ position: "relative", minHeight: "100vh", background: C.navy, display: "flex", alignItems: "center", overflow: "hidden" }}>
+      {/* Background pattern */}
+      <div style={{ position: "absolute", inset: 0, backgroundImage: `radial-gradient(circle at 80% 50%, rgba(184,149,42,0.06) 0%, transparent 60%), radial-gradient(circle at 20% 80%, rgba(184,149,42,0.04) 0%, transparent 40%)`, pointerEvents: "none" }} />
+
+      {/* Top gold line */}
+      <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: `linear-gradient(to right, transparent, ${C.accent}, transparent)` }} />
+
+      <motion.div style={{ y, opacity, position: "relative", zIndex: 2, maxWidth: 1280, margin: "0 auto", padding: "100px 32px 80px", width: "100%", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 80, alignItems: "center" }}>
+        {/* Left: headline */}
+        <div>
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 32 }}
+          >
+            <div style={{ width: 40, height: 1, background: C.accent }} />
+            <span style={{ fontFamily: "'Source Sans Pro', system-ui", fontSize: 11, letterSpacing: "0.22em", textTransform: "uppercase" as const, color: C.accent, fontWeight: 600 }}>Corporate & Business Law — Paris</span>
+          </motion.div>
+
+          <motion.h1
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.9, delay: 0.4 }}
+            style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: "clamp(44px, 5vw, 72px)", fontWeight: 700, color: C.white, lineHeight: 1.1, margin: "0 0 28px" }}
+          >
+            Exceptional<br />
+            <span style={{ color: C.accent }}>Counsel</span> for<br />
+            Exceptional<br />Businesses.
+          </motion.h1>
+
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.7 }}
+            style={{ fontFamily: "'Source Sans Pro', system-ui", fontSize: 18, color: "rgba(255,255,255,0.65)", lineHeight: 1.7, maxWidth: 480, marginBottom: 48 }}
+          >
+            Dumont & Associates is a boutique Parisian law firm specialising in corporate law, M&A, IP, and commercial litigation. We partner with founders, boards, and executives who demand the highest standard of legal counsel.
+          </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.9 }}
+            style={{ display: "flex", gap: 16 }}
+          >
+            <Link href="#consultation"
+              style={{ background: C.accent, color: C.white, padding: "16px 36px", fontSize: 13, letterSpacing: "0.1em", textTransform: "uppercase" as const, textDecoration: "none", fontFamily: "'Source Sans Pro', system-ui", fontWeight: 700, display: "flex", alignItems: "center", gap: 8 }}
+              onMouseEnter={e => (e.currentTarget.style.background = C.accentHover)}
+              onMouseLeave={e => (e.currentTarget.style.background = C.accent)}
+            >Free Consultation <ArrowRight size={15} /></Link>
+            <Link href="#practice"
+              style={{ border: `1px solid rgba(255,255,255,0.2)`, color: "rgba(255,255,255,0.7)", padding: "16px 36px", fontSize: 13, letterSpacing: "0.1em", textTransform: "uppercase" as const, textDecoration: "none", fontFamily: "'Source Sans Pro', system-ui", fontWeight: 600 }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = C.accent; e.currentTarget.style.color = C.white; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.2)"; e.currentTarget.style.color = "rgba(255,255,255,0.7)"; }}
+            >Practice Areas</Link>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.2, duration: 0.8 }}
+            style={{ display: "flex", gap: 48, marginTop: 64, paddingTop: 40, borderTop: `1px solid rgba(255,255,255,0.08)` }}
+          >
+            {caseResults.map((s) => (
+              <div key={s.label}>
+                <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 26, fontWeight: 700, color: C.accent }}>{s.value}</div>
+                <div style={{ fontFamily: "'Source Sans Pro', system-ui", fontSize: 12, color: "rgba(255,255,255,0.45)", letterSpacing: "0.06em", marginTop: 4 }}>{s.label}</div>
+              </div>
+            ))}
+          </motion.div>
+        </div>
+
+        {/* Right: Scale SVG */}
+        <motion.div
+          initial={{ opacity: 0, x: 40 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.9, delay: 0.5 }}
+          style={{ display: "flex", flexDirection: "column" as const, alignItems: "center", justifyContent: "center" }}
+        >
+          <div style={{ width: 280, opacity: 0.85 }}>
+            <ScaleSVG scrollProgress={scrollYProgress} />
+          </div>
+          <div style={{ marginTop: 32, padding: "24px 32px", border: `1px solid ${C.borderGold}`, background: "rgba(184,149,42,0.06)", textAlign: "center" as const }}>
+            <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 15, color: C.accent, marginBottom: 6 }}>"Excellence. Discretion. Results."</div>
+            <div style={{ fontFamily: "'Source Sans Pro', system-ui", fontSize: 12, color: "rgba(255,255,255,0.4)", letterSpacing: "0.08em" }}>28 years in business law</div>
+          </div>
+        </motion.div>
+      </motion.div>
+    </section>
+  );
+}
+
+function PracticeSection() {
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, margin: "-80px" });
+
+  return (
+    <section id="practice" ref={ref} style={{ background: C.bg, padding: "120px 32px" }}>
+      <div style={{ maxWidth: 1280, margin: "0 auto" }}>
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={inView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.7 }}
+          style={{ marginBottom: 72 }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
+            <div style={{ width: 32, height: 1, background: C.accent }} />
+            <span style={{ fontFamily: "'Source Sans Pro', system-ui", fontSize: 11, letterSpacing: "0.2em", textTransform: "uppercase" as const, color: C.accent }}>What We Do</span>
+          </div>
+          <h2 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: "clamp(36px, 4vw, 56px)", color: C.navy, margin: "0 0 16px", fontWeight: 700 }}>Practice Areas</h2>
+          <p style={{ fontFamily: "'Source Sans Pro', system-ui", fontSize: 17, color: C.textMuted, maxWidth: 520 }}>We advise on the full spectrum of business and corporate law, from day-one formation through complex litigation and international transactions.</p>
+        </motion.div>
+
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 1, background: C.border }}>
+          {practiceAreas.map((area, i) => (
+            <motion.div
+              key={area.title}
+              initial={{ opacity: 0, y: 30 }}
+              animate={inView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.6, delay: i * 0.1 }}
+              style={{ background: C.bgCard, padding: 40, position: "relative", cursor: "pointer" }}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = C.bgGold; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = C.bgCard; }}
+            >
+              <div style={{ width: 48, height: 48, background: C.accentLight, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 24, border: `1px solid ${C.borderGold}` }}>
+                <area.icon size={22} color={C.accent} />
+              </div>
+              <h3 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 20, color: C.navy, margin: "0 0 12px", fontWeight: 700 }}>{area.title}</h3>
+              <p style={{ fontFamily: "'Source Sans Pro', system-ui", fontSize: 15, color: C.textMuted, lineHeight: 1.65, margin: 0 }}>{area.desc}</p>
+              <div style={{ position: "absolute", bottom: 28, right: 28 }}>
+                <ChevronRight size={16} color={C.accent} />
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function AttorneysSection() {
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, margin: "-80px" });
+
+  return (
+    <section id="attorneys" ref={ref} style={{ background: C.navy, padding: "120px 32px" }}>
+      <div style={{ maxWidth: 1280, margin: "0 auto" }}>
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={inView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.7 }}
+          style={{ marginBottom: 72 }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
+            <div style={{ width: 32, height: 1, background: C.accent }} />
+            <span style={{ fontFamily: "'Source Sans Pro', system-ui", fontSize: 11, letterSpacing: "0.2em", textTransform: "uppercase" as const, color: C.accent }}>Our Team</span>
+          </div>
+          <h2 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: "clamp(36px, 4vw, 56px)", color: C.white, margin: "0 0 16px", fontWeight: 700 }}>The Partners</h2>
+          <p style={{ fontFamily: "'Source Sans Pro', system-ui", fontSize: 17, color: "rgba(255,255,255,0.55)", maxWidth: 480 }}>Three partners. Combined track record exceeding €6 billion in advised transactions and 500+ cases.</p>
+        </motion.div>
+
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 2 }}>
+          {attorneys.map((atty, i) => (
+            <motion.div
+              key={atty.name}
+              initial={{ opacity: 0, y: 40 }}
+              animate={inView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.7, delay: i * 0.18 }}
+              style={{ background: C.navyLight, padding: 40, borderTop: `3px solid ${C.accent}` }}
+            >
+              <div style={{ width: 72, height: 72, background: C.accentLight, border: `1px solid ${C.borderGold}`, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 24 }}>
+                <span style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 28, color: C.accent, fontWeight: 700 }}>{atty.name.charAt(0)}</span>
+              </div>
+
+              <h3 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 22, color: C.white, margin: "0 0 4px", fontWeight: 700 }}>{atty.name}</h3>
+              <p style={{ fontFamily: "'Source Sans Pro', system-ui", fontSize: 13, color: C.accent, margin: "0 0 4px", letterSpacing: "0.06em" }}>{atty.title}</p>
+              <p style={{ fontFamily: "'Source Sans Pro', system-ui", fontSize: 12, color: "rgba(255,255,255,0.35)", margin: "0 0 24px" }}>{atty.focus}</p>
+
+              <p style={{ fontFamily: "'Source Sans Pro', system-ui", fontSize: 15, color: "rgba(255,255,255,0.6)", lineHeight: 1.65, marginBottom: 28 }}>{atty.bio}</p>
+
+              <div style={{ borderTop: `1px solid rgba(255,255,255,0.08)`, paddingTop: 20 }}>
+                {[
+                  { label: "Admitted", val: atty.bar },
+                  { label: "Education", val: atty.education },
+                  { label: "Languages", val: atty.languages },
+                  { label: "Track Record", val: atty.matters },
+                ].map((item) => (
+                  <div key={item.label} style={{ display: "flex", gap: 12, marginBottom: 10 }}>
+                    <span style={{ fontFamily: "'Source Sans Pro', system-ui", fontSize: 12, color: C.accent, fontWeight: 600, minWidth: 90, flexShrink: 0 }}>{item.label}</span>
+                    <span style={{ fontFamily: "'Source Sans Pro', system-ui", fontSize: 12, color: "rgba(255,255,255,0.5)" }}>{item.val}</span>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ResultsSection() {
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, margin: "-80px" });
+
+  return (
+    <section id="results" ref={ref} style={{ background: C.bg, padding: "80px 32px" }}>
+      <div style={{ maxWidth: 1280, margin: "0 auto" }}>
+        <div style={{ background: C.navy, padding: "64px 80px", display: "grid", gridTemplateColumns: "1fr 3fr", gap: 64, alignItems: "center" }}>
+          <motion.div
+            initial={{ opacity: 0, x: -30 }}
+            animate={inView ? { opacity: 1, x: 0 } : {}}
+            transition={{ duration: 0.7 }}
+          >
+            <div style={{ width: 3, height: 60, background: C.accent, marginBottom: 24 }} />
+            <h2 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 36, color: C.white, margin: 0, fontWeight: 700 }}>Results That Matter</h2>
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, x: 30 }}
+            animate={inView ? { opacity: 1, x: 0 } : {}}
+            transition={{ duration: 0.7, delay: 0.2 }}
+            style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 40 }}
+          >
+            {caseResults.map((s) => (
+              <div key={s.label} style={{ textAlign: "center" as const }}>
+                <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 36, fontWeight: 700, color: C.accent }}>{s.value}</div>
+                <div style={{ fontFamily: "'Source Sans Pro', system-ui", fontSize: 12, color: "rgba(255,255,255,0.45)", letterSpacing: "0.06em", marginTop: 8 }}>{s.label}</div>
+              </div>
+            ))}
+          </motion.div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function TestimonialsSection() {
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, margin: "-80px" });
+
+  return (
+    <section id="testimonials" ref={ref} style={{ background: C.bg, padding: "80px 32px 120px" }}>
+      <div style={{ maxWidth: 1280, margin: "0 auto" }}>
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={inView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.7 }}
+          style={{ marginBottom: 64 }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
+            <div style={{ width: 32, height: 1, background: C.accent }} />
+            <span style={{ fontFamily: "'Source Sans Pro', system-ui", fontSize: 11, letterSpacing: "0.2em", textTransform: "uppercase" as const, color: C.accent }}>Client Testimonials</span>
+          </div>
+          <h2 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: "clamp(36px, 4vw, 56px)", color: C.navy, margin: 0, fontWeight: 700 }}>What Our Clients Say</h2>
+        </motion.div>
+
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 24 }}>
+          {testimonials.map((t, i) => (
+            <motion.div
+              key={t.name}
+              initial={{ opacity: 0, y: 30 }}
+              animate={inView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.6, delay: i * 0.15 }}
+              style={{ background: C.bgCard, padding: 40, border: `1px solid ${C.border}`, borderTop: `3px solid ${C.accent}` }}
+            >
+              <div style={{ display: "flex", gap: 2, marginBottom: 20 }}>
+                {Array.from({ length: t.rating }).map((_, j) => (
+                  <Star key={j} size={14} fill={C.accent} color={C.accent} />
+                ))}
+              </div>
+              <p style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 16, color: C.navy, lineHeight: 1.75, marginBottom: 28, fontStyle: "italic" }}>"{t.text}"</p>
+              <div style={{ borderTop: `1px solid ${C.border}`, paddingTop: 20 }}>
+                <p style={{ fontFamily: "'Source Sans Pro', system-ui", fontSize: 14, color: C.navy, margin: "0 0 4px", fontWeight: 700 }}>{t.name}</p>
+                <p style={{ fontFamily: "'Source Sans Pro', system-ui", fontSize: 12, color: C.textMuted, margin: "0 0 8px" }}>{t.title}</p>
+                <span style={{ fontFamily: "'Source Sans Pro', system-ui", fontSize: 11, color: C.accent, letterSpacing: "0.08em", textTransform: "uppercase" as const, border: `1px solid ${C.borderGold}`, padding: "3px 8px" }}>{t.matter}</span>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ConsultationSection() {
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, margin: "-80px" });
+
+  return (
+    <section id="consultation" ref={ref} style={{ background: C.navy, padding: "120px 32px" }}>
+      <div style={{ maxWidth: 1280, margin: "0 auto" }}>
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={inView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.7 }}
+          style={{ textAlign: "center" as const, marginBottom: 72 }}
+        >
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 12, marginBottom: 16 }}>
+            <div style={{ width: 32, height: 1, background: C.accent }} />
+            <span style={{ fontFamily: "'Source Sans Pro', system-ui", fontSize: 11, letterSpacing: "0.2em", textTransform: "uppercase" as const, color: C.accent }}>Engage Our Firm</span>
+            <div style={{ width: 32, height: 1, background: C.accent }} />
+          </div>
+          <h2 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: "clamp(36px, 4vw, 56px)", color: C.white, margin: "0 0 16px", fontWeight: 700 }}>Fee Structures</h2>
+          <p style={{ fontFamily: "'Source Sans Pro', system-ui", fontSize: 17, color: "rgba(255,255,255,0.5)", maxWidth: 480, margin: "0 auto" }}>Transparent pricing. No hidden fees. Full clarity before we begin.</p>
+        </motion.div>
+
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 2 }}>
+          {consultationTiers.map((tier, i) => (
+            <motion.div
+              key={tier.name}
+              initial={{ opacity: 0, y: 30 }}
+              animate={inView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.6, delay: i * 0.15 }}
+              style={{ background: tier.featured ? C.accent : C.navyLight, padding: 48, display: "flex", flexDirection: "column" as const, position: "relative" }}
+            >
+              {tier.featured && (
+                <div style={{ position: "absolute", top: 20, right: 20, background: C.white, color: C.accent, fontSize: 10, fontFamily: "'Source Sans Pro', system-ui", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase" as const, padding: "3px 10px" }}>Recommended</div>
+              )}
+              <div style={{ marginBottom: 28 }}>
+                <p style={{ fontFamily: "'Source Sans Pro', system-ui", fontSize: 11, color: tier.featured ? "rgba(255,255,255,0.7)" : C.accent, letterSpacing: "0.14em", textTransform: "uppercase" as const, margin: "0 0 10px" }}>{tier.duration}</p>
+                <h3 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 22, color: C.white, margin: "0 0 10px", fontWeight: 700 }}>{tier.name}</h3>
+                <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 36, color: C.white, fontWeight: 700 }}>{tier.price}</div>
+              </div>
+              <p style={{ fontFamily: "'Source Sans Pro', system-ui", fontSize: 15, color: tier.featured ? "rgba(255,255,255,0.85)" : "rgba(255,255,255,0.5)", lineHeight: 1.65, marginBottom: 32, flex: 1 }}>{tier.desc}</p>
+              <ul style={{ listStyle: "none", padding: 0, margin: "0 0 36px" }}>
+                {tier.includes.map((item) => (
+                  <li key={item} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
+                    <Check size={14} color={tier.featured ? C.white : C.accent} style={{ flexShrink: 0 }} />
+                    <span style={{ fontFamily: "'Source Sans Pro', system-ui", fontSize: 14, color: tier.featured ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.55)" }}>{item}</span>
+                  </li>
+                ))}
+              </ul>
+              <Link href="#contact"
+                style={{ display: "block", textAlign: "center" as const, background: tier.featured ? C.white : "transparent", color: tier.featured ? C.accent : C.white, border: tier.featured ? "none" : `1px solid rgba(255,255,255,0.2)`, padding: "14px 24px", fontSize: 12, letterSpacing: "0.1em", textTransform: "uppercase" as const, textDecoration: "none", fontFamily: "'Source Sans Pro', system-ui", fontWeight: 700 }}
+              >{tier.cta}</Link>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function FAQSection() {
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, margin: "-80px" });
+  const [openIdx, setOpenIdx] = useState<number | null>(null);
+
+  return (
+    <section id="faq" ref={ref} style={{ background: C.bg, padding: "120px 32px" }}>
+      <div style={{ maxWidth: 860, margin: "0 auto" }}>
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={inView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.7 }}
+          style={{ marginBottom: 64 }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
+            <div style={{ width: 32, height: 1, background: C.accent }} />
+            <span style={{ fontFamily: "'Source Sans Pro', system-ui", fontSize: 11, letterSpacing: "0.2em", textTransform: "uppercase" as const, color: C.accent }}>Frequently Asked</span>
+          </div>
+          <h2 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: "clamp(36px, 4vw, 52px)", color: C.navy, margin: 0, fontWeight: 700 }}>Common Questions</h2>
+        </motion.div>
+
+        {faqs.map((faq, i) => (
+          <motion.div
+            key={i}
+            initial={{ opacity: 0, y: 20 }}
+            animate={inView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.5, delay: i * 0.09 }}
+            style={{ borderBottom: `1px solid ${C.border}` }}
+          >
+            <button
+              onClick={() => setOpenIdx(openIdx === i ? null : i)}
+              style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "26px 0", background: "transparent", border: "none", cursor: "pointer", textAlign: "left" as const }}
+            >
+              <span style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 17, color: C.navy, fontWeight: 600 }}>{faq.q}</span>
+              <motion.div animate={{ rotate: openIdx === i ? 180 : 0 }} transition={{ duration: 0.3 }}>
+                <ChevronDown size={18} color={C.accent} />
+              </motion.div>
+            </button>
+            <motion.div
+              initial={false}
+              animate={{ height: openIdx === i ? "auto" : 0, opacity: openIdx === i ? 1 : 0 }}
+              transition={{ duration: 0.3 }}
+              style={{ overflow: "hidden" }}
+            >
+              <p style={{ fontFamily: "'Source Sans Pro', system-ui", fontSize: 16, color: C.textMuted, lineHeight: 1.7, paddingBottom: 26, margin: 0 }}>{faq.a}</p>
+            </motion.div>
+          </motion.div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function Footer() {
+  return (
+    <footer style={{ background: C.navy, borderTop: `1px solid ${C.borderDark}`, padding: "80px 32px 40px" }}>
+      <div style={{ maxWidth: 1280, margin: "0 auto" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr", gap: 48, marginBottom: 64 }}>
+          <div>
+            <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 20 }}>
+              <div style={{ width: 36, height: 36, border: `1.5px solid ${C.accent}`, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <Scale size={18} color={C.accent} />
+              </div>
+              <div>
+                <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 16, fontWeight: 700, color: C.white }}>Dumont & Associates</div>
+                <div style={{ fontFamily: "'Source Sans Pro', system-ui", fontSize: 10, color: C.accent, letterSpacing: "0.12em", textTransform: "uppercase" as const }}>Avocats au Barreau de Paris</div>
+              </div>
+            </div>
+            <p style={{ fontFamily: "'Source Sans Pro', system-ui", fontSize: 14, color: "rgba(255,255,255,0.4)", lineHeight: 1.7, maxWidth: 280, marginBottom: 24 }}>Boutique law firm specialising in corporate, M&A, IP, and commercial litigation. Paris, France.</p>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <MessageSquare size={14} color={C.accent} />
+              <span style={{ fontFamily: "'Source Sans Pro', system-ui", fontSize: 13, color: "rgba(255,255,255,0.4)" }}>contact@dumont-avocats.fr</span>
+            </div>
+          </div>
+
+          {[
+            { title: "Practice", links: ["Corporate Law", "M&A", "Intellectual Property", "Litigation", "Employment", "Tax"] },
+            { title: "Firm", links: ["About Us", "Partners", "Careers", "Publications", "Press"] },
+            { title: "Contact", links: ["Schedule Consultation", "Client Portal", "Privacy Policy", "Terms"] },
+          ].map((col) => (
+            <div key={col.title}>
+              <h4 style={{ fontFamily: "'Source Sans Pro', system-ui", fontSize: 11, color: C.accent, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase" as const, marginBottom: 20 }}>{col.title}</h4>
+              <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
+                {col.links.map((link) => (
+                  <li key={link} style={{ marginBottom: 12 }}>
+                    <Link href="#"
+                      style={{ fontFamily: "'Source Sans Pro', system-ui", fontSize: 14, color: "rgba(255,255,255,0.4)", textDecoration: "none" }}
+                      onMouseEnter={e => (e.currentTarget.style.color = C.white)}
+                      onMouseLeave={e => (e.currentTarget.style.color = "rgba(255,255,255,0.4)")}
+                    >{link}</Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
           ))}
         </div>
 
-        <button 
-          onClick={() => setMenuOpen(true)}
-          className="px-6 py-2 border border-white/20 bg-white/5 backdrop-blur-md text-[10px] font-black uppercase tracking-widest hover:bg-white/20 transition-all text-white"
-        >
-          [INIT_GLITCH]
-        </button>
-      </motion.nav>
-
-      {/* ── MOBILE MENU ── */}
-      <AnimatePresence>
-        {menuOpen && (
-          <motion.div 
-            initial={{ opacity: 0, scale: 1.1 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 1.1 }}
-            transition={{ duration: 0.8, ease: [0.19, 1, 0.22, 1] }}
-            className="fixed inset-0 z-[60] bg-[#050508] text-[#eee] p-12 flex flex-col justify-between"
-          >
-            <div className="flex justify-between items-center border-b border-white/10 pb-12">
-              <span className="text-xl font-black uppercase tracking-tighter italic">GLITCH//CORE</span>
-              <button onClick={() => setMenuOpen(false)} className="w-12 h-12 flex items-center justify-center border border-white/20 rounded-full">
-                <X className="w-6 h-6" />
-              </button>
-            </div>
-            <div className="flex flex-col gap-12 text-center md:text-left">
-              {["CORE_MANIFEST", "SYSTEM_ARCHIVE", "GLITCH_FORGE", "ASSET_ENCLAVE", "SECURE_AUTH"].map((item, i) => (
-                <motion.a 
-                  key={item}
-                  initial={{ opacity: 0, y: 50 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.1 + 0.3 }}
-                  href="#"
-                  className="text-6xl md:text-9xl font-black uppercase italic tracking-tighter hover:text-white/40 transition-all leading-none"
-                  onClick={() => setMenuOpen(false)}
-                >
-                  {item}
-                </motion.a>
-              ))}
-            </div>
-            <div className="flex justify-between text-[10px] font-bold uppercase tracking-[0.5em] border-t border-white/10 pt-12 text-white/30">
-              <span>GLITCH_PRACTICE</span>
-              <span>EST. 2018 // BERLIN</span>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* ── HERO SECTION ── */}
-      <section className="relative h-screen flex items-center justify-center overflow-hidden bg-black">
-        <motion.div 
-          style={{ opacity: heroOpacity, scale: heroScale }}
-          className="absolute inset-0 z-0"
-        >
-          <Image 
-            src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=1600&q=80" 
-            alt="Hero Glitch" 
-            fill 
-            className="object-cover grayscale brightness-50 contrast-125 opacity-20" 
-            unoptimized 
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#050508]" />
-        </motion.div>
-
-        <div className="relative z-10 text-center px-6">
-          <Reveal>
-            <span className="text-[10px] font-bold uppercase tracking-[2.5em] text-white/40 mb-12 block italic">System Endurance</span>
-          </Reveal>
-          <Reveal delay={0.2}>
-            <h1 className="text-8xl md:text-[18rem] font-black tracking-tighter leading-[0.75] uppercase italic text-white mb-20">
-              RAW <br/> <span className="not-italic text-white/10">CORE.</span>
-            </h1>
-          </Reveal>
-          <Reveal delay={0.4}>
-            <div className="max-w-2xl mx-auto flex flex-col items-center gap-16 border-t border-white/10 pt-20">
-              <p className="text-white/40 text-xl leading-relaxed font-light uppercase tracking-[0.3em] italic leading-loose text-center">
-                Engineering the ultimate system archives through distributed glitch orchestration. High-fidelity systems built for absolute structural precision and narrative clarity.
-              </p>
-              <div className="flex gap-8">
-                <button className="px-16 py-6 bg-white text-black font-black uppercase text-xs tracking-[0.4em] hover:bg-black hover:text-white transition-all">
-                  Manifest_Access
-                </button>
-                <button className="px-16 py-6 border border-white/20 text-white font-black uppercase text-xs tracking-[0.4em] hover:bg-white/5 transition-colors">
-                  Atelier_Dossier
-                </button>
+        <div style={{ borderTop: `1px solid ${C.borderDark}`, paddingTop: 32, display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap" as const, gap: 16 }}>
+          <div style={{ display: "flex", gap: 24, flexWrap: "wrap" as const }}>
+            {[
+              { Icon: MapPin, text: "12 Avenue Montaigne, Paris 8e" },
+              { Icon: Phone, text: "+33 1 47 23 00 00" },
+              { Icon: Clock, text: "Mon–Fri, 9h–19h" },
+            ].map(({ Icon, text }) => (
+              <div key={text} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <Icon size={13} color={C.accent} />
+                <span style={{ fontFamily: "'Source Sans Pro', system-ui", fontSize: 13, color: "rgba(255,255,255,0.4)" }}>{text}</span>
               </div>
-            </div>
-          </Reveal>
-        </div>
-
-        <div className="absolute bottom-12 left-12 right-12 flex justify-between items-end text-[10px] font-bold uppercase tracking-[0.5em] text-white/20">
-          <div className="flex flex-col gap-2">
-            <span>BERLIN // ATELIER</span>
-            <div className="w-48 h-[1px] bg-white/10" />
-          </div>
-          <div className="flex items-center gap-4 italic uppercase tracking-widest">
-             <span className="animate-pulse">●</span> SYSTEM_STATUS: NOMINAL
-          </div>
-        </div>
-      </section>
-
-      {/* ── METRICS GRID ── */}
-      <section className="py-40 bg-[#0a0a0d]">
-        <div className="max-w-[1600px] mx-auto px-8 md:px-16">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-px bg-white/5 border border-white/5">
-            {METRICS.map((s, i) => (
-              <Reveal key={s.label} delay={i * 0.1} className="bg-[#050508] p-24 group hover:bg-white/5 transition-all duration-700">
-                <span className="text-[10px] font-bold uppercase tracking-[0.5em] text-white/30 mb-12 block group-hover:text-white/60">{s.label}</span>
-                <h3 className="text-7xl font-black italic text-white mb-8 group-hover:text-white transition-colors">{s.val}</h3>
-                <p className="text-xs text-white/30 font-light tracking-widest uppercase italic leading-loose group-hover:text-white/60">
-                  {s.desc}
-                </p>
-              </Reveal>
             ))}
           </div>
+          <p style={{ fontFamily: "'Source Sans Pro', system-ui", fontSize: 13, color: "rgba(255,255,255,0.25)", margin: 0 }}>© 2026 Dumont & Associates. All rights reserved. Paris Bar Association.</p>
         </div>
-      </section>
+      </div>
+    </footer>
+  );
+}
 
-      {/* CORE SHOWCASE ── */}
-      <section className="py-40 bg-black relative overflow-hidden">
-        <div className="max-w-[1600px] mx-auto px-8 md:px-16">
-          <Reveal className="mb-32">
-             <div className="flex flex-col lg:flex-row justify-between items-end gap-12 border-b border-white/10 pb-12">
-               <h2 className="text-7xl md:text-[10rem] font-black italic tracking-tighter leading-[0.8] uppercase text-white">
-                 Core <br/> <span className="text-white/20 not-italic">Archive.</span>
-               </h2>
-               <div className="text-right">
-                  <span className="text-[10px] font-bold uppercase tracking-[0.5em] text-white/20 mb-4 block italic">Manifest_Sequence_2024</span>
-                  <div className="flex gap-4">
-                    {CORE_MANIFESTS.map((_, i) => (
-                      <button 
-                        key={i} 
-                        onClick={() => setActiveCor(i)}
-                        className={`w-16 h-1 transition-all ${activeCor === i ? "bg-white w-32" : "bg-white/10"}`}
-                      />
-                    ))}
-                  </div>
-               </div>
-             </div>
-          </Reveal>
-
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-24 items-center">
-            <div className="lg:col-span-8 relative aspect-video rounded-sm overflow-hidden border border-white/5 group bg-[#111]">
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={activeCor}
-                  initial={{ opacity: 0, scale: 1.1 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 1.1 }}
-                  transition={{ duration: 1, ease: [0.19, 1, 0.22, 1] }}
-                  className="absolute inset-0"
-                >
-                  <Image src={CORE_MANIFESTS[activeCor].img} alt={CORE_MANIFESTS[activeCor].title} fill className="object-cover grayscale contrast-125 opacity-40 group-hover:opacity-60 transition-opacity duration-1000" unoptimized />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-90" />
-                </motion.div>
-              </AnimatePresence>
-              <div className="absolute bottom-12 left-12 flex flex-col gap-4">
-                 <span className="text-[10px] font-black uppercase tracking-widest bg-white/10 backdrop-blur-md text-white px-6 py-2 border border-white/5">{CORE_MANIFESTS[activeCor].status} // ADVISORY</span>
-              </div>
-            </div>
-
-            <div className="lg:col-span-4 space-y-12">
-               <motion.div
-                  key={activeCor}
-                  initial={{ opacity: 0, x: 50 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.6 }}
-                  className="space-y-12"
-               >
-                 <span className="text-[10px] font-black uppercase tracking-[0.4em] text-white/40">{CORE_MANIFESTS[activeCor].id} // ASSET</span>
-                 <h3 className="text-6xl md:text-8xl font-black italic uppercase text-white tracking-tighter">{CORE_MANIFESTS[activeCor].title}</h3>
-                 <div className="space-y-6 border-y border-white/10 py-12">
-                    <div className="flex justify-between items-center">
-                       <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-white/30">Category</span>
-                       <span className="text-sm font-black text-white uppercase tracking-widest">{CORE_MANIFESTS[activeCor].category}</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                       <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-white/30">Core_Status</span>
-                       <span className="text-sm font-black text-white uppercase tracking-widest italic">STABLE_OPTIC</span>
-                    </div>
-                 </div>
-                 <p className="text-white/30 text-lg font-light italic leading-loose uppercase tracking-wide">
-                   {CORE_MANIFESTS[activeCor].desc}
-                 </p>
-                 <button className="flex items-center gap-6 group">
-                    <span className="text-[10px] font-bold uppercase tracking-[0.8em] text-white">Request_Manifest</span>
-                    <div className="w-16 h-16 border border-white/10 rounded-full flex items-center justify-center group-hover:bg-white transition-all">
-                       <ArrowUpRight className="w-6 h-6 text-white group-hover:text-black transition-colors" />
-                    </div>
-                 </button>
-               </motion.div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── CAPABILITIES ── */}
-      <section className="py-40 bg-[#050508] border-y border-white/10">
-        <div className="max-w-[1600px] mx-auto px-8 md:px-16">
-          <Reveal className="mb-32 text-center">
-             <span className="text-[10px] font-bold uppercase tracking-[1em] text-white/40 mb-8 block italic">Operational Scope</span>
-             <h2 className="text-7xl md:text-[10rem] font-black italic tracking-tighter leading-[0.8] uppercase text-white">
-                Technical <br/> <span className="text-white/20 not-italic">Expertise.</span>
-             </h2>
-          </Reveal>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-px bg-white/10 border border-white/10">
-            {CAPABILITIES.map((item, i) => (
-              <Reveal key={item.title} delay={i * 0.1} className="bg-[#0a0a0d] p-12 group hover:bg-white/5 transition-all duration-700">
-                 <item.icon className="w-12 h-12 text-white/20 group-hover:text-white transition-colors mb-8" />
-                 <h3 className="text-2xl font-black italic uppercase text-white mb-6">{item.title}</h3>
-                 <p className="text-xs text-white/40 group-hover:text-white font-light tracking-widest uppercase italic leading-loose transition-colors">
-                   {item.desc}
-                 </p>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ATELIER / LABORATORY ── */}
-      <section className="py-40 bg-black overflow-hidden">
-        <div className="max-w-[1600px] mx-auto px-8 md:px-16 grid grid-cols-1 lg:grid-cols-2 gap-32 items-center">
-          <Reveal>
-             <div className="relative aspect-square bg-[#050508] border border-white/5 p-20 flex flex-col justify-center group overflow-hidden">
-                <div className="absolute top-0 right-0 p-12">
-                   <Box className="w-16 h-16 text-white/5 group-hover:text-white/10 transition-colors" />
-                </div>
-                <Sparkles className="w-16 h-16 text-white mb-12" />
-                <h3 className="text-5xl font-black italic uppercase text-white mb-8">Core <br/> <span className="text-white/20 not-italic">Atelier.</span></h3>
-                <p className="text-white/40 text-lg leading-relaxed mb-12 font-light uppercase tracking-wide italic leading-loose">
-                  Our Berlin atelier leverages heavy archival design fabrication and distributed spatial orchestration for the production of non-standard glitch artifacts. We push the tectonic limits of spatial system.
-                </p>
-                <div className="flex gap-12 text-[10px] font-bold uppercase tracking-[0.5em] text-white/30">
-                   <span>[01] CORE_BOND</span>
-                   <span>[02] SPATIAL_SYNTHESIS</span>
-                </div>
-             </div>
-          </Reveal>
-          <div className="space-y-24">
-             <Reveal delay={0.2}>
-                <span className="text-[10px] font-bold uppercase tracking-[1em] text-white/40 mb-8 block italic">Curation_Sequence</span>
-                <h2 className="text-6xl md:text-8xl font-black italic tracking-tighter leading-none uppercase text-white">System <br/> <span className="text-white/20 not-italic">Manifesto.</span></h2>
-             </Reveal>
-             <div className="space-y-12">
-                {[
-                  { n: "01", t: "Sectional Audit", d: "Rigorous cutting of complex glitch volumes to reveal interior structural potential." },
-                  { n: "02", t: "Core Stress", d: "Simulation of high-fidelity visual performance under extreme archival loads." },
-                  { n: "03", t: "Archive Aging", d: "Analyzing the interaction of archival glitch models with digital weathering." }
-                ].map((step, i) => (
-                  <Reveal key={step.n} delay={i * 0.1 + 0.3} className="flex gap-12 group border-l border-white/10 pl-8 hover:border-white transition-colors">
-                    <span className="text-4xl font-black italic text-white/10 group-hover:text-white transition-colors">{step.n}</span>
-                    <div>
-                      <h4 className="text-xl font-black uppercase italic text-white mb-2">{step.t}</h4>
-                      <p className="text-xs text-white/40 font-light tracking-widest uppercase italic leading-loose">{step.d}</p>
-                    </div>
-                  </Reveal>
-                ))}
-             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── CTA / INQUIRY ── */}
-      <section className="py-40 bg-[#050508] relative">
-         <div className="max-w-[1600px] mx-auto px-8 md:px-16">
-            <div className="bg-white text-black p-24 lg:p-40 relative overflow-hidden flex flex-col items-center text-center group">
-               <div className="absolute inset-0 opacity-10 grayscale brightness-110 group-hover:opacity-20 transition-opacity">
-                  <Image src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=1600&q=80" alt="CTA Glitch" fill className="object-cover" />
-               </div>
-               <Reveal>
-                  <span className="text-[10px] font-bold uppercase tracking-[1em] text-black/50 mb-12 block italic">Allocation Initiation</span>
-                  <h2 className="text-7xl md:text-[12rem] font-black italic tracking-tighter leading-[0.8] uppercase mb-16">
-                     Own <br/> <span className="text-black/30 not-italic">The Core.</span>
-                  </h2>
-                  <div className="flex flex-wrap justify-center gap-12 relative z-10">
-                     <button className="px-20 py-8 bg-black text-white font-black uppercase text-sm tracking-[0.5em] hover:italic transition-all">
-                        Request_Access
-                     </button>
-                     <button className="px-20 py-8 border border-black/20 text-black font-black uppercase text-sm tracking-[0.5em] hover:bg-black/5 transition-all">
-                        Atelier_Dossier
-                     </button>
-                  </div>
-               </Reveal>
-            </div>
-         </div>
-      </section>
-
-      {/* ── FOOTER ── */}
-      <footer className="bg-black pt-40 pb-20 px-8 md:px-16 border-t border-white/10">
-         <div className="max-w-[1600px] mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-32 mb-40">
-            <div className="lg:col-span-6">
-               <div className="flex items-center gap-4 mb-12">
-                 <Terminal className="w-10 h-10 text-white" />
-                 <span className="text-3xl font-black tracking-tighter uppercase italic text-white">GLITCH<span className="text-white/30">//</span>CORE</span>
-               </div>
-               <p className="text-white/40 text-sm font-light leading-relaxed uppercase tracking-[0.3em] mb-12 italic max-w-md">
-                 Securing the future of system objects through high-fidelity orchestration and radical visual clarity.
-               </p>
-               <div className="flex gap-12">
-                 {["TERMINAL", "SYSTEM", "FORGE", "ALPHA"].map(s => (
-                   <a key={s} href="#" className="text-[10px] font-bold hover:text-white text-white/30 transition-colors tracking-[0.5em]">[{s}]</a>
-                 ))}
-               </div>
-            </div>
-            
-            <div className="lg:col-span-2">
-               <h4 className="text-[10px] font-bold uppercase tracking-[0.5em] text-white/40 mb-12">Systems</h4>
-               <ul className="space-y-6 text-xs font-bold uppercase tracking-[0.4em]">
-                 {["Archives", "Telemetry", "Shell", "Journal"].map(item => (
-                   <li key={item}><a href="#" className="hover:text-white transition-colors">{item}</a></li>
-                 ))}
-               </ul>
-            </div>
-
-            <div className="lg:col-span-4">
-               <h4 className="text-[10px] font-bold uppercase tracking-[0.5em] text-white/40 mb-12">Partner Inquiry</h4>
-               <p className="text-sm text-white/40 font-light mb-12 italic uppercase tracking-[0.2em] leading-loose">
-                 For new commissions, system studies, or distribution enclaves, contact our primary command center in Berlin.
-               </p>
-               <a href="mailto:ops@glitch-core.de" className="text-3xl font-black italic hover:text-white transition-colors block border-b border-white/10 pb-8 uppercase tracking-tighter">
-                  ops@glitch-core.de
-               </a>
-            </div>
-         </div>
-
-         <div className="max-w-[1600px] mx-auto flex flex-col md:row items-center justify-between gap-12 text-[9px] font-bold uppercase tracking-[0.8em] text-white/20 border-t border-white/5 pt-20">
-            <p>© 2024 GLITCH CORE ATELIER AG. ALL RIGHTS RESERVED. BERLIN // GLOBAL.</p>
-            <div className="flex gap-16">
-               <a href="#" className="hover:text-white transition-colors">[System_Vault]</a>
-               <a href="#" className="hover:text-white transition-colors">[Terms_of_Service]</a>
-            </div>
-         </div>
-      </footer>
-    </div>
+export default function LawFirmTemplate() {
+  return (
+    <main style={{ background: C.bg, minHeight: "100vh" }}>
+      <Navbar />
+      <HeroSection />
+      <PracticeSection />
+      <AttorneysSection />
+      <ResultsSection />
+      <TestimonialsSection />
+      <ConsultationSection />
+      <FAQSection />
+      <Footer />
+    </main>
   );
 }
