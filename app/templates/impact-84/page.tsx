@@ -6,869 +6,698 @@ import {
   useTransform,
   useInView,
   AnimatePresence,
-  useMotionValue,
-  useSpring,
 } from "framer-motion";
-import { useState, useRef, useEffect, useCallback } from "react";
-import Image from "next/image";
-import Link from "next/link";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
-import { Progress } from "@/components/ui/progress";
-import { Separator } from "@/components/ui/separator";
-import { Sparkles, Wand2, Zap, Globe, Activity, Terminal, Box, Share2, Layers, Maximize, Monitor, MousePointer2, Navigation, Wifi, Shield, ShoppingBag, Search, Star, Mail, Phone, Check, Menu, X, MapPin, Clock, Lock, Plus, Bell, Settings, ArrowRight, ArrowUpRight, ChevronRight, Eye, PenTool, Heart, Microscope, Stethoscope, Syringe } from "lucide-react";
+import { useRef, useState } from "react";
 
-import "../premium.css";
+const C = {
+  bg: "#0A0C0E",
+  bgCard: "#111418",
+  bgLight: "#161A1F",
+  text: "#E8EAF0",
+  textMuted: "#8A8FA0",
+  textDim: "#3A3F4A",
+  border: "#1E242C",
+  borderGold: "#3A3020",
+  gold: "#C8A87A",
+  goldLight: "#E8D5A8",
+  goldDark: "#7A6040",
+  white: "#F0F4FF",
+  clinical: "#4A8A9A",
+};
 
-/* ==========================================================================
-   DATA STRUCTURES
-   ========================================================================= */
+const FONT = `
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@300;400&display=swap');
+`;
 
-const TREATMENTS = [
+const PROTOCOLS = [
   {
-    id: 1,
-    name: "CYPHER_SCULPT",
-    category: "Facial Aesthetics",
-    stats: { complexity: "High", duration: "45m", recovery: "0 days" },
-    img: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?w=1200&q=80",
-    desc: "A non-invasive structural re-definition utilizing high-density molecular fillers and neural inhibitors.",
+    id: "genesis",
+    code: "CX-001",
+    name: "Protocole Genèse",
+    tagline: "La jeunesse comme état fondamental",
+    price: "À partir de € 2,800",
+    sessions: "3 séances",
+    technology: "RF Microneedling + Exosomes",
+    result: "Régénération cellulaire profonde, fermeté, éclat durable",
+    targets: ["Relâchement cutané", "Taches pigmentaires", "Texture irrégulière"],
   },
   {
-    id: 2,
-    name: "DERMAL_SYNC",
-    category: "Skin Rejuvenation",
-    stats: { complexity: "Medium", duration: "60m", recovery: "2 days" },
-    img: "https://images.unsplash.com/photo-1522338242992-e1a54906a8da?w=1200&q=80",
-    desc: "Laser-driven cellular regeneration and pigment synchronization for a clinically flawless canvas.",
+    id: "architect",
+    code: "CX-002",
+    name: "Protocole Architecte",
+    tagline: "Redessiner les volumes avec précision",
+    price: "À partir de € 1,900",
+    sessions: "2 séances",
+    technology: "Acide hyaluronique haute densité + Fils tenseurs",
+    result: "Repositionnement volumique, correction de l'ovale, projection des pommettes",
+    targets: ["Affaissement des volumes", "Perte de définition", "Fatigue structurelle"],
   },
   {
-    id: 3,
-    name: "VITAMIN_DRIP_V3",
-    category: "Wellness",
-    stats: { complexity: "Low", duration: "30m", recovery: "0 days" },
-    img: "https://images.unsplash.com/photo-1515377905703-c4788e51af15?w=1200&q=80",
-    desc: "Intravenous molecular infusion optimized for neuro-luminosity and systemic biological vitality.",
-  },
-];
-
-const CLINICAL_SPECS = [
-  {
-    label: "Patient Satisfaction",
-    val: 99.8,
-    suffix: "%",
-    desc: "Based on 12,000+ clinical outcome audits.",
+    id: "cipher",
+    code: "CX-003",
+    name: "Protocole Cipher",
+    tagline: "Effacer sans laisser de traces",
+    price: "À partir de € 1,200",
+    sessions: "1 séance",
+    technology: "Laser CO2 fractionnel + Plasma Pen",
+    result: "Lissage des ridules, fermeté immédiate, peau neuve",
+    targets: ["Ridules", "Cicatrices", "Relâchement léger"],
   },
   {
-    label: "Practitioner Experience",
-    val: 15,
-    suffix: "+ Yrs",
-    desc: "Our surgeons are international board-certified leaders.",
-  },
-  {
-    label: "Clinical Precision",
-    val: 0.1,
-    suffix: "mm",
-    desc: "Utilization of robotic-assisted surgical alignment tools.",
+    id: "oracle",
+    code: "CX-004",
+    name: "Protocole Oracle",
+    tagline: "Le diagnostic absolu, personnalisé",
+    price: "€ 490",
+    sessions: "Consultation + bilan 3D",
+    technology: "Scanner Visia + Analyse cutimétrique",
+    result: "Cartographie complète de votre peau, programme sur 12 mois",
+    targets: ["Nouveau patient", "Évaluation globale", "Suivi longitudinal"],
   },
 ];
 
-/* ==========================================================================
-   UTILITY COMPONENTS
-   ========================================================================= */
+const EXPERTISE = [
+  { code: "DR. A.V.", name: "Dr. Amira Valentin", spec: "Médecine esthétique · Anti-aging", credential: "AFME · DIU Lyon" },
+  { code: "DR. L.M.", name: "Dr. Luca Moreno", spec: "Médecine régénérative · Laser", credential: "AFME · Harvard CME" },
+  { code: "DR. C.N.", name: "Dr. Clara Nkemdirim", spec: "Dermatologie · Traitements pigmentaires", credential: "DESC Dermatologie" },
+];
 
-function Reveal({
-  children,
-  delay = 0,
-  y = 30,
-}: {
-  children: React.ReactNode;
-  delay?: number;
-  y?: number;
-}) {
-  const ref = useRef(null);
-  const inView = useInView(ref, { once: true, margin: "-50px" });
+const PROCESS = [
+  { step: "01", title: "Bilan Complet", desc: "Scanner 3D Visia, photographies standardisées, analyse cutimétrique. 90 minutes pour tout comprendre." },
+  { step: "02", title: "Protocole Sur Mesure", desc: "Votre programme personnalisé sur 6 à 12 mois. Chaque décision médicale est expliquée, motivée, documentée." },
+  { step: "03", title: "Traitement", desc: "Chaque séance est réalisée par le médecin référent, dans notre bloc technique certifié. Zéro délégation." },
+  { step: "04", title: "Suivi Longitudinal", desc: "Contrôle photographique systématique. Ajustements en temps réel. Votre peau est suivie comme un investissement." },
+];
+
+// ── Biometric scan animation (signature element) ──────────────────────────────
+function BiometricScan({ active }: { active: boolean }) {
   return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, y }}
-      animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 1, delay, ease: [0.25, 0.1, 0.25, 1] }}
-    >
-      {children}
-    </motion.div>
-  );
-}
+    <svg viewBox="0 0 280 280" style={{ width: "100%", height: "100%" }}>
+      {/* Outer circle */}
+      <circle cx="140" cy="140" r="130" fill="none" stroke={C.border} strokeWidth="1" />
 
-function Counter({
-  to,
-  prefix = "",
-  suffix = "",
-}: {
-  to: number;
-  prefix?: string;
-  suffix?: string;
-}) {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true });
-  const [count, setCount] = useState(0);
-  useEffect(() => {
-    if (!isInView) return;
-    let cur = 0;
-    const step = to / 70;
-    const t = setInterval(() => {
-      cur += step;
-      if (cur >= to) {
-        setCount(to);
-        clearInterval(t);
-      } else {
-        setCount(Math.floor(cur));
-      }
-    }, 16);
-    return () => clearInterval(t);
-  }, [isInView, to]);
-  return (
-    <span ref={ref}>
-      {prefix}
-      {count.toLocaleString()}
-      {suffix}
-    </span>
-  );
-}
+      {/* Rotating arc */}
+      <motion.circle
+        cx="140" cy="140" r="130"
+        fill="none"
+        stroke={C.gold}
+        strokeWidth="1.5"
+        strokeDasharray="60 750"
+        animate={active ? { rotate: 360 } : {}}
+        transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+        style={{ transformOrigin: "140px 140px" }}
+      />
 
-function MagneticBtn({
-  children,
-  className = "",
-  onClick,
-}: {
-  children: React.ReactNode;
-  className?: string;
-  onClick?: () => void;
-}) {
-  const ref = useRef<HTMLButtonElement>(null);
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-  const sx = useSpring(x, { stiffness: 200, damping: 20 });
-  const sy = useSpring(y, { stiffness: 200, damping: 20 });
+      {/* Inner rings */}
+      <circle cx="140" cy="140" r="100" fill="none" stroke={C.border} strokeWidth="0.5" />
+      <circle cx="140" cy="140" r="70" fill="none" stroke={C.borderGold} strokeWidth="0.8" />
 
-  const handleMouse = useCallback(
-    (e: React.MouseEvent) => {
-      const rect = ref.current?.getBoundingClientRect();
-      if (!rect) return;
-      x.set((e.clientX - rect.left - rect.width / 2) * 0.35);
-      y.set((e.clientY - rect.top - rect.height / 2) * 0.35);
-    },
-    [x, y],
-  );
+      {/* Scan line */}
+      <motion.line
+        x1="10" y1="140" x2="270" y2="140"
+        stroke={C.gold} strokeWidth="0.5" opacity="0.4"
+        animate={active ? { y1: [10, 270, 10], y2: [10, 270, 10] } : {}}
+        transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+      />
 
-  const reset = useCallback(() => {
-    x.set(0);
-    y.set(0);
-  }, [x, y]);
+      {/* Face outline dots */}
+      {[
+        [140, 95], [110, 115], [170, 115],
+        [125, 125], [155, 125],
+        [140, 155], [118, 175], [162, 175],
+        [140, 185],
+      ].map(([cx, cy], i) => (
+        <motion.circle
+          key={i}
+          cx={cx} cy={cy} r="2.5"
+          fill={C.gold}
+          initial={{ opacity: 0, scale: 0 }}
+          animate={active ? { opacity: [0, 1, 0.5], scale: 1 } : {}}
+          transition={{ duration: 0.4, delay: 0.8 + i * 0.08, repeat: Infinity, repeatDelay: 2.5 }}
+          style={{ transformOrigin: `${cx}px ${cy}px` }}
+        />
+      ))}
 
-  return (
-    <motion.button
-      ref={ref}
-      style={{ x: sx, y: sy }}
-      onMouseMove={handleMouse}
-      onMouseLeave={reset}
-      onClick={onClick}
-      className={className}
-    >
-      {children}
-    </motion.button>
-  );
-}
-
-/* ==========================================================================
-   MAIN PAGE COMPONENT
-   ========================================================================= */
-
-export default function AestheticClinicPage() {
-  const [scrolled, setScrolled] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [activeTreatment, setActiveTreatment] = useState<number | null>(null);
-
-  const heroRef = useRef(null);
-  const { scrollYProgress } = useScroll({
-    target: heroRef,
-    offset: ["start start", "end start"],
-  });
-  const heroY = useTransform(scrollYProgress, [0, 1], ["0%", "20%"]);
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
-
-  useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 50);
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  return (
-    <div
-      className="premium-theme min-h-screen bg-[#fcfcfc] text-[#0a0a0a] font-sans selection:bg-rose-900 selection:text-white overflow-x-hidden"
-      style={{ scrollBehavior: "smooth" }}
-    >
-      {/* ==========================================
-          NAVIGATION
-          ========================================== */}
-      <nav
-        className={`fixed top-0 left-0 w-full z-50 transition-all duration-1000 ${scrolled ? "bg-white/95 backdrop-blur-xl py-4 border-b border-black/5 shadow-sm" : "bg-transparent py-10"}`}
-      >
-        <div className="max-w-[1400px] mx-auto px-6 md:px-12 flex items-center justify-between">
-          <Link href="/" className="flex flex-col items-start">
-            <span className="text-[10px] font-bold uppercase tracking-[0.6em] text-rose-400 mb-1">
-              Aesthetic.
-            </span>
-            <span className="text-xl md:text-2xl font-black tracking-tighter uppercase text-black">
-              CYPHER<span className="text-rose-200">.CLINIC</span>
-            </span>
-          </Link>
-
-          <div className="hidden lg:flex items-center gap-12 text-[10px] font-bold uppercase tracking-[0.3em] text-black/40">
-            <Link
-              href="#treatments"
-              className="hover:text-rose-500 transition-colors"
-            >
-              Treatments
-            </Link>
-            <Link
-              href="#clinical"
-              className="hover:text-rose-500 transition-colors"
-            >
-              Clinical
-            </Link>
-            <Link
-              href="#specialists"
-              className="hover:text-rose-500 transition-colors"
-            >
-              Specialists
-            </Link>
-            <Link
-              href="#dossier"
-              className="hover:text-rose-500 transition-colors"
-            >
-              Dossier
-            </Link>
-          </div>
-
-          <div className="flex items-center gap-8">
-            <div className="hidden xl:flex flex-col items-end">
-              <span className="text-[9px] font-bold text-black/10 uppercase tracking-widest">
-                Beverly Hills // London
-              </span>
-              <span className="text-[11px] font-black text-rose-500 flex items-center gap-1">
-                CLINIC_OPEN <Activity className="w-3 h-3" />
-              </span>
-            </div>
-            <MagneticBtn className="px-8 py-3 bg-black text-white text-[10px] font-bold uppercase tracking-widest rounded-full hover:bg-rose-600 transition-all shadow-xl">
-              BOOK_SESSION
-            </MagneticBtn>
-            <button onClick={() => setMenuOpen(true)} className="lg:hidden">
-              <Menu className="w-6 h-6 text-stone-500" />
-            </button>
-          </div>
-        </div>
-      </nav>
-
-      {/* MOBILE MENU */}
-      <AnimatePresence>
-        {menuOpen && (
-          <motion.div
-            initial={{ opacity: 0, x: "100%" }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: "100%" }}
-            transition={{ type: "tween", duration: 0.5 }}
-            className="fixed inset-0 z-[100] bg-white p-8 pt-32 flex flex-col border-l border-black/5"
-          >
-            <button
-              onClick={() => setMenuOpen(false)}
-              className="absolute top-10 right-8 text-stone-500"
-            >
-              <X className="w-8 h-8" />
-            </button>
-            <div className="flex flex-col gap-10 text-5xl font-black tracking-tighter uppercase italic text-rose-200/50">
-              <Link href="#treatments" onClick={() => setMenuOpen(false)}>
-                Treatments
-              </Link>
-              <Link href="#clinical" onClick={() => setMenuOpen(false)}>
-                Clinical
-              </Link>
-              <Link href="#specialists" onClick={() => setMenuOpen(false)}>
-                Specialists
-              </Link>
-              <Link href="#dossier" onClick={() => setMenuOpen(false)}>
-                Dossier
-              </Link>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* ==========================================
-          1. HERO (Cinematic Reveal)
-          ========================================== */}
-      <section
-        ref={heroRef}
-        className="relative w-full h-[100svh] flex flex-col justify-center overflow-hidden"
-      >
-        <motion.div
-          style={{ y: heroY, opacity: heroOpacity }}
-          className="absolute inset-0 z-0"
-        >
-          <Image
-            src="https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?w=1600&q=80"
-            alt="Clinic Hero"
-            fill
-            className="object-cover grayscale-[0.2] contrast-125 brightness-90"
-            priority
+      {/* Corner marks */}
+      {[[20, 20], [260, 20], [20, 260], [260, 260]].map(([x, y], i) => (
+        <g key={i}>
+          <line
+            x1={x + (x < 140 ? 0 : -12)} y1={y}
+            x2={x + (x < 140 ? 12 : 0)} y2={y}
+            stroke={C.gold} strokeWidth="1.5"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#fcfcfc] via-transparent to-transparent" />
-        </motion.div>
+          <line
+            x1={x} y1={y + (y < 140 ? 0 : -12)}
+            x2={x} y2={y + (y < 140 ? 12 : 0)}
+            stroke={C.gold} strokeWidth="1.5"
+          />
+        </g>
+      ))}
 
-        {/* SOFT ROSE GLOW */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[50vw] h-[50vw] bg-rose-200/20 rounded-full blur-[150px] pointer-events-none" />
+      {/* Center crosshair */}
+      <line x1="135" y1="140" x2="145" y2="140" stroke={C.gold} strokeWidth="0.8" />
+      <line x1="140" y1="135" x2="140" y2="145" stroke={C.gold} strokeWidth="0.8" />
 
-        <div className="relative z-10 max-w-[1400px] mx-auto px-6 md:px-12 w-full">
-          <Reveal>
-            <div className="inline-flex items-center gap-3 px-4 py-2 bg-rose-100 rounded-full border border-rose-200 text-rose-600 text-[10px] font-bold uppercase tracking-widest mb-10 shadow-sm">
-              <Sparkles className="w-3.5 h-3.5" />
-              Medical Grade Aesthetics // Board Certified Excellence
-            </div>
-            <h1 className="text-7xl md:text-9xl lg:text-[11rem] font-black leading-[0.85] tracking-tighter mb-12 uppercase">
-              The Art <br />{" "}
-              <span className="text-rose-300 italic">of Precision.</span>
-            </h1>
-            <p className="max-w-xl text-lg md:text-xl text-black/20 leading-relaxed font-bold mb-12 uppercase tracking-tight italic">
-              Sculpting the biological form through advanced molecular
-              engineering. Non-surgical excellence for the modern visage.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-6">
-              <MagneticBtn className="px-12 py-5 bg-black text-white text-[10px] font-bold uppercase tracking-[0.4em] rounded-full hover:bg-rose-600 transition-all cursor-pointer shadow-2xl">
-                Analyze Treatments
-              </MagneticBtn>
-              <button className="px-12 py-5 border border-black/10 text-black text-[10px] font-bold uppercase tracking-[0.4em] rounded-full hover:bg-black hover:text-white transition-all cursor-pointer">
-                Clinical_Audit
-              </button>
-            </div>
-          </Reveal>
-        </div>
+      {/* Labels */}
+      {active && (
+        <>
+          <text x="140" y="250" textAnchor="middle" fill={C.textDim} fontSize="6" fontFamily="DM Mono, monospace" letterSpacing="3">
+            ANALYSE EN COURS
+          </text>
+          <text x="20" y="16" fill={C.goldDark} fontSize="5.5" fontFamily="DM Mono, monospace" letterSpacing="2">
+            VISIA 3D
+          </text>
+        </>
+      )}
+    </svg>
+  );
+}
 
-        <motion.div
-          style={{ opacity: heroOpacity }}
-          className="absolute bottom-10 left-12 hidden md:block"
-        >
-          <div className="flex flex-col items-start gap-3">
-            <span className="text-[9px] font-bold text-black/10 uppercase tracking-[0.5em]">
-              CYPHER_CLINICAL_SYS // NODE_084
-            </span>
-            <div className="w-32 h-[1px] bg-rose-200/40" />
-          </div>
-        </motion.div>
-      </section>
+// ── Page ─────────────────────────────────────────────────────────────────────
+export default function CypherClinic() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const scanRef = useRef<HTMLDivElement>(null);
+  const [activeProtocol, setActiveProtocol] = useState(0);
+  const scanInView = useInView(scanRef, { once: true, margin: "-100px" });
 
-      {/* ==========================================
-          2. TREATMENTS (Portfolio Grid)
-          ========================================== */}
-      <section
-        id="treatments"
-        className="py-32 bg-[#fcfcfc] border-y border-black/5"
+  const { scrollYProgress } = useScroll({ target: containerRef });
+  const navBg = useTransform(scrollYProgress, [0, 0.05], ["rgba(10,12,14,0)", "rgba(10,12,14,0.96)"]);
+
+  return (
+    <div ref={containerRef} style={{ background: C.bg, color: C.text, fontFamily: "'DM Sans', sans-serif", minHeight: "100vh", overflowX: "hidden" }}>
+      <style>{FONT}</style>
+
+      {/* ── Navigation ─────────────────────────────────────────────────── */}
+      <motion.nav
+        style={{
+          position: "fixed", top: 0, left: 0, right: 0, zIndex: 100,
+          background: navBg,
+          backdropFilter: "blur(16px)",
+          borderBottom: `1px solid ${C.border}`,
+          padding: "0 2.5rem",
+          height: "64px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
       >
-        <div className="max-w-[1400px] mx-auto px-6 md:px-12">
-          <div className="flex flex-col md:flex-row justify-between items-end mb-24 gap-12">
-            <Reveal>
-              <h2 className="text-5xl md:text-8xl font-black tracking-tighter uppercase leading-[0.9] text-black">
-                Active <br />{" "}
-                <span className="text-rose-300 italic">Protocols.</span>
-              </h2>
-            </Reveal>
-            <p className="max-w-sm text-sm text-black/20 leading-relaxed font-bold uppercase tracking-widest italic text-right">
-              Our curated clinical protocols. Each treatment is a bespoke
-              engineering project focused on symmetrical perfection.
-            </p>
+        <div>
+          <div style={{ fontFamily: "'Syne', sans-serif", fontSize: "0.85rem", fontWeight: 700, letterSpacing: "0.12em", color: C.text }}>
+            CYPHER
           </div>
+          <div style={{ fontFamily: "'DM Mono', monospace", fontSize: "0.45rem", letterSpacing: "0.3em", color: C.textDim }}>
+            CLINIQUE MÉDICALE
+          </div>
+        </div>
+        <div style={{ display: "flex", gap: "2.5rem" }}>
+          {["Protocoles", "Médecins", "Résultats", "Contact"].map((item) => (
+            <motion.a
+              key={item}
+              href="#"
+              style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.75rem", color: C.textMuted, textDecoration: "none", cursor: "pointer" }}
+              whileHover={{ color: C.text }}
+            >
+              {item}
+            </motion.a>
+          ))}
+        </div>
+        <motion.button
+          whileHover={{ borderColor: C.gold, color: C.gold }}
+          style={{
+            background: "transparent",
+            border: `1px solid ${C.border}`,
+            color: C.textMuted,
+            padding: "0.5rem 1.5rem",
+            fontFamily: "'DM Mono', monospace",
+            fontSize: "0.6rem",
+            letterSpacing: "0.1em",
+            cursor: "pointer",
+            transition: "all 0.3s",
+          }}
+        >
+          CONSULTATION
+        </motion.button>
+      </motion.nav>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
-            {TREATMENTS.map((p, i) => (
-              <Reveal key={p.id} delay={i * 0.1}>
-                <div
-                  onClick={() => setActiveTreatment(i)}
-                  className="group cursor-pointer bg-white border border-black/5 hover:border-rose-300 transition-all rounded-none p-8 shadow-sm h-full flex flex-col justify-between overflow-hidden"
-                >
-                  <div>
-                    <div className="relative aspect-[4/5] mb-10 overflow-hidden">
-                      <Image
-                        src={p.img}
-                        alt={p.name}
-                        fill
-                        className="object-cover group-hover:scale-110 transition-transform duration-1000 grayscale-[0.2] group-hover:grayscale-0"
-                      />
-                      <div className="absolute inset-0 bg-rose-100/10 mix-blend-overlay" />
-                      <div className="absolute top-6 left-6">
-                        <Badge className="bg-black text-white border-none text-[8px] font-black tracking-widest uppercase px-3 py-1">
-                          CERTIFIED_TECH
-                        </Badge>
-                      </div>
-                    </div>
-                    <h3 className="text-2xl font-black uppercase tracking-tighter text-black italic mb-4">
-                      {p.name}
-                    </h3>
-                    <div className="text-[10px] font-black text-rose-500 uppercase tracking-widest mb-6">
-                      {p.category}
-                    </div>
-                    <p className="text-[10px] text-black/30 leading-relaxed font-bold uppercase tracking-widest mb-10 italic">
-                      {p.desc}
-                    </p>
-                  </div>
-                  <button className="flex items-center gap-4 text-[9px] font-black uppercase tracking-widest text-stone-500 group-hover:text-black transition-colors">
-                    VIEW_CLINICAL_SHEET <ArrowRight className="w-4 h-4" />
-                  </button>
-                </div>
-              </Reveal>
+      {/* ── Hero ───────────────────────────────────────────────────────── */}
+      <section style={{ minHeight: "100vh", display: "grid", gridTemplateColumns: "1fr 1fr", position: "relative" }}>
+        {/* Left: text */}
+        <div style={{
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          padding: "8rem 3rem 5rem 4rem",
+          background: C.bg,
+        }}>
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "2rem" }}
+          >
+            <div style={{ width: "2rem", height: "1px", background: C.gold }} />
+            <span style={{ fontFamily: "'DM Mono', monospace", fontSize: "0.6rem", letterSpacing: "0.25em", color: C.gold }}>
+              MÉDECINE ESTHÉTIQUE CLINIQUE
+            </span>
+          </motion.div>
+          <motion.h1
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
+            style={{
+              fontFamily: "'Syne', sans-serif",
+              fontSize: "clamp(2.5rem, 5.5vw, 5rem)",
+              fontWeight: 800,
+              color: C.text,
+              lineHeight: 0.95,
+              letterSpacing: "-0.02em",
+              marginBottom: "2rem",
+            }}
+          >
+            La Médecine<br />
+            Esthétique<br />
+            <span style={{ color: C.gold }}>Sans Compromis</span>
+          </motion.h1>
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.8, delay: 0.9 }}
+            style={{ fontSize: "1rem", color: C.textMuted, lineHeight: 1.8, maxWidth: "45ch", marginBottom: "3rem" }}
+          >
+            Cypher Clinic est une clinique médicale privée dédiée aux traitements esthétiques d'excellence. Chaque protocole est conçu et réalisé par des médecins certifiés. Aucun compromis sur la sécurité ou les résultats.
+          </motion.p>
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 1.1 }}
+            style={{ display: "flex", gap: "1rem" }}
+          >
+            <motion.button
+              whileHover={{ scale: 1.02, backgroundColor: C.goldLight }}
+              style={{
+                background: C.gold,
+                color: C.bg,
+                border: "none",
+                padding: "0.9rem 2rem",
+                fontFamily: "'DM Mono', monospace",
+                fontSize: "0.65rem",
+                letterSpacing: "0.15em",
+                cursor: "pointer",
+                transition: "background 0.3s",
+              }}
+            >
+              BILAN GRATUIT →
+            </motion.button>
+            <motion.button
+              whileHover={{ borderColor: C.gold, color: C.gold }}
+              style={{
+                background: "transparent",
+                border: `1px solid ${C.border}`,
+                color: C.textMuted,
+                padding: "0.9rem 2rem",
+                fontFamily: "'DM Mono', monospace",
+                fontSize: "0.65rem",
+                letterSpacing: "0.15em",
+                cursor: "pointer",
+                transition: "all 0.3s",
+              }}
+            >
+              VOIR LES PROTOCOLES
+            </motion.button>
+          </motion.div>
+
+          {/* Trust indicators */}
+          <div style={{ display: "flex", gap: "2rem", marginTop: "3rem", paddingTop: "2rem", borderTop: `1px solid ${C.border}` }}>
+            {[
+              { n: "3", label: "Médecins experts" },
+              { n: "8 ans", label: "D'exercice exclusif" },
+              { n: "100%", label: "Actes médicaux certifiés" },
+            ].map((stat) => (
+              <div key={stat.label}>
+                <div style={{ fontFamily: "'Syne', sans-serif", fontSize: "1.2rem", fontWeight: 700, color: C.gold }}>{stat.n}</div>
+                <div style={{ fontFamily: "'DM Mono', monospace", fontSize: "0.55rem", letterSpacing: "0.1em", color: C.textDim, marginTop: "0.2rem" }}>{stat.label}</div>
+              </div>
             ))}
           </div>
         </div>
+
+        {/* Right: biometric scan */}
+        <div ref={scanRef} style={{
+          background: C.bgCard,
+          borderLeft: `1px solid ${C.border}`,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: "4rem",
+          position: "relative",
+          overflow: "hidden",
+        }}>
+          {/* Grid background */}
+          <div style={{ position: "absolute", inset: 0, opacity: 0.03 }}>
+            <svg width="100%" height="100%" viewBox="0 0 500 700">
+              {Array.from({ length: 25 }).map((_, i) => (
+                <g key={i}>
+                  <line x1={i * 20} y1="0" x2={i * 20} y2="700" stroke={C.clinical} strokeWidth="0.5" />
+                  <line x1="0" y1={i * 28} x2="500" y2={i * 28} stroke={C.clinical} strokeWidth="0.5" />
+                </g>
+              ))}
+            </svg>
+          </div>
+
+          <div style={{ width: "min(320px, 100%)", aspectRatio: "1", position: "relative", zIndex: 1 }}>
+            <BiometricScan active={scanInView} />
+          </div>
+
+          <div style={{ position: "relative", zIndex: 1, textAlign: "center", marginTop: "2rem" }}>
+            <div style={{ fontFamily: "'DM Mono', monospace", fontSize: "0.6rem", letterSpacing: "0.25em", color: C.textDim, marginBottom: "0.5rem" }}>
+              SCANNER VISIA GEN7
+            </div>
+            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.85rem", color: C.textMuted }}>
+              Analyse cutanée 3D complète
+            </div>
+          </div>
+        </div>
       </section>
 
-      {/* ==========================================
-          3. CLINICAL AUDIT (Interactive Stats)
-          ========================================== */}
-      <section id="clinical" className="py-32 bg-[#fcfcfc]">
-        <div className="max-w-[1400px] mx-auto px-6 md:px-12">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 md:gap-32 items-center">
-            <div className="lg:col-span-5">
-              <Reveal>
-                <span className="text-[10px] uppercase tracking-[0.4em] font-bold text-rose-600 mb-6 block">
-                  Treatment Audit
-                </span>
-                <h2 className="text-5xl md:text-7xl font-black tracking-tighter leading-tight mb-12 text-black uppercase italic">
-                  Medical <br />{" "}
-                  <span className="text-rose-300 not-italic">Standards.</span>
-                </h2>
-                <p className="text-lg text-black/20 leading-relaxed font-bold mb-16 uppercase tracking-tight italic">
-                  We operate at the intersection of medical science and artistic
-                  mastery. Each protocol is verified by our internal medical
-                  council.
-                </p>
+      {/* ── Protocols ─────────────────────────────────────────────────── */}
+      <section style={{ padding: "7rem clamp(2rem, 5vw, 4rem)", background: C.bgCard, borderTop: `1px solid ${C.border}` }}>
+        <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
+          <div style={{ marginBottom: "4rem" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "0.75rem" }}>
+              <div style={{ width: "2rem", height: "1px", background: C.gold }} />
+              <span style={{ fontFamily: "'DM Mono', monospace", fontSize: "0.6rem", letterSpacing: "0.25em", color: C.gold }}>PROTOCOLES</span>
+            </div>
+            <h2 style={{ fontFamily: "'Syne', sans-serif", fontSize: "clamp(1.8rem, 3.5vw, 3rem)", fontWeight: 700, color: C.text }}>
+              Nos Programmes Médicaux
+            </h2>
+          </div>
 
-                <div className="space-y-6">
-                  {CLINICAL_SPECS.map((item, i) => (
-                    <div
-                      key={i}
-                      className="group border-l border-rose-200 pl-8 hover:border-rose-600 transition-all"
-                    >
-                      <h4 className="text-sm font-bold uppercase tracking-tight mb-2 text-black/40">
-                        {item.label}
-                      </h4>
-                      <div className="text-3xl font-black text-rose-500 mb-2 uppercase italic tabular-nums">
-                        <Counter to={item.val} suffix={item.suffix} />
+          {/* Protocol tabs */}
+          <div style={{ display: "flex", gap: "0", borderBottom: `1px solid ${C.border}`, marginBottom: "3rem" }}>
+            {PROTOCOLS.map((p, i) => (
+              <motion.button
+                key={p.id}
+                onClick={() => setActiveProtocol(i)}
+                style={{
+                  background: "none",
+                  border: "none",
+                  padding: "0.85rem 1.5rem",
+                  fontFamily: "'DM Mono', monospace",
+                  fontSize: "0.6rem",
+                  letterSpacing: "0.15em",
+                  color: i === activeProtocol ? C.gold : C.textMuted,
+                  cursor: "pointer",
+                  position: "relative",
+                }}
+                whileHover={{ color: C.text }}
+              >
+                {p.code}
+                {i === activeProtocol && (
+                  <motion.div layoutId="protocol-indicator" style={{ position: "absolute", bottom: "-1px", left: 0, right: 0, height: "1px", background: C.gold }} />
+                )}
+              </motion.button>
+            ))}
+          </div>
+
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeProtocol}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.4 }}
+              style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4rem", alignItems: "start" }}
+            >
+              <div>
+                <div style={{ fontFamily: "'DM Mono', monospace", fontSize: "0.6rem", letterSpacing: "0.2em", color: C.textDim, marginBottom: "0.75rem" }}>
+                  {PROTOCOLS[activeProtocol].code}
+                </div>
+                <h3 style={{ fontFamily: "'Syne', sans-serif", fontSize: "2rem", fontWeight: 700, color: C.text, marginBottom: "0.5rem" }}>
+                  {PROTOCOLS[activeProtocol].name}
+                </h3>
+                <div style={{ fontFamily: "'DM Sans', sans-serif", fontStyle: "italic", fontSize: "1rem", color: C.textMuted, marginBottom: "2rem" }}>
+                  {PROTOCOLS[activeProtocol].tagline}
+                </div>
+
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.5rem", marginBottom: "2rem" }}>
+                  {[
+                    { label: "Technologie", val: PROTOCOLS[activeProtocol].technology },
+                    { label: "Programme", val: PROTOCOLS[activeProtocol].sessions },
+                  ].map((spec) => (
+                    <div key={spec.label} style={{ paddingTop: "1rem", borderTop: `1px solid ${C.border}` }}>
+                      <div style={{ fontFamily: "'DM Mono', monospace", fontSize: "0.55rem", letterSpacing: "0.2em", color: C.textDim, marginBottom: "0.4rem" }}>
+                        {spec.label}
                       </div>
-                      <p className="text-[10px] text-black/20 leading-relaxed font-bold uppercase tracking-widest">
-                        {item.desc}
-                      </p>
+                      <div style={{ fontSize: "0.85rem", color: C.textMuted, lineHeight: 1.5 }}>{spec.val}</div>
                     </div>
                   ))}
                 </div>
-              </Reveal>
-            </div>
 
-            <div className="lg:col-span-7">
-              <Reveal className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {[
-                  {
-                    title: "DERMAL_DYNAMICS",
-                    icon: <PenTool className="w-6 h-6" />,
-                  },
-                  {
-                    title: "MOLECULAR_SYNC",
-                    icon: <Microscope className="w-6 h-6" />,
-                  },
-                  {
-                    title: "STRUCTURAL_FACE",
-                    icon: <Maximize className="w-6 h-6" />,
-                  },
-                  {
-                    title: "CELLULAR_GLOW",
-                    icon: <Heart className="w-6 h-6" />,
-                  },
-                ].map((t, i) => (
-                  <div
-                    key={i}
-                    className="p-12 bg-white border border-black/5 rounded-none hover:border-rose-300 transition-all group relative overflow-hidden"
-                  >
-                    <div className="absolute inset-0 bg-rose-100/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-                    <div className="text-rose-500 mb-8">{t.icon}</div>
-                    <h4 className="text-xl font-black uppercase text-black italic mb-4">
-                      {t.title}
-                    </h4>
-                    <div className="h-1 w-0 bg-rose-500 group-hover:w-full transition-all duration-700" />
+                <div style={{ padding: "1.5rem", background: C.bg, border: `1px solid ${C.border}`, marginBottom: "2rem" }}>
+                  <div style={{ fontFamily: "'DM Mono', monospace", fontSize: "0.55rem", letterSpacing: "0.2em", color: C.gold, marginBottom: "0.75rem" }}>
+                    RÉSULTAT ATTENDU
                   </div>
-                ))}
-                <div className="md:col-span-2 p-12 bg-rose-50 border border-rose-200 rounded-none mt-4 text-center">
-                  <Stethoscope className="w-8 h-8 text-rose-500 mx-auto mb-6" />
-                  <h3 className="text-xl font-black uppercase tracking-tight text-black mb-4 italic">
-                    Institutional Safety Protocol
-                  </h3>
-                  <p className="text-[10px] text-black/30 uppercase tracking-widest mb-8 leading-relaxed">
-                    All Cypher treatments are administered by board-certified
-                    practitioners utilizing FDA-approved molecular compounds
-                    only.
+                  <p style={{ fontSize: "0.9rem", color: C.textMuted, lineHeight: 1.65 }}>
+                    {PROTOCOLS[activeProtocol].result}
                   </p>
-                  <button className="px-12 py-4 bg-black text-white text-[10px] font-bold uppercase tracking-widest rounded-full hover:bg-rose-600 transition-all shadow-xl">
-                    DOWNLOAD_SAFETY_DOSSIER
-                  </button>
                 </div>
-              </Reveal>
+
+                <div style={{ marginBottom: "2rem" }}>
+                  <div style={{ fontFamily: "'DM Mono', monospace", fontSize: "0.55rem", letterSpacing: "0.2em", color: C.textDim, marginBottom: "0.75rem" }}>
+                    INDICATIONS
+                  </div>
+                  <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+                    {PROTOCOLS[activeProtocol].targets.map((t) => (
+                      <span key={t} style={{ fontFamily: "'DM Mono', monospace", fontSize: "0.6rem", padding: "0.3rem 0.75rem", border: `1px solid ${C.border}`, color: C.textMuted }}>
+                        {t}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                  <div>
+                    <div style={{ fontFamily: "'DM Mono', monospace", fontSize: "0.55rem", color: C.textDim }}>TARIF</div>
+                    <div style={{ fontFamily: "'Syne', sans-serif", fontSize: "1.4rem", fontWeight: 700, color: C.gold }}>
+                      {PROTOCOLS[activeProtocol].price}
+                    </div>
+                  </div>
+                  <motion.button
+                    whileHover={{ scale: 1.02, backgroundColor: C.goldLight }}
+                    style={{
+                      background: C.gold,
+                      color: C.bg,
+                      border: "none",
+                      padding: "0.75rem 1.75rem",
+                      fontFamily: "'DM Mono', monospace",
+                      fontSize: "0.65rem",
+                      letterSpacing: "0.15em",
+                      cursor: "pointer",
+                      transition: "background 0.3s",
+                    }}
+                  >
+                    DEMANDER CE PROTOCOLE
+                  </motion.button>
+                </div>
+              </div>
+
+              {/* Visual: protocol steps */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "1px" }}>
+                {["Consultation médicale initiale", "Bilan photographique standardisé", "Réalisation par le médecin référent", "Contrôle post-traitement J+7", "Suivi photographique M+1"].map((step, i) => (
+                  <motion.div
+                    key={step}
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.4, delay: i * 0.08 }}
+                    style={{ display: "flex", gap: "1.5rem", alignItems: "flex-start", padding: "1.25rem", background: C.bg, border: `1px solid ${C.border}` }}
+                  >
+                    <span style={{ fontFamily: "'DM Mono', monospace", fontSize: "0.6rem", color: C.gold, flexShrink: 0 }}>
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+                    <span style={{ fontSize: "0.85rem", color: C.textMuted, lineHeight: 1.5 }}>
+                      {step}
+                    </span>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+          </AnimatePresence>
+        </div>
+      </section>
+
+      {/* ── Medical team ─────────────────────────────────────────────── */}
+      <section style={{ padding: "7rem clamp(2rem, 5vw, 4rem)" }}>
+        <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
+          <div style={{ marginBottom: "4rem" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "0.75rem" }}>
+              <div style={{ width: "2rem", height: "1px", background: C.gold }} />
+              <span style={{ fontFamily: "'DM Mono', monospace", fontSize: "0.6rem", letterSpacing: "0.25em", color: C.gold }}>ÉQUIPE MÉDICALE</span>
             </div>
+            <h2 style={{ fontFamily: "'Syne', sans-serif", fontSize: "clamp(1.8rem, 3.5vw, 3rem)", fontWeight: 700, color: C.text }}>
+              Nos Médecins
+            </h2>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "2px", background: C.border }}>
+            {EXPERTISE.map((dr, i) => {
+              const ref = useRef<HTMLDivElement>(null);
+              const inView = useInView(ref, { once: true });
+              return (
+                <motion.div
+                  key={dr.code}
+                  ref={ref}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={inView ? { opacity: 1, y: 0 } : {}}
+                  transition={{ duration: 0.6, delay: i * 0.1 }}
+                  style={{ background: C.bgCard, padding: "2.5rem" }}
+                >
+                  <div style={{ width: "60px", height: "60px", background: C.bg, border: `1px solid ${C.border}`, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "1.5rem" }}>
+                    <span style={{ fontFamily: "'DM Mono', monospace", fontSize: "0.6rem", letterSpacing: "0.1em", color: C.gold }}>
+                      {dr.code}
+                    </span>
+                  </div>
+                  <div style={{ fontFamily: "'Syne', sans-serif", fontSize: "1rem", fontWeight: 600, color: C.text, marginBottom: "0.4rem" }}>
+                    {dr.name}
+                  </div>
+                  <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.8rem", color: C.textMuted, marginBottom: "0.75rem", lineHeight: 1.5 }}>
+                    {dr.spec}
+                  </div>
+                  <div style={{ fontFamily: "'DM Mono', monospace", fontSize: "0.55rem", letterSpacing: "0.1em", color: C.textDim, padding: "0.35rem 0.65rem", border: `1px solid ${C.border}`, display: "inline-block" }}>
+                    {dr.credential}
+                  </div>
+                </motion.div>
+              );
+            })}
           </div>
         </div>
       </section>
 
-      {/* ==========================================
-          4. STATS (Counters)
-          ========================================== */}
-      <section className="py-24 bg-[#fcfcfc] border-y border-black/5">
-        <div className="max-w-[1400px] mx-auto px-6 md:px-12 grid grid-cols-2 lg:grid-cols-4 gap-16 text-center">
+      {/* ── Process ──────────────────────────────────────────────────── */}
+      <section style={{ padding: "7rem clamp(2rem, 5vw, 4rem)", background: C.bgCard, borderTop: `1px solid ${C.border}` }}>
+        <div style={{ maxWidth: "1000px", margin: "0 auto" }}>
+          <div style={{ marginBottom: "4rem", display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
+            <div>
+              <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "0.75rem" }}>
+                <div style={{ width: "2rem", height: "1px", background: C.gold }} />
+                <span style={{ fontFamily: "'DM Mono', monospace", fontSize: "0.6rem", letterSpacing: "0.25em", color: C.gold }}>MÉTHODE</span>
+              </div>
+              <h2 style={{ fontFamily: "'Syne', sans-serif", fontSize: "clamp(1.8rem, 3.5vw, 3rem)", fontWeight: 700, color: C.text }}>
+                Le Protocole Cypher
+              </h2>
+            </div>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "1px", background: C.border }}>
+            {PROCESS.map((step, i) => {
+              const ref = useRef<HTMLDivElement>(null);
+              const inView = useInView(ref, { once: true });
+              return (
+                <motion.div
+                  key={step.step}
+                  ref={ref}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={inView ? { opacity: 1, y: 0 } : {}}
+                  transition={{ duration: 0.6, delay: i * 0.08 }}
+                  style={{ background: C.bgCard, padding: "2.5rem 2rem" }}
+                >
+                  <div style={{ fontFamily: "'DM Mono', monospace", fontSize: "0.65rem", color: C.gold, marginBottom: "1.5rem" }}>
+                    {step.step}
+                  </div>
+                  <h3 style={{ fontFamily: "'Syne', sans-serif", fontSize: "1rem", fontWeight: 600, color: C.text, marginBottom: "0.75rem" }}>
+                    {step.title}
+                  </h3>
+                  <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.82rem", color: C.textMuted, lineHeight: 1.7 }}>
+                    {step.desc}
+                  </p>
+                </motion.div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* ── CTA ──────────────────────────────────────────────────────── */}
+      <section style={{ padding: "8rem clamp(2rem, 5vw, 4rem)", borderTop: `1px solid ${C.border}`, textAlign: "center" }}>
+        <div style={{ maxWidth: "650px", margin: "0 auto" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "1rem", marginBottom: "1.5rem" }}>
+            <div style={{ width: "2rem", height: "1px", background: C.gold }} />
+            <span style={{ fontFamily: "'DM Mono', monospace", fontSize: "0.6rem", letterSpacing: "0.25em", color: C.gold }}>CONSULTATION GRATUITE</span>
+            <div style={{ width: "2rem", height: "1px", background: C.gold }} />
+          </div>
+          <h2 style={{ fontFamily: "'Syne', sans-serif", fontSize: "clamp(2rem, 4vw, 3.5rem)", fontWeight: 800, color: C.text, marginBottom: "1rem", lineHeight: 1.1 }}>
+            Commençons par<br />
+            <span style={{ color: C.gold }}>Votre Bilan</span>
+          </h2>
+          <p style={{ fontSize: "1rem", color: C.textMuted, lineHeight: 1.75, marginBottom: "2.5rem" }}>
+            La première consultation est offerte. 60 minutes avec votre médecin référent pour analyser votre peau, comprendre vos attentes, et concevoir votre programme.
+          </p>
+          <motion.button
+            whileHover={{ scale: 1.02, backgroundColor: C.goldLight }}
+            style={{
+              background: C.gold,
+              color: C.bg,
+              border: "none",
+              padding: "1rem 3rem",
+              fontFamily: "'DM Mono', monospace",
+              fontSize: "0.7rem",
+              letterSpacing: "0.15em",
+              cursor: "pointer",
+              transition: "background 0.3s",
+            }}
+          >
+            PRENDRE RENDEZ-VOUS →
+          </motion.button>
+          <div style={{ marginTop: "1.5rem", fontFamily: "'DM Mono', monospace", fontSize: "0.6rem", letterSpacing: "0.1em", color: C.textDim }}>
+            hello@cypher-clinic.fr · 01 XX XX XX XX
+          </div>
+        </div>
+      </section>
+
+      {/* ── Footer ───────────────────────────────────────────────────── */}
+      <footer style={{ borderTop: `1px solid ${C.border}`, padding: "3rem clamp(2rem, 5vw, 4rem)", background: C.bgCard }}>
+        <div style={{ maxWidth: "1100px", margin: "0 auto", display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr", gap: "3rem" }}>
+          <div>
+            <div style={{ fontFamily: "'Syne', sans-serif", fontSize: "0.9rem", fontWeight: 700, letterSpacing: "0.12em", color: C.text, marginBottom: "0.5rem" }}>
+              CYPHER
+            </div>
+            <div style={{ fontFamily: "'DM Mono', monospace", fontSize: "0.5rem", letterSpacing: "0.25em", color: C.textDim, marginBottom: "1.5rem" }}>
+              CLINIQUE MÉDICALE
+            </div>
+            <p style={{ fontSize: "0.8rem", color: C.textDim, lineHeight: 1.65 }}>
+              Clinique médicale privée. Actes réalisés par des médecins. RPPS disponible sur demande.
+            </p>
+          </div>
           {[
-            { label: "Successful_Treatments", val: 24, suffix: "K+" },
-            { label: "Board_Practitioners", val: 18, suffix: "" },
-            { label: "Clinical_Awards", val: 42, suffix: "" },
-            { label: "Global_Clinics", val: 5, suffix: "" },
-          ].map((stat, i) => (
-            <Reveal key={i} delay={i * 0.1}>
-              <div className="text-5xl md:text-7xl font-black text-rose-500 mb-4 italic tabular-nums">
-                <Counter to={stat.val} suffix={stat.suffix} />
+            { title: "SOINS", items: ["Protocoles médicaux", "Résultats avant/après", "Tarifs", "FAQ"] },
+            { title: "CLINIQUE", items: ["Notre équipe", "Nos engagements", "Accréditations", "Presse"] },
+            { title: "CONTACT", items: ["Consultation", "Urgences post-soin", "Paris 8e", "+33 1 XX XX XX XX"] },
+          ].map((col) => (
+            <div key={col.title}>
+              <div style={{ fontFamily: "'DM Mono', monospace", fontSize: "0.55rem", letterSpacing: "0.25em", color: C.textDim, marginBottom: "1.5rem" }}>
+                {col.title}
               </div>
-              <div className="text-[10px] font-bold uppercase tracking-[0.5em] text-black/20">
-                {stat.label}
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+                {col.items.map((item) => (
+                  <motion.a key={item} href="#" style={{ fontSize: "0.8rem", color: C.textDim, textDecoration: "none", cursor: "pointer" }} whileHover={{ color: C.text }}>
+                    {item}
+                  </motion.a>
+                ))}
               </div>
-            </Reveal>
+            </div>
           ))}
         </div>
-      </section>
-
-      {/* ==========================================
-          5. FAQ (The Buffer)
-          ========================================== */}
-      <section id="dossier" className="py-32 bg-[#fcfcfc]">
-        <div className="max-w-3xl mx-auto px-6">
-          <Reveal className="text-center mb-24">
-            <h2 className="text-4xl md:text-5xl font-black tracking-tighter leading-none uppercase italic text-black">
-              Clinical_Buffer
-            </h2>
-          </Reveal>
-
-          <Accordion type="single" collapsible className="space-y-4">
-            {[
-              {
-                q: "What is your pre-treatment audit process?",
-                a: "Every patient undergoes a 45-minute clinical audit featuring 3D facial mapping and skin-density analysis. We do not proceed with any protocol without 100% molecular compatibility.",
-              },
-              {
-                q: "How do you ensure non-surgical longevity?",
-                a: "We utilize multi-layer placement techniques and hybrid fillers that integrate with your biological tissue for natural, 12-18 month results.",
-              },
-              {
-                q: "What are the post-treatment protocols?",
-                a: "Cypher Clinic provides a bespoke 'Recovery Kit' and 24/7 access to our medical concierge. We perform a follow-up audit 14 days post-procedure as standard.",
-              },
-              {
-                q: "Do you offer private VIP sessions?",
-                a: "Yes. Our London and Beverly Hills nodes feature private 'Cypher Suites' with direct medical-grade air filtration and anonymous ingress/egress for high-profile patients.",
-              },
-            ].map((faq, i) => (
-              <AccordionItem
-                key={i}
-                value={`item-${i}`}
-                className="border-b border-black/5"
-              >
-                <AccordionTrigger className="text-left text-sm uppercase font-bold tracking-widest py-8 hover:text-rose-500 hover:no-underline">
-                  {faq.q}
-                </AccordionTrigger>
-                <AccordionContent className="text-sm text-black/30 leading-relaxed font-bold uppercase tracking-widest pb-8 italic">
-                  {faq.a}
-                </AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
-        </div>
-      </section>
-
-      {/* ==========================================
-          6. MEGA FOOTER (Premium Minimal)
-          ========================================== */}
-      <footer className="bg-white pt-32 pb-12 px-6 md:px-12 border-t border-black/5 relative overflow-hidden">
-        <div className="max-w-[1600px] mx-auto relative z-10">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-16 mb-32">
-            <div className="lg:col-span-5">
-              <Reveal>
-                <div className="flex flex-col mb-10">
-                  <span className="text-[10px] font-bold uppercase tracking-[0.6em] text-black/20 mb-1">
-                    Aesthetic.
-                  </span>
-                  <span className="text-2xl font-black tracking-tighter uppercase text-black">
-                    CYPHER<span className="text-rose-300">.CLINIC</span>
-                  </span>
-                </div>
-                <p className="text-black/20 max-w-sm mb-12 uppercase tracking-widest text-[10px] font-bold leading-relaxed italic">
-                  The clinical infrastructure for the next generation of
-                  aesthetic perfection. Est. 2026. Precision engineered.
-                  Globally deployed.
-                </p>
-                <form
-                  className="relative max-w-md"
-                  onSubmit={(e) => e.preventDefault()}
-                >
-                  <input
-                    type="email"
-                    placeholder="ACCESS_THE_DOSSIER"
-                    className="w-full bg-stone-50 border border-black/5 rounded-full px-6 py-4 text-xs font-bold outline-none focus:border-rose-500 text-black transition-all uppercase tracking-widest"
-                  />
-                  <button
-                    type="submit"
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-bold text-rose-500 hover:text-black transition-colors uppercase tracking-[0.3em]"
-                  >
-                    JOIN
-                  </button>
-                </form>
-              </Reveal>
-            </div>
-
-            <div className="lg:col-span-2 lg:col-start-7">
-              <h4 className="text-[10px] font-bold uppercase tracking-widest text-black mb-10">
-                Treatments
-              </h4>
-              <ul className="space-y-4 text-[10px] font-bold uppercase tracking-widest text-black/30">
-                <li>
-                  <Link
-                    href="#"
-                    className="hover:text-rose-500 transition-colors"
-                  >
-                    Facial_Sculpt
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="#"
-                    className="hover:text-rose-500 transition-colors"
-                  >
-                    Dermal_Fillers
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="#"
-                    className="hover:text-rose-500 transition-colors"
-                  >
-                    Laser_Dynamics
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="#"
-                    className="hover:text-rose-500 transition-colors"
-                  >
-                    Wellness_Infusions
-                  </Link>
-                </li>
-              </ul>
-            </div>
-
-            <div className="lg:col-span-2">
-              <h4 className="text-[10px] font-bold uppercase tracking-widest text-black mb-10">
-                Clinical
-              </h4>
-              <ul className="space-y-4 text-[10px] font-bold uppercase tracking-widest text-black/30">
-                <li>
-                  <Link
-                    href="#"
-                    className="hover:text-rose-500 transition-colors"
-                  >
-                    Specialist_Roster
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="#"
-                    className="hover:text-rose-500 transition-colors"
-                  >
-                    Safety_Audit
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="#"
-                    className="hover:text-rose-500 transition-colors"
-                  >
-                    Technology
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="#"
-                    className="hover:text-rose-500 transition-colors"
-                  >
-                    Headquarters
-                  </Link>
-                </li>
-              </ul>
-            </div>
-
-            <div className="lg:col-span-2">
-              <h4 className="text-[10px] font-bold uppercase tracking-widest text-black mb-10">
-                Network
-              </h4>
-              <ul className="space-y-4 text-[10px] font-bold uppercase tracking-widest text-black/30">
-                <li>
-                  <Link
-                    href="#"
-                    className="hover:text-rose-500 transition-colors flex items-center gap-3"
-                  >
-                    <Globe className="w-3 h-3" /> Globe
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="#"
-                    className="hover:text-rose-500 transition-colors flex items-center gap-3"
-                  >
-                    <Globe className="w-3 h-3" /> X_Mission
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="#"
-                    className="hover:text-rose-500 transition-colors flex items-center gap-3"
-                  >
-                    <Mail className="w-3 h-3" /> Contact_Control
-                  </Link>
-                </li>
-              </ul>
-            </div>
+        <div style={{ maxWidth: "1100px", margin: "2rem auto 0", paddingTop: "1.5rem", borderTop: `1px solid ${C.border}`, display: "flex", justifyContent: "space-between" }}>
+          <div style={{ fontFamily: "'DM Mono', monospace", fontSize: "0.55rem", color: C.textDim }}>
+            © 2025 CYPHER CLINIC. TOUS DROITS RÉSERVÉS.
           </div>
-
-          <div className="flex flex-col md:flex-row justify-between items-center gap-8 pt-10 border-t border-black/5 text-[9px] font-bold uppercase tracking-widest text-black/10">
-            <div className="flex items-center gap-10">
-              <span>
-                &copy; {new Date().getFullYear()} CYPHER AESTHETICS Group.
-              </span>
-              <Link href="#" className="hover:text-black transition-colors">
-                Regulatory_Terms
-              </Link>
-              <Link href="#" className="hover:text-black transition-colors">
-                Privacy_Buffer
-              </Link>
-            </div>
-            <div className="flex gap-10">
-              <span>Beverly Hills // London // Singapore</span>
-              <span>In Form We Trust</span>
-            </div>
+          <div style={{ display: "flex", gap: "2rem" }}>
+            {["Mentions légales", "Confidentialité", "CGU"].map((item) => (
+              <motion.a key={item} href="#" style={{ fontFamily: "'DM Mono', monospace", fontSize: "0.55rem", color: C.textDim, textDecoration: "none", cursor: "pointer" }} whileHover={{ color: C.textMuted }}>
+                {item}
+              </motion.a>
+            ))}
           </div>
         </div>
       </footer>
-
-      {/* TREATMENT MODAL */}
-      <AnimatePresence>
-        {activeTreatment !== null && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[200] bg-white/98 backdrop-blur-3xl flex items-center justify-center p-6"
-            onClick={() => setActiveTreatment(null)}
-          >
-            <motion.div
-              initial={{ scale: 0.9, y: 30 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.9, y: 30 }}
-              className="bg-white border border-black/10 max-w-6xl w-full grid grid-cols-1 lg:grid-cols-12 overflow-hidden rounded-none shadow-2xl relative"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <button
-                onClick={() => setActiveTreatment(null)}
-                className="absolute top-8 right-8 text-black/20 hover:text-rose-500 transition-colors z-10"
-              >
-                <X className="w-6 h-6" />
-              </button>
-
-              {/* IMAGE AREA */}
-              <div className="lg:col-span-8 relative aspect-video lg:aspect-auto bg-stone-50">
-                <Image
-                  src={TREATMENTS[activeTreatment].img}
-                  alt="Treatment"
-                  fill
-                  className="object-cover grayscale-[0.2]"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-white/20 via-transparent to-transparent" />
-                <div className="absolute bottom-8 left-8">
-                  <h3 className="text-4xl font-black text-black italic">
-                    {TREATMENTS[activeTreatment].name}
-                  </h3>
-                </div>
-              </div>
-
-              {/* SIDEBAR AREA */}
-              <div className="lg:col-span-4 p-8 flex flex-col justify-between bg-white border-l border-black/5">
-                <div>
-                  <div className="text-[10px] font-black uppercase tracking-widest text-rose-500 mb-6 flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-rose-500" />
-                    Clinical Asset Specification
-                  </div>
-                  <div className="space-y-6 mb-12">
-                    {Object.entries(TREATMENTS[activeTreatment].stats).map(
-                      ([key, val], i) => (
-                        <div
-                          key={i}
-                          className="flex justify-between items-center border-b border-black/5 pb-4"
-                        >
-                          <span className="text-[9px] font-bold text-black/20 uppercase tracking-widest">
-                            {key}
-                          </span>
-                          <span className="text-[10px] font-black text-black uppercase italic">
-                            {val}
-                          </span>
-                        </div>
-                      ),
-                    )}
-                  </div>
-                  <p className="text-xs text-black/40 leading-relaxed font-bold uppercase tracking-tight italic mb-10">
-                    {TREATMENTS[activeTreatment].desc}
-                  </p>
-                </div>
-
-                <button className="w-full py-5 bg-black text-white text-[10px] font-bold uppercase tracking-widest rounded-full hover:bg-rose-600 transition-all cursor-pointer shadow-xl">
-                  REQUEST_CONSULTATION
-                </button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      <style>{`
-        ::-webkit-scrollbar{width:4px;background:#fcfcfc}
-        ::-webkit-scrollbar-thumb{background:rgba(225,29,72,0.2)}
-      `}</style>
     </div>
   );
 }
