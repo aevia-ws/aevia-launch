@@ -5,696 +5,611 @@ import {
   useScroll,
   useTransform,
   useInView,
-  AnimatePresence,
   useMotionValue,
   useSpring,
+  AnimatePresence,
 } from "framer-motion";
-import { useState, useRef, useEffect, useCallback } from "react";
-import Image from "next/image";
-import Link from "next/link";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Separator } from "@/components/ui/separator";
-import { Utensils, MapPin, Clock, Star, Check, Globe, Mail, Phone, ChevronRight, ArrowRight, X, Menu, ShoppingBag, Heart, Zap, Coffee, Award, Flame, Leaf, Timer, Wind } from "lucide-react";
+import { useRef, useState, useEffect } from "react";
 
-import "../premium.css";
+/* ─── Design Tokens ─────────────────────────────────────────── */
+const C = {
+  bg:       "#FAF6EF",
+  bgWarm:   "#F0E6D3",
+  bgCard:   "#EEDFCA",
+  brown:    "#3D2010",
+  browndark:"#2A1508",
+  amber:    "#C47A35",
+  terracotta:"#9B4E28",
+  crust:    "#7A5230",
+  muted:    "#8A7060",
+  border:   "rgba(90,50,24,0.12)",
+  cream:    "#FAF6EF",
+};
 
-/* ==========================================================================
-   DATA STRUCTURES
-   ========================================================================= */
+const FONTS = `@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Cabin:wght@400;500;600&display=swap');`;
 
-const CATEGORIES = [
-  "All",
-  "Boulangerie",
-  "Pâtisserie",
-  "Viennoiserie",
-  "Traiteur",
-  "Épicerie",
+/* ─── Data ───────────────────────────────────────────────────── */
+const BREADS = [
+  { id: 1, name: "Miche au Levain", tag: "Signature", price: "8.50", desc: "24h fermentation, stone-ground T65 flour, open crumb, caramelised crust. Our most beloved loaf.", baked: "Daily 7:00" },
+  { id: 2, name: "Pain de Seigle", tag: "Classic", price: "6.90", desc: "40% dark rye, light sour, dense and moist. Exceptional with butter and smoked salmon.", baked: "Tue / Thu / Sat" },
+  { id: 3, name: "Épi de Blé", tag: "Seasonal", price: "4.20", desc: "Pull-apart wheat stalk, soft crumb with a crisp crust. Made fresh each morning.", baked: "Daily 8:00" },
+  { id: 4, name: "Fougasse aux Olives", tag: "Southern", price: "5.50", desc: "Provençal flatbread with Kalamata olives, rosemary, and olive oil. Limited quantity.", baked: "Fri / Sat" },
+  { id: 5, name: "Brioche Feuilletée", tag: "Weekend", price: "3.80", desc: "Laminated butter brioche — flaky, rich, golden. Sells out by 10am every Saturday.", baked: "Sat only" },
+  { id: 6, name: "Tourte de Meule", tag: "Artisan", price: "9.20", desc: "Wholegrain sourdough milled on-site, complex flavour, thick crust, exceptional shelf life.", baked: "Wed / Sat" },
 ];
 
-const MENU_ITEMS = [
-  {
-    id: 1,
-    cat: "Boulangerie",
-    name: "La Tradition",
-    price: "€1.30",
-    desc: "Our signature baguette. Long fermentation, 100% French wheat, stone-baked.",
-    img: "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=800&q=80",
-  },
-  {
-    id: 2,
-    cat: "Pâtisserie",
-    name: "Éclair au Chocolat",
-    price: "€4.50",
-    desc: "Valrhona dark chocolate cream, choux pastry, gold leaf finish.",
-    img: "https://images.unsplash.com/photo-1612203985729-70726954388c?w=800&q=80",
-  },
-  {
-    id: 3,
-    cat: "Viennoiserie",
-    name: "Croissant au Beurre",
-    price: "€1.80",
-    desc: "AOP Charentes-Poitou butter. 72 hours of lamination for perfect honeycomb.",
-    img: "https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=800&q=80",
-  },
-  {
-    id: 4,
-    cat: "Boulangerie",
-    name: "Pain au Levain",
-    price: "€6.50",
-    desc: "Wild yeast starter since 1924. Rye and wheat blend, thick caramelized crust.",
-    img: "https://images.unsplash.com/photo-1549931319-a545dcf3bc73?w=800&q=80",
-  },
-  {
-    id: 5,
-    cat: "Pâtisserie",
-    name: "Tarte au Citron",
-    price: "€5.20",
-    desc: "Menton lemons, sable crust, lightly torched Italian meringue.",
-    img: "https://images.unsplash.com/photo-1519915028121-7d3463d20b13?w=800&q=80",
-  },
-  {
-    id: 6,
-    cat: "Viennoiserie",
-    name: "Pain au Chocolat",
-    price: "€1.95",
-    desc: "Double bar of semi-sweet dark chocolate in flaky layers.",
-    img: "https://images.unsplash.com/photo-1530610476181-d83430b64dcd?w=800&q=80",
-  },
+const PROCESS = [
+  { step: "01", title: "The Starter", time: "72h", desc: "Our levain has been alive for 11 years, fed daily with spring water and organic flour. It's the soul of every loaf." },
+  { step: "02", title: "Autolyse", time: "1h", desc: "Flour and water rest together before salt is added. Gluten develops naturally, without force." },
+  { step: "03", title: "Bulk Ferment", time: "8–12h", desc: "The dough rises slowly at cool temperature. Flavour develops. Bubbles form. Patience is the only ingredient." },
+  { step: "04", title: "Shape & Proof", time: "overnight", desc: "Hand-shaped and placed in linen bannetons. Cold retard overnight. The tension holds everything together." },
+  { step: "05", title: "Score & Bake", time: "45 min", desc: "Into the deck oven at 250°C with steam. The score blooms. The crust caramelises. The kitchen fills with bread." },
 ];
 
-const VALUES = [
-  {
-    icon: Flame,
-    title: "Stone Baked",
-    desc: "Our ovens are fire-brick lined to ensure a deep, caramelized crust and moist crumb.",
-  },
-  {
-    icon: Leaf,
-    title: "Sourcing",
-    desc: "We exclusively use Label Rouge flour and seasonal fruits from local organic producers.",
-  },
-  {
-    icon: Timer,
-    title: "Time",
-    desc: "We don't rush. Slow fermentation (24-48h) is the secret to flavor and digestibility.",
-  },
-  {
-    icon: Award,
-    title: "Mastery",
-    desc: "Headed by Pierre Laval, Meilleur Ouvrier de France 2018 in Boulangerie.",
-  },
+const WORKSHOPS = [
+  { name: "Introduction to Sourdough", date: "Sat 17 May", price: "85", spots: 3 },
+  { name: "Pain de Campagne Masterclass", date: "Sat 24 May", price: "95", spots: 6 },
+  { name: "Viennoiserie Weekend", date: "Sat–Sun 7–8 Jun", price: "160", spots: 2 },
 ];
 
-const REVIEWS = [
-  {
-    name: "Marc Aubert",
-    stars: 5,
-    text: "The baguette Tradition here is life-changing. Crispy, airy, and smells like heaven. Best in Paris.",
-  },
-  {
-    name: "Sophie Laurent",
-    stars: 5,
-    text: "The pastries are actual works of art. The Lemon Tart is perfectly balanced between sweet and acidic.",
-  },
-  {
-    name: "Jean-Pierre",
-    stars: 5,
-    text: "Worth the queue every Sunday morning. Their Pain au Levain stays fresh for 4 days!",
-  },
-];
+const SPECIALTIES = ["Levain Signature", "Seigle 40%", "Brioche feuilletée", "Fougasse Olive", "Tourte de Meule", "Épi de Blé"];
 
-/* ==========================================================================
-   UTILITY COMPONENTS
-   ========================================================================= */
-
-function Reveal({
-  children,
-  delay = 0,
-}: {
-  children: React.ReactNode;
-  delay?: number;
-}) {
+/* ─── TextReveal ─────────────────────────────────────────────── */
+function TextReveal({ text, delay = 0, style = {} }: { text: string; delay?: number; style?: React.CSSProperties }) {
   const ref = useRef(null);
-  const inView = useInView(ref, { once: true, margin: "-50px" });
+  const inView = useInView(ref, { once: true, margin: "-60px" });
   return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, y: 25 }}
-      animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.8, delay, ease: [0.25, 0.1, 0.25, 1] }}
-    >
-      {children}
-    </motion.div>
+    <div ref={ref} style={{ overflow: "hidden", ...style }}>
+      <motion.div
+        initial={{ y: "110%" }}
+        animate={inView ? { y: 0 } : { y: "110%" }}
+        transition={{ duration: 0.85, delay, ease: [0.16, 1, 0.3, 1] }}
+      >
+        {text}
+      </motion.div>
+    </div>
   );
 }
 
-function MagneticBtn({
-  children,
-  className = "",
-  onClick,
-}: {
-  children: React.ReactNode;
-  className?: string;
-  onClick?: () => void;
-}) {
-  const ref = useRef<HTMLButtonElement>(null);
+/* ─── MagneticButton ─────────────────────────────────────────── */
+function MagneticButton({ children, style = {}, onClick }: { children: React.ReactNode; style?: React.CSSProperties; onClick?: () => void }) {
   const x = useMotionValue(0);
   const y = useMotionValue(0);
-  const sx = useSpring(x, { stiffness: 150, damping: 20 });
-  const sy = useSpring(y, { stiffness: 150, damping: 20 });
-
-  const handleMouse = useCallback(
-    (e: React.MouseEvent) => {
-      const rect = ref.current?.getBoundingClientRect();
-      if (!rect) return;
-      x.set((e.clientX - rect.left - rect.width / 2) * 0.3);
-      y.set((e.clientY - rect.top - rect.height / 2) * 0.3);
-    },
-    [x, y],
-  );
-
+  const sx = useSpring(x, { stiffness: 250, damping: 18 });
+  const sy = useSpring(y, { stiffness: 250, damping: 18 });
+  const ref = useRef<HTMLButtonElement>(null);
+  const onMove = (e: React.MouseEvent) => {
+    const r = ref.current!.getBoundingClientRect();
+    x.set((e.clientX - r.left - r.width / 2) * 0.3);
+    y.set((e.clientY - r.top - r.height / 2) * 0.3);
+  };
   return (
-    <motion.button
-      ref={ref}
-      style={{ x: sx, y: sy }}
-      onMouseMove={handleMouse}
-      onMouseLeave={() => {
-        x.set(0);
-        y.set(0);
-      }}
-      onClick={onClick}
-      className={className}
-    >
+    <motion.button ref={ref} style={{ x: sx, y: sy, cursor: "pointer", background: "none", border: "none", ...style }}
+      onMouseMove={onMove} onMouseLeave={() => { x.set(0); y.set(0); }} onClick={onClick}>
       {children}
     </motion.button>
   );
 }
 
-/* ==========================================================================
-   MAIN PAGE COMPONENT
-   ========================================================================= */
+/* ─── MarqueeStrip ───────────────────────────────────────────── */
+function MarqueeStrip() {
+  const items = [...SPECIALTIES, ...SPECIALTIES];
+  return (
+    <div style={{ overflow: "hidden", borderTop: `1px solid ${C.border}`, borderBottom: `1px solid ${C.border}`, padding: "11px 0", background: C.brown }}>
+      <motion.div
+        style={{ display: "flex", gap: 56, whiteSpace: "nowrap" }}
+        animate={{ x: ["0%", "-50%"] }}
+        transition={{ duration: 22, repeat: Infinity, ease: "linear" }}
+      >
+        {items.map((name, i) => (
+          <span key={i} style={{ fontFamily: "'Playfair Display', serif", fontSize: 13, letterSpacing: "0.12em", color: C.bgWarm, fontStyle: "italic" }}>
+            {name}
+            <span style={{ marginLeft: 56, color: C.amber, fontSize: 10 }}>✦</span>
+          </span>
+        ))}
+      </motion.div>
+    </div>
+  );
+}
 
-export default function ArtisanBakeryPage() {
-  const [scrolled, setScrolled] = useState(false);
-  const [filter, setFilter] = useState("All");
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [cartOpen, setCartOpen] = useState(false);
-
-  useEffect(() => {
-    const h = () => setScrolled(window.scrollY > 40);
-    window.addEventListener("scroll", h);
-    return () => window.removeEventListener("scroll", h);
-  }, []);
-
-  const filteredItems =
-    filter === "All" ? MENU_ITEMS : MENU_ITEMS.filter((i) => i.cat === filter);
+/* ─── SteamingLoaf — Signature Element ───────────────────────── */
+function SteamingLoaf() {
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, margin: "-80px" });
 
   return (
-    <div className="min-h-screen bg-[#fdfcf9] text-[#3e2b1f] font-serif selection:bg-[#c9a66b] selection:text-white overflow-x-hidden">
-      {/* ── NAVIGATION ── */}
-      <nav
-        className={`fixed top-0 w-full z-50 transition-all duration-700 ${scrolled ? "bg-white/95 backdrop-blur-xl border-b border-[#c9a66b]/20 py-4" : "bg-transparent py-8"} px-6 md:px-12 flex items-center justify-between`}
-      >
-        <div className="flex flex-col">
-          <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-[#c9a66b]">
-            Maison Laval
-          </span>
-          <span className="text-xl font-black tracking-tighter uppercase italic text-[#3e2b1f]">
-            Boulangerie
-            <span className="text-[#c9a66b] not-italic font-thin">
-              {" "}
-              Artisanale
-            </span>
-          </span>
-        </div>
+    <div ref={ref} style={{ display: "flex", gap: 64, alignItems: "center" }}>
+      {/* Loaf SVG */}
+      <div style={{ position: "relative", flexShrink: 0 }}>
+        <svg width="340" height="260" viewBox="0 0 340 260" style={{ display: "block" }}>
+          <defs>
+            <radialGradient id="crustGrad" cx="45%" cy="40%" r="60%">
+              <stop offset="0%" stopColor="#E8A84C" />
+              <stop offset="50%" stopColor="#C47A35" />
+              <stop offset="100%" stopColor="#7A4820" />
+            </radialGradient>
+            <radialGradient id="crustShine" cx="30%" cy="25%" r="45%">
+              <stop offset="0%" stopColor="rgba(255,220,140,0.3)" />
+              <stop offset="100%" stopColor="transparent" />
+            </radialGradient>
+            <filter id="softShadow">
+              <feDropShadow dx="0" dy="12" stdDeviation="18" floodColor="#5C3520" floodOpacity="0.2" />
+            </filter>
+          </defs>
 
-        <div className="hidden lg:flex gap-12 text-[10px] font-bold uppercase tracking-[0.3em] text-[#3e2b1f]/50">
-          {["Savoir-Faire", "Menu", "Histoire", "Contact"].map((l) => (
-            <Link
-              key={l}
-              href={`#${l.toLowerCase()}`}
-              className="hover:text-[#c9a66b] transition-colors"
-            >
-              {l}
-            </Link>
+          {/* Loaf body */}
+          <ellipse cx="170" cy="180" rx="148" ry="72" fill="url(#crustGrad)" filter="url(#softShadow)" />
+
+          {/* Dome top */}
+          <path d="M40,180 Q60,80 170,72 Q280,80 300,180 Z" fill="url(#crustGrad)" />
+          <path d="M40,180 Q60,80 170,72 Q280,80 300,180 Z" fill="url(#crustShine)" />
+
+          {/* Score marks — animated pathLength */}
+          {[
+            "M140,100 Q170,88 200,100",
+            "M120,125 Q170,108 220,125",
+            "M110,150 Q170,130 230,150",
+            "M115,170 Q170,152 225,170",
+          ].map((d, i) => (
+            <motion.path
+              key={i}
+              d={d}
+              fill="none"
+              stroke={C.browndark}
+              strokeWidth="2"
+              strokeLinecap="round"
+              initial={{ pathLength: 0, opacity: 0 }}
+              animate={inView ? { pathLength: 1, opacity: 0.6 } : { pathLength: 0, opacity: 0 }}
+              transition={{ duration: 1, delay: 0.4 + i * 0.2, ease: [0.4, 0, 0.2, 1] }}
+            />
+          ))}
+
+          {/* Diagonal score */}
+          <motion.path
+            d="M120,110 Q148,105 175,102 Q202,98 230,104"
+            fill="none"
+            stroke={C.browndark}
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            initial={{ pathLength: 0, opacity: 0 }}
+            animate={inView ? { pathLength: 1, opacity: 0.45 } : {}}
+            transition={{ duration: 1.2, delay: 1.2, ease: [0.4, 0, 0.2, 1] }}
+          />
+
+          {/* Crust texture dots */}
+          {[
+            [90, 175], [110, 190], [130, 196], [200, 196], [240, 190], [270, 178], [285, 162],
+          ].map(([cx, cy], i) => (
+            <circle key={i} cx={cx} cy={cy} r={2.5} fill={C.browndark} opacity={0.15} />
+          ))}
+
+          {/* Steam plumes */}
+          {[130, 170, 210].map((x, i) => (
+            <g key={i}>
+              <motion.path
+                d={`M${x},72 Q${x - 8},56 ${x},42 Q${x + 8},28 ${x},14`}
+                fill="none"
+                stroke="rgba(200,160,100,0.35)"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                initial={{ pathLength: 0, opacity: 0, y: 12 }}
+                animate={inView
+                  ? { pathLength: [0, 1, 0], opacity: [0, 0.5, 0], y: [10, 0, -8] }
+                  : {}}
+                transition={{ duration: 2.5, delay: 1.5 + i * 0.5, repeat: Infinity, ease: "easeInOut" }}
+              />
+            </g>
+          ))}
+        </svg>
+      </div>
+
+      {/* Process stats */}
+      <div style={{ flex: 1 }}>
+        <p style={{ fontFamily: "'Playfair Display', serif", fontSize: 11, letterSpacing: "0.35em", color: C.terracotta, textTransform: "uppercase", marginBottom: 20 }}>Craft & Patience</p>
+        <h2 style={{ fontSize: "clamp(26px, 3.5vw, 44px)", fontWeight: 600, lineHeight: 1.15, letterSpacing: "-0.01em", marginBottom: 28, color: C.brown, fontFamily: "'Playfair Display', serif" }}>
+          <TextReveal text="Eleven years" />
+          <TextReveal text="of the same starter." delay={0.15} style={{ fontStyle: "italic", color: C.terracotta }} />
+        </h2>
+        <p style={{ fontFamily: "'Cabin', sans-serif", fontSize: 15, color: C.muted, lineHeight: 1.8, marginBottom: 36 }}>
+          Our levain is not a recipe — it's a living thing. Fed every morning, kept at 18°C, it's been producing the same complex sour note since 2013. Every loaf carries that history.
+        </p>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20 }}>
+          {[
+            { val: "24h", label: "Min ferment" },
+            { val: "11", label: "Years of levain" },
+            { val: "4:00", label: "First bake daily" },
+          ].map(item => (
+            <div key={item.label} style={{ paddingTop: 16, borderTop: `2px solid ${C.amber}` }}>
+              <p style={{ fontFamily: "'Playfair Display', serif", fontSize: 28, fontWeight: 700, color: C.brown, letterSpacing: "-0.02em", lineHeight: 1 }}>{item.val}</p>
+              <p style={{ fontFamily: "'Cabin', sans-serif", fontSize: 12, color: C.muted, marginTop: 6, letterSpacing: "0.03em" }}>{item.label}</p>
+            </div>
           ))}
         </div>
+      </div>
+    </div>
+  );
+}
 
-        <div className="flex gap-6 items-center">
-          <button onClick={() => setCartOpen(true)} className="relative group">
-            <ShoppingBag className="w-5 h-5 text-[#3e2b1f] group-hover:text-[#c9a66b] transition-colors" />
-            <span className="absolute -top-2 -right-2 w-4 h-4 bg-[#c9a66b] text-white text-[9px] flex items-center justify-center rounded-full">
-              0
-            </span>
-          </button>
-          <MagneticBtn className="px-8 py-3 bg-[#3e2b1f] text-white text-[10px] font-bold uppercase tracking-widest rounded-full hover:bg-[#c9a66b] transition-all hidden md:block">
-            Pre-Order
-          </MagneticBtn>
-          <button
-            onClick={() => setMenuOpen(true)}
-            className="lg:hidden text-[#c9a66b]"
-          >
-            <Menu className="w-6 h-6" />
-          </button>
+/* ─── BreadCard ──────────────────────────────────────────────── */
+function BreadCard({ bread }: { bread: typeof BREADS[0] }) {
+  const [hovered, setHovered] = useState(false);
+  return (
+    <motion.div
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      whileHover={{ y: -5 }}
+      transition={{ duration: 0.3 }}
+      style={{ background: hovered ? C.bgCard : C.bgWarm, border: `1px solid ${hovered ? C.amber : C.border}`, borderRadius: 6, padding: "24px", cursor: "pointer", transition: "background 0.3s, border-color 0.3s" }}
+    >
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
+        <div>
+          <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: 17, fontWeight: 600, color: C.brown, marginBottom: 4, lineHeight: 1.3 }}>{bread.name}</h3>
+          <span style={{ fontFamily: "'Cabin', sans-serif", fontSize: 10, color: C.terracotta, background: `${C.terracotta}18`, padding: "2px 8px", borderRadius: 2, letterSpacing: "0.1em", textTransform: "uppercase" }}>{bread.tag}</span>
+        </div>
+        <span style={{ fontFamily: "'Playfair Display', serif", fontSize: 18, fontWeight: 600, color: C.brown }}>€{bread.price}</span>
+      </div>
+      <p style={{ fontFamily: "'Cabin', sans-serif", fontSize: 13, color: C.muted, lineHeight: 1.65, marginBottom: 16 }}>{bread.desc}</p>
+      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={C.amber} strokeWidth="2">
+          <circle cx="12" cy="12" r="10" />
+          <path d="M12 6v6l4 2" />
+        </svg>
+        <span style={{ fontFamily: "'Cabin', sans-serif", fontSize: 11, color: C.muted, letterSpacing: "0.05em" }}>Baked {bread.baked}</span>
+      </div>
+    </motion.div>
+  );
+}
+
+/* ─── ProcessStep ────────────────────────────────────────────── */
+function ProcessStep({ step, index }: { step: typeof PROCESS[0]; index: number }) {
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, margin: "-40px" });
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, x: -24 }}
+      animate={inView ? { opacity: 1, x: 0 } : {}}
+      transition={{ duration: 0.6, delay: index * 0.1, ease: [0.4, 0, 0.2, 1] }}
+      style={{ display: "flex", gap: 28, paddingBottom: 32, borderBottom: `1px solid ${C.border}` }}
+    >
+      <div style={{ flexShrink: 0, paddingTop: 4 }}>
+        <span style={{ fontFamily: "'Playfair Display', serif", fontSize: 12, color: C.amber, fontStyle: "italic", letterSpacing: "0.1em" }}>{step.step}</span>
+      </div>
+      <div style={{ flex: 1 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
+          <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: 17, fontWeight: 600, color: C.brown }}>{step.title}</h3>
+          <span style={{ fontFamily: "'Cabin', sans-serif", fontSize: 11, color: C.muted, letterSpacing: "0.08em", background: C.bgCard, padding: "3px 10px", borderRadius: 2 }}>{step.time}</span>
+        </div>
+        <p style={{ fontFamily: "'Cabin', sans-serif", fontSize: 13, color: C.muted, lineHeight: 1.7 }}>{step.desc}</p>
+      </div>
+    </motion.div>
+  );
+}
+
+/* ─── Page ───────────────────────────────────────────────────── */
+export default function Page() {
+  const [activeProcess, setActiveProcess] = useState(false);
+  const heroRef = useRef(null);
+  const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
+  const heroY = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
+
+  useEffect(() => {
+    const style = document.createElement("style");
+    style.textContent = FONTS;
+    document.head.appendChild(style);
+    return () => { document.head.removeChild(style); };
+  }, []);
+
+  return (
+    <main style={{ background: C.bg, color: C.brown, minHeight: "100vh", fontFamily: "'Cabin', sans-serif", overflowX: "hidden" }}>
+
+      {/* ── Nav ── */}
+      <nav style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 50, padding: "0 40px", height: 64, display: "flex", alignItems: "center", justifyContent: "space-between", background: "rgba(250,246,239,0.94)", backdropFilter: "blur(16px)", borderBottom: `1px solid ${C.border}` }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          {/* Wheat SVG mark */}
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+            <line x1="14" y1="26" x2="14" y2="6" stroke={C.amber} strokeWidth="1.5" />
+            {[8, 11, 14, 17, 20].map((y, i) => (
+              <g key={i}>
+                <ellipse cx={9} cy={y} rx={4} ry={2.5} fill={C.amber} opacity={0.8} transform={`rotate(-25,9,${y})`} />
+                <ellipse cx={19} cy={y} rx={4} ry={2.5} fill={C.amber} opacity={0.8} transform={`rotate(25,19,${y})`} />
+              </g>
+            ))}
+          </svg>
+          <div>
+            <p style={{ fontFamily: "'Playfair Display', serif", fontSize: 16, fontWeight: 700, color: C.brown, lineHeight: 1 }}>Maison Laval</p>
+            <p style={{ fontFamily: "'Cabin', sans-serif", fontSize: 9, color: C.muted, letterSpacing: "0.2em", textTransform: "uppercase" }}>Boulangerie Artisanale</p>
+          </div>
+        </div>
+        <div style={{ display: "flex", gap: 28, alignItems: "center" }}>
+          {["Pains", "Boutique", "Ateliers", "Notre Histoire"].map(item => (
+            <button key={item} style={{ fontFamily: "'Cabin', sans-serif", fontSize: 13, color: C.muted, background: "none", border: "none", cursor: "pointer", transition: "color 0.2s" }}
+              onMouseEnter={e => (e.currentTarget.style.color = C.brown)}
+              onMouseLeave={e => (e.currentTarget.style.color = C.muted)}>
+              {item}
+            </button>
+          ))}
+          <MagneticButton style={{ fontFamily: "'Cabin', sans-serif", fontSize: 12, color: C.bg, background: C.brown, padding: "8px 20px", borderRadius: 3, letterSpacing: "0.06em", textTransform: "uppercase", fontWeight: 600 }}>
+            Commander
+          </MagneticButton>
         </div>
       </nav>
 
-      {/* MOBILE MENU */}
-      <AnimatePresence>
-        {menuOpen && (
+      {/* ── Hero ── */}
+      <section ref={heroRef} style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", position: "relative", paddingTop: 64, overflow: "hidden", background: C.bgWarm }}>
+        {/* Warm ambient */}
+        <motion.div style={{ y: heroY, position: "absolute", inset: 0 }}>
+          <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse 80% 60% at 50% 35%, rgba(196,122,53,0.12) 0%, transparent 65%)" }} />
+          {/* Wheat pattern bg */}
+          <svg style={{ position: "absolute", inset: 0, width: "100%", height: "100%", opacity: 0.04 }} viewBox="0 0 800 600">
+            {[...Array(10)].map((_, i) => (
+              <g key={i} transform={`translate(${80 * i}, ${i % 2 === 0 ? 50 : 150})`}>
+                <line x1="20" y1="200" x2="20" y2="20" stroke={C.brown} strokeWidth="1.5" />
+                {[40, 60, 80, 100, 120].map((y, j) => (
+                  <g key={j}>
+                    <ellipse cx={10} cy={y} rx={8} ry={4} fill={C.brown} opacity="0.7" transform={`rotate(-25,10,${y})`} />
+                    <ellipse cx={30} cy={y} rx={8} ry={4} fill={C.brown} opacity="0.7" transform={`rotate(25,30,${y})`} />
+                  </g>
+                ))}
+              </g>
+            ))}
+          </svg>
+        </motion.div>
+
+        <motion.div style={{ opacity: heroOpacity, position: "relative", zIndex: 1, textAlign: "center", maxWidth: 860, padding: "0 24px" }}>
           <motion.div
-            initial={{ opacity: 0, x: "100%" }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: "100%" }}
-            className="fixed inset-0 z-[100] bg-[#fdfcf9] p-12 flex flex-col justify-center gap-10"
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 12, marginBottom: 32 }}
           >
-            <button
-              onClick={() => setMenuOpen(false)}
-              className="absolute top-8 right-8 text-[#c9a66b]"
-            >
-              <X className="w-8 h-8" />
-            </button>
-            <div className="flex flex-col gap-6 text-5xl font-black italic text-[#3e2b1f]/30">
-              {["Savoir-Faire", "Menu", "Histoire", "Contact"].map((l) => (
-                <Link
-                  key={l}
-                  href={`#${l.toLowerCase()}`}
-                  onClick={() => setMenuOpen(false)}
-                  className="hover:text-[#c9a66b] transition-colors"
-                >
-                  {l}
-                </Link>
-              ))}
-            </div>
+            <div style={{ height: 1, width: 48, background: C.amber }} />
+            <p style={{ fontFamily: "'Playfair Display', serif", fontSize: 12, letterSpacing: "0.3em", color: C.terracotta, fontStyle: "italic" }}>Depuis 1987 · Lyon, Croix-Rousse</p>
+            <div style={{ height: 1, width: 48, background: C.amber }} />
           </motion.div>
-        )}
-      </AnimatePresence>
 
-      {/* ── HERO ── */}
-      <section className="relative h-[100svh] flex items-center overflow-hidden">
-        <div className="absolute inset-0">
-          <Image
-            src="https://images.unsplash.com/photo-1509440159596-0249088772ff?w=1600&q=80"
-            alt="Bakery Hero"
-            fill
-            className="object-cover"
-            priority
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#fdfcf9] via-[#fdfcf9]/60 to-transparent" />
-        </div>
+          <h1 style={{ fontSize: "clamp(52px, 9vw, 112px)", fontWeight: 700, lineHeight: 0.92, letterSpacing: "-0.03em", marginBottom: 40, fontFamily: "'Playfair Display', serif" }}>
+            <TextReveal text="Le pain" delay={0.3} style={{ display: "block", color: C.brown }} />
+            <TextReveal text="comme" delay={0.5} style={{ display: "block", fontStyle: "italic", color: C.terracotta }} />
+            <TextReveal text="il se doit." delay={0.7} style={{ display: "block", color: C.brown }} />
+          </h1>
 
-        <div className="relative z-10 max-w-[1400px] mx-auto px-6 md:px-12 w-full">
-          <Reveal>
-            <Badge className="mb-10 bg-[#c9a66b]/10 text-[#c9a66b] border border-[#c9a66b]/20 text-[10px] font-bold uppercase tracking-[0.4em] px-4 py-1.5">
-              Established 1924 // Paris
-            </Badge>
-            <h1 className="text-7xl md:text-[8rem] font-black leading-[0.85] tracking-tighter mb-10 text-[#3e2b1f]">
-              L'Art du <br />
-              <span className="italic font-thin text-[#c9a66b]">
-                Vrai Pain.
-              </span>
-            </h1>
-            <p className="text-[#3e2b1f]/60 text-lg max-w-md mb-12 font-light leading-relaxed italic">
-              A heritage of slow-fermented, stone-baked sourdough and artisanal
-              French pastries. Crafted with time, passion, and French Label
-              Rouge flour.
-            </p>
-            <div className="flex gap-6 flex-wrap">
-              <MagneticBtn
-                onClick={() => setCartOpen(true)}
-                className="px-10 py-4 bg-[#c9a66b] text-white text-[10px] font-bold uppercase tracking-widest rounded-full hover:bg-[#3e2b1f] transition-all"
-              >
-                Today's Batch
-              </MagneticBtn>
-              <Link
-                href="#menu"
-                className="px-10 py-4 border border-[#3e2b1f]/20 text-[#3e2b1f] text-[10px] font-bold uppercase tracking-widest rounded-full hover:bg-white transition-all flex items-center gap-3"
-              >
-                Full Menu <ArrowRight className="w-4 h-4" />
-              </Link>
-            </div>
-          </Reveal>
-        </div>
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.8, delay: 1.1 }}
+            style={{ fontFamily: "'Cabin', sans-serif", fontSize: 16, color: C.muted, lineHeight: 1.75, maxWidth: 520, margin: "0 auto 48px", fontWeight: 400 }}
+          >
+            Boulangerie artisanale à Lyon depuis 1987. Pains au levain, viennoiseries feuilletées, et ateliers de boulangerie. Tout est fait à la main, dans le respect du temps.
+          </motion.p>
 
-        <div className="absolute bottom-12 left-12 hidden lg:flex flex-col gap-4 text-[#3e2b1f]/20">
-          <div className="flex items-center gap-3">
-            <Flame className="w-4 h-4" />
-            <span className="text-[10px] font-bold uppercase tracking-widest">
-              Oven Status: 240°C
-            </span>
-          </div>
-          <div className="flex items-center gap-3">
-            <Clock className="w-4 h-4" />
-            <span className="text-[10px] font-bold uppercase tracking-widest">
-              Next Batch: 04:30 AM
-            </span>
-          </div>
-        </div>
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 1.3 }}
+            style={{ display: "flex", gap: 16, justifyContent: "center" }}
+          >
+            <MagneticButton style={{ fontFamily: "'Cabin', sans-serif", fontSize: 13, color: C.bg, background: C.brown, padding: "15px 36px", borderRadius: 3, letterSpacing: "0.08em", textTransform: "uppercase", fontWeight: 600 }}>
+              Nos Pains
+            </MagneticButton>
+            <MagneticButton style={{ fontFamily: "'Cabin', sans-serif", fontSize: 13, color: C.brown, background: "transparent", padding: "15px 36px", borderRadius: 3, letterSpacing: "0.08em", textTransform: "uppercase", border: `1px solid ${C.border}` }}>
+              Commander en Ligne
+            </MagneticButton>
+          </motion.div>
+
+          {/* Opening hours pill */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.6 }}
+            style={{ marginTop: 48, display: "inline-flex", alignItems: "center", gap: 12, background: C.bg, border: `1px solid ${C.border}`, borderRadius: 40, padding: "10px 24px" }}
+          >
+            <div style={{ width: 7, height: 7, borderRadius: "50%", background: "#4CAF50" }} />
+            <span style={{ fontFamily: "'Cabin', sans-serif", fontSize: 13, color: C.brown, fontWeight: 500 }}>Ouvert aujourd'hui · 7h00–19h30</span>
+          </motion.div>
+        </motion.div>
       </section>
 
-      {/* ── VALUES SECTION ── */}
-      <section id="savoir-faire" className="py-32 px-6 md:px-12 bg-white">
-        <div className="max-w-[1400px] mx-auto">
-          <Reveal>
-            <div className="text-center mb-24">
-              <span className="text-[10px] font-bold uppercase tracking-[0.5em] text-[#c9a66b] mb-4 block">
-                Notre Philosophie
-              </span>
-              <h2 className="text-5xl md:text-7xl font-black tracking-tighter italic">
-                L'Excellence du{" "}
-                <span className="not-italic font-thin text-[#c9a66b]">
-                  Geste.
-                </span>
-              </h2>
-            </div>
-          </Reveal>
+      {/* ── Marquee ── */}
+      <MarqueeStrip />
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
-            {VALUES.map((v, i) => (
-              <Reveal key={i} delay={i * 0.1}>
-                <div className="p-8 border border-[#c9a66b]/10 rounded-2xl bg-[#fdfcf9] hover:border-[#c9a66b] transition-all group">
-                  <div className="w-12 h-12 rounded-xl bg-[#c9a66b]/10 flex items-center justify-center text-[#c9a66b] mb-6 group-hover:bg-[#c9a66b] group-hover:text-white transition-all">
-                    <v.icon className="w-6 h-6" />
-                  </div>
-                  <h3 className="text-xl font-black italic mb-4">{v.title}</h3>
-                  <p className="text-sm text-[#3e2b1f]/50 leading-relaxed font-light italic">
-                    {v.desc}
-                  </p>
-                </div>
-              </Reveal>
+      {/* ── Steaming Loaf — Signature Element ── */}
+      <section style={{ padding: "80px 0", maxWidth: 1100, margin: "0 auto", paddingInline: 40 }}>
+        <SteamingLoaf />
+      </section>
+
+      {/* ── Bread Menu ── */}
+      <section style={{ padding: "80px 0", background: C.bgWarm, borderTop: `1px solid ${C.border}`, borderBottom: `1px solid ${C.border}` }}>
+        <div style={{ maxWidth: 1100, margin: "0 auto", paddingInline: 40 }}>
+          <div style={{ marginBottom: 56 }}>
+            <p style={{ fontFamily: "'Playfair Display', serif", fontSize: 11, letterSpacing: "0.35em", color: C.terracotta, textTransform: "uppercase", marginBottom: 16 }}>La Gamme</p>
+            <h2 style={{ fontSize: "clamp(28px, 4vw, 48px)", fontWeight: 600, lineHeight: 1.1, letterSpacing: "-0.02em", color: C.brown, fontFamily: "'Playfair Display', serif" }}>
+              <TextReveal text="Nos Pains" />
+              <TextReveal text="de la Semaine" delay={0.15} style={{ fontStyle: "italic" }} />
+            </h2>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20 }}>
+            {BREADS.map((bread, i) => (
+              <motion.div
+                key={bread.id}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: i * 0.07 }}
+              >
+                <BreadCard bread={bread} />
+              </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ── INTERACTIVE MENU ── */}
-      <section id="menu" className="py-32 px-6 md:px-12">
-        <div className="max-w-[1400px] mx-auto">
-          <Reveal>
-            <div className="flex flex-col md:flex-row justify-between items-end mb-20 gap-10">
-              <div>
-                <h2 className="text-6xl md:text-8xl font-black italic tracking-tighter">
-                  Le <span className="text-[#c9a66b]">Comptoir.</span>
-                </h2>
-                <p className="text-[#3e2b1f]/30 text-[10px] font-bold uppercase tracking-[0.4em] mt-4">
-                  Available for Collection Today
-                </p>
-              </div>
-              <div className="flex gap-3 flex-wrap">
-                {CATEGORIES.map((cat) => (
-                  <button
-                    key={cat}
-                    onClick={() => setFilter(cat)}
-                    className={`px-6 py-2.5 rounded-full text-[10px] font-bold uppercase tracking-widest border transition-all 
-                    ${filter === cat ? "bg-[#3e2b1f] border-[#3e2b1f] text-white" : "border-[#3e2b1f]/10 text-[#3e2b1f]/40 hover:border-[#c9a66b]"}`}
-                  >
-                    {cat}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </Reveal>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <AnimatePresence mode="popLayout">
-              {filteredItems.map((item, i) => (
-                <motion.div
-                  key={item.id}
-                  layout
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.9 }}
-                  transition={{ duration: 0.5, delay: i * 0.05 }}
-                  className="group relative aspect-[4/5] rounded-3xl overflow-hidden cursor-pointer shadow-xl shadow-black/5"
-                >
-                  <Image
-                    src={item.img}
-                    alt={item.name}
-                    fill
-                    className="object-cover transition-transform duration-700 group-hover:scale-110"
+      {/* ── Process ── */}
+      <section style={{ padding: "80px 0", maxWidth: 1100, margin: "0 auto", paddingInline: 40 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 80 }}>
+          <div>
+            <p style={{ fontFamily: "'Playfair Display', serif", fontSize: 11, letterSpacing: "0.35em", color: C.terracotta, textTransform: "uppercase", marginBottom: 20 }}>Notre Méthode</p>
+            <h2 style={{ fontSize: "clamp(26px, 3.5vw, 42px)", fontWeight: 600, lineHeight: 1.15, letterSpacing: "-0.02em", color: C.brown, fontFamily: "'Playfair Display', serif", marginBottom: 40 }}>
+              <TextReveal text="Chaque étape," />
+              <TextReveal text="faite à la main." delay={0.15} style={{ fontStyle: "italic", color: C.terracotta }} />
+            </h2>
+            <p style={{ fontFamily: "'Cabin', sans-serif", fontSize: 14, color: C.muted, lineHeight: 1.8, marginBottom: 36 }}>
+              Il n'y a pas de raccourcis. La boulangerie artisanale prend du temps — c'est sa force. Chaque pain que vous achetez est le résultat de 36 à 48 heures de travail.
+            </p>
+            {/* Wheat illustration */}
+            <svg width="160" height="200" viewBox="0 0 160 200" style={{ opacity: 0.6 }}>
+              <line x1="80" y1="195" x2="80" y2="30" stroke={C.amber} strokeWidth="2" />
+              {[60, 85, 110, 135, 160].map((y, i) => (
+                <g key={i}>
+                  <motion.ellipse
+                    cx={52}
+                    cy={y}
+                    rx={18}
+                    ry={9}
+                    fill={C.amber}
+                    opacity={0.7}
+                    transform={`rotate(-30,52,${y})`}
+                    initial={{ scaleX: 0 }}
+                    whileInView={{ scaleX: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.5, delay: 0.1 * i }}
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#3e2b1f] via-transparent to-transparent opacity-90" />
-                  <div className="absolute inset-0 p-10 flex flex-col justify-end text-white">
-                    <div className="flex justify-between items-end mb-4">
-                      <div>
-                        <span className="text-[10px] font-bold uppercase tracking-widest text-[#c9a66b] mb-2 block">
-                          {item.cat}
-                        </span>
-                        <h3 className="text-3xl font-black italic">
-                          {item.name}
-                        </h3>
-                      </div>
-                      <span className="text-2xl font-thin text-[#c9a66b]">
-                        {item.price}
-                      </span>
-                    </div>
-                    <p className="text-sm text-white/60 font-light italic leading-relaxed line-clamp-2 group-hover:line-clamp-none transition-all duration-500">
-                      {item.desc}
-                    </p>
-                    <button className="mt-8 flex items-center gap-3 text-[10px] font-bold uppercase tracking-widest bg-[#c9a66b] text-white w-fit px-6 py-3 rounded-full hover:bg-white hover:text-[#3e2b1f] transition-all opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 duration-500">
-                      Add to Basket <ShoppingBag className="w-4 h-4" />
-                    </button>
-                  </div>
-                </motion.div>
+                  <motion.ellipse
+                    cx={108}
+                    cy={y}
+                    rx={18}
+                    ry={9}
+                    fill={C.amber}
+                    opacity={0.7}
+                    transform={`rotate(30,108,${y})`}
+                    initial={{ scaleX: 0 }}
+                    whileInView={{ scaleX: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.5, delay: 0.1 * i + 0.05 }}
+                  />
+                </g>
               ))}
-            </AnimatePresence>
+            </svg>
+          </div>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+            {PROCESS.map((step, i) => (
+              <ProcessStep key={step.step} step={step} index={i} />
+            ))}
           </div>
         </div>
       </section>
 
-      {/* ── TESTIMONIALS SECTION ── */}
-      <section className="py-32 px-6 md:px-12 bg-[#3e2b1f] text-white">
-        <div className="max-w-[1400px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-24 items-center">
-          <div className="lg:col-span-5">
-            <Reveal>
-              <span className="text-[10px] font-bold uppercase tracking-[0.5em] text-[#c9a66b] mb-6 block">
-                Témoignages
-              </span>
-              <h2 className="text-5xl md:text-7xl font-black tracking-tighter italic leading-tight mb-12 uppercase">
-                A Daily <br /> <span className="text-[#c9a66b]">Ritual.</span>
+      {/* ── Workshops ── */}
+      <section style={{ padding: "80px 0", background: C.brown }}>
+        <div style={{ maxWidth: 1100, margin: "0 auto", paddingInline: 40 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 48 }}>
+            <div>
+              <p style={{ fontFamily: "'Playfair Display', serif", fontSize: 11, letterSpacing: "0.35em", color: C.amber, textTransform: "uppercase", marginBottom: 16 }}>Ateliers</p>
+              <h2 style={{ fontSize: "clamp(28px, 4vw, 44px)", fontWeight: 600, lineHeight: 1.1, color: C.bg, fontFamily: "'Playfair Display', serif" }}>
+                <TextReveal text="Apprenez à faire" />
+                <TextReveal text="votre pain." delay={0.15} style={{ fontStyle: "italic", color: C.amber }} />
               </h2>
-              <div className="space-y-12">
-                {REVIEWS.map((r, i) => (
-                  <div
-                    key={i}
-                    className="border-l border-[#c9a66b]/30 pl-8 space-y-4"
-                  >
-                    <div className="flex gap-1">
-                      {[...Array(r.stars)].map((_, j) => (
-                        <Star
-                          key={j}
-                          className="w-3 h-3 fill-[#c9a66b] text-[#c9a66b]"
-                        />
-                      ))}
-                    </div>
-                    <p className="text-lg italic font-light leading-relaxed text-white/70">
-                      "{r.text}"
-                    </p>
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-[#c9a66b]">
-                      — {r.name}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </Reveal>
+            </div>
+            <MagneticButton style={{ fontFamily: "'Cabin', sans-serif", fontSize: 12, color: C.bg, background: C.amber, padding: "12px 28px", borderRadius: 3, letterSpacing: "0.08em", textTransform: "uppercase", fontWeight: 600 }}>
+              Tous les Ateliers
+            </MagneticButton>
           </div>
-          <div className="lg:col-span-7 relative aspect-square rounded-3xl overflow-hidden grayscale">
-            <Image
-              src="https://images.unsplash.com/photo-1549931319-a545dcf3bc73?w=1000&q=80"
-              alt="Bread Detail"
-              fill
-              className="object-cover opacity-60 group-hover:scale-110 transition-transform duration-[6s]"
-            />
-            <div className="absolute inset-0 bg-[#3e2b1f]/20" />
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20 }}>
+            {WORKSHOPS.map((w, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: i * 0.08 }}
+                style={{ padding: "28px", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.10)", borderRadius: 6, cursor: "pointer" }}
+                whileHover={{ background: "rgba(255,255,255,0.10)" }}
+              >
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16 }}>
+                  <span style={{ fontFamily: "'Cabin', sans-serif", fontSize: 11, color: C.amber, letterSpacing: "0.1em", textTransform: "uppercase", background: `${C.amber}20`, padding: "3px 10px", borderRadius: 2 }}>
+                    {w.spots} places
+                  </span>
+                  <span style={{ fontFamily: "'Playfair Display', serif", fontSize: 20, fontWeight: 600, color: C.bgWarm }}>€{w.price}</span>
+                </div>
+                <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: 17, fontWeight: 600, color: C.bg, marginBottom: 8, lineHeight: 1.3 }}>{w.name}</h3>
+                <p style={{ fontFamily: "'Cabin', sans-serif", fontSize: 12, color: "rgba(250,246,239,0.55)", marginBottom: 20 }}>{w.date}</p>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <span style={{ fontFamily: "'Cabin', sans-serif", fontSize: 12, color: "rgba(250,246,239,0.45)" }}>3h · Matériaux inclus</span>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={C.amber} strokeWidth="1.5">
+                    <path d="M7 17L17 7M17 7H7M17 7v10" />
+                  </svg>
+                </div>
+              </motion.div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* ── FOOTER ── */}
-      <footer
-        id="contact"
-        className="bg-[#fdfcf9] pt-32 pb-12 px-6 md:px-12 border-t border-[#c9a66b]/20"
-      >
-        <div className="max-w-[1400px] mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-20 mb-32">
-          <div className="lg:col-span-5">
-            <Reveal>
-              <div className="flex flex-col mb-10">
-                <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-[#c9a66b]">
-                  Maison Laval
-                </span>
-                <span className="text-4xl font-black italic uppercase text-[#3e2b1f]">
-                  Boulangerie
-                  <span className="text-[#c9a66b] not-italic font-thin">
-                    {" "}
-                    Artisanale
-                  </span>
-                </span>
-              </div>
-              <p className="text-[#3e2b1f]/40 max-w-sm mb-12 text-sm italic font-light leading-relaxed">
-                Celebrating the French tradition of baking. Every loaf, every
-                pastry, is a testament to time, patience, and high-quality
-                ingredients.
-              </p>
-              <div className="space-y-6">
-                <div className="flex items-center gap-4">
-                  <MapPin className="w-5 h-5 text-[#c9a66b]" />
-                  <span className="text-[10px] font-bold uppercase tracking-widest">
-                    14 Rue des Archives, 75004 Paris
-                  </span>
-                </div>
-                <div className="flex items-center gap-4">
-                  <Phone className="w-5 h-5 text-[#c9a66b]" />
-                  <span className="text-[10px] font-bold uppercase tracking-widest">
-                    +33 1 42 78 45 10
-                  </span>
-                </div>
-              </div>
-            </Reveal>
-          </div>
-
-          <div className="lg:col-span-2 lg:col-start-7">
-            <h4 className="text-[10px] font-bold uppercase tracking-widest text-[#c9a66b] mb-10">
-              La Carte
-            </h4>
-            <ul className="space-y-4 text-[10px] font-bold uppercase tracking-widest text-[#3e2b1f]/40">
+      {/* ── Hours & Location ── */}
+      <section style={{ padding: "80px 0", maxWidth: 1100, margin: "0 auto", paddingInline: 40 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 80, alignItems: "start" }}>
+          <div>
+            <p style={{ fontFamily: "'Playfair Display', serif", fontSize: 11, letterSpacing: "0.35em", color: C.terracotta, textTransform: "uppercase", marginBottom: 20 }}>Horaires</p>
+            <h2 style={{ fontSize: "clamp(26px, 3.5vw, 40px)", fontWeight: 600, lineHeight: 1.1, color: C.brown, fontFamily: "'Playfair Display', serif", marginBottom: 36 }}>
+              <TextReveal text="On vous attend" />
+              <TextReveal text="dès l'aube." delay={0.15} style={{ fontStyle: "italic" }} />
+            </h2>
+            <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
               {[
-                "Pains de Campagne",
-                "Baguettes",
-                "Croissants",
-                "Tortes & Tartes",
-                "Épicerie Fine",
-              ].map((l) => (
-                <li key={l}>
-                  <Link
-                    href="#"
-                    className="hover:text-[#c9a66b] transition-colors"
-                  >
-                    {l}
-                  </Link>
-                </li>
+                { days: "Mardi – Vendredi", hours: "07:00 – 19:30" },
+                { days: "Samedi", hours: "06:30 – 19:30" },
+                { days: "Dimanche", hours: "07:00 – 13:00" },
+                { days: "Lundi", hours: "Fermé" },
+              ].map((item, i) => (
+                <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "14px 0", borderBottom: `1px solid ${C.border}` }}>
+                  <span style={{ fontFamily: "'Cabin', sans-serif", fontSize: 14, color: C.brown }}>{item.days}</span>
+                  <span style={{ fontFamily: "'Playfair Display', serif", fontSize: 14, color: item.hours === "Fermé" ? C.muted : C.terracotta, fontStyle: "italic" }}>{item.hours}</span>
+                </div>
               ))}
-            </ul>
-          </div>
-
-          <div className="lg:col-span-2">
-            <h4 className="text-[10px] font-bold uppercase tracking-widest text-[#c9a66b] mb-10">
-              Horaires
-            </h4>
-            <ul className="space-y-4 text-[10px] font-bold uppercase tracking-widest text-[#3e2b1f]/40 italic">
-              <li>Lun - Ven: 07h00 - 20h00</li>
-              <li>Samedi: 08h00 - 19h00</li>
-              <li>Dimanche: 08h00 - 13h00</li>
-            </ul>
-          </div>
-
-          <div className="lg:col-span-2">
-            <h4 className="text-[10px] font-bold uppercase tracking-widest text-[#c9a66b] mb-10">
-              Maison
-            </h4>
-            <ul className="space-y-4 text-[10px] font-bold uppercase tracking-widest text-[#3e2b1f]/40">
-              {["Histoire", "Équipe", "Presse", "Engagements", "Contact"].map(
-                (l) => (
-                  <li key={l}>
-                    <Link
-                      href="#"
-                      className="hover:text-[#c9a66b] transition-colors"
-                    >
-                      {l}
-                    </Link>
-                  </li>
-                ),
-              )}
-            </ul>
-          </div>
-        </div>
-
-        <div className="max-w-[1400px] mx-auto pt-10 border-t border-[#c9a66b]/20 flex flex-col md:flex-row justify-between items-center gap-8 text-[9px] font-bold uppercase tracking-widest text-[#3e2b1f]/20">
-          <div className="flex items-center gap-10">
-            <span>
-              &copy; {new Date().getFullYear()} MAISON LAVAL. ALL RIGHTS
-              RESERVED.
-            </span>
-            <div className="flex gap-6">
-              <Globe className="w-4 h-4 hover:text-[#c9a66b] cursor-pointer" />
-              <Globe className="w-4 h-4 hover:text-[#c9a66b] cursor-pointer" />
             </div>
           </div>
-          <div className="flex gap-10">
-            <span>Mentions Légales</span>
-            <span>Politique de Confidentialité</span>
+
+          <div>
+            <p style={{ fontFamily: "'Playfair Display', serif", fontSize: 11, letterSpacing: "0.35em", color: C.terracotta, textTransform: "uppercase", marginBottom: 20 }}>Adresse</p>
+            <h2 style={{ fontSize: "clamp(26px, 3.5vw, 40px)", fontWeight: 600, lineHeight: 1.1, color: C.brown, fontFamily: "'Playfair Display', serif", marginBottom: 36 }}>
+              <TextReveal text="Croix-Rousse," />
+              <TextReveal text="Lyon 4e." delay={0.15} style={{ fontStyle: "italic" }} />
+            </h2>
+            <div style={{ background: C.bgCard, border: `1px solid ${C.border}`, borderRadius: 6, padding: "28px", marginBottom: 20 }}>
+              <p style={{ fontFamily: "'Cabin', sans-serif", fontSize: 16, color: C.brown, fontWeight: 600, marginBottom: 6 }}>Maison Laval</p>
+              <p style={{ fontFamily: "'Cabin', sans-serif", fontSize: 14, color: C.muted, lineHeight: 1.6 }}>47 Grande Rue de la Croix-Rousse<br />69004 Lyon, France</p>
+            </div>
+            <div style={{ display: "flex", gap: 12 }}>
+              <MagneticButton style={{ fontFamily: "'Cabin', sans-serif", fontSize: 12, color: C.bg, background: C.brown, padding: "12px 24px", borderRadius: 3, letterSpacing: "0.06em", textTransform: "uppercase", fontWeight: 600 }}>
+                Itinéraire
+              </MagneticButton>
+              <MagneticButton style={{ fontFamily: "'Cabin', sans-serif", fontSize: 12, color: C.brown, background: "transparent", border: `1px solid ${C.border}`, padding: "12px 24px", borderRadius: 3, letterSpacing: "0.06em", textTransform: "uppercase" }}>
+                Commander en Ligne
+              </MagneticButton>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Footer ── */}
+      <footer style={{ borderTop: `1px solid ${C.border}`, padding: "28px 40px", background: C.bgWarm }}>
+        <div style={{ maxWidth: 1100, margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <p style={{ fontFamily: "'Playfair Display', serif", fontSize: 14, color: C.brown, fontStyle: "italic" }}>Maison Laval · depuis 1987</p>
+          <p style={{ fontFamily: "'Cabin', sans-serif", fontSize: 11, color: C.muted, letterSpacing: "0.05em" }}>© 2025 — Boulangerie Artisanale</p>
+          <div style={{ display: "flex", gap: 20 }}>
+            {["Instagram", "Newsletter", "Commande"].map(link => (
+              <button key={link} style={{ fontFamily: "'Cabin', sans-serif", fontSize: 12, color: C.muted, background: "none", border: "none", cursor: "pointer", transition: "color 0.2s" }}
+                onMouseEnter={e => (e.currentTarget.style.color = C.brown)}
+                onMouseLeave={e => (e.currentTarget.style.color = C.muted)}>
+                {link}
+              </button>
+            ))}
           </div>
         </div>
       </footer>
-
-      {/* CART OVERLAY */}
-      <AnimatePresence>
-        {cartOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setCartOpen(false)}
-            className="fixed inset-0 z-[200] bg-[#3e2b1f]/60 backdrop-blur-md flex justify-end"
-          >
-            <motion.div
-              initial={{ x: "100%" }}
-              animate={{ x: 0 }}
-              exit={{ x: "100%" }}
-              transition={{ type: "spring", damping: 30, stiffness: 300 }}
-              onClick={(e) => e.stopPropagation()}
-              className="bg-[#fdfcf9] w-full max-w-md h-full shadow-2xl p-12 flex flex-col"
-            >
-              <div className="flex justify-between items-center mb-12">
-                <h3 className="text-3xl font-black italic uppercase">
-                  Votre Panier
-                </h3>
-                <button
-                  onClick={() => setCartOpen(false)}
-                  className="text-[#c9a66b]"
-                >
-                  <X className="w-8 h-8" />
-                </button>
-              </div>
-
-              <div className="flex-1 flex flex-col items-center justify-center text-center">
-                <ShoppingBag className="w-16 h-16 text-[#c9a66b]/20 mb-6" />
-                <p className="text-lg italic font-light text-[#3e2b1f]/30">
-                  Your basket is currently empty.
-                </p>
-                <button
-                  onClick={() => setCartOpen(false)}
-                  className="mt-8 text-[10px] font-bold uppercase tracking-widest text-[#c9a66b] border-b border-[#c9a66b] pb-1"
-                >
-                  Start Browsing
-                </button>
-              </div>
-
-              <div className="pt-10 border-t border-[#c9a66b]/20">
-                <div className="flex justify-between mb-8 text-[10px] font-bold uppercase tracking-widest">
-                  <span>Total</span>
-                  <span>€0.00</span>
-                </div>
-                <button className="w-full py-6 bg-[#3e2b1f] text-white text-[11px] font-black uppercase tracking-[0.4em] rounded-full hover:bg-[#c9a66b] transition-all">
-                  Checkout Now
-                </button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      <style>{`
-        ::-webkit-scrollbar{width:4px;background:#fdfcf9}
-        ::-webkit-scrollbar-thumb{background:#c9a66b}
-      `}</style>
-    </div>
+    </main>
   );
 }
