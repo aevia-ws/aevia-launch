@@ -6,923 +6,547 @@ import {
   useTransform,
   useInView,
   AnimatePresence,
-  useMotionValue,
   useSpring,
+  useMotionValue,
 } from "framer-motion";
-import { useState, useRef, useEffect } from "react";
-import Image from "next/image";
-import Link from "next/link";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
-import { Progress } from "@/components/ui/progress";
-import { Separator } from "@/components/ui/separator";
-import { ArrowRight, ArrowUpRight, Star, Check, Menu, X, Layers, Globe, Film, Zap, Circle, ChevronRight, Eye, Command, Terminal, Cpu, Share2, Search, ShoppingBag, ZapOff, Ghost, Activity, Box, Radio } from "lucide-react";
+import { useRef, useState, useEffect } from "react";
 
-import "../premium.css";
+const C = {
+  bg: "#07070A",
+  bgCard: "#0E0E14",
+  text: "#E8E8F0",
+  textMuted: "#7A7A90",
+  textDim: "#2E2E40",
+  border: "#14141E",
+  borderBright: "#1E1E2E",
+  violet: "#8B5CF6",
+  violetLight: "#C4B5FD",
+  violetDim: "#4C1D95",
+  cyan: "#22D3EE",
+  white: "#F0F0FF",
+};
 
-/* ==========================================================================
-   DATA STRUCTURES
-   ========================================================================== */
+const FONT = `
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Syne+Mono&family=DM+Sans:wght@300;400;500&display=swap');
+`;
 
-const WORK = [
+const PROJECTS = [
   {
-    id: 1,
-    title: "VOID IDENTITY",
-    client: "Orbit Labs",
-    tag: "Brand System",
-    year: "2026",
-    img: "https://images.unsplash.com/photo-1558655146-d09347e92766?w=1200&q=80",
-    deliverables: [
-      "Identity System",
-      "Motion Language",
-      "Sonic Identity",
-      "Environmental Applications",
-    ],
-  },
-  {
-    id: 2,
-    title: "CIPHER UI",
-    client: "Nova Bank",
-    tag: "Digital Experience",
-    year: "2025",
-    img: "https://images.unsplash.com/photo-1481487196290-c152efe083f5?w=1200&q=80",
-    deliverables: [
-      "Design System",
-      "Interaction Design",
-      "Prototype",
-      "Dev Handoff",
-    ],
-  },
-  {
-    id: 3,
-    title: "BRUTAL MOTION",
-    client: "Hyper Records",
-    tag: "Motion Design",
-    year: "2025",
-    img: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1200&q=80",
-    deliverables: [
-      "Title Sequence",
-      "Visual ID",
-      "Music Video Direction",
-      "Live Visuals",
-    ],
-  },
-  {
-    id: 4,
-    title: "DARK MATTER",
-    client: "Epoch Films",
-    tag: "Title Design",
+    id: "01",
+    title: "FLUX",
+    client: "Adidas Originals",
+    type: "Brand Film",
     year: "2024",
-    img: "https://images.unsplash.com/photo-1535016120720-40c646be5580?w=1200&q=80",
-    deliverables: [
-      "Main Title",
-      "End Credits",
-      "Chapter Idents",
-      "Promotional Assets",
-    ],
+    duration: "1:30",
+    awards: ["Cannes Lions Silver", "D&AD Wood Pencil"],
+    tags: ["3D", "Motion", "Film"],
+    color: C.violet,
+  },
+  {
+    id: "02",
+    title: "THRESHOLD",
+    client: "Apple iPhone 16",
+    type: "Product Reveal",
+    year: "2024",
+    duration: "3:00",
+    awards: ["Cannes Lions Gold"],
+    tags: ["Motion", "VFX", "Sound Design"],
+    color: C.cyan,
+  },
+  {
+    id: "03",
+    title: "DISSOLVE",
+    client: "Vuitton x Yayoi Kusama",
+    type: "Installation Film",
+    year: "2023",
+    duration: "5:45",
+    awards: ["SXSW Best Short", "FWA SOTM"],
+    tags: ["Installation", "3D", "Generative"],
+    color: "#FF4DAD",
+  },
+  {
+    id: "04",
+    title: "SIGNAL",
+    client: "Spotify Wrapped",
+    type: "Social Campaign",
+    year: "2023",
+    duration: "0:15 × 8",
+    awards: ["Shorty Award Gold"],
+    tags: ["Social", "Motion", "Loop"],
+    color: "#1DB954",
+  },
+  {
+    id: "05",
+    title: "ECHOES",
+    client: "Balenciaga",
+    type: "Fashion Film",
+    year: "2023",
+    duration: "2:20",
+    awards: ["British Arrows Gold", "D&AD Graphite"],
+    tags: ["Fashion", "Film", "CGI"],
+    color: C.white,
   },
 ];
 
-const RECOGNITION = [
-  { award: "Agency of the Year", org: "Awwwards", year: "2025" },
-  { award: "Gold - Brand Identity", org: "Cannes Lions", year: "2025" },
-  { award: "Best In Show - Digital", org: "D&AD", year: "2024" },
-  { award: "Motion Graphics Award", org: "Vimeo Staff Pick", year: "2024" },
+const SERVICES = [
+  { code: "01", title: "Brand Films", desc: "De 15 secondes à 6 minutes. Narration, esthétique, cut — chaque décision au service de la marque." },
+  { code: "02", title: "Motion Design", desc: "Systèmes d'animation, titres génériques, motion guidelines. Le mouvement comme identité." },
+  { code: "03", title: "CGI & VFX", desc: "3D photoréaliste, simulations physiques, compositing. Aucune limite technique." },
+  { code: "04", title: "Installations", desc: "Expériences immersives pour espaces physiques. Son, image, espace fusionnés." },
 ];
 
-const STRATEGIC_PILLARS = [
-  {
-    title: "Conceptual Friction",
-    desc: "We seek the points of resistance between a brand and its audience. That's where the truth lives.",
-    icon: <ZapOff className="w-5 h-5" />,
-  },
-  {
-    title: "Visual Brutalism",
-    desc: "Stripping away the decorative to reveal the structural. Aesthetic integrity through reduction.",
-    icon: <Box className="w-5 h-5" />,
-  },
-  {
-    title: "Kinetic Heritage",
-    desc: "Digital systems that don't just sit there. They breathe, move, and react like living organisms.",
-    icon: <Activity className="w-5 h-5" />,
-  },
+const AWARDS_LIST = [
+  "Cannes Lions — 3 Gold · 5 Silver · 8 Bronze",
+  "D&AD — 1 Black Pencil · 4 Yellow Pencils",
+  "SXSW Film — 2 Best Short",
+  "FWA Site of the Month — 6×",
 ];
 
-const STUDIO_LOCATIONS = [
-  {
-    city: "Berlin",
-    focus: "Creative Direction // Motion Lab",
-    status: "Active",
-  },
-  {
-    city: "Los Angeles",
-    focus: "Strategy // Client Services",
-    status: "Active",
-  },
-  { city: "Tokyo", focus: "Digital Production // UI Hub", status: "Standby" },
-];
+// ── Skew hover (signature element) ────────────────────────────────────────────
+function SkewProjectItem({ project, index }: { project: typeof PROJECTS[0]; index: number }) {
+  const [hovered, setHovered] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true });
 
-/* ==========================================================================
-   UTILITY COMPONENTS
-   ========================================================================== */
-
-function Reveal({
-  children,
-  delay = 0,
-  y = 30,
-}: {
-  children: React.ReactNode;
-  delay?: number;
-  y?: number;
-}) {
-  const ref = useRef(null);
-  const inView = useInView(ref, { once: true, margin: "-50px" });
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, y }}
+      initial={{ opacity: 0, y: 25 }}
       animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.8, delay, ease: [0.25, 0.1, 0.25, 1] }}
+      transition={{ duration: 0.7, delay: index * 0.1, ease: [0.22, 1, 0.36, 1] }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{ borderBottom: `1px solid ${C.border}`, cursor: "pointer", position: "relative", overflow: "hidden" }}
     >
-      {children}
+      {/* Hover background */}
+      <AnimatePresence>
+        {hovered && (
+          <motion.div
+            initial={{ scaleX: 0, skewX: "-5deg" }}
+            animate={{ scaleX: 1, skewX: "0deg" }}
+            exit={{ scaleX: 0, skewX: "5deg" }}
+            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+            style={{ position: "absolute", inset: 0, background: project.color + "18", transformOrigin: "left" }}
+          />
+        )}
+      </AnimatePresence>
+
+      <motion.div
+        animate={hovered ? { skewX: "-1.5deg", x: 8 } : { skewX: "0deg", x: 0 }}
+        transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+        style={{ display: "grid", gridTemplateColumns: "5rem 1fr auto auto", gap: "3rem", padding: "2rem 0", alignItems: "center", position: "relative", zIndex: 1 }}
+      >
+        <div style={{ fontFamily: "'Syne Mono', monospace", fontSize: "0.65rem", color: C.textDim }}>
+          {project.id}
+        </div>
+        <div>
+          <div style={{
+            fontFamily: "'Syne', sans-serif",
+            fontSize: "clamp(1.8rem, 3.5vw, 3rem)",
+            fontWeight: 800,
+            color: hovered ? project.color : C.text,
+            letterSpacing: "-0.02em",
+            lineHeight: 1,
+            transition: "color 0.3s",
+          }}>
+            {project.title}
+          </div>
+          <div style={{ fontFamily: "'Syne Mono', monospace", fontSize: "0.65rem", color: C.textMuted, marginTop: "0.3rem" }}>
+            {project.client} · {project.type}
+          </div>
+        </div>
+        <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+          {project.tags.map((tag) => (
+            <span key={tag} style={{
+              fontFamily: "'Syne Mono', monospace",
+              fontSize: "0.55rem",
+              letterSpacing: "0.1em",
+              padding: "0.25rem 0.6rem",
+              border: `1px solid ${hovered ? project.color + "60" : C.border}`,
+              color: hovered ? project.color : C.textMuted,
+              transition: "all 0.3s",
+            }}>
+              {tag}
+            </span>
+          ))}
+        </div>
+        <div style={{ textAlign: "right" }}>
+          <div style={{ fontFamily: "'Syne Mono', monospace", fontSize: "0.65rem", color: C.textMuted }}>{project.year}</div>
+          <div style={{ fontFamily: "'Syne Mono', monospace", fontSize: "0.55rem", color: C.textDim }}>{project.duration}</div>
+        </div>
+      </motion.div>
     </motion.div>
   );
 }
 
-function GlitchText({
-  text,
-  className = "",
-}: {
-  text: string;
-  className?: string;
-}) {
-  const [glitch, setGlitch] = useState(false);
-  useEffect(() => {
-    const id = setInterval(
-      () => {
-        setGlitch(true);
-        setTimeout(() => setGlitch(false), 90);
-      },
-      3000 + Math.random() * 2000,
-    );
-    return () => clearInterval(id);
-  }, []);
-  return (
-    <span
-      className={`relative inline-block ${className}`}
-      style={
-        glitch
-          ? {
-              textShadow: "2px 0 #ff003c, -2px 0 #ffffff20",
-              filter: "brightness(1.2)",
-            }
-          : {}
-      }
-    >
-      {text}
-    </span>
-  );
-}
+// ── Distorted title (key visual element) ─────────────────────────────────────
+function DistortedTitle() {
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+  const skewX = useSpring(useTransform(x, [-300, 300], [-8, 8]), { stiffness: 80, damping: 15 });
+  const skewY = useSpring(useTransform(y, [-200, 200], [-4, 4]), { stiffness: 80, damping: 15 });
 
-function Counter({ to, suffix = "" }: { to: number; suffix?: string }) {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true });
-  const [count, setCount] = useState(0);
-  useEffect(() => {
-    if (!isInView) return;
-    let cur = 0;
-    const step = to / 70;
-    const t = setInterval(() => {
-      cur += step;
-      if (cur >= to) {
-        setCount(to);
-        clearInterval(t);
-      } else {
-        setCount(Math.floor(cur));
-      }
-    }, 16);
-    return () => clearInterval(t);
-  }, [isInView, to]);
-  return (
-    <span ref={ref}>
-      {count}
-      {suffix}
-    </span>
-  );
-}
-
-/* ==========================================================================
-   MAIN PAGE COMPONENT
-   ========================================================================== */
-
-export default function VoidAgencyPage() {
-  const [scrolled, setScrolled] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [activeWork, setActiveWork] = useState<number | null>(null);
-
-  const heroRef = useRef(null);
-  const { scrollYProgress } = useScroll({
-    target: heroRef,
-    offset: ["start start", "end start"],
-  });
-  const heroY = useTransform(scrollYProgress, [0, 1], ["0%", "35%"]);
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
-
-  useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 50);
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  const handleMouseMove = (e: React.MouseEvent) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    x.set(e.clientX - rect.left - rect.width / 2);
+    y.set(e.clientY - rect.top - rect.height / 2);
+  };
+  const handleMouseLeave = () => { x.set(0); y.set(0); };
 
   return (
     <div
-      className="premium-theme min-h-screen bg-[#080808] text-white font-sans selection:bg-[#ff003c] selection:text-white overflow-x-hidden"
-      style={{ scrollBehavior: "smooth" }}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      style={{ cursor: "default" }}
     >
-      {/* ==========================================
-          SCANLINE / NOISE OVERLAY
-          ========================================== */}
-      <div className="fixed inset-0 pointer-events-none z-[100] opacity-[0.05] bg-[url('https://grainy-gradients.vercel.app/noise.svg')] bg-repeat" />
-
-      {/* ==========================================
-          NAVIGATION
-          ========================================== */}
-      <nav
-        className={`fixed top-0 left-0 w-full z-50 transition-all duration-700 mix-blend-difference ${scrolled ? "py-4" : "py-10"}`}
-      >
-        <div className="max-w-[1600px] mx-auto px-6 md:px-12 flex items-center justify-between">
-          <Link
-            href="/"
-            className="text-xl md:text-2xl font-black tracking-tighter uppercase"
-          >
-            VOID<span className="text-[#ff003c]">.</span>
-          </Link>
-
-          <div className="hidden lg:flex items-center gap-10 text-[10px] font-bold uppercase tracking-[0.4em] text-white/50">
-            <Link href="#" className="hover:text-white transition-colors">
-              Selected_Work
-            </Link>
-            <Link href="#" className="hover:text-white transition-colors">
-              Manifesto
-            </Link>
-            <Link href="#" className="hover:text-white transition-colors">
-              Studio_Intel
-            </Link>
-            <Link href="#" className="hover:text-white transition-colors">
-              Access_Log
-            </Link>
-          </div>
-
-          <div className="flex items-center gap-6">
-            <button className="hidden md:block hover:text-[#ff003c] transition-colors text-white/40">
-              <Search className="w-5 h-5" />
-            </button>
-            <button className="px-6 py-2 bg-white text-black text-[10px] font-black uppercase tracking-widest hover:bg-[#ff003c] hover:text-white transition-all">
-              Start_Project
-            </button>
-            <button onClick={() => setMenuOpen(true)} className="lg:hidden">
-              <Menu className="w-6 h-6" />
-            </button>
-          </div>
+      <motion.div style={{ skewX, skewY }}>
+        <div style={{
+          fontFamily: "'Syne', sans-serif",
+          fontSize: "clamp(4rem, 14vw, 14rem)",
+          fontWeight: 800,
+          color: C.text,
+          lineHeight: 0.85,
+          letterSpacing: "-0.04em",
+          userSelect: "none",
+        }}>
+          SKEW
         </div>
-      </nav>
+        <div style={{
+          fontFamily: "'Syne', sans-serif",
+          fontSize: "clamp(4rem, 14vw, 14rem)",
+          fontWeight: 800,
+          color: "transparent",
+          lineHeight: 0.85,
+          letterSpacing: "-0.04em",
+          WebkitTextStroke: `1px ${C.violet}`,
+          userSelect: "none",
+        }}>
+          STUDIO
+        </div>
+      </motion.div>
+    </div>
+  );
+}
 
-      {/* MOBILE MENU */}
-      <AnimatePresence>
-        {menuOpen && (
-          <motion.div
-            initial={{ opacity: 0, x: "100%" }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: "100%" }}
-            transition={{ type: "tween", duration: 0.5 }}
-            className="fixed inset-0 z-[100] bg-[#080808] p-8 pt-32 flex flex-col border-l border-white/5"
-          >
-            <button
-              onClick={() => setMenuOpen(false)}
-              className="absolute top-10 right-8 text-white"
+// ── Page ─────────────────────────────────────────────────────────────────────
+export default function SkewOS() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({ target: containerRef });
+  const navOpacity = useTransform(scrollYProgress, [0, 0.04], [0, 1]);
+  const progressWidth = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
+
+  return (
+    <div ref={containerRef} style={{ background: C.bg, color: C.text, fontFamily: "'DM Sans', sans-serif", minHeight: "100vh", overflowX: "hidden" }}>
+      <style>{FONT}</style>
+
+      {/* Scroll progress */}
+      <motion.div style={{ position: "fixed", top: 0, left: 0, height: "2px", background: C.violet, width: progressWidth, zIndex: 200 }} />
+
+      {/* ── Navigation ─────────────────────────────────────────────────── */}
+      <motion.nav
+        style={{
+          position: "fixed", top: 0, left: 0, right: 0, zIndex: 100,
+          opacity: navOpacity,
+          background: "rgba(7,7,10,0.9)",
+          backdropFilter: "blur(20px)",
+          borderBottom: `1px solid ${C.border}`,
+          padding: "0 3rem",
+          height: "60px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
+        <div style={{ fontFamily: "'Syne', sans-serif", fontSize: "0.85rem", fontWeight: 800, letterSpacing: "0.05em" }}>
+          SKEW<span style={{ color: C.violet }}>.</span>
+        </div>
+        <div style={{ display: "flex", gap: "3rem" }}>
+          {["Work", "Services", "Studio", "Contact"].map((item) => (
+            <motion.a
+              key={item}
+              href="#"
+              style={{ fontFamily: "'Syne Mono', monospace", fontSize: "0.7rem", color: C.textMuted, textDecoration: "none", cursor: "pointer" }}
+              whileHover={{ color: C.violetLight }}
             >
-              <X className="w-8 h-8" />
-            </button>
-            <div className="flex flex-col gap-10 text-4xl font-black tracking-tighter uppercase">
-              <Link href="#" onClick={() => setMenuOpen(false)}>
-                Work
-              </Link>
-              <Link href="#" onClick={() => setMenuOpen(false)}>
-                Manifesto
-              </Link>
-              <Link href="#" onClick={() => setMenuOpen(false)}>
-                Studio
-              </Link>
-              <Link href="#" onClick={() => setMenuOpen(false)}>
-                Contact
-              </Link>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* ==========================================
-          1. HERO (Brutalist Typography)
-          ========================================== */}
-      <section
-        ref={heroRef}
-        className="relative w-full h-[100svh] flex flex-col justify-center overflow-hidden px-6 md:px-12"
-      >
-        <motion.div
-          style={{ y: heroY, opacity: heroOpacity }}
-          className="absolute inset-0 z-0"
-        >
-          <Image
-            src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1600&q=80"
-            alt="Creative Agency Hero"
-            fill
-            className="object-cover grayscale brightness-50"
-            priority
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#080808] via-transparent to-transparent" />
-        </motion.div>
-
-        <div className="relative z-10 max-w-[1400px] mx-auto w-full">
-          <Reveal>
-            <div className="flex items-center gap-4 mb-8">
-              <Badge className="bg-[#ff003c] text-white rounded-none px-4 py-1 text-[10px] tracking-widest font-black uppercase">
-                Established 2017
-              </Badge>
-              <span className="text-[10px] text-white/30 tracking-[0.4em] font-black uppercase">
-                BERLIN // PARIS // LA
-              </span>
-            </div>
-            <h1 className="text-6xl md:text-8xl lg:text-[10vw] font-black leading-[0.8] tracking-[-0.04em] mb-10 uppercase">
-              <GlitchText text="We make" />
-              <br />
-              <span
-                className="text-white/10"
-                style={{ WebkitTextStroke: "1px rgba(255,255,255,0.3)" }}
-              >
-                brands
-              </span>{" "}
-              <br />
-              <GlitchText text="uncomfortable." />
-            </h1>
-            <p className="max-w-xl text-lg md:text-xl text-white/40 leading-relaxed font-black mb-12 uppercase tracking-widest">
-              Brand systems, digital experience, and motion design for companies
-              that refuse to be forgettable.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-6">
-              <button className="px-10 py-5 bg-white text-black text-[10px] uppercase tracking-[0.4em] font-black hover:bg-[#ff003c] hover:text-white transition-all cursor-pointer">
-                View_Work
-              </button>
-              <button className="px-10 py-5 border border-white/20 text-white text-[10px] uppercase tracking-[0.4em] font-black hover:bg-white hover:text-black transition-all cursor-pointer">
-                Our_Process
-              </button>
-            </div>
-          </Reveal>
-        </div>
-
-        <motion.div
-          style={{ opacity: heroOpacity }}
-          className="absolute bottom-10 left-12 flex flex-col gap-2"
-        >
-          <div className="text-[9px] font-black text-white/20 uppercase tracking-widest">
-            Uptime: 99.9%
-          </div>
-          <div className="w-24 h-0.5 bg-white/5">
-            <motion.div
-              animate={{ width: ["0%", "100%", "0%"] }}
-              transition={{ duration: 5, repeat: Infinity }}
-              className="h-full bg-[#ff003c]"
-            />
-          </div>
-        </motion.div>
-      </section>
-
-      {/* ==========================================
-          2. THE MANIFESTO (Large Typography)
-          ========================================== */}
-      <section className="py-32 bg-[#080808] relative overflow-hidden">
-        <div className="max-w-[1400px] mx-auto px-6 md:px-12">
-          <Reveal>
-            <h2 className="text-4xl md:text-6xl lg:text-7xl font-black tracking-tighter leading-tight uppercase max-w-5xl mb-24">
-              "We don't build <span className="text-white/20">assets</span>. We
-              build <span className="text-[#ff003c]">ideologies</span>. In a
-              world of visual entropy, we choose structural{" "}
-              <span className="text-white/20">brutalism</span>."
-            </h2>
-          </Reveal>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-16 md:gap-32">
-            {STRATEGIC_PILLARS.map((pillar, i) => (
-              <Reveal key={i} delay={i * 0.1}>
-                <div className="group">
-                  <div className="text-[#ff003c] mb-8 group-hover:scale-110 transition-transform origin-left">
-                    {pillar.icon}
-                  </div>
-                  <h4 className="text-xl font-black uppercase tracking-tight mb-4">
-                    {pillar.title}
-                  </h4>
-                  <p className="text-sm text-white/40 leading-relaxed font-bold uppercase tracking-widest">
-                    {pillar.desc}
-                  </p>
-                </div>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ==========================================
-          3. SELECTED WORK (Interactive List)
-          ========================================== */}
-      <section className="py-32 bg-[#0c0c0c] border-y border-white/5">
-        <div className="max-w-[1400px] mx-auto px-6 md:px-12">
-          <Reveal className="mb-24">
-            <span className="text-[10px] uppercase tracking-[0.5em] font-black text-[#ff003c] mb-6 block">
-              Portfolio_Index
-            </span>
-            <h2 className="text-5xl md:text-8xl font-black tracking-tighter uppercase leading-[0.9]">
-              Selected <br /> <span className="text-white/10">Archives.</span>
-            </h2>
-          </Reveal>
-
-          <div className="space-y-0 divide-y divide-white/5">
-            {WORK.map((work, i) => (
-              <Reveal key={work.id} delay={i * 0.1}>
-                <div
-                  onClick={() => setActiveWork(i)}
-                  className="group cursor-pointer py-12 flex flex-col md:flex-row md:items-center justify-between gap-8 hover:bg-white/[0.02] transition-colors px-4"
-                >
-                  <div className="flex items-center gap-10">
-                    <span className="text-[11px] font-black text-white/20 uppercase tracking-widest">
-                      {String(i + 1).padStart(2, "0")}
-                    </span>
-                    <h3 className="text-3xl md:text-5xl font-black uppercase tracking-tighter group-hover:text-[#ff003c] transition-colors">
-                      <GlitchText text={work.title} />
-                    </h3>
-                  </div>
-                  <div className="flex flex-col md:items-end">
-                    <span className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40 mb-1">
-                      {work.tag}
-                    </span>
-                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/20">
-                      {work.client} // {work.year}
-                    </span>
-                  </div>
-                  <div className="hidden lg:block relative w-32 aspect-video overflow-hidden rounded-sm opacity-0 group-hover:opacity-100 transition-opacity translate-x-10 group-hover:translate-x-0">
-                    <Image
-                      src={work.img}
-                      alt={work.title}
-                      fill
-                      className="object-cover grayscale"
-                    />
-                  </div>
-                </div>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ==========================================
-          4. RECOGNITION (Awards Grid)
-          ========================================== */}
-      <section className="py-32 bg-[#080808]">
-        <div className="max-w-[1400px] mx-auto px-6 md:px-12">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-24 items-center">
-            <Reveal className="relative aspect-square md:aspect-[4/5] rounded-sm overflow-hidden group">
-              <Image
-                src="https://images.unsplash.com/photo-1558655146-d09347e92766?q=80&w=1200&auto=format&fit=crop"
-                alt="Recognition"
-                fill
-                className="object-cover grayscale group-hover:scale-105 transition-transform duration-[2s]"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#080808] via-transparent to-transparent" />
-              <div className="absolute bottom-12 left-12">
-                <div className="flex items-center gap-3 text-[10px] font-black text-[#ff003c] uppercase tracking-[0.3em]">
-                  <Star className="w-4 h-4 fill-current" /> Industry Validation
-                </div>
-              </div>
-            </Reveal>
-
-            <div>
-              <Reveal>
-                <span className="text-[10px] uppercase tracking-[0.5em] font-black text-[#ff003c] mb-6 block">
-                  Accolades_Log
-                </span>
-                <h2 className="text-5xl md:text-6xl font-black tracking-tighter leading-tight mb-12 uppercase">
-                  Unverifiable <br />{" "}
-                  <span className="text-white/20">Success.</span>
-                </h2>
-
-                <div className="space-y-6">
-                  {RECOGNITION.map((item, i) => (
-                    <div
-                      key={i}
-                      className="flex justify-between items-center py-6 border-b border-white/5 hover:bg-white/2 transition-colors px-4 group"
-                    >
-                      <div>
-                        <h4 className="text-lg font-black uppercase tracking-tight text-white group-hover:text-[#ff003c] transition-colors">
-                          {item.award}
-                        </h4>
-                        <p className="text-[10px] uppercase tracking-widest text-white/30 font-black">
-                          {item.org}
-                        </p>
-                      </div>
-                      <span className="text-[10px] font-black text-white/20">
-                        {item.year}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-
-                <button className="mt-16 text-[10px] font-black uppercase tracking-[0.4em] text-[#ff003c] hover:text-white transition-colors flex items-center gap-3">
-                  View_Full_Press_Kit <ArrowRight className="w-4 h-4" />
-                </button>
-              </Reveal>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ==========================================
-          5. STUDIO CULTURE (Team/Process)
-          ========================================== */}
-      <section className="py-32 bg-[#0c0c0c] border-y border-white/5">
-        <div className="max-w-[1400px] mx-auto px-6 md:px-12">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-16 md:gap-32">
-            <div className="lg:col-span-2">
-              <Reveal>
-                <span className="text-[10px] uppercase tracking-[0.5em] font-black text-[#ff003c] mb-6 block">
-                  Studio_Infrastructure
-                </span>
-                <h2 className="text-5xl md:text-8xl font-black tracking-tighter leading-[0.9] mb-12 uppercase">
-                  The <br /> <span className="text-white/10">Laboratory.</span>
-                </h2>
-                <p className="text-xl text-white/40 leading-relaxed font-black uppercase tracking-widest mb-16">
-                  We operate as an embedded creative cell. Our team is a mix of
-                  designers, creative technologists, and structural theorists.
-                </p>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                  {[
-                    {
-                      title: "Direct Collaboration",
-                      desc: "No account managers. You speak directly to the creators responsible for your brand.",
-                    },
-                    {
-                      title: "Deep Immersion",
-                      desc: "We spend 48 hours on-site with every new client to understand their biological reality.",
-                    },
-                    {
-                      title: "Radical Iteration",
-                      desc: "We produce more work than we show. We kill 90% of our ideas to find the 10% that survive.",
-                    },
-                    {
-                      title: "Post-Launch Audit",
-                      desc: "We monitor every deployment for 6 months, optimizing for cultural resonance.",
-                    },
-                  ].map((feat, i) => (
-                    <div key={i} className="flex gap-6">
-                      <div className="text-[10px] font-black text-[#ff003c] mt-1">
-                        {String(i + 1).padStart(2, "0")} //
-                      </div>
-                      <div>
-                        <h4 className="text-sm font-black uppercase mb-2 text-white">
-                          {feat.title}
-                        </h4>
-                        <p className="text-xs text-white/30 leading-relaxed font-bold uppercase tracking-widest">
-                          {feat.desc}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </Reveal>
-            </div>
-
-            <div className="space-y-12">
-              {STUDIO_LOCATIONS.map((loc, i) => (
-                <Reveal key={i} delay={i * 0.1}>
-                  <div className="p-10 bg-[#080808] border border-white/5 hover:border-[#ff003c]/30 transition-all">
-                    <div className="flex items-center justify-between mb-8">
-                      <h4 className="text-2xl font-black uppercase tracking-tighter italic">
-                        {loc.city}
-                      </h4>
-                      <span className="flex items-center gap-2 text-[9px] font-black text-green-500 uppercase tracking-widest">
-                        <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />{" "}
-                        {loc.status}
-                      </span>
-                    </div>
-                    <p className="text-[10px] uppercase tracking-widest text-white/40 font-black leading-relaxed">
-                      {loc.focus}
-                    </p>
-                  </div>
-                </Reveal>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ==========================================
-          6. STATS (Large Display)
-          ========================================== */}
-      <section className="py-24 bg-[#ff003c] text-white">
-        <div className="max-w-[1400px] mx-auto px-6 md:px-12 grid grid-cols-2 lg:grid-cols-4 gap-16 text-center">
-          {[
-            { label: "Projects_Archive", val: 194, suffix: "+" },
-            { label: "Countries_Reached", val: 34, suffix: "" },
-            { label: "Awards_Secured", val: 67, suffix: "" },
-            { label: "Identity_Systems", val: 89, suffix: "" },
-          ].map((stat, i) => (
-            <Reveal key={i} delay={i * 0.1}>
-              <div className="text-5xl md:text-7xl font-black mb-4">
-                <Counter to={stat.val} suffix={stat.suffix} />
-              </div>
-              <div className="text-[10px] font-black uppercase tracking-[0.5em]">
-                {stat.label}
-              </div>
-            </Reveal>
+              {item}
+            </motion.a>
           ))}
         </div>
+        <motion.button
+          whileHover={{ backgroundColor: C.violet, borderColor: C.violet }}
+          style={{
+            background: "transparent",
+            border: `1px solid ${C.borderBright}`,
+            color: C.textMuted,
+            padding: "0.5rem 1.25rem",
+            fontFamily: "'Syne Mono', monospace",
+            fontSize: "0.65rem",
+            cursor: "pointer",
+            transition: "all 0.3s",
+            letterSpacing: "0.1em",
+          }}
+        >
+          START PROJECT
+        </motion.button>
+      </motion.nav>
+
+      {/* ── Hero ───────────────────────────────────────────────────────── */}
+      <section style={{ minHeight: "100vh", display: "flex", flexDirection: "column", justifyContent: "flex-end", padding: "3rem", paddingTop: "8rem", position: "relative" }}>
+        {/* Floating label */}
+        <div style={{ position: "absolute", top: "2rem", right: "3rem" }}>
+          <div style={{ fontFamily: "'Syne Mono', monospace", fontSize: "0.6rem", color: C.textDim }}>
+            MOTION DESIGN STUDIO · PARIS
+          </div>
+        </div>
+
+        <div style={{ position: "relative", zIndex: 1, display: "grid", gridTemplateColumns: "1fr auto", gap: "3rem", alignItems: "flex-end" }}>
+          <DistortedTitle />
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.5 }}
+            style={{ maxWidth: "300px", paddingBottom: "1rem" }}
+          >
+            <p style={{ fontSize: "0.9rem", color: C.textMuted, lineHeight: 1.8, marginBottom: "2rem" }}>
+              Studio de motion design & réalisation. Nous créons des films de marque, des expériences visuelles et des installations qui perturbent l'attention.
+            </p>
+            <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
+              <motion.button
+                whileHover={{ backgroundColor: C.violetLight, color: C.bg }}
+                style={{
+                  background: C.violet,
+                  color: C.text,
+                  border: "none",
+                  padding: "0.75rem 1.5rem",
+                  fontFamily: "'Syne Mono', monospace",
+                  fontSize: "0.65rem",
+                  letterSpacing: "0.1em",
+                  cursor: "pointer",
+                  transition: "background 0.3s",
+                }}
+              >
+                SEE WORK →
+              </motion.button>
+            </div>
+          </motion.div>
+        </div>
+
+        {/* Awards quick bar */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.6, delay: 1 }}
+          style={{ marginTop: "3rem", paddingTop: "1.5rem", borderTop: `1px solid ${C.border}`, display: "flex", gap: "3rem" }}
+        >
+          {[
+            { n: "3×", label: "Cannes Lions Gold" },
+            { n: "1×", label: "D&AD Black Pencil" },
+            { n: "80+", label: "Brand films livrés" },
+          ].map((stat) => (
+            <div key={stat.label}>
+              <div style={{ fontFamily: "'Syne', sans-serif", fontSize: "1.2rem", fontWeight: 800, color: C.violet }}>{stat.n}</div>
+              <div style={{ fontFamily: "'Syne Mono', monospace", fontSize: "0.55rem", letterSpacing: "0.15em", color: C.textDim }}>{stat.label}</div>
+            </div>
+          ))}
+        </motion.div>
       </section>
 
-      {/* ==========================================
-          7. FAQ (The Buffer)
-          ========================================== */}
-      <section className="py-32 bg-[#080808]">
-        <div className="max-w-3xl mx-auto px-6">
-          <Reveal className="text-center mb-24">
-            <h2 className="text-4xl md:text-5xl font-black uppercase tracking-tighter leading-none italic">
-              Intel_Buffer
-            </h2>
-          </Reveal>
+      {/* ── Work ───────────────────────────────────────────────────────── */}
+      <section style={{ padding: "5rem 3rem", borderTop: `1px solid ${C.border}` }}>
+        <div style={{ maxWidth: "1300px", margin: "0 auto" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: "3rem" }}>
+            <div>
+              <div style={{ fontFamily: "'Syne Mono', monospace", fontSize: "0.6rem", letterSpacing: "0.25em", color: C.textDim, marginBottom: "0.75rem" }}>
+                / SELECTED WORK
+              </div>
+              <h2 style={{ fontFamily: "'Syne', sans-serif", fontSize: "clamp(1.8rem, 3.5vw, 3rem)", fontWeight: 800, color: C.text, letterSpacing: "-0.02em" }}>
+                Projects
+              </h2>
+            </div>
+            <motion.a
+              href="#"
+              style={{ fontFamily: "'Syne Mono', monospace", fontSize: "0.65rem", color: C.textMuted, textDecoration: "none", display: "flex", alignItems: "center", gap: "0.75rem", cursor: "pointer" }}
+              whileHover={{ color: C.violetLight }}
+            >
+              ALL WORK
+              <div style={{ width: "2rem", height: "1px", background: "currentcolor" }} />
+            </motion.a>
+          </div>
 
-          <Accordion type="single" collapsible className="space-y-4">
-            {[
-              {
-                q: "How do you begin a new project?",
-                a: "Every engagement opens with a two-day Creative Immersion — a structured provocation session where we map your brand territory. No brief accepted beforehand.",
-              },
-              {
-                q: "What is your minimum engagement?",
-                a: "Our minimum project scope is six weeks. We do not accept one-off logo briefs. We build systems, not assets.",
-              },
-              {
-                q: "Do you work with early-stage startups?",
-                a: "Occasionally. If the ambition is sufficiently uncommon, we will consider early-stage companies on a deferred payment structure.",
-              },
-              {
-                q: "How do you measure success?",
-                a: "We set measurable KPIs (brand recall, NPS, digital engagement) and qualitative benchmarks (cultural resonance, editorial coverage) equally.",
-              },
-            ].map((faq, i) => (
-              <AccordionItem
-                key={i}
-                value={`item-${i}`}
-                className="border-b border-white/5"
-              >
-                <AccordionTrigger className="text-left text-sm uppercase font-black tracking-widest py-8 hover:text-[#ff003c] hover:no-underline">
-                  {faq.q}
-                </AccordionTrigger>
-                <AccordionContent className="text-sm text-white/30 leading-relaxed font-bold uppercase tracking-widest pb-8">
-                  {faq.a}
-                </AccordionContent>
-              </AccordionItem>
+          <div style={{ borderTop: `1px solid ${C.border}` }}>
+            {PROJECTS.map((project, i) => (
+              <SkewProjectItem key={project.id} project={project} index={i} />
             ))}
-          </Accordion>
+          </div>
         </div>
       </section>
 
-      {/* ==========================================
-          8. MEGA FOOTER (Brutalist)
-          ========================================== */}
-      <footer className="bg-[#0c0c0c] pt-32 pb-12 px-6 md:px-12 border-t border-white/5 relative overflow-hidden">
-        <div className="max-w-[1600px] mx-auto relative z-10">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-16 mb-32">
-            <div className="lg:col-span-5">
-              <Reveal>
-                <div className="text-5xl md:text-7xl font-black tracking-tighter uppercase leading-[0.85] mb-12">
-                  Make <br />{" "}
-                  <span
-                    className="text-white/10"
-                    style={{ WebkitTextStroke: "1px rgba(255,255,255,0.2)" }}
-                  >
-                    something
-                  </span>{" "}
-                  <br /> <span className="text-[#ff003c]">brutal.</span>
-                </div>
-                <form
-                  className="relative max-w-md"
-                  onSubmit={(e) => e.preventDefault()}
+      {/* ── Services ───────────────────────────────────────────────────── */}
+      <section style={{ padding: "6rem 3rem", background: C.bgCard, borderTop: `1px solid ${C.border}` }}>
+        <div style={{ maxWidth: "1300px", margin: "0 auto" }}>
+          <div style={{ marginBottom: "4rem" }}>
+            <div style={{ fontFamily: "'Syne Mono', monospace", fontSize: "0.6rem", letterSpacing: "0.25em", color: C.textDim, marginBottom: "0.75rem" }}>
+              / SERVICES
+            </div>
+            <h2 style={{ fontFamily: "'Syne', sans-serif", fontSize: "clamp(1.8rem, 3.5vw, 3rem)", fontWeight: 800, color: C.text, letterSpacing: "-0.02em" }}>
+              Ce Que Nous Faisons
+            </h2>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "1px", background: C.border }}>
+            {SERVICES.map((svc, i) => {
+              const ref = useRef<HTMLDivElement>(null);
+              const inView = useInView(ref, { once: true });
+              return (
+                <motion.div
+                  key={svc.code}
+                  ref={ref}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={inView ? { opacity: 1, y: 0 } : {}}
+                  transition={{ duration: 0.6, delay: (i % 2) * 0.1 }}
+                  whileHover={{ backgroundColor: "#0E0E18" }}
+                  style={{ background: C.bgCard, padding: "3rem", transition: "background 0.3s" }}
                 >
-                  <input
-                    type="email"
-                    placeholder="ENCRYPTED_EMAIL"
-                    className="w-full bg-white/[0.03] border border-white/10 rounded-none px-6 py-5 text-xs font-black outline-none focus:border-[#ff003c] text-white transition-all uppercase tracking-widest"
-                  />
-                  <button
-                    type="submit"
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-black text-[#ff003c] hover:text-white transition-colors uppercase tracking-[0.4em]"
-                  >
-                    AUTHENTICATE
-                  </button>
-                </form>
-              </Reveal>
-            </div>
-
-            <div className="lg:col-span-2 lg:col-start-7">
-              <h4 className="text-[10px] font-black uppercase tracking-widest text-[#ff003c] mb-10">
-                Directory
-              </h4>
-              <ul className="space-y-4 text-[10px] font-black uppercase tracking-widest text-white/30">
-                <li>
-                  <Link href="#" className="hover:text-white transition-colors">
-                    Selected_Work
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#" className="hover:text-white transition-colors">
-                    Manifesto
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#" className="hover:text-white transition-colors">
-                    Process
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#" className="hover:text-white transition-colors">
-                    Careers
-                  </Link>
-                </li>
-              </ul>
-            </div>
-
-            <div className="lg:col-span-2">
-              <h4 className="text-[10px] font-black uppercase tracking-widest text-[#ff003c] mb-10">
-                Intel
-              </h4>
-              <ul className="space-y-4 text-[10px] font-black uppercase tracking-widest text-white/30">
-                <li>
-                  <Link href="#" className="hover:text-white transition-colors">
-                    Project_Archive
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#" className="hover:text-white transition-colors">
-                    Press_Kit
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#" className="hover:text-white transition-colors">
-                    Legal_Buffer
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#" className="hover:text-white transition-colors">
-                    Privacy_Log
-                  </Link>
-                </li>
-              </ul>
-            </div>
-
-            <div className="lg:col-span-2">
-              <h4 className="text-[10px] font-black uppercase tracking-widest text-[#ff003c] mb-10">
-                Connect
-              </h4>
-              <ul className="space-y-4 text-[10px] font-black uppercase tracking-widest text-white/30">
-                <li>
-                  <Link
-                    href="#"
-                    className="hover:text-white transition-colors flex items-center gap-3"
-                  >
-                    <Globe className="w-3 h-3" /> Globe
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="#"
-                    className="hover:text-white transition-colors flex items-center gap-3"
-                  >
-                    <Globe className="w-3 h-3" /> X_Protocol
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="#"
-                    className="hover:text-white transition-colors flex items-center gap-3"
-                  >
-                    <Globe className="w-3 h-3" /> LinkedIn
-                  </Link>
-                </li>
-              </ul>
-            </div>
+                  <div style={{ fontFamily: "'Syne Mono', monospace", fontSize: "0.6rem", color: C.violet, marginBottom: "1.5rem" }}>
+                    {svc.code}
+                  </div>
+                  <h3 style={{ fontFamily: "'Syne', sans-serif", fontSize: "1.4rem", fontWeight: 800, color: C.text, marginBottom: "0.75rem", letterSpacing: "-0.02em" }}>
+                    {svc.title}
+                  </h3>
+                  <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.88rem", color: C.textMuted, lineHeight: 1.75 }}>
+                    {svc.desc}
+                  </p>
+                </motion.div>
+              );
+            })}
           </div>
+        </div>
+      </section>
 
-          <div className="flex flex-col md:flex-row justify-between items-center gap-8 pt-10 border-t border-white/5 text-[9px] font-black uppercase tracking-widest text-white/10">
-            <div className="flex items-center gap-10">
-              <span>&copy; {new Date().getFullYear()} VOID Agency GmbH.</span>
-              <Link href="#" className="hover:text-white transition-colors">
-                Privacy_Protocol
-              </Link>
-              <Link href="#" className="hover:text-white transition-colors">
-                Terms_of_Trade
-              </Link>
+      {/* ── Awards ─────────────────────────────────────────────────────── */}
+      <section style={{ padding: "6rem 3rem", borderTop: `1px solid ${C.border}` }}>
+        <div style={{ maxWidth: "1000px", margin: "0 auto" }}>
+          <div style={{ marginBottom: "4rem" }}>
+            <div style={{ fontFamily: "'Syne Mono', monospace", fontSize: "0.6rem", letterSpacing: "0.25em", color: C.textDim, marginBottom: "0.75rem" }}>
+              / RECOGNITION
             </div>
-            <div className="flex gap-10">
-              <span>Berlin // Paris // LA</span>
-              <span>Crafted with Friction</span>
-            </div>
+            <h2 style={{ fontFamily: "'Syne', sans-serif", fontSize: "clamp(1.8rem, 3.5vw, 3rem)", fontWeight: 800, color: C.text, letterSpacing: "-0.02em" }}>
+              Awards
+            </h2>
           </div>
+          {AWARDS_LIST.map((award, i) => {
+            const ref = useRef<HTMLDivElement>(null);
+            const inView = useInView(ref, { once: true });
+            return (
+              <motion.div
+                key={award}
+                ref={ref}
+                initial={{ opacity: 0, x: -20 }}
+                animate={inView ? { opacity: 1, x: 0 } : {}}
+                transition={{ duration: 0.6, delay: i * 0.1 }}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "2rem",
+                  padding: "1.5rem 0",
+                  borderBottom: i < AWARDS_LIST.length - 1 ? `1px solid ${C.border}` : "none",
+                }}
+              >
+                <div style={{ width: "6px", height: "6px", background: C.violet, borderRadius: "50%", flexShrink: 0 }} />
+                <div style={{ fontFamily: "'Syne', sans-serif", fontSize: "1.1rem", fontWeight: 700, color: C.text, letterSpacing: "-0.01em" }}>
+                  {award}
+                </div>
+              </motion.div>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* ── CTA ────────────────────────────────────────────────────────── */}
+      <section style={{ padding: "8rem 3rem", background: C.violet, position: "relative", overflow: "hidden" }}>
+        <div style={{
+          position: "absolute",
+          inset: 0,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          userSelect: "none",
+          pointerEvents: "none",
+        }}>
+          <div style={{
+            fontFamily: "'Syne', sans-serif",
+            fontSize: "clamp(6rem, 20vw, 18rem)",
+            fontWeight: 800,
+            color: "rgba(0,0,0,0.08)",
+            letterSpacing: "-0.04em",
+          }}>
+            LET'S GO
+          </div>
+        </div>
+        <div style={{ position: "relative", zIndex: 1, textAlign: "center", maxWidth: "700px", margin: "0 auto" }}>
+          <h2 style={{ fontFamily: "'Syne', sans-serif", fontSize: "clamp(2.5rem, 6vw, 5rem)", fontWeight: 800, color: C.bg, letterSpacing: "-0.03em", lineHeight: 0.95, marginBottom: "1.5rem" }}>
+            On a un créneau<br />disponible pour vous.
+          </h2>
+          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "1rem", color: "rgba(7,7,10,0.65)", lineHeight: 1.75, marginBottom: "3rem", maxWidth: "50ch", margin: "0 auto 3rem" }}>
+            On ne travaille qu'avec 4 clients en simultané. Si votre projet mérite d'exister, écrivez-nous.
+          </p>
+          <motion.button
+            whileHover={{ backgroundColor: C.bg, color: C.violet }}
+            style={{
+              background: "transparent",
+              border: `2px solid ${C.bg}`,
+              color: C.bg,
+              padding: "1rem 3rem",
+              fontFamily: "'Syne Mono', monospace",
+              fontSize: "0.8rem",
+              fontWeight: 700,
+              letterSpacing: "0.1em",
+              cursor: "pointer",
+              transition: "all 0.3s",
+            }}
+          >
+            CONTACT US →
+          </motion.button>
+          <div style={{ marginTop: "2rem", fontFamily: "'Syne Mono', monospace", fontSize: "0.65rem", color: "rgba(7,7,10,0.5)" }}>
+            hello@skewstudio.fr
+          </div>
+        </div>
+      </section>
+
+      {/* ── Footer ─────────────────────────────────────────────────────── */}
+      <footer style={{ borderTop: `1px solid ${C.border}`, padding: "3rem", background: C.bg }}>
+        <div style={{ maxWidth: "1300px", margin: "0 auto", display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr", gap: "3rem" }}>
+          <div>
+            <div style={{ fontFamily: "'Syne', sans-serif", fontSize: "1rem", fontWeight: 800, color: C.text, marginBottom: "1rem" }}>
+              SKEW<span style={{ color: C.violet }}>.</span>
+            </div>
+            <p style={{ fontFamily: "'Syne Mono', monospace", fontSize: "0.7rem", color: C.textDim, lineHeight: 1.8 }}>
+              Motion design · Brand films · VFX<br />Paris, France
+            </p>
+          </div>
+          {[
+            { title: "WORK", items: ["All Projects", "Films", "Motion", "Installations"] },
+            { title: "STUDIO", items: ["About", "Team", "Process", "Careers"] },
+            { title: "CONTACT", items: ["New Projects", "Press", "Instagram", "Vimeo"] },
+          ].map((col) => (
+            <div key={col.title}>
+              <div style={{ fontFamily: "'Syne Mono', monospace", fontSize: "0.55rem", letterSpacing: "0.25em", color: C.textDim, marginBottom: "1.5rem" }}>
+                {col.title}
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+                {col.items.map((item) => (
+                  <motion.a key={item} href="#" style={{ fontFamily: "'Syne Mono', monospace", fontSize: "0.7rem", color: C.textMuted, textDecoration: "none", cursor: "pointer" }} whileHover={{ color: C.violetLight }}>
+                    {item}
+                  </motion.a>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+        <div style={{ maxWidth: "1300px", margin: "2.5rem auto 0", paddingTop: "2rem", borderTop: `1px solid ${C.border}`, display: "flex", justifyContent: "space-between" }}>
+          <div style={{ fontFamily: "'Syne Mono', monospace", fontSize: "0.55rem", color: C.textDim }}>© 2025 SKEW STUDIO</div>
+          <div style={{ fontFamily: "'Syne Mono', monospace", fontSize: "0.55rem", color: C.textDim }}>PARIS · MOTION · FILM</div>
         </div>
       </footer>
-
-      {/* WORK MODAL (Placeholder logic) */}
-      <AnimatePresence>
-        {activeWork !== null && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[200] bg-black/95 backdrop-blur-md flex items-center justify-center p-6"
-            onClick={() => setActiveWork(null)}
-          >
-            <motion.div
-              initial={{ scale: 0.9, y: 30 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.9, y: 30 }}
-              className="bg-[#0c0c0c] border border-white/10 max-w-4xl w-full grid grid-cols-1 md:grid-cols-2 overflow-hidden rounded-sm"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="relative aspect-square md:aspect-auto">
-                <Image
-                  src={WORK[activeWork].img}
-                  alt="Work"
-                  fill
-                  className="object-cover grayscale brightness-50"
-                />
-                <div className="absolute inset-0 bg-[#ff003c]/5 mix-blend-screen" />
-              </div>
-              <div className="p-12 flex flex-col justify-between">
-                <div>
-                  <div className="text-[10px] uppercase tracking-widest text-[#ff003c] font-black mb-4">
-                    {WORK[activeWork].tag} // {WORK[activeWork].year}
-                  </div>
-                  <h3 className="text-4xl font-black uppercase tracking-tighter text-white mb-6 leading-none">
-                    {WORK[activeWork].title}
-                  </h3>
-                  <p className="text-sm text-white/30 leading-relaxed font-bold uppercase tracking-widest mb-10 italic">
-                    "{WORK[activeWork].client} required a total brand system
-                    rebuilt from first principles. We delivered a visual
-                    ideology."
-                  </p>
-
-                  <div className="grid grid-cols-1 gap-4 mb-10">
-                    {WORK[activeWork].deliverables.map((d, i) => (
-                      <div
-                        key={i}
-                        className="flex justify-between text-xs border-b border-white/5 pb-2"
-                      >
-                        <span className="uppercase tracking-widest text-white/20 font-black">
-                          DELIVERABLE_0{i + 1}
-                        </span>
-                        <span className="font-black text-white/60">{d}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                <button className="w-full py-5 bg-white text-black text-[10px] font-black uppercase tracking-widest hover:bg-[#ff003c] hover:text-white transition-all cursor-pointer">
-                  View_Full_Case_Study
-                </button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      <style>{`::-webkit-scrollbar{width:4px;background:#080808}::-webkit-scrollbar-thumb{background:#ff003c10}`}</style>
     </div>
   );
 }
