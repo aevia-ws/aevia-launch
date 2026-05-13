@@ -1,244 +1,1583 @@
-"use client"
+"use client";
 
-import React, { useState, useRef } from "react"
-import { motion, useScroll, useTransform, useInView, AnimatePresence } from "framer-motion"
+import { useRef, useState, useEffect } from "react";
+import { motion, useScroll, useTransform, useInView, AnimatePresence } from "framer-motion";
+import { Search, User, ArrowRight, BookOpen, Clock, MessageSquare, Check, Link2, Camera, Bookmark, ChevronLeft, ChevronRight, Play } from "lucide-react";
 
-// FRÉQUENCE — Independent newsletter/media. Bold yellow + black editorial, subscription-first, column layout.
-// Unique: oversized rotating "F" logo, vertical tab navigation on left, issue-based structure.
+// ─── Design Tokens ────────────────────────────────────────────────────────────
+const C = {
+  bg: "#FFFFFF",
+  bgAlt: "#F7F5F0",
+  bgDark: "#0D0D0D",
+  text: "#0D0D0D",
+  textMuted: "#6B6B6B",
+  red: "#DC2626",
+  redDark: "#B91C1C",
+  redLight: "rgba(220,38,38,0.08)",
+  border: "#E8E8E8",
+  borderDark: "rgba(255,255,255,0.08)",
+  cream: "#F7F5F0",
+  serif: "'Playfair Display', 'Georgia', serif",
+  sans: "'Inter', system-ui, sans-serif",
+  mono: "'JetBrains Mono', 'Courier New', monospace",
+};
 
-const ISSUES = [
-  { num: "047", date: "Semaine du 5 mai 2025", title: "L'IA va-t-elle tuer la créativité — ou la sauver ?", reads: "14 200", tag: "Tech & Culture" },
-  { num: "046", date: "28 avril 2025", title: "Le retour du bureau : ce que les chiffres ne disent pas.", reads: "11 800", tag: "Business" },
-  { num: "045", date: "21 avril 2025", title: "Quiet quitting 2025 : le mouvement s'est transformé.", reads: "16 400", tag: "Société" },
-  { num: "044", date: "14 avril 2025", title: "Startup Winter — les levées de fonds à la loupe.", reads: "9 300", tag: "Finance" },
-]
+// ─── Data ─────────────────────────────────────────────────────────────────────
+const CATEGORIES = [
+  { name: "Tech & Culture", color: "#7C3AED", count: 48 },
+  { name: "Business", color: "#1D4ED8", count: 62 },
+  { name: "Société", color: "#059669", count: 55 },
+  { name: "Finance", color: "#D97706", count: 31 },
+  { name: "Design", color: "#DB2777", count: 27 },
+  { name: "Future du travail", color: "#0891B2", count: 39 },
+];
 
-const CATEGORIES = ["Tech & Culture", "Business", "Société", "Finance", "Design", "Future du Travail"]
+const FEATURED_ARTICLE = {
+  issue: "047",
+  date: "Lundi 5 mai 2025",
+  tag: "Tech & Culture",
+  tagColor: "#7C3AED",
+  title: "L'IA va-t-elle tuer la créativité — ou la sauver ?",
+  subtitle: "Il y a trois ans, on nous promettait que l'IA allait éliminer des millions de métiers créatifs. Aujourd'hui, les designers, écrivains et musiciens les plus influents utilisent tous des outils génératifs. Ce n'est pas la mort de la créativité — c'est sa mutation profonde.",
+  author: "Mathilde Aubert",
+  authorRole: "Rédactrice en chef",
+  readTime: "12 min",
+  reads: "14 200",
+};
+
+const ARTICLES = [
+  {
+    issue: "046",
+    date: "28 avr. 2025",
+    tag: "Business",
+    tagColor: "#1D4ED8",
+    title: "Le retour du bureau : ce que les chiffres ne disent pas.",
+    excerpt: "Les grandes entreprises imposent le retour en présentiel. Mais les données montrent que la productivité n'est pas là où on le croit.",
+    author: "Théo Marchand",
+    readTime: "8 min",
+    reads: "11 800",
+    premium: true,
+  },
+  {
+    issue: "045",
+    date: "21 avr. 2025",
+    tag: "Société",
+    tagColor: "#059669",
+    title: "Quiet quitting 2025 : le mouvement s'est transformé en quelque chose de plus complexe.",
+    excerpt: "Ce qu'on appelait démission silencieuse est devenu une philosophie de travail structurée, avec ses codes, ses influenceurs et ses manifestes.",
+    author: "Léa Fontaine",
+    readTime: "10 min",
+    reads: "16 400",
+    premium: false,
+  },
+  {
+    issue: "044",
+    date: "14 avr. 2025",
+    tag: "Finance",
+    tagColor: "#D97706",
+    title: "Startup Winter : les levées de fonds européennes à la loupe.",
+    excerpt: "Les chiffres Q1 2025 confirment le ralentissement. Qui finance encore, qui s'est arrêté, et pourquoi certains fondateurs s'en félicitent.",
+    author: "Romain Lefèvre",
+    readTime: "6 min",
+    reads: "9 300",
+    premium: true,
+  },
+  {
+    issue: "043",
+    date: "7 avr. 2025",
+    tag: "Design",
+    tagColor: "#DB2777",
+    title: "La typographie comme prise de position politique.",
+    excerpt: "Du New York Times à l'affiche de campagne — comment le choix d'une fonte encode des valeurs, une époque, un camp.",
+    author: "Camille Renard",
+    readTime: "7 min",
+    reads: "7 900",
+    premium: false,
+  },
+  {
+    issue: "042",
+    date: "31 mars 2025",
+    tag: "Future du travail",
+    tagColor: "#0891B2",
+    title: "Les 4 jours, 2 ans après : bilan d'une révolution qui n'a pas eu lieu.",
+    excerpt: "L'Islande avait montré la voie. La France a testé timidement. Pourquoi le passage aux 4 jours reste-t-il si difficile en pratique ?",
+    author: "Théo Marchand",
+    readTime: "9 min",
+    reads: "13 100",
+    premium: true,
+  },
+];
+
+const AUTHORS = [
+  {
+    name: "Mathilde Aubert",
+    role: "Rédactrice en chef",
+    bio: "10 ans de journalisme tech. Ex-Wired France, Ex-Les Échos. Spécialiste IA et culture numérique.",
+    articles: 112,
+    initials: "MA",
+    color: C.red,
+  },
+  {
+    name: "Théo Marchand",
+    role: "Économiste & Journaliste",
+    bio: "Chercheur associé à Sciences Po Paris. Couvre les mutations du travail, l'économie comportementale.",
+    articles: 78,
+    initials: "TM",
+    color: "#1D4ED8",
+  },
+  {
+    name: "Léa Fontaine",
+    role: "Correspondante Europe",
+    bio: "Basée à Berlin. Sociologie des organisations et nouvelles formes de travail dans les pays nordiques.",
+    articles: 64,
+    initials: "LF",
+    color: "#059669",
+  },
+  {
+    name: "Camille Renard",
+    role: "Critique design & media",
+    bio: "Designer et critique. Contributrice régulière au MoMA et à la Design Week de Milan.",
+    articles: 45,
+    initials: "CR",
+    color: "#DB2777",
+  },
+];
 
 const TESTIMONIALS = [
-  { quote: "Fréquence est la seule newsletter que j'ouvre en premier le lundi matin. Pas de bullshit, des idées qui tiennent.", name: "Alexandre M.", role: "Directeur Produit, Scale-up" },
-  { quote: "J'ai lu 3 articles et j'ai restructuré toute ma stratégie Q3. Ça mérite largement l'abonnement.", name: "Cécile P.", role: "Founder, Studio indépendant" },
-  { quote: "Enfin du contenu qui respecte l'intelligence du lecteur. C'est rare et précieux.", name: "Romain L.", role: "VC Partner, Paris" },
-]
+  {
+    quote: "Fréquence est la seule newsletter que j'ouvre en premier le lundi matin. Pas de bullshit, des idées qui tiennent et qui transforment ma manière de penser le business.",
+    name: "Alexandre M.",
+    role: "Directeur Produit, Scale-up Paris",
+    stars: 5,
+  },
+  {
+    quote: "J'ai lu 3 articles et j'ai restructuré toute ma stratégie Q3. Ça mérite largement l'abonnement — c'est de la recherche condensée en format lisible.",
+    name: "Cécile P.",
+    role: "Founder, Studio indépendant",
+    stars: 5,
+  },
+  {
+    quote: "Enfin du contenu qui respecte l'intelligence du lecteur. Pas de listes de 10 conseils inutiles. Des analyses, des chiffres, des nuances.",
+    name: "Romain L.",
+    role: "VC Partner, Paris",
+    stars: 5,
+  },
+  {
+    quote: "Le podcast hebdo est ce que je préfère. 20 minutes d'analyse denses pendant mon trajet — j'arrive au bureau avec des idées.",
+    name: "Sara K.",
+    role: "Head of Strategy, Conseil",
+    stars: 5,
+  },
+];
 
 const PLANS = [
-  { name: "Gratuit", price: "0 €", note: "pour toujours", features: ["1 article par semaine", "Archives des 3 derniers mois", "Newsletter hebdo résumée"] },
-  { name: "Lecteur", price: "9 €", note: "/mois · sans engagement", features: ["Accès illimité à tous les articles", "Archives complètes (2019–)", "Newsletter complète sans pub", "Podcast hebdo inclus"], highlight: true },
-  { name: "Studio", price: "49 €", note: "/mois · équipe jusqu'à 10", features: ["Tout Lecteur ×10 comptes", "Rapports thématiques mensuels", "Accès sessions live Q&A", "Usage commercial articles"] },
-]
+  {
+    name: "Gratuit",
+    price: "0 €",
+    note: "pour toujours",
+    features: [
+      "1 article complet par semaine",
+      "Archives des 3 derniers mois",
+      "Newsletter résumée sans pub",
+    ],
+    cta: "Commencer gratuitement",
+    highlight: false,
+  },
+  {
+    name: "Lecteur",
+    price: "9 €",
+    note: "/mois · sans engagement",
+    features: [
+      "Accès illimité à tous les articles",
+      "Archives complètes depuis 2019",
+      "Newsletter intégrale sans pub",
+      "Podcast hebdo 20 min inclus",
+      "Sessions live Q&A mensuelles",
+    ],
+    cta: "S'abonner →",
+    highlight: true,
+  },
+  {
+    name: "Studio",
+    price: "49 €",
+    note: "/mois · équipe jusqu'à 10",
+    features: [
+      "Tout Lecteur × 10 comptes",
+      "Rapports thématiques mensuels",
+      "Accès sessions live Q&A",
+      "Usage commercial des articles",
+      "Facturation au nom de la société",
+    ],
+    cta: "Contacter l'équipe",
+    highlight: false,
+  },
+];
+
+const ARCHIVE_MONTHS = [
+  { month: "Mai 2025", issues: 4, highlights: ["IA & Créativité", "Retour bureau", "Quiet quitting"] },
+  { month: "Avril 2025", issues: 4, highlights: ["Startup Winter", "Typographie", "4 jours de travail"] },
+  { month: "Mars 2025", issues: 4, highlights: ["Web3 bilan", "Médias indépendants", "Salaires réels"] },
+  { month: "Février 2025", issues: 4, highlights: ["IA en entreprise", "Fusion-acquisition", "Burnout étude"] },
+  { month: "Janvier 2025", issues: 4, highlights: ["Prédictions 2025", "Big tech régulation", "Remote work"] },
+  { month: "Décembre 2024", issues: 3, highlights: ["Bilan 2024", "Tendances 2025", "Best-of articles"] },
+];
 
 const FAQS = [
-  { q: "À quelle fréquence publiez-vous ?", a: "Chaque lundi — une grande analyse (2 500 mots) + 3 brèves. Parfois un hors-série le jeudi sur un sujet brûlant." },
-  { q: "Puis-je annuler mon abonnement ?", a: "Oui, à tout moment depuis votre espace abonné. Pas de rétention abusive, pas d'email de culpabilisation." },
-  { q: "Acceptez-vous les articles invités ?", a: "Rarement. Nous publions des contributeurs de la communauté 2 fois par mois sur candidature." },
-  { q: "Avez-vous des publicités ?", a: "Un seul sponsor par numéro, clairement identifié. Aucune donnée lecteur vendue. Jamais." },
-  { q: "Y a-t-il un podcast ?", a: "Oui — disponible pour les abonnés Lecteur. L'éditeur commente l'édition en 20 min chaque lundi." },
-]
+  {
+    q: "À quelle fréquence publiez-vous ?",
+    a: "Chaque lundi — une grande analyse (2 000–3 000 mots) + 3 brèves commentées. Parfois un hors-série le jeudi sur un sujet brûlant.",
+  },
+  {
+    q: "Puis-je annuler mon abonnement ?",
+    a: "Oui, à tout moment depuis votre espace abonné. Pas de rétention abusive, pas d'email de culpabilisation.",
+  },
+  {
+    q: "Acceptez-vous les articles invités ?",
+    a: "Rarement. Nous publions des contributeurs de la communauté 2 fois par mois sur candidature ouverte. Rédacteurs académiques prioritaires.",
+  },
+  {
+    q: "Avez-vous des publicités ?",
+    a: "Un seul sponsor par numéro, clairement identifié et cohérent avec notre ligne éditoriale. Aucune donnée lecteur vendue. Jamais.",
+  },
+  {
+    q: "Y a-t-il un podcast ?",
+    a: "Oui — disponible pour les abonnés Lecteur. L'éditeur commente l'édition en 20 minutes denses chaque lundi dès 7h.",
+  },
+  {
+    q: "Comment rejoindre la communauté Fréquence ?",
+    a: "L'abonnement Lecteur donne accès à notre Discord privé (2 400 membres) et aux sessions mensuelles Q&A avec les auteurs.",
+  },
+];
 
-export default function Page() {
-  const [email, setEmail] = useState("")
-  const [subscribed, setSubscribed] = useState(false)
-  const [activeIssue, setActiveIssue] = useState(0)
-  const [openFaq, setOpenFaq] = useState<number | null>(null)
-  const [activeCategory, setActiveCategory] = useState(0)
-  const { scrollY } = useScroll()
+const STATS = [
+  { val: "15 200+", label: "Abonnés actifs" },
+  { val: "89%", label: "Taux d'ouverture" },
+  { val: "2019", label: "Depuis" },
+  { val: "0", label: "Publicités intrusives" },
+];
 
-  const logoRotate = useTransform(scrollY, [0, 1000], [0, 180])
-
-  const pricingRef = useRef(null)
-  const pricingInView = useInView(pricingRef, { once: true, margin: "-100px" })
-
-  const C = {
-    yellow: "#f5e642",
-    bg: "#0d0d0d",
-    white: "#f0ede6",
-    muted: "#555",
-    card: "#141414",
-    border: "#1f1f1f",
-    mono: "'JetBrains Mono', 'Courier New', monospace",
-    serif: "'Times New Roman', Georgia, serif",
-    sans: "system-ui, -apple-system, sans-serif",
-  }
+// ─── Article Card ─────────────────────────────────────────────────────────────
+function ArticleCard({ a, i }: { a: typeof ARTICLES[0]; i: number }) {
+  const [bookmarked, setBookmarked] = useState(false);
+  const [hovering, setHovering] = useState(false);
 
   return (
-    <div style={{ background: C.bg, color: C.white, fontFamily: C.sans, overflowX: "hidden" }}>
-      {/* NAV — newspaper style top bar */}
-      <nav style={{ borderBottom: `2px solid ${C.border}`, padding: "0 60px", height: 56, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 32 }}>
-          <div style={{ fontFamily: C.serif, fontSize: 28, fontWeight: 700, letterSpacing: -1, color: C.yellow }}>Fréquence</div>
-          <div style={{ fontFamily: C.mono, fontSize: 10, letterSpacing: 2, color: C.muted, borderLeft: `1px solid ${C.border}`, paddingLeft: 24 }}>Numéro 047 · Lundi 5 mai 2025</div>
+    <motion.article
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ delay: i * 0.08 }}
+      onHoverStart={() => setHovering(true)}
+      onHoverEnd={() => setHovering(false)}
+      style={{
+        borderBottom: `1px solid ${C.border}`,
+        padding: "28px 0",
+        cursor: "pointer",
+        display: "grid",
+        gridTemplateColumns: "auto 1fr auto",
+        gap: "0 24px",
+        alignItems: "start",
+      }}
+    >
+      {/* Issue number */}
+      <div
+        style={{
+          fontFamily: C.mono,
+          fontSize: 10,
+          color: C.textMuted,
+          letterSpacing: 2,
+          paddingTop: 4,
+          minWidth: 36,
+        }}
+      >
+        #{a.issue}
+      </div>
+
+      {/* Content */}
+      <div>
+        <div style={{ display: "flex", gap: 10, alignItems: "center", marginBottom: 10 }}>
+          <span
+            style={{
+              fontSize: 9,
+              fontWeight: 700,
+              letterSpacing: 2,
+              textTransform: "uppercase",
+              color: a.tagColor,
+              fontFamily: C.mono,
+              padding: "2px 8px",
+              border: `1px solid ${a.tagColor}33`,
+              background: `${a.tagColor}0D`,
+            }}
+          >
+            {a.tag}
+          </span>
+          {a.premium && (
+            <span
+              style={{
+                fontSize: 9,
+                fontWeight: 700,
+                letterSpacing: 1.5,
+                color: C.red,
+                fontFamily: C.mono,
+                textTransform: "uppercase",
+              }}
+            >
+              Abonnés
+            </span>
+          )}
+          <span
+            style={{
+              fontSize: 10,
+              color: C.textMuted,
+              fontFamily: C.mono,
+              letterSpacing: 0.5,
+            }}
+          >
+            {a.date}
+          </span>
         </div>
-        <div style={{ display: "flex", gap: 32, alignItems: "center" }}>
-          {["Archives", "Podcast", "À propos"].map(l => (
-            <a key={l} href="#" style={{ fontFamily: C.mono, fontSize: 11, letterSpacing: 2, color: C.muted, textDecoration: "none", textTransform: "uppercase" }}>{l}</a>
+
+        <motion.h3
+          animate={{ color: hovering ? C.red : C.text }}
+          transition={{ duration: 0.2 }}
+          style={{
+            fontFamily: C.serif,
+            fontSize: 19,
+            fontWeight: 700,
+            lineHeight: 1.3,
+            letterSpacing: -0.3,
+            marginBottom: 10,
+          }}
+        >
+          {a.title}
+        </motion.h3>
+
+        <p
+          style={{
+            fontSize: 14,
+            color: C.textMuted,
+            lineHeight: 1.7,
+            marginBottom: 12,
+            maxWidth: 540,
+            fontFamily: C.sans,
+          }}
+        >
+          {a.excerpt}
+        </p>
+
+        <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
+          <span style={{ fontSize: 12, color: C.textMuted, fontFamily: C.sans }}>
+            Par {a.author}
+          </span>
+          <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+            <Clock size={11} style={{ color: C.textMuted }} />
+            <span style={{ fontSize: 11, color: C.textMuted, fontFamily: C.mono }}>{a.readTime}</span>
+          </div>
+          <span style={{ fontSize: 11, color: C.textMuted, fontFamily: C.mono }}>{a.reads} lectures</span>
+        </div>
+      </div>
+
+      {/* Bookmark */}
+      <button
+        onClick={e => { e.stopPropagation(); setBookmarked(b => !b); }}
+        style={{
+          background: "none",
+          border: "none",
+          cursor: "pointer",
+          padding: "4px",
+          color: bookmarked ? C.red : C.textMuted,
+          transition: "color 0.2s",
+          paddingTop: 6,
+        }}
+      >
+        <Bookmark size={16} fill={bookmarked ? C.red : "none"} />
+      </button>
+    </motion.article>
+  );
+}
+
+// ─── Main Component ───────────────────────────────────────────────────────────
+export default function ImpactFrequencePage() {
+  const [email, setEmail] = useState("");
+  const [subscribed, setSubscribed] = useState(false);
+  const [activeCategory, setActiveCategory] = useState<number | null>(null);
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [activePlan, setActivePlan] = useState(1);
+  const [archiveOpen, setArchiveOpen] = useState<number | null>(null);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  const containerRef = useRef<HTMLDivElement>(null);
+  const heroRef = useRef<HTMLElement>(null);
+  const statsRef = useRef<HTMLElement>(null);
+  const pricingRef = useRef<HTMLElement>(null);
+
+  const { scrollYProgress } = useScroll({ target: containerRef });
+  const heroParallax = useTransform(scrollYProgress, [0, 0.3], [0, -40]);
+
+  const statsInView = useInView(statsRef, { once: true, margin: "-80px" });
+  const pricingInView = useInView(pricingRef, { once: true, margin: "-80px" });
+
+  useEffect(() => {
+    const onScroll = () => setIsScrolled(window.scrollY > 60);
+    window.addEventListener("scroll", onScroll);
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  return (
+    <div
+      ref={containerRef}
+      style={{
+        background: C.bg,
+        color: C.text,
+        minHeight: "100vh",
+        fontFamily: C.sans,
+        overflowX: "hidden",
+      }}
+    >
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,900;1,400;1,700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+        input::placeholder { color: #A0A0A0; }
+      `}</style>
+
+      {/* TOP BAR — newspaper date line */}
+      <div
+        style={{
+          background: C.bgDark,
+          padding: "9px 64px",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          borderBottom: "none",
+        }}
+      >
+        <span style={{ fontFamily: C.mono, fontSize: 10, color: "rgba(255,255,255,0.4)", letterSpacing: 2 }}>
+          INDÉPENDANT · FONDÉ EN 2019 · PARIS
+        </span>
+        <span style={{ fontFamily: C.mono, fontSize: 10, color: "rgba(255,255,255,0.4)", letterSpacing: 2 }}>
+          № 047 · Lundi 5 mai 2025 · +15 200 abonnés
+        </span>
+      </div>
+
+      {/* NAV — newspaper masthead style */}
+      <nav
+        style={{
+          position: "sticky",
+          top: 0,
+          zIndex: 100,
+          background: isScrolled ? "rgba(255,255,255,0.97)" : C.bg,
+          backdropFilter: "blur(12px)",
+          borderBottom: `2px solid ${C.text}`,
+          padding: "0 64px",
+          transition: "all 0.3s",
+        }}
+      >
+        {/* Masthead */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            height: 64,
+          }}
+        >
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            style={{
+              fontFamily: C.serif,
+              fontSize: 30,
+              fontWeight: 900,
+              letterSpacing: -1,
+              color: C.red,
+              lineHeight: 1,
+            }}
+          >
+            Fréquence
+          </motion.div>
+
+          {/* Nav links */}
+          <div style={{ display: "flex", gap: 36, alignItems: "center" }}>
+            {["Archives", "Auteurs", "Podcast", "À propos"].map(l => (
+              <a
+                key={l}
+                href="#"
+                style={{
+                  fontFamily: C.mono,
+                  fontSize: 11,
+                  letterSpacing: 2,
+                  color: C.textMuted,
+                  textDecoration: "none",
+                  textTransform: "uppercase",
+                  transition: "color 0.2s",
+                }}
+                onMouseEnter={e => ((e.currentTarget as HTMLElement).style.color = C.red)}
+                onMouseLeave={e => ((e.currentTarget as HTMLElement).style.color = C.textMuted)}
+              >
+                {l}
+              </a>
+            ))}
+          </div>
+
+          {/* Actions */}
+          <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
+            <Search size={16} style={{ color: C.textMuted, cursor: "pointer" }} />
+            <User size={16} style={{ color: C.textMuted, cursor: "pointer" }} />
+            <motion.button
+              whileHover={{ background: C.redDark }}
+              whileTap={{ scale: 0.96 }}
+              style={{
+                padding: "9px 22px",
+                background: C.red,
+                color: "#fff",
+                border: "none",
+                fontFamily: C.mono,
+                fontSize: 11,
+                letterSpacing: 2,
+                textTransform: "uppercase",
+                cursor: "pointer",
+                fontWeight: 700,
+                transition: "background 0.2s",
+              }}
+            >
+              S'abonner
+            </motion.button>
+          </div>
+        </div>
+
+        {/* Category nav strip */}
+        <div
+          style={{
+            borderTop: `1px solid ${C.border}`,
+            display: "flex",
+            gap: 0,
+            overflowX: "auto",
+            scrollbarWidth: "none",
+          }}
+        >
+          {CATEGORIES.map((cat, i) => (
+            <button
+              key={cat.name}
+              onClick={() => setActiveCategory(activeCategory === i ? null : i)}
+              style={{
+                padding: "10px 20px",
+                background: activeCategory === i ? cat.color : "transparent",
+                color: activeCategory === i ? "#fff" : C.textMuted,
+                border: "none",
+                borderRight: `1px solid ${C.border}`,
+                fontFamily: C.mono,
+                fontSize: 10,
+                letterSpacing: 2,
+                textTransform: "uppercase",
+                cursor: "pointer",
+                whiteSpace: "nowrap",
+                transition: "all 0.2s",
+              }}
+            >
+              {cat.name}
+            </button>
           ))}
-          <motion.button whileHover={{ background: C.yellow, color: C.bg }} whileTap={{ scale: 0.97 }}
-            style={{ padding: "8px 20px", background: "transparent", color: C.yellow, border: `1px solid ${C.yellow}`, fontFamily: C.mono, fontSize: 11, letterSpacing: 2, textTransform: "uppercase", cursor: "pointer", transition: "all 0.2s" }}>
-            S'abonner
-          </motion.button>
         </div>
       </nav>
 
-      {/* HERO — oversized rotating F + headline */}
-      <section style={{ display: "grid", gridTemplateColumns: "240px 1fr", borderBottom: `1px solid ${C.border}`, minHeight: "80vh" }}>
-        {/* Left sidebar with rotating F */}
-        <div style={{ borderRight: `1px solid ${C.border}`, display: "flex", alignItems: "center", justifyContent: "center", position: "relative", overflow: "hidden" }}>
-          <motion.div style={{ rotate: logoRotate, fontSize: 240, fontFamily: C.serif, fontWeight: 700, color: C.yellow, lineHeight: 1, opacity: 0.15, position: "absolute" }}>
-            F
-          </motion.div>
-          <div style={{ position: "relative", zIndex: 1, textAlign: "center" }}>
-            {CATEGORIES.map((cat, i) => (
-              <motion.div key={i}
-                onClick={() => setActiveCategory(i)}
-                whileHover={{ x: 4 }}
-                style={{ fontFamily: C.mono, fontSize: 10, letterSpacing: 3, textTransform: "uppercase", color: activeCategory === i ? C.yellow : C.muted, padding: "12px 0", cursor: "pointer", transition: "color 0.2s", borderBottom: `1px solid ${C.border}` }}>
-                {cat}
+      {/* HERO — featured article newspaper layout */}
+      <section
+        ref={heroRef}
+        style={{
+          display: "grid",
+          gridTemplateColumns: "3fr 2fr",
+          borderBottom: `2px solid ${C.text}`,
+          minHeight: "80vh",
+        }}
+      >
+        {/* Main story */}
+        <motion.div
+          style={{ y: heroParallax }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.8 }}
+        >
+          <div
+            style={{
+              borderRight: `1px solid ${C.border}`,
+              padding: "60px 64px 60px 64px",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-between",
+              minHeight: "80vh",
+            }}
+          >
+            {/* Tag line */}
+            <div style={{ display: "flex", gap: 12, alignItems: "center", marginBottom: 32 }}>
+              <span
+                style={{
+                  fontFamily: C.mono,
+                  fontSize: 9,
+                  fontWeight: 700,
+                  letterSpacing: 3,
+                  color: "#fff",
+                  background: FEATURED_ARTICLE.tagColor,
+                  padding: "4px 12px",
+                  textTransform: "uppercase",
+                }}
+              >
+                {FEATURED_ARTICLE.tag}
+              </span>
+              <span
+                style={{
+                  fontFamily: C.mono,
+                  fontSize: 10,
+                  color: C.textMuted,
+                  letterSpacing: 2,
+                }}
+              >
+                № {FEATURED_ARTICLE.issue} · {FEATURED_ARTICLE.date}
+              </span>
+            </div>
+
+            {/* Headline */}
+            <div>
+              <motion.h1
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.9, delay: 0.2 }}
+                style={{
+                  fontFamily: C.serif,
+                  fontSize: "clamp(40px, 5vw, 72px)",
+                  fontWeight: 900,
+                  letterSpacing: -2,
+                  lineHeight: 1.05,
+                  color: C.text,
+                  marginBottom: 28,
+                }}
+              >
+                {FEATURED_ARTICLE.title}
+              </motion.h1>
+
+              {/* Body columns */}
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr",
+                  gap: 32,
+                  marginBottom: 40,
+                }}
+              >
+                <p
+                  style={{
+                    fontFamily: C.serif,
+                    fontSize: 17,
+                    lineHeight: 1.85,
+                    color: C.textMuted,
+                    borderTop: `3px solid ${C.red}`,
+                    paddingTop: 18,
+                  }}
+                >
+                  {FEATURED_ARTICLE.subtitle.slice(0, 200)}
+                </p>
+                <p
+                  style={{
+                    fontFamily: C.serif,
+                    fontSize: 17,
+                    lineHeight: 1.85,
+                    color: C.textMuted,
+                    borderTop: `1px solid ${C.border}`,
+                    paddingTop: 18,
+                  }}
+                >
+                  Une analyse exclusive de 400 créatifs professionnels révèle une fracture profonde — entre ceux qui se sont adaptés et ceux qui ont cessé de créer.
+                </p>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div
+              style={{
+                display: "flex",
+                gap: 24,
+                alignItems: "center",
+                borderTop: `1px solid ${C.border}`,
+                paddingTop: 24,
+              }}
+            >
+              <div
+                style={{
+                  width: 40,
+                  height: 40,
+                  background: C.red,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontFamily: C.serif,
+                  fontSize: 14,
+                  fontWeight: 700,
+                  color: "#fff",
+                }}
+              >
+                MA
+              </div>
+              <div>
+                <div style={{ fontSize: 13, fontWeight: 600, color: C.text, fontFamily: C.sans }}>
+                  {FEATURED_ARTICLE.author}
+                </div>
+                <div style={{ fontSize: 11, color: C.textMuted, fontFamily: C.sans }}>
+                  {FEATURED_ARTICLE.authorRole}
+                </div>
+              </div>
+              <div style={{ display: "flex", gap: 16, alignItems: "center", marginLeft: "auto" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                  <Clock size={12} style={{ color: C.textMuted }} />
+                  <span style={{ fontFamily: C.mono, fontSize: 11, color: C.textMuted }}>
+                    {FEATURED_ARTICLE.readTime}
+                  </span>
+                </div>
+                <span style={{ fontFamily: C.mono, fontSize: 11, color: C.textMuted }}>
+                  {FEATURED_ARTICLE.reads} lectures
+                </span>
+                <motion.button
+                  whileHover={{ background: C.red, color: "#fff", borderColor: C.red }}
+                  whileTap={{ scale: 0.96 }}
+                  style={{
+                    padding: "10px 24px",
+                    background: "transparent",
+                    color: C.red,
+                    border: `1px solid ${C.red}`,
+                    fontFamily: C.mono,
+                    fontSize: 11,
+                    letterSpacing: 2,
+                    textTransform: "uppercase",
+                    cursor: "pointer",
+                    transition: "all 0.2s",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
+                  }}
+                >
+                  Lire l'article <ArrowRight size={12} />
+                </motion.button>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Right sidebar — quick reads */}
+        <div style={{ padding: "60px 40px" }}>
+          <div
+            style={{
+              fontFamily: C.mono,
+              fontSize: 10,
+              letterSpacing: 3,
+              color: C.textMuted,
+              textTransform: "uppercase",
+              marginBottom: 24,
+              borderBottom: `1px solid ${C.border}`,
+              paddingBottom: 12,
+            }}
+          >
+            Dans ce numéro
+          </div>
+
+          {["Le coût caché du retour en présentiel", "3 outils IA pour les créatifs (que vous n'utilisez pas encore)", "Chiffre de la semaine : 67% des fondateurs regrettent leur A-round"].map(
+            (item, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.4 + i * 0.12 }}
+                style={{
+                  padding: "18px 0",
+                  borderBottom: `1px solid ${C.border}`,
+                  cursor: "pointer",
+                  display: "flex",
+                  gap: 12,
+                  alignItems: "flex-start",
+                }}
+              >
+                <span
+                  style={{
+                    fontFamily: C.mono,
+                    fontSize: 11,
+                    color: C.red,
+                    fontWeight: 700,
+                    minWidth: 20,
+                  }}
+                >
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <span style={{ fontFamily: C.serif, fontSize: 15, lineHeight: 1.5, color: C.text }}>
+                  {item}
+                </span>
               </motion.div>
+            )
+          )}
+
+          {/* Podcast promo */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.9 }}
+            style={{
+              marginTop: 32,
+              background: C.bgDark,
+              padding: "24px",
+              cursor: "pointer",
+            }}
+          >
+            <div style={{ display: "flex", gap: 12, alignItems: "center", marginBottom: 12 }}>
+              <div
+                style={{
+                  width: 36,
+                  height: 36,
+                  background: C.red,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <Play size={14} fill="#fff" stroke="none" />
+              </div>
+              <div>
+                <div style={{ fontFamily: C.mono, fontSize: 9, color: "rgba(255,255,255,0.4)", letterSpacing: 2, textTransform: "uppercase" }}>
+                  Podcast · Épisode 047
+                </div>
+                <div style={{ fontFamily: C.sans, fontSize: 13, color: "#fff", fontWeight: 600, marginTop: 2 }}>
+                  L'IA & la créativité — 22 min
+                </div>
+              </div>
+            </div>
+            <p style={{ fontFamily: C.mono, fontSize: 11, color: "rgba(255,255,255,0.5)", lineHeight: 1.6 }}>
+              Abonnés Lecteur uniquement
+            </p>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* STATS BAR */}
+      <section
+        ref={statsRef}
+        style={{ background: C.red, borderBottom: `2px solid ${C.text}` }}
+      >
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)" }}>
+          {STATS.map((s, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 16 }}
+              animate={statsInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ delay: i * 0.1 }}
+              style={{
+                padding: "28px 40px",
+                borderRight: i < 3 ? "1px solid rgba(255,255,255,0.2)" : undefined,
+                textAlign: "center",
+              }}
+            >
+              <div
+                style={{
+                  fontFamily: C.serif,
+                  fontSize: 36,
+                  fontWeight: 900,
+                  color: "#fff",
+                  letterSpacing: -1,
+                  lineHeight: 1,
+                  marginBottom: 4,
+                }}
+              >
+                {s.val}
+              </div>
+              <div
+                style={{
+                  fontFamily: C.mono,
+                  fontSize: 10,
+                  color: "rgba(255,255,255,0.65)",
+                  letterSpacing: 2,
+                  textTransform: "uppercase",
+                }}
+              >
+                {s.label}
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      {/* ARTICLES LIST */}
+      <section style={{ display: "grid", gridTemplateColumns: "1fr 320px", borderBottom: `2px solid ${C.text}` }}>
+        {/* Main articles */}
+        <div style={{ borderRight: `1px solid ${C.border}`, padding: "60px 64px" }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginBottom: 32,
+            }}
+          >
+            <h2
+              style={{
+                fontFamily: C.serif,
+                fontSize: 28,
+                fontWeight: 900,
+                letterSpacing: -0.5,
+                color: C.text,
+              }}
+            >
+              Dernières éditions
+            </h2>
+            <a
+              href="#"
+              style={{
+                fontFamily: C.mono,
+                fontSize: 10,
+                letterSpacing: 3,
+                color: C.red,
+                textDecoration: "none",
+                textTransform: "uppercase",
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+              }}
+            >
+              Archives complètes <ArrowRight size={12} />
+            </a>
+          </div>
+
+          {ARTICLES.map((a, i) => (
+            <ArticleCard key={a.issue} a={a} i={i} />
+          ))}
+        </div>
+
+        {/* Sidebar — categories + authors + newsletter */}
+        <div style={{ padding: "60px 32px", position: "sticky", top: 120, alignSelf: "start" }}>
+          {/* Categories */}
+          <div style={{ marginBottom: 40 }}>
+            <div
+              style={{
+                fontFamily: C.mono,
+                fontSize: 10,
+                letterSpacing: 3,
+                color: C.textMuted,
+                textTransform: "uppercase",
+                marginBottom: 16,
+                borderBottom: `2px solid ${C.text}`,
+                paddingBottom: 10,
+              }}
+            >
+              Rubriques
+            </div>
+            {CATEGORIES.map((cat, i) => (
+              <div
+                key={cat.name}
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  padding: "10px 0",
+                  borderBottom: `1px solid ${C.border}`,
+                  cursor: "pointer",
+                }}
+                onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = cat.color + "08")}
+                onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = "transparent")}
+              >
+                <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+                  <div
+                    style={{
+                      width: 8,
+                      height: 8,
+                      background: cat.color,
+                    }}
+                  />
+                  <span style={{ fontFamily: C.sans, fontSize: 13, color: C.text, fontWeight: 500 }}>
+                    {cat.name}
+                  </span>
+                </div>
+                <span
+                  style={{
+                    fontFamily: C.mono,
+                    fontSize: 11,
+                    color: C.textMuted,
+                  }}
+                >
+                  {cat.count}
+                </span>
+              </div>
             ))}
           </div>
-        </div>
 
-        {/* Main hero content */}
-        <div style={{ padding: "80px 80px", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
-          <div>
-            <div style={{ display: "flex", gap: 16, alignItems: "center", marginBottom: 48 }}>
-              <div style={{ background: C.yellow, padding: "4px 12px", fontFamily: C.mono, fontSize: 10, letterSpacing: 3, color: C.bg, textTransform: "uppercase", fontWeight: 700 }}>
-                {ISSUES[0].tag}
-              </div>
-              <div style={{ fontFamily: C.mono, fontSize: 10, letterSpacing: 2, color: C.muted }}>№ {ISSUES[0].num}</div>
+          {/* Mini newsletter signup */}
+          <div
+            style={{
+              background: C.bgDark,
+              padding: "24px",
+              marginBottom: 32,
+            }}
+          >
+            <div
+              style={{
+                fontFamily: C.serif,
+                fontSize: 18,
+                fontWeight: 700,
+                color: "#fff",
+                marginBottom: 8,
+              }}
+            >
+              Chaque lundi.
             </div>
-            <motion.h1 initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}
-              style={{ fontFamily: C.serif, fontSize: "clamp(44px, 6vw, 88px)", fontWeight: 700, letterSpacing: -2, lineHeight: 1.05, color: C.white, marginBottom: 36 }}>
-              {ISSUES[0].title}
-            </motion.h1>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 48 }}>
-              <p style={{ fontFamily: C.serif, fontSize: 17, lineHeight: 1.85, color: "rgba(240,237,230,0.6)", borderTop: `1px solid ${C.border}`, paddingTop: 24 }}>
-                Il y a trois ans, on nous promettait que l'IA allait tuer des millions de jobs créatifs. Aujourd'hui, les designers, écrivains et musiciens les plus influents utilisent tous des outils génératifs. Ce n'est pas la mort de la créativité — c'est sa mutation.
-              </p>
-              <p style={{ fontFamily: C.serif, fontSize: 17, lineHeight: 1.85, color: "rgba(240,237,230,0.6)", borderTop: `1px solid ${C.border}`, paddingTop: 24 }}>
-                Mais à quel prix ? L'analyse de 400 créatifs professionnels sur leur rapport à ces outils révèle une fracture profonde — entre ceux qui se sont adaptés et ceux qui ont arrêté de créer.
-              </p>
-            </div>
-          </div>
-          <div style={{ display: "flex", gap: 24, alignItems: "center", borderTop: `1px solid ${C.border}`, paddingTop: 32, marginTop: 48 }}>
-            <div style={{ fontFamily: C.mono, fontSize: 11, color: C.muted, letterSpacing: 2 }}>{ISSUES[0].reads} lectures</div>
-            <motion.button whileHover={{ background: C.yellow, color: C.bg }} whileTap={{ scale: 0.97 }}
-              style={{ padding: "12px 32px", background: "transparent", color: C.yellow, border: `1px solid ${C.yellow}`, fontFamily: C.mono, fontSize: 11, letterSpacing: 2, textTransform: "uppercase", cursor: "pointer", transition: "all 0.2s" }}>
-              Lire l'article complet →
+            <p
+              style={{
+                fontFamily: C.mono,
+                fontSize: 11,
+                color: "rgba(255,255,255,0.5)",
+                lineHeight: 1.6,
+                marginBottom: 16,
+              }}
+            >
+              L'analyse qui transforme votre vision du monde en 10 minutes.
+            </p>
+            <input
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              placeholder="votre@email.fr"
+              type="email"
+              style={{
+                width: "100%",
+                padding: "11px 14px",
+                background: "rgba(255,255,255,0.05)",
+                border: "1px solid rgba(255,255,255,0.1)",
+                color: "#fff",
+                fontFamily: C.mono,
+                fontSize: 12,
+                outline: "none",
+                marginBottom: 10,
+                letterSpacing: 0.5,
+              }}
+            />
+            <motion.button
+              onClick={() => { if (email) setSubscribed(true); }}
+              whileHover={{ background: "#fff", color: C.red }}
+              whileTap={{ scale: 0.96 }}
+              style={{
+                width: "100%",
+                padding: "12px",
+                background: C.red,
+                color: "#fff",
+                border: "none",
+                fontFamily: C.mono,
+                fontSize: 11,
+                letterSpacing: 2,
+                textTransform: "uppercase",
+                cursor: "pointer",
+                transition: "all 0.2s",
+                fontWeight: 700,
+              }}
+            >
+              {subscribed ? "✓ Bienvenue !" : "Accès gratuit →"}
             </motion.button>
-            <div style={{ fontFamily: C.mono, fontSize: 10, color: C.muted }}>Réservé aux abonnés</div>
           </div>
         </div>
       </section>
 
-      {/* ARCHIVE — issue list */}
-      <section style={{ borderBottom: `1px solid ${C.border}` }}>
-        <div style={{ padding: "64px 60px 0", display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 40 }}>
-          <div style={{ fontFamily: C.serif, fontSize: 36, fontWeight: 700, letterSpacing: -1 }}>Dernières éditions</div>
-          <a href="#" style={{ fontFamily: C.mono, fontSize: 11, letterSpacing: 3, color: C.yellow, textDecoration: "none", textTransform: "uppercase" }}>Archives complètes →</a>
-        </div>
-        {ISSUES.map((issue, i) => (
-          <motion.div key={i}
-            onClick={() => setActiveIssue(i)}
-            whileHover={{ background: "#111" }}
-            style={{ borderTop: `1px solid ${C.border}`, padding: "28px 60px", cursor: "pointer", display: "flex", alignItems: "center", gap: 48, transition: "background 0.15s", background: activeIssue === i ? "#111" : "transparent" }}>
-            <div style={{ fontFamily: C.mono, fontSize: 11, color: C.yellow, minWidth: 40 }}>#{issue.num}</div>
-            <div style={{ fontFamily: C.mono, fontSize: 10, letterSpacing: 2, color: C.muted, minWidth: 140, textTransform: "uppercase" }}>{issue.tag}</div>
-            <div style={{ fontFamily: C.serif, fontSize: 18, flex: 1, color: C.white }}>{issue.title}</div>
-            <div style={{ fontFamily: C.mono, fontSize: 10, color: C.muted }}>{issue.reads} lectures</div>
-            <div style={{ fontFamily: C.mono, fontSize: 10, color: C.muted, textAlign: "right", minWidth: 120 }}>{issue.date}</div>
-          </motion.div>
-        ))}
-      </section>
-
-      {/* SUBSCRIPTION BOX */}
-      <section style={{ display: "grid", gridTemplateColumns: "1fr 1fr", borderBottom: `1px solid ${C.border}` }}>
-        <div style={{ borderRight: `1px solid ${C.border}`, padding: "80px 80px", background: C.yellow }}>
-          <div style={{ fontFamily: C.mono, fontSize: 11, letterSpacing: 4, color: "#6b5e00", textTransform: "uppercase", marginBottom: 24 }}>Pour aller plus loin</div>
-          <h2 style={{ fontFamily: C.serif, fontSize: "clamp(40px, 5vw, 64px)", fontWeight: 700, letterSpacing: -2, lineHeight: 1.1, color: C.bg, marginBottom: 24 }}>
-            Lisez tout.<br />Pensez mieux.
+      {/* AUTHORS */}
+      <section style={{ padding: "80px 64px", borderBottom: `2px solid ${C.text}` }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "flex-end",
+            marginBottom: 48,
+          }}
+        >
+          <h2
+            style={{
+              fontFamily: C.serif,
+              fontSize: "clamp(32px, 4vw, 48px)",
+              fontWeight: 900,
+              letterSpacing: -1,
+              color: C.text,
+            }}
+          >
+            Notre équipe
           </h2>
-          <p style={{ fontSize: 16, color: "#3d3000", lineHeight: 1.7 }}>
-            9 €/mois. Archives complètes depuis 2019. Podcast inclus. Sans publicité.
-          </p>
+          <span style={{ fontFamily: C.mono, fontSize: 10, color: C.textMuted, letterSpacing: 3, textTransform: "uppercase" }}>
+            4 rédacteurs permanents
+          </span>
         </div>
-        <div style={{ padding: "80px 80px", display: "flex", flexDirection: "column", justifyContent: "center", gap: 20 }}>
-          <div style={{ fontFamily: C.mono, fontSize: 11, letterSpacing: 3, color: C.muted, textTransform: "uppercase", marginBottom: 8 }}>Commencer gratuitement</div>
-          <input value={email} onChange={e => setEmail(e.target.value)} placeholder="votre@email.fr"
-            style={{ padding: "16px 20px", background: C.card, border: `1px solid ${C.border}`, color: C.white, fontFamily: C.mono, fontSize: 13, outline: "none", letterSpacing: 1 }} />
-          {subscribed ? (
-            <div style={{ fontFamily: C.mono, fontSize: 13, color: C.yellow, letterSpacing: 2 }}>Bienvenue dans la communauté Fréquence ✓</div>
-          ) : (
-            <motion.button whileHover={{ background: C.yellow, color: C.bg, borderColor: C.yellow }} whileTap={{ scale: 0.97 }}
-              onClick={() => { if (email) setSubscribed(true) }}
-              style={{ padding: "16px", background: "transparent", color: C.white, border: `1px solid ${C.border}`, fontFamily: C.mono, fontSize: 12, letterSpacing: 3, textTransform: "uppercase", cursor: "pointer", transition: "all 0.2s" }}>
-              Accès gratuit →
-            </motion.button>
-          )}
-          <div style={{ fontFamily: C.mono, fontSize: 10, color: C.muted, letterSpacing: 1 }}>+15 200 abonnés · Aucun spam · Désabonnement en 1 clic</div>
+
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 2 }}>
+          {AUTHORS.map((author, i) => (
+            <motion.div
+              key={author.name}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.1 }}
+              whileHover={{ y: -4, boxShadow: `0 8px 32px rgba(0,0,0,0.08)` }}
+              style={{
+                border: `1px solid ${C.border}`,
+                padding: "36px 28px",
+                background: C.bg,
+                cursor: "pointer",
+                transition: "all 0.2s",
+              }}
+            >
+              <div
+                style={{
+                  width: 52,
+                  height: 52,
+                  background: author.color,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontFamily: C.serif,
+                  fontSize: 18,
+                  fontWeight: 700,
+                  color: "#fff",
+                  marginBottom: 20,
+                }}
+              >
+                {author.initials}
+              </div>
+              <div
+                style={{
+                  fontFamily: C.serif,
+                  fontSize: 17,
+                  fontWeight: 700,
+                  color: C.text,
+                  marginBottom: 4,
+                  letterSpacing: -0.3,
+                }}
+              >
+                {author.name}
+              </div>
+              <div
+                style={{
+                  fontFamily: C.mono,
+                  fontSize: 10,
+                  color: author.color,
+                  letterSpacing: 1.5,
+                  textTransform: "uppercase",
+                  marginBottom: 14,
+                }}
+              >
+                {author.role}
+              </div>
+              <p
+                style={{
+                  fontFamily: C.sans,
+                  fontSize: 13,
+                  color: C.textMuted,
+                  lineHeight: 1.65,
+                  marginBottom: 16,
+                }}
+              >
+                {author.bio}
+              </p>
+              <div style={{ fontFamily: C.mono, fontSize: 11, color: C.textMuted }}>
+                {author.articles} articles
+              </div>
+            </motion.div>
+          ))}
         </div>
       </section>
 
       {/* TESTIMONIALS */}
-      <section style={{ borderBottom: `1px solid ${C.border}`, padding: "80px 60px" }}>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 0 }}>
+      <section style={{ background: C.bgAlt, padding: "80px 64px", borderBottom: `2px solid ${C.text}` }}>
+        <div style={{ textAlign: "center", marginBottom: 56 }}>
+          <h2
+            style={{
+              fontFamily: C.serif,
+              fontSize: "clamp(32px, 4vw, 48px)",
+              fontWeight: 900,
+              letterSpacing: -1,
+              color: C.text,
+              marginBottom: 12,
+            }}
+          >
+            Ce que nos lecteurs disent.
+          </h2>
+          <p style={{ fontFamily: C.sans, fontSize: 15, color: C.textMuted }}>
+            +15 200 abonnés actifs · 89% de taux d'ouverture
+          </p>
+        </div>
+
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 24 }}>
           {TESTIMONIALS.map((t, i) => (
-            <motion.div key={i} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }} transition={{ delay: i * 0.15 }}
-              style={{ padding: "0 56px 0 0", borderRight: i < 2 ? `1px solid ${C.border}` : undefined, paddingLeft: i > 0 ? 56 : 0 }}>
-              <div style={{ fontFamily: C.serif, fontSize: 48, color: C.yellow, lineHeight: 0.8, marginBottom: 24 }}>"</div>
-              <p style={{ fontFamily: C.serif, fontSize: 17, lineHeight: 1.75, color: "rgba(240,237,230,0.75)", marginBottom: 24 }}>{t.quote}</p>
-              <div style={{ fontFamily: C.mono, fontSize: 10, color: C.muted, letterSpacing: 2, textTransform: "uppercase" }}>{t.name} · {t.role}</div>
+            <motion.div
+              key={t.name}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.1 }}
+              style={{
+                background: C.bg,
+                border: `1px solid ${C.border}`,
+                padding: "28px 24px",
+              }}
+            >
+              <div
+                style={{
+                  fontFamily: C.serif,
+                  fontSize: 40,
+                  color: C.red,
+                  lineHeight: 0.8,
+                  marginBottom: 16,
+                  fontWeight: 900,
+                }}
+              >
+                "
+              </div>
+              <p
+                style={{
+                  fontFamily: C.serif,
+                  fontSize: 15,
+                  lineHeight: 1.75,
+                  color: C.text,
+                  marginBottom: 20,
+                }}
+              >
+                {t.quote}
+              </p>
+              <div style={{ borderTop: `1px solid ${C.border}`, paddingTop: 16 }}>
+                <div
+                  style={{
+                    fontFamily: C.sans,
+                    fontSize: 13,
+                    fontWeight: 600,
+                    color: C.text,
+                    marginBottom: 2,
+                  }}
+                >
+                  {t.name}
+                </div>
+                <div style={{ fontFamily: C.mono, fontSize: 10, color: C.textMuted, letterSpacing: 0.5 }}>
+                  {t.role}
+                </div>
+              </div>
             </motion.div>
           ))}
         </div>
       </section>
 
       {/* PRICING */}
-      <section ref={pricingRef} style={{ borderBottom: `1px solid ${C.border}` }}>
-        <div style={{ padding: "80px 60px 48px", display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
-          <div style={{ fontFamily: C.serif, fontSize: "clamp(36px, 5vw, 64px)", fontWeight: 700, letterSpacing: -2 }}>Abonnements</div>
-          <div style={{ fontFamily: C.mono, fontSize: 11, color: C.muted, letterSpacing: 3, textTransform: "uppercase" }}>Simple et transparent</div>
+      <section ref={pricingRef} style={{ borderBottom: `2px solid ${C.text}` }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "flex-end",
+            padding: "60px 64px 48px",
+          }}
+        >
+          <div>
+            <div
+              style={{
+                fontFamily: C.mono,
+                fontSize: 10,
+                letterSpacing: 3,
+                color: C.textMuted,
+                textTransform: "uppercase",
+                marginBottom: 12,
+              }}
+            >
+              Simple et transparent
+            </div>
+            <h2
+              style={{
+                fontFamily: C.serif,
+                fontSize: "clamp(32px, 4vw, 52px)",
+                fontWeight: 900,
+                letterSpacing: -1,
+                color: C.text,
+              }}
+            >
+              Abonnements
+            </h2>
+          </div>
+          <div
+            style={{
+              fontFamily: C.mono,
+              fontSize: 11,
+              color: C.textMuted,
+              letterSpacing: 1,
+            }}
+          >
+            Aucun engagement · Résiliation en 1 clic
+          </div>
         </div>
+
         <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", borderTop: `1px solid ${C.border}` }}>
           {PLANS.map((p, i) => (
-            <motion.div key={i} initial={{ opacity: 0, y: 30 }} animate={pricingInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ delay: i * 0.15 }}
-              style={{ borderRight: i < 2 ? `1px solid ${C.border}` : undefined, padding: "56px 48px", background: p.highlight ? "#0a0900" : "transparent" }}>
-              {p.highlight && <div style={{ width: "100%", height: 2, background: C.yellow, marginBottom: 48, position: "absolute", top: 0, left: 0 }} />}
-              <div style={{ fontFamily: C.mono, fontSize: 10, letterSpacing: 4, color: p.highlight ? C.yellow : C.muted, textTransform: "uppercase", marginBottom: 24 }}>{p.name}</div>
-              <div style={{ fontFamily: C.serif, fontSize: 56, fontWeight: 700, letterSpacing: -2, lineHeight: 1, marginBottom: 6 }}>{p.price}</div>
-              <div style={{ fontFamily: C.mono, fontSize: 11, color: C.muted, marginBottom: 40 }}>{p.note}</div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 14, marginBottom: 40 }}>
-                {p.features.map((f, j) => (
-                  <div key={j} style={{ display: "flex", gap: 12, alignItems: "flex-start", fontFamily: C.mono, fontSize: 12, color: p.highlight ? "rgba(240,237,230,0.8)" : C.muted, lineHeight: 1.5 }}>
-                    <span style={{ color: C.yellow, fontWeight: 700, marginTop: 1 }}>→</span> {f}
+            <motion.div
+              key={p.name}
+              initial={{ opacity: 0, y: 24 }}
+              animate={pricingInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ delay: i * 0.12 }}
+              onClick={() => setActivePlan(i)}
+              style={{
+                borderRight: i < 2 ? `1px solid ${C.border}` : undefined,
+                padding: "52px 48px",
+                background: p.highlight ? C.bgDark : C.bg,
+                cursor: "pointer",
+                position: "relative",
+                transition: "background 0.2s",
+              }}
+            >
+              {p.highlight && (
+                <div
+                  style={{
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    height: 3,
+                    background: C.red,
+                  }}
+                />
+              )}
+              <div
+                style={{
+                  fontFamily: C.mono,
+                  fontSize: 10,
+                  letterSpacing: 4,
+                  color: p.highlight ? C.red : C.textMuted,
+                  textTransform: "uppercase",
+                  marginBottom: 20,
+                }}
+              >
+                {p.name}
+              </div>
+              <div
+                style={{
+                  fontFamily: C.serif,
+                  fontSize: 52,
+                  fontWeight: 900,
+                  letterSpacing: -2,
+                  color: p.highlight ? "#fff" : C.text,
+                  lineHeight: 1,
+                  marginBottom: 4,
+                }}
+              >
+                {p.price}
+              </div>
+              <div
+                style={{
+                  fontFamily: C.mono,
+                  fontSize: 11,
+                  color: p.highlight ? "rgba(255,255,255,0.4)" : C.textMuted,
+                  marginBottom: 36,
+                }}
+              >
+                {p.note}
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 36 }}>
+                {p.features.map(f => (
+                  <div key={f} style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
+                    <ArrowRight
+                      size={13}
+                      style={{
+                        color: p.highlight ? C.red : C.textMuted,
+                        marginTop: 2,
+                        flexShrink: 0,
+                      }}
+                    />
+                    <span
+                      style={{
+                        fontFamily: C.mono,
+                        fontSize: 12,
+                        color: p.highlight ? "rgba(255,255,255,0.75)" : C.textMuted,
+                        lineHeight: 1.5,
+                      }}
+                    >
+                      {f}
+                    </span>
                   </div>
                 ))}
               </div>
-              <motion.button whileHover={{ background: C.yellow, color: C.bg, borderColor: C.yellow }} whileTap={{ scale: 0.97 }}
-                style={{ width: "100%", padding: "14px", background: "transparent", color: p.highlight ? C.yellow : C.muted, border: `1px solid ${p.highlight ? C.yellow : C.border}`, fontFamily: C.mono, fontSize: 11, letterSpacing: 3, textTransform: "uppercase", cursor: "pointer", transition: "all 0.2s" }}>
-                {p.price === "0 €" ? "Accès gratuit" : "S'abonner →"}
+              <motion.button
+                whileHover={{
+                  background: p.highlight ? C.red : C.bgDark,
+                  color: "#fff",
+                  borderColor: p.highlight ? C.red : C.bgDark,
+                }}
+                whileTap={{ scale: 0.96 }}
+                style={{
+                  width: "100%",
+                  padding: "14px",
+                  background: "transparent",
+                  color: p.highlight ? C.red : C.textMuted,
+                  border: `1px solid ${p.highlight ? C.red : C.border}`,
+                  fontFamily: C.mono,
+                  fontSize: 11,
+                  letterSpacing: 3,
+                  textTransform: "uppercase",
+                  cursor: "pointer",
+                  transition: "all 0.2s",
+                  fontWeight: 700,
+                }}
+              >
+                {p.cta}
               </motion.button>
             </motion.div>
           ))}
         </div>
       </section>
 
+      {/* ARCHIVE */}
+      <section style={{ padding: "80px 64px", borderBottom: `2px solid ${C.text}` }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "flex-end",
+            marginBottom: 40,
+          }}
+        >
+          <h2
+            style={{
+              fontFamily: C.serif,
+              fontSize: "clamp(28px, 3vw, 40px)",
+              fontWeight: 900,
+              letterSpacing: -0.5,
+              color: C.text,
+            }}
+          >
+            Archives par mois
+          </h2>
+          <span style={{ fontFamily: C.mono, fontSize: 10, color: C.textMuted, letterSpacing: 2 }}>
+            {ARCHIVE_MONTHS.reduce((a, m) => a + m.issues, 0)} numéros depuis 2019
+          </span>
+        </div>
+
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 2 }}>
+          {ARCHIVE_MONTHS.map((month, i) => (
+            <div key={month.month}>
+              <motion.button
+                onClick={() => setArchiveOpen(archiveOpen === i ? null : i)}
+                whileHover={{ background: C.red + "08" }}
+                style={{
+                  width: "100%",
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  padding: "20px 24px",
+                  background: archiveOpen === i ? C.bgAlt : C.bg,
+                  border: `1px solid ${C.border}`,
+                  cursor: "pointer",
+                  transition: "all 0.2s",
+                  textAlign: "left",
+                  fontFamily: C.sans,
+                }}
+              >
+                <div>
+                  <div style={{ fontFamily: C.serif, fontSize: 16, fontWeight: 700, color: C.text, marginBottom: 2 }}>
+                    {month.month}
+                  </div>
+                  <div style={{ fontFamily: C.mono, fontSize: 10, color: C.textMuted, letterSpacing: 1 }}>
+                    {month.issues} numéros
+                  </div>
+                </div>
+                <motion.span
+                  animate={{ rotate: archiveOpen === i ? 45 : 0 }}
+                  style={{ fontSize: 20, color: C.red, display: "block" }}
+                >
+                  +
+                </motion.span>
+              </motion.button>
+              <AnimatePresence>
+                {archiveOpen === i && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    style={{ overflow: "hidden", border: `1px solid ${C.border}`, borderTop: "none" }}
+                  >
+                    <div style={{ padding: "16px 24px", background: C.bgAlt }}>
+                      {month.highlights.map(h => (
+                        <div
+                          key={h}
+                          style={{
+                            display: "flex",
+                            gap: 8,
+                            alignItems: "center",
+                            padding: "8px 0",
+                            borderBottom: `1px solid ${C.border}`,
+                            cursor: "pointer",
+                            fontFamily: C.sans,
+                            fontSize: 13,
+                            color: C.text,
+                          }}
+                        >
+                          <ArrowRight size={12} style={{ color: C.red, flexShrink: 0 }} />
+                          {h}
+                        </div>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          ))}
+        </div>
+      </section>
+
       {/* FAQ */}
-      <section style={{ maxWidth: 840, margin: "0 auto", padding: "80px 60px" }}>
-        <div style={{ fontFamily: C.serif, fontSize: 40, fontWeight: 700, letterSpacing: -1, marginBottom: 48 }}>Questions fréquentes</div>
+      <section style={{ maxWidth: 860, margin: "0 auto", padding: "80px 64px", borderBottom: `2px solid ${C.text}` }}>
+        <h2
+          style={{
+            fontFamily: C.serif,
+            fontSize: "clamp(32px, 4vw, 48px)",
+            fontWeight: 900,
+            letterSpacing: -1,
+            color: C.text,
+            marginBottom: 48,
+          }}
+        >
+          Questions fréquentes
+        </h2>
         {FAQS.map((f, i) => (
           <div key={i} style={{ borderBottom: `1px solid ${C.border}` }}>
-            <button onClick={() => setOpenFaq(openFaq === i ? null : i)}
-              style={{ width: "100%", display: "flex", justifyContent: "space-between", alignItems: "center", padding: "22px 0", background: "none", border: "none", color: C.white, cursor: "pointer", textAlign: "left" }}>
-              <span style={{ fontFamily: C.serif, fontSize: 17, fontWeight: 600 }}>{f.q}</span>
-              <motion.span animate={{ rotate: openFaq === i ? 45 : 0 }} style={{ fontSize: 22, color: C.yellow, minWidth: 22 }}>+</motion.span>
+            <button
+              onClick={() => setOpenFaq(openFaq === i ? null : i)}
+              style={{
+                width: "100%",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                padding: "22px 0",
+                background: "none",
+                border: "none",
+                color: C.text,
+                cursor: "pointer",
+                textAlign: "left",
+                fontFamily: C.sans,
+              }}
+            >
+              <span style={{ fontFamily: C.serif, fontSize: 17, fontWeight: 700 }}>{f.q}</span>
+              <motion.span
+                animate={{ rotate: openFaq === i ? 45 : 0 }}
+                style={{ fontSize: 22, color: C.red, minWidth: 22, display: "block" }}
+              >
+                +
+              </motion.span>
             </button>
             <AnimatePresence>
               {openFaq === i && (
-                <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }}>
-                  <p style={{ paddingBottom: 22, fontFamily: C.mono, fontSize: 13, color: C.muted, lineHeight: 1.8 }}>{f.a}</p>
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  style={{ overflow: "hidden" }}
+                >
+                  <p
+                    style={{
+                      paddingBottom: 22,
+                      fontFamily: C.mono,
+                      fontSize: 13,
+                      color: C.textMuted,
+                      lineHeight: 1.85,
+                    }}
+                  >
+                    {f.a}
+                  </p>
                 </motion.div>
               )}
             </AnimatePresence>
@@ -246,12 +1585,231 @@ export default function Page() {
         ))}
       </section>
 
+      {/* BIG NEWSLETTER CTA */}
+      <section
+        style={{
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr",
+          borderBottom: `2px solid ${C.text}`,
+        }}
+      >
+        <div
+          style={{
+            background: C.red,
+            padding: "80px 64px",
+            borderRight: `2px solid ${C.text}`,
+          }}
+        >
+          <div
+            style={{
+              fontFamily: C.mono,
+              fontSize: 10,
+              letterSpacing: 4,
+              color: "rgba(255,255,255,0.6)",
+              textTransform: "uppercase",
+              marginBottom: 24,
+            }}
+          >
+            Pour aller plus loin
+          </div>
+          <h2
+            style={{
+              fontFamily: C.serif,
+              fontSize: "clamp(40px, 5vw, 64px)",
+              fontWeight: 900,
+              letterSpacing: -2,
+              lineHeight: 1.1,
+              color: "#fff",
+              marginBottom: 24,
+            }}
+          >
+            Lisez tout.<br />Pensez mieux.
+          </h2>
+          <p style={{ fontFamily: C.sans, fontSize: 16, color: "rgba(255,255,255,0.75)", lineHeight: 1.7 }}>
+            9 €/mois. Archives complètes depuis 2019. Podcast inclus. Sans publicité. Sans algorithme.
+          </p>
+        </div>
+
+        <div
+          style={{
+            padding: "80px 64px",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            gap: 16,
+            background: C.bgDark,
+          }}
+        >
+          <div
+            style={{
+              fontFamily: C.mono,
+              fontSize: 11,
+              letterSpacing: 3,
+              color: "rgba(255,255,255,0.4)",
+              textTransform: "uppercase",
+              marginBottom: 8,
+            }}
+          >
+            Commencer gratuitement
+          </div>
+          <input
+            placeholder="votre@email.fr"
+            type="email"
+            style={{
+              padding: "16px 20px",
+              background: "rgba(255,255,255,0.05)",
+              border: "1px solid rgba(255,255,255,0.1)",
+              color: "#fff",
+              fontFamily: C.mono,
+              fontSize: 13,
+              outline: "none",
+              letterSpacing: 0.5,
+            }}
+          />
+          <motion.button
+            whileHover={{ background: "#fff", color: C.red }}
+            whileTap={{ scale: 0.97 }}
+            style={{
+              padding: "16px",
+              background: C.red,
+              color: "#fff",
+              border: "none",
+              fontFamily: C.mono,
+              fontSize: 12,
+              letterSpacing: 3,
+              textTransform: "uppercase",
+              cursor: "pointer",
+              transition: "all 0.2s",
+              fontWeight: 700,
+            }}
+          >
+            Accès gratuit →
+          </motion.button>
+          <div style={{ fontFamily: C.mono, fontSize: 10, color: "rgba(255,255,255,0.3)", letterSpacing: 1 }}>
+            +15 200 abonnés · Aucun spam · Désabonnement en 1 clic
+          </div>
+        </div>
+      </section>
+
       {/* FOOTER */}
-      <footer style={{ borderTop: `1px solid ${C.border}`, padding: "40px 60px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <div style={{ fontFamily: C.serif, fontSize: 20, fontWeight: 700, color: C.yellow }}>Fréquence</div>
-        <div style={{ fontFamily: C.mono, fontSize: 10, color: C.muted, letterSpacing: 2 }}>HEBDOMADAIRE · INDÉPENDANT · DEPUIS 2019</div>
-        <div style={{ fontFamily: C.mono, fontSize: 10, color: C.muted, letterSpacing: 1 }}>© 2025 — Confidentialité · Désabonnement</div>
+      <footer
+        style={{
+          background: C.bgDark,
+          padding: "48px 64px 28px",
+          borderTop: `2px solid ${C.text}`,
+        }}
+      >
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "2fr 1fr 1fr 1fr",
+            gap: 48,
+            marginBottom: 40,
+          }}
+        >
+          <div>
+            <div
+              style={{
+                fontFamily: C.serif,
+                fontSize: 28,
+                fontWeight: 900,
+                color: C.red,
+                marginBottom: 16,
+                letterSpacing: -0.5,
+              }}
+            >
+              Fréquence
+            </div>
+            <p
+              style={{
+                fontFamily: C.sans,
+                fontSize: 13,
+                color: "rgba(255,255,255,0.4)",
+                lineHeight: 1.7,
+                maxWidth: 240,
+                marginBottom: 20,
+              }}
+            >
+              Publication indépendante hebdomadaire. Analyses de fond sur business, tech et société. Fondée en 2019.
+            </p>
+            <div style={{ display: "flex", gap: 12 }}>
+              {[Camera, MessageSquare, Link2].map((Icon, i) => (
+                <div
+                  key={i}
+                  style={{
+                    width: 36,
+                    height: 36,
+                    border: "1px solid rgba(255,255,255,0.1)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    cursor: "pointer",
+                    color: "rgba(255,255,255,0.3)",
+                    transition: "all 0.2s",
+                  }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = C.red; (e.currentTarget as HTMLElement).style.color = C.red; }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = "rgba(255,255,255,0.1)"; (e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.3)"; }}
+                >
+                  <Icon size={14} />
+                </div>
+              ))}
+            </div>
+          </div>
+          {[
+            { title: "Publication", links: ["Archives", "Rubriques", "Podcast", "Hors-séries"] },
+            { title: "Abonnés", links: ["Connexion", "Gérer abonnement", "Newsletter", "Discord"] },
+            { title: "À propos", links: ["Notre équipe", "Manifeste", "Publicité", "Contact"] },
+          ].map((col, i) => (
+            <div key={i}>
+              <div
+                style={{
+                  fontFamily: C.mono,
+                  fontSize: 9,
+                  fontWeight: 700,
+                  letterSpacing: 3,
+                  color: "rgba(255,255,255,0.25)",
+                  textTransform: "uppercase",
+                  marginBottom: 16,
+                }}
+              >
+                {col.title}
+              </div>
+              {col.links.map(l => (
+                <div
+                  key={l}
+                  style={{
+                    fontFamily: C.sans,
+                    fontSize: 13,
+                    color: "rgba(255,255,255,0.4)",
+                    marginBottom: 10,
+                    cursor: "pointer",
+                    transition: "color 0.2s",
+                  }}
+                  onMouseEnter={e => ((e.currentTarget as HTMLElement).style.color = "#fff")}
+                  onMouseLeave={e => ((e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.4)")}
+                >
+                  {l}
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+        <div
+          style={{
+            borderTop: "1px solid rgba(255,255,255,0.06)",
+            paddingTop: 20,
+            display: "flex",
+            justifyContent: "space-between",
+            fontFamily: C.mono,
+            fontSize: 10,
+            color: "rgba(255,255,255,0.2)",
+            letterSpacing: 1,
+          }}
+        >
+          <span>© 2025 Fréquence · HEBDOMADAIRE · INDÉPENDANT · DEPUIS 2019</span>
+          <span>Confidentialité · Mentions légales · CGU</span>
+        </div>
       </footer>
     </div>
-  )
+  );
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import { useRef, useState, useEffect } from "react";
 import {
   motion,
   useScroll,
@@ -9,1037 +10,2106 @@ import {
   useMotionValue,
   useSpring,
 } from "framer-motion";
-import { useState, useRef, useEffect, useCallback } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
-import { Progress } from "@/components/ui/progress";
-import { Separator } from "@/components/ui/separator";
-import { ArrowRight, ArrowUpRight, Star, Check, Menu, X, Globe, Clock, Quote, Search, ShoppingBag, Zap, Shield, Cpu, Bluetooth, Battery, Activity, BarChart3, Binary, Blocks, Coins, Database, Fingerprint, Layers, Link2, Lock, Share2, Wallet, Mail, MapPin, Phone } from "lucide-react";
+  ArrowRight,
+  Star,
+  Check,
+  ChevronDown,
+  MapPin,
+  Phone,
+  Mail,
+  Clock,
+  Award,
+  Zap,
+  Eye,
+  Layers,
+  PenTool,
+  Globe,
+  MessageSquare,
+  Link2,
+  Camera,
+  Users2,
+  Play,
+  Pause,
+  RotateCcw,
+  Sparkles,
+  TrendingUp,
+  Target,
+} from "lucide-react";
 
-import "../premium.css";
+const C = {
+  bg: "#111111",
+  bgAlt: "#181818",
+  bgCard: "#1a1a1a",
+  text: "#f0ece4",
+  textMuted: "#8a8680",
+  accent: "#FF5C1A",
+  accentDark: "#cc4410",
+  accentLight: "#ff7a42",
+  border: "#2a2a2a",
+  borderLight: "#333333",
+  white: "#ffffff",
+  charcoal: "#232323",
+  orange: "#FF5C1A",
+  orangeGlow: "rgba(255, 92, 26, 0.15)",
+};
 
-/* ==========================================================================
-   DATA STRUCTURES
-   ========================================================================= */
+// ─── Data ──────────────────────────────────────────────────────────────────
 
-const DROPS = [
+const PROJECTS = [
   {
     id: 1,
-    title: "Void Genesis #001",
-    artist: "0xSerpentine",
-    price: "2.4 ETH",
-    edition: "1 of 1",
-    img: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1200&q=80",
-    gradient: "from-violet-600 via-fuchsia-500 to-pink-500",
-    desc: "A singular exploration of digital entropy. Minted on Ethereum Mainnet.",
+    client: "Meridian Spirits",
+    category: "Brand Identity",
+    year: "2024",
+    deliverables: ["Logo System", "Packaging", "Brand Guide"],
+    desc: "Complete identity overhaul for a luxury spirits house entering European markets. Dark, confident, built to age.",
+    color: "#c9a14a",
+    tags: ["Luxury", "Packaging", "Identity"],
+    result: "+340% shelf recognition",
   },
   {
     id: 2,
-    title: "Neural Bloom #042",
-    artist: "Aiko.eth",
-    price: "0.88 ETH",
-    edition: "10 of 100",
-    img: "https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?w=1200&q=80",
-    gradient: "from-cyan-500 via-blue-600 to-indigo-700",
-    desc: "Generative organic forms synthesized through custom GAN networks.",
+    client: "Folia Architecture",
+    category: "Visual Identity",
+    year: "2024",
+    deliverables: ["Wordmark", "Collateral", "Digital Suite"],
+    desc: "Minimal system for a Paris-based architecture firm. Geometry as language — every element earns its place.",
+    color: "#6bcfb2",
+    tags: ["Architecture", "Minimal", "Print"],
+    result: "7 international awards",
   },
   {
     id: 3,
-    title: "Chrome Epoch #007",
-    artist: "MECHASOUL",
-    price: "1.2 ETH",
-    edition: "3 of 50",
-    img: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200&q=80",
-    gradient: "from-amber-400 via-orange-500 to-rose-600",
-    desc: "Mechanical precision meets fluid dynamics in a high-density 3D render.",
+    client: "Ovoid Cosmetics",
+    category: "Art Direction",
+    year: "2023",
+    deliverables: ["Campaign", "Motion", "Retail"],
+    desc: "Art direction for the launch of Ovoid's clean beauty line. Sensory, scientific, unmistakably feminine.",
+    color: "#e8b4c8",
+    tags: ["Beauty", "Campaign", "Motion"],
+    result: "€2.1M launch revenue",
   },
   {
     id: 4,
-    title: "Prism Cascade #019",
-    artist: "Lux Protocol",
-    price: "0.44 ETH",
-    edition: "22 of 200",
-    img: "https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=1200&q=80",
-    gradient: "from-emerald-400 via-teal-500 to-cyan-600",
-    desc: "Refraction study using ray-tracing at extreme bit-depths.",
+    client: "Celsius Energy",
+    category: "Brand Strategy",
+    year: "2023",
+    deliverables: ["Strategy", "Identity", "B2B Deck"],
+    desc: "Strategic rebrand for a cleantech startup pre-Series B. Built trust, signaled ambition, closed the round.",
+    color: "#4ab4f5",
+    tags: ["Tech", "B2B", "Strategy"],
+    result: "Series B: €18M closed",
+  },
+  {
+    id: 5,
+    client: "Maison Vernier",
+    category: "Brand Identity",
+    year: "2023",
+    deliverables: ["Heritage Mark", "Print", "Retail"],
+    desc: "Repositioning a 3rd-generation French maison as a modern luxury atelier without losing its heritage roots.",
+    color: "#c4a882",
+    tags: ["Heritage", "Luxury", "French"],
+    result: "Featured in Wallpaper*",
+  },
+  {
+    id: 6,
+    client: "Hyper Protocol",
+    category: "Digital Identity",
+    year: "2022",
+    deliverables: ["Brand System", "Web", "Motion"],
+    desc: "Full digital identity for a Web3 infrastructure protocol. Technical precision meets cultural fluency.",
+    color: "#9d7cf5",
+    tags: ["Web3", "Digital", "Motion"],
+    result: "$40M raise, 80K users",
   },
 ];
 
-const SPECS = [
+const SERVICES = [
   {
-    label: "Blockchain Protocol",
-    val: "ERC-721A",
-    icon: <Blocks className="w-4 h-4" />,
+    icon: PenTool,
+    title: "Brand Identity",
+    desc: "Wordmarks, symbol systems, color architecture, and type hierarchies that telegraph exactly who you are before a single word is read.",
+    deliverables: ["Logo & Symbol", "Typography", "Color System", "Usage Guidelines"],
+    price: "From €8,400",
   },
   {
-    label: "Storage Layer",
-    val: "IPFS + Arweave",
-    icon: <Database className="w-4 h-4" />,
+    icon: Eye,
+    title: "Art Direction",
+    desc: "Campaign concepts, visual worlds, and creative direction for shoots, launches, and brand campaigns that live long after the brief.",
+    deliverables: ["Creative Concept", "Shoot Direction", "Post-Production", "Asset Library"],
+    price: "From €12,000",
   },
   {
-    label: "Royalty Engine",
-    val: "EIP-2981",
-    icon: <Coins className="w-4 h-4" />,
+    icon: Layers,
+    title: "Brand Strategy",
+    desc: "Positioning, naming, narrative, and competitive architecture. We find the single idea your brand should own — then build everything from it.",
+    deliverables: ["Market Analysis", "Positioning", "Naming", "Brand Story"],
+    price: "From €6,800",
   },
   {
-    label: "Provenance Check",
-    val: "On-Chain Sig",
-    icon: <Fingerprint className="w-4 h-4" />,
-  },
-];
-
-const LOGS = [
-  {
-    event: "MINT",
-    user: "0x4f...7a",
-    asset: "Void Genesis",
-    time: "2m ago",
-    val: "2.4 ETH",
-  },
-  {
-    event: "BID",
-    user: "0x12...3b",
-    asset: "Neural Bloom",
-    time: "5m ago",
-    val: "0.9 ETH",
-  },
-  {
-    event: "SALE",
-    user: "0x9e...f1",
-    asset: "Chrome Epoch",
-    time: "12m ago",
-    val: "1.2 ETH",
-  },
-  {
-    event: "LIST",
-    user: "0xbc...d4",
-    asset: "Prism Cascade",
-    time: "18m ago",
-    val: "0.5 ETH",
+    icon: Globe,
+    title: "Digital Expression",
+    desc: "Motion identity, web design systems, social template libraries, and digital touchpoints engineered for the screens your audience lives on.",
+    deliverables: ["Motion Identity", "Web Design", "Social Templates", "Digital Guidelines"],
+    price: "From €9,200",
   },
 ];
 
-/* ==========================================================================
-   UTILITY COMPONENTS
-   ========================================================================= */
+const PROCESS_STEPS = [
+  {
+    num: "01",
+    title: "Discovery",
+    desc: "We spend the first week inside your world — stakeholder interviews, competitive landscape, audience archetypes, business objectives. We listen more than we speak.",
+    duration: "1 week",
+  },
+  {
+    num: "02",
+    title: "Strategic Foundation",
+    desc: "Positioning territory, naming (if needed), brand pillars, and the core narrative. Everything downstream traces back to this document.",
+    duration: "1–2 weeks",
+  },
+  {
+    num: "03",
+    title: "Visual Development",
+    desc: "Three creative directions, each fully resolved. No half-baked moodboards — real systems you can evaluate in context.",
+    duration: "2–3 weeks",
+  },
+  {
+    num: "04",
+    title: "Refinement",
+    desc: "One chosen direction, refined through two rounds of structured feedback. Precision over iteration — we move forward, not in circles.",
+    duration: "1–2 weeks",
+  },
+  {
+    num: "05",
+    title: "Delivery",
+    desc: "Comprehensive brand guidelines, all master files, asset libraries, and a handover session. Everything you need to carry the brand forward.",
+    duration: "3–5 days",
+  },
+];
 
-function Reveal({
-  children,
-  delay = 0,
-  y = 30,
-}: {
-  children: React.ReactNode;
-  delay?: number;
-  y?: number;
-}) {
+const TESTIMONIALS = [
+  {
+    name: "Camille Fontaine",
+    role: "CEO, Meridian Spirits",
+    initials: "CF",
+    text: "Orbit didn't just design a logo — they built us a world. Every touchpoint now feels intentional. Distributors stop us at every trade show to ask who did it.",
+    rating: 5,
+    company: "Meridian Spirits",
+  },
+  {
+    name: "Thomas Reinholt",
+    role: "Founder, Celsius Energy",
+    initials: "TR",
+    text: "The rebrand was the catalyst for our Series B. Investors told us directly — the identity signaled we were serious. That's the ROI of great brand work.",
+    rating: 5,
+    company: "Celsius Energy",
+  },
+  {
+    name: "Marie-Sophie Leclercq",
+    role: "Creative Director, Folia Architecture",
+    initials: "ML",
+    text: "Working with a branding studio on our own identity was daunting. Orbit earned our trust by challenging our assumptions — the result is sharper than anything we imagined.",
+    rating: 5,
+    company: "Folia Architecture",
+  },
+  {
+    name: "Jin Park",
+    role: "CMO, Ovoid Cosmetics",
+    initials: "JP",
+    text: "The campaign art direction was exactly what the launch needed. Sensory without being gratuitous, premium without being cold. Our sell-through in month one broke projections by 40%.",
+    rating: 5,
+    company: "Ovoid Cosmetics",
+  },
+];
+
+const STATS = [
+  { value: "94", suffix: "", prefix: "", label: "Brand Projects Delivered", sub: "Across 12 countries" },
+  { value: "340", suffix: "%", prefix: "+", label: "Average Recognition Lift", sub: "Measured 6 months post-launch" },
+  { value: "18", suffix: "M", prefix: "€", label: "Client Capital Raised", sub: "Post-rebrand, last 24 months" },
+  { value: "3.2", suffix: "x", prefix: "", label: "Revenue Multiple", sub: "Average client growth YoY" },
+];
+
+const TEAM = [
+  {
+    name: "Léa Marchetti",
+    role: "Founder & Creative Director",
+    bio: "15 years building brands across Paris, Berlin, and New York. Former CD at Bureau de Style. Led identity programs for 3 Fortune 500s before founding Orbit.",
+    initials: "LM",
+  },
+  {
+    name: "Hugo Ravier",
+    role: "Head of Strategy",
+    bio: "Brand strategist with a background in semiotics and behavioral economics. Previously at Wolff Olins London. Believes every great identity starts with an uncomfortable truth.",
+    initials: "HR",
+  },
+  {
+    name: "Sana Yoshida",
+    role: "Senior Art Director",
+    bio: "Typography obsessive, systems thinker, former Pentagram. Sana turns strategic clarity into visual precision — nothing is arbitrary, everything resonates.",
+    initials: "SY",
+  },
+  {
+    name: "Marcus Webb",
+    role: "Motion & Digital Lead",
+    bio: "Bridges static brand into living systems — motion identity, interactive web, digital touchpoints. Worked with Nike Digital and Spotify Creative Labs.",
+    initials: "MW",
+  },
+];
+
+const FAQS = [
+  {
+    q: "How long does a full brand identity project take?",
+    a: "A complete brand identity — from discovery through delivery — typically takes 6 to 10 weeks. This includes strategic foundation, three creative directions, two refinement rounds, and full asset delivery. Timeline accelerates with responsive client feedback.",
+  },
+  {
+    q: "Do you work with early-stage startups or only established companies?",
+    a: "Both. We've built brands for pre-launch startups (some before they had a product) and for 50-year-old companies that needed to modernize without losing their heritage. Budget matters more than stage — brand work below €6,000 is difficult to do properly.",
+  },
+  {
+    q: "What makes Orbit different from a freelancer or a large agency?",
+    a: "Freelancers give you execution without strategy. Large agencies bill you for overhead and junior teams. Orbit is senior-led on every project — the four people in our studio are the four people on your account. No handoffs, no account managers, direct creative access.",
+  },
+  {
+    q: "Do you offer retainer arrangements after project delivery?",
+    a: "Yes. About 60% of our clients move to a monthly creative retainer post-delivery for ongoing art direction, campaign assets, and brand governance. Rates start at €2,200/month with a minimum 3-month commitment.",
+  },
+  {
+    q: "Can we own all files and assets after delivery?",
+    a: "Absolutely. Full IP transfer is standard on all projects. You receive source files in all formats (AI, EPS, SVG, PDF, PNG) with no usage restrictions. The brand is yours.",
+  },
+  {
+    q: "How do you handle confidential work during the NDA period?",
+    a: "We sign NDAs as standard at project kickoff. Work-in-progress is shared via encrypted client portal. No work appears in our portfolio until you've publicly launched, or agreed to early showcase.",
+  },
+];
+
+// ─── Rotating SVG Orbit Component (Signature Element) ───────────────────────
+
+function OrbitText({ radius = 140, text = "ORBIT STUDIO · BRAND IDENTITY · PARIS · " }) {
+  const chars = text.split("");
+  const angleStep = 360 / chars.length;
+
+  return (
+    <motion.svg
+      viewBox="-180 -180 360 360"
+      style={{ width: "100%", height: "100%", position: "absolute", inset: 0 }}
+      animate={{ rotate: 360 }}
+      transition={{ duration: 28, repeat: Infinity, ease: "linear" }}
+    >
+      {chars.map((char, i) => {
+        const angle = (i * angleStep * Math.PI) / 180;
+        const x = radius * Math.sin(angle);
+        const y = -radius * Math.cos(angle);
+        const rotation = i * angleStep;
+        return (
+          <text
+            key={i}
+            x={x}
+            y={y}
+            textAnchor="middle"
+            dominantBaseline="middle"
+            transform={`rotate(${rotation}, ${x}, ${y})`}
+            style={{
+              fontSize: "11px",
+              fontFamily: "Space Grotesk, sans-serif",
+              fontWeight: 600,
+              letterSpacing: "0.05em",
+              fill: C.accent,
+              opacity: 0.9,
+            }}
+          >
+            {char}
+          </text>
+        );
+      })}
+      <circle
+        cx="0"
+        cy="0"
+        r="4"
+        fill={C.accent}
+        opacity={0.6}
+      />
+    </motion.svg>
+  );
+}
+
+function OrbitCenter() {
+  return (
+    <div
+      style={{
+        position: "relative",
+        width: "340px",
+        height: "340px",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      <OrbitText />
+      {/* Inner static ring */}
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          borderRadius: "50%",
+          border: `1px solid ${C.border}`,
+          pointerEvents: "none",
+        }}
+      />
+      {/* Core logo */}
+      <div
+        style={{
+          position: "relative",
+          zIndex: 2,
+          textAlign: "center",
+        }}
+      >
+        <div
+          style={{
+            width: "80px",
+            height: "80px",
+            borderRadius: "50%",
+            background: C.accent,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            margin: "0 auto 12px",
+          }}
+        >
+          <div
+            style={{
+              width: "32px",
+              height: "32px",
+              borderRadius: "50%",
+              border: `2px solid ${C.white}`,
+              position: "relative",
+            }}
+          >
+            <div
+              style={{
+                position: "absolute",
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+                width: "10px",
+                height: "10px",
+                borderRadius: "50%",
+                background: C.white,
+              }}
+            />
+          </div>
+        </div>
+        <div
+          style={{
+            fontFamily: "'Space Grotesk', sans-serif",
+            fontSize: "11px",
+            fontWeight: 700,
+            letterSpacing: "0.18em",
+            color: C.textMuted,
+            textTransform: "uppercase",
+          }}
+        >
+          ORBIT
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Counter component ───────────────────────────────────────────────────────
+
+function AnimatedCounter({ value, duration = 2 }: { value: number; duration?: number }) {
+  const [count, setCount] = useState(0);
+  const ref = useRef<HTMLSpanElement>(null);
+  const inView = useInView(ref, { once: true });
+
+  useEffect(() => {
+    if (!inView) return;
+    const startTime = Date.now();
+    const endTime = startTime + duration * 1000;
+    const timer = setInterval(() => {
+      const now = Date.now();
+      const progress = Math.min((now - startTime) / (endTime - startTime), 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setCount(Math.round(eased * value));
+      if (progress >= 1) clearInterval(timer);
+    }, 16);
+    return () => clearInterval(timer);
+  }, [inView, value, duration]);
+
+  return <span ref={ref}>{count}</span>;
+}
+
+// ─── Project Card ────────────────────────────────────────────────────────────
+
+function ProjectCard({ project, index }: { project: typeof PROJECTS[0]; index: number }) {
+  const [hovered, setHovered] = useState(false);
   const ref = useRef(null);
-  const inView = useInView(ref, { once: true, margin: "-50px" });
+  const inView = useInView(ref, { once: true, margin: "-80px" });
+
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, y }}
+      initial={{ opacity: 0, y: 60 }}
       animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 1, delay, ease: [0.25, 0.1, 0.25, 1] }}
+      transition={{ duration: 0.7, delay: index * 0.1, ease: [0.25, 0, 0, 1] }}
+      onHoverStart={() => setHovered(true)}
+      onHoverEnd={() => setHovered(false)}
+      style={{
+        position: "relative",
+        background: hovered ? C.bgCard : "transparent",
+        border: `1px solid ${hovered ? C.borderLight : C.border}`,
+        borderRadius: "4px",
+        padding: "36px",
+        cursor: "pointer",
+        transition: "background 0.3s, border-color 0.3s",
+        overflow: "hidden",
+      }}
     >
-      {children}
+      {/* Accent stripe */}
+      <motion.div
+        animate={{ scaleY: hovered ? 1 : 0 }}
+        initial={{ scaleY: 0 }}
+        transition={{ duration: 0.3 }}
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          width: "3px",
+          height: "100%",
+          background: project.color,
+          transformOrigin: "top",
+        }}
+      />
+
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "24px" }}>
+        <div>
+          <div
+            style={{
+              fontFamily: "'Space Grotesk', sans-serif",
+              fontSize: "11px",
+              fontWeight: 600,
+              letterSpacing: "0.15em",
+              color: C.textMuted,
+              textTransform: "uppercase",
+              marginBottom: "8px",
+            }}
+          >
+            {project.category} · {project.year}
+          </div>
+          <div
+            style={{
+              fontFamily: "'Space Grotesk', sans-serif",
+              fontSize: "clamp(20px, 2vw, 26px)",
+              fontWeight: 700,
+              color: C.text,
+              letterSpacing: "-0.02em",
+            }}
+          >
+            {project.client}
+          </div>
+        </div>
+        <motion.div
+          animate={{ rotate: hovered ? 45 : 0, scale: hovered ? 1.1 : 1 }}
+          transition={{ duration: 0.3 }}
+          style={{
+            width: "40px",
+            height: "40px",
+            borderRadius: "50%",
+            border: `1px solid ${hovered ? C.accent : C.border}`,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            color: hovered ? C.accent : C.textMuted,
+            transition: "border-color 0.3s, color 0.3s",
+          }}
+        >
+          <ArrowRight size={16} />
+        </motion.div>
+      </div>
+
+      <p
+        style={{
+          fontFamily: "'Space Grotesk', sans-serif",
+          fontSize: "14px",
+          lineHeight: 1.7,
+          color: C.textMuted,
+          marginBottom: "28px",
+        }}
+      >
+        {project.desc}
+      </p>
+
+      <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginBottom: "24px" }}>
+        {project.deliverables.map((d) => (
+          <span
+            key={d}
+            style={{
+              fontFamily: "'Space Grotesk', sans-serif",
+              fontSize: "11px",
+              fontWeight: 600,
+              letterSpacing: "0.08em",
+              color: project.color,
+              background: `${project.color}18`,
+              padding: "4px 10px",
+              borderRadius: "2px",
+              border: `1px solid ${project.color}30`,
+            }}
+          >
+            {d}
+          </span>
+        ))}
+      </div>
+
+      <div
+        style={{
+          fontFamily: "'Space Grotesk', sans-serif",
+          fontSize: "13px",
+          fontWeight: 600,
+          color: C.textMuted,
+          display: "flex",
+          alignItems: "center",
+          gap: "8px",
+        }}
+      >
+        <TrendingUp size={14} style={{ color: C.accent }} />
+        {project.result}
+      </div>
     </motion.div>
   );
 }
 
-function Counter({
-  to,
-  prefix = "",
-  suffix = "",
-}: {
-  to: number;
-  prefix?: string;
-  suffix?: string;
-}) {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true });
-  const [count, setCount] = useState(0);
-  useEffect(() => {
-    if (!isInView) return;
-    let cur = 0;
-    const step = to / 70;
-    const t = setInterval(() => {
-      cur += step;
-      if (cur >= to) {
-        setCount(to);
-        clearInterval(t);
-      } else {
-        setCount(Math.floor(cur));
-      }
-    }, 16);
-    return () => clearInterval(t);
-  }, [isInView, to]);
-  return (
-    <span ref={ref}>
-      {prefix}
-      {count.toLocaleString()}
-      {suffix}
-    </span>
-  );
-}
+// ─── Main Component ───────────────────────────────────────────────────────────
 
-function MagneticBtn({
-  children,
-  className = "",
-  onClick,
-}: {
-  children: React.ReactNode;
-  className?: string;
-  onClick?: () => void;
-}) {
-  const ref = useRef<HTMLButtonElement>(null);
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-  const sx = useSpring(x, { stiffness: 200, damping: 20 });
-  const sy = useSpring(y, { stiffness: 200, damping: 20 });
+export default function Impact68Page() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const heroRef = useRef<HTMLDivElement>(null);
+  const [activeService, setActiveService] = useState<number | null>(null);
+  const [activeFaq, setActiveFaq] = useState<number | null>(null);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [activeFilter, setActiveFilter] = useState("All");
 
-  const handleMouse = useCallback(
-    (e: React.MouseEvent) => {
-      const rect = ref.current?.getBoundingClientRect();
-      if (!rect) return;
-      x.set((e.clientX - rect.left - rect.width / 2) * 0.35);
-      y.set((e.clientY - rect.top - rect.height / 2) * 0.35);
-    },
-    [x, y],
-  );
+  const { scrollYProgress } = useScroll({ target: containerRef });
+  const heroY = useTransform(scrollYProgress, [0, 0.3], [0, -80]);
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.25], [1, 0]);
+  const orbitScale = useTransform(scrollYProgress, [0, 0.15], [1, 1.08]);
 
-  const reset = useCallback(() => {
-    x.set(0);
-    y.set(0);
-  }, [x, y]);
+  const filters = ["All", "Identity", "Luxury", "Tech", "Campaign"];
 
-  return (
-    <motion.button
-      ref={ref}
-      style={{ x: sx, y: sy }}
-      onMouseMove={handleMouse}
-      onMouseLeave={reset}
-      onClick={onClick}
-      className={className}
-    >
-      {children}
-    </motion.button>
-  );
-}
-
-/* ==========================================================================
-   MAIN PAGE COMPONENT
-   ========================================================================= */
-
-export default function NexusMarketPage() {
-  const [scrolled, setScrolled] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [activeDrop, setActiveDrop] = useState<number | null>(null);
-  const [walletConnected, setWalletConnected] = useState(false);
-
-  const heroRef = useRef(null);
-  const { scrollYProgress } = useScroll({
-    target: heroRef,
-    offset: ["start start", "end start"],
-  });
-  const heroY = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
-
-  useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 50);
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  const filteredProjects =
+    activeFilter === "All"
+      ? PROJECTS
+      : PROJECTS.filter((p) =>
+          p.tags.some((t) => t.toLowerCase().includes(activeFilter.toLowerCase()))
+        );
 
   return (
     <div
-      className="premium-theme min-h-screen bg-[#05030f] text-white font-mono selection:bg-fuchsia-600 selection:text-white overflow-x-hidden"
-      style={{ scrollBehavior: "smooth" }}
+      ref={containerRef}
+      style={{ background: C.bg, color: C.text, minHeight: "100vh", overflowX: "hidden" }}
     >
-      {/* ==========================================
-          NAVIGATION
-          ========================================== */}
-      <nav
-        className={`fixed top-0 left-0 w-full z-50 transition-all duration-1000 ${scrolled ? "bg-[#05030f]/95 backdrop-blur-md py-4 border-b border-white/5 shadow-lg" : "bg-transparent py-10"}`}
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+        ::selection { background: ${C.accent}; color: ${C.white}; }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: ${C.bg}; }
+        ::-webkit-scrollbar-thumb { background: ${C.border}; border-radius: 2px; }
+      `}</style>
+
+      {/* ─── NAV ─────────────────────────────────────────────────────────── */}
+      <motion.nav
+        initial={{ y: -80, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.6, ease: [0.25, 0, 0, 1] }}
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          zIndex: 100,
+          padding: "0 40px",
+          height: "72px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          background: "rgba(17, 17, 17, 0.92)",
+          backdropFilter: "blur(20px)",
+          borderBottom: `1px solid ${C.border}`,
+        }}
       >
-        <div className="max-w-[1400px] mx-auto px-6 md:px-12 flex items-center justify-between">
-          <Link href="/" className="flex flex-col items-start">
-            <span className="text-[10px] font-bold uppercase tracking-[0.6em] text-white/20 mb-1">
-              Marketplace.
-            </span>
-            <span className="text-xl md:text-2xl font-black tracking-tighter uppercase text-white">
-              NEXUS<span className="text-fuchsia-600">.</span>
-            </span>
-          </Link>
-
-          <div className="hidden lg:flex items-center gap-12 text-[10px] font-bold uppercase tracking-[0.3em] text-white/30">
-            <Link
-              href="#drops"
-              className="hover:text-fuchsia-600 transition-colors"
-            >
-              Drops
-            </Link>
-            <Link
-              href="#engine"
-              className="hover:text-fuchsia-600 transition-colors"
-            >
-              The_Engine
-            </Link>
-            <Link
-              href="#activity"
-              className="hover:text-fuchsia-600 transition-colors"
-            >
-              Live_Activity
-            </Link>
-            <Link
-              href="#artists"
-              className="hover:text-fuchsia-600 transition-colors"
-            >
-              Artists
-            </Link>
-          </div>
-
-          <div className="flex items-center gap-8">
-            <div className="hidden xl:flex flex-col items-end">
-              <span className="text-[9px] font-bold text-white/10 uppercase tracking-widest">
-                Multi-Chain Protocol
-              </span>
-              <span className="text-[11px] font-black text-fuchsia-600 flex items-center gap-1">
-                ETHEREUM // BASE <Blocks className="w-3 h-3" />
-              </span>
-            </div>
-            <MagneticBtn
-              onClick={() => setWalletConnected(!walletConnected)}
-              className={`px-8 py-3 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all shadow-xl ${walletConnected ? "bg-white text-black" : "bg-fuchsia-600 text-white shadow-fuchsia-600/20"}`}
-            >
-              {walletConnected ? "0x4F...7A42" : "CONNECT_WALLET"}
-            </MagneticBtn>
-            <button onClick={() => setMenuOpen(true)} className="lg:hidden">
-              <Menu className="w-6 h-6" />
-            </button>
-          </div>
-        </div>
-      </nav>
-
-      {/* MOBILE MENU */}
-      <AnimatePresence>
-        {menuOpen && (
-          <motion.div
-            initial={{ opacity: 0, x: "100%" }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: "100%" }}
-            transition={{ type: "tween", duration: 0.5 }}
-            className="fixed inset-0 z-[100] bg-[#05030f] p-8 pt-32 flex flex-col border-l border-white/5"
+        {/* Logo */}
+        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+          <div
+            style={{
+              width: "32px",
+              height: "32px",
+              borderRadius: "50%",
+              border: `2px solid ${C.accent}`,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              position: "relative",
+            }}
           >
-            <button
-              onClick={() => setMenuOpen(false)}
-              className="absolute top-10 right-8"
-            >
-              <X className="w-8 h-8" />
-            </button>
-            <div className="flex flex-col gap-10 text-5xl font-black tracking-tighter uppercase italic">
-              <Link href="#drops" onClick={() => setMenuOpen(false)}>
-                Drops
-              </Link>
-              <Link href="#engine" onClick={() => setMenuOpen(false)}>
-                Engine
-              </Link>
-              <Link href="#activity" onClick={() => setMenuOpen(false)}>
-                Activity
-              </Link>
-              <Link href="#artists" onClick={() => setMenuOpen(false)}>
-                Artists
-              </Link>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            <div
+              style={{
+                width: "8px",
+                height: "8px",
+                borderRadius: "50%",
+                background: C.accent,
+              }}
+            />
+          </div>
+          <span
+            style={{
+              fontFamily: "'Space Grotesk', sans-serif",
+              fontWeight: 700,
+              fontSize: "18px",
+              letterSpacing: "-0.02em",
+              color: C.text,
+            }}
+          >
+            Orbit<span style={{ color: C.accent }}>.</span>
+          </span>
+        </div>
 
-      {/* ==========================================
-          1. HERO (Cyber Web3)
-          ========================================== */}
+        {/* Desktop nav */}
+        <div
+          style={{
+            display: "flex",
+            gap: "36px",
+            alignItems: "center",
+          }}
+        >
+          {["Work", "Services", "Studio", "Process"].map((item) => (
+            <a
+              key={item}
+              href={`#${item.toLowerCase()}`}
+              style={{
+                fontFamily: "'Space Grotesk', sans-serif",
+                fontSize: "13px",
+                fontWeight: 500,
+                letterSpacing: "0.05em",
+                color: C.textMuted,
+                textDecoration: "none",
+                transition: "color 0.2s",
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.color = C.text)}
+              onMouseLeave={(e) => (e.currentTarget.style.color = C.textMuted)}
+            >
+              {item}
+            </a>
+          ))}
+          <a
+            href="#contact"
+            style={{
+              fontFamily: "'Space Grotesk', sans-serif",
+              fontSize: "13px",
+              fontWeight: 600,
+              letterSpacing: "0.08em",
+              color: C.white,
+              background: C.accent,
+              padding: "10px 22px",
+              borderRadius: "2px",
+              textDecoration: "none",
+              transition: "background 0.2s, transform 0.15s",
+            }}
+            onMouseEnter={(e) => {
+              (e.currentTarget as HTMLElement).style.background = C.accentDark;
+              (e.currentTarget as HTMLElement).style.transform = "scale(0.98)";
+            }}
+            onMouseLeave={(e) => {
+              (e.currentTarget as HTMLElement).style.background = C.accent;
+              (e.currentTarget as HTMLElement).style.transform = "scale(1)";
+            }}
+          >
+            Start a Project
+          </a>
+        </div>
+
+        {/* Mobile hamburger */}
+        <button
+          onClick={() => setMobileOpen(!mobileOpen)}
+          style={{
+            display: "none",
+            background: "none",
+            border: "none",
+            cursor: "pointer",
+            color: C.text,
+            padding: "4px",
+          }}
+        >
+          <div style={{ width: "22px", height: "2px", background: C.text, marginBottom: "5px" }} />
+          <div style={{ width: "22px", height: "2px", background: C.text, marginBottom: "5px" }} />
+          <div style={{ width: "14px", height: "2px", background: C.accent }} />
+        </button>
+      </motion.nav>
+
+      {/* ─── HERO ────────────────────────────────────────────────────────── */}
       <section
         ref={heroRef}
-        className="relative w-full h-[100svh] flex flex-col justify-center overflow-hidden"
+        style={{
+          position: "relative",
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
+          padding: "120px 40px 80px",
+          overflow: "hidden",
+        }}
       >
-        <motion.div
-          style={{ y: heroY, opacity: heroOpacity }}
-          className="absolute inset-0 z-0"
-        >
-          <Image
-            src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1600&q=80"
-            alt="Nexus Hero"
-            fill
-            className="object-cover brightness-[0.3]"
-            priority
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#05030f] via-[#05030f]/40 to-transparent" />
-        </motion.div>
-
-        {/* GLOW ORBS */}
-        <div className="absolute top-1/4 left-1/4 w-[600px] h-[600px] bg-violet-600/10 rounded-full blur-[150px] pointer-events-none animate-pulse" />
+        {/* Background grid */}
         <div
-          className="absolute bottom-1/4 right-1/4 w-[600px] h-[600px] bg-fuchsia-600/10 rounded-full blur-[150px] pointer-events-none animate-pulse"
-          style={{ animationDelay: "2s" }}
+          style={{
+            position: "absolute",
+            inset: 0,
+            backgroundImage: `
+              linear-gradient(${C.border} 1px, transparent 1px),
+              linear-gradient(90deg, ${C.border} 1px, transparent 1px)
+            `,
+            backgroundSize: "60px 60px",
+            opacity: 0.3,
+            pointerEvents: "none",
+          }}
         />
 
-        <div className="relative z-10 max-w-[1400px] mx-auto px-6 md:px-12 w-full">
-          <Reveal>
-            <div className="inline-flex items-center gap-3 px-4 py-2 bg-fuchsia-600/10 rounded-full border border-fuchsia-600/30 text-fuchsia-600 text-[10px] font-bold uppercase tracking-widest mb-10 shadow-sm">
-              <span className="w-2 h-2 bg-fuchsia-600 rounded-full animate-pulse" />
-              Live Drop: 0xSerpentine Genesis
-            </div>
-            <h1 className="text-7xl md:text-9xl lg:text-[11rem] font-black leading-[0.85] tracking-tighter mb-12 uppercase italic">
-              Own The <br /> <span className="text-fuchsia-600">Future.</span>
-            </h1>
-            <p className="max-w-xl text-lg md:text-xl text-white/30 leading-relaxed font-bold mb-12 uppercase tracking-tight">
-              The curated marketplace for rare digital artifacts, on-chain
-              provenance, and immutable creator royalties.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-6">
-              <MagneticBtn className="px-12 py-5 bg-fuchsia-600 text-white text-[10px] font-bold uppercase tracking-[0.4em] rounded-full hover:bg-white hover:text-black transition-all cursor-pointer shadow-2xl shadow-fuchsia-600/20">
-                Explore Marketplace
-              </MagneticBtn>
-              <button className="px-12 py-5 border border-white/10 text-white text-[10px] font-bold uppercase tracking-[0.4em] rounded-full hover:bg-white hover:text-black transition-all cursor-pointer">
-                Artist_Portal
-              </button>
-            </div>
-          </Reveal>
-        </div>
+        {/* Noise overlay */}
+        <svg style={{ position: "absolute", inset: 0, opacity: 0 }}>
+          <filter id="noise68">
+            <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch" />
+            <feColorMatrix type="saturate" values="0" />
+          </filter>
+          <rect width="100%" height="100%" filter="url(#noise68)" opacity="0.04" />
+        </svg>
 
         <motion.div
-          style={{ opacity: heroOpacity }}
-          className="absolute bottom-10 right-12 hidden md:block"
+          style={{ y: heroY, opacity: heroOpacity }}
+          transition={{ type: "spring" }}
         >
-          <div className="flex flex-col items-end gap-3 text-right">
-            <span className="text-[9px] font-bold text-white/10 uppercase tracking-[0.5em]">
-              NEXUS_V2 // WEB3_CORE
-            </span>
-            <div className="w-32 h-[1px] bg-fuchsia-600/40" />
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr auto",
+              gap: "80px",
+              alignItems: "center",
+              maxWidth: "1300px",
+              margin: "0 auto",
+              width: "100%",
+            }}
+          >
+            {/* Left — headline */}
+            <div>
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7, delay: 0.1 }}
+                style={{
+                  fontFamily: "'Space Grotesk', sans-serif",
+                  fontSize: "11px",
+                  fontWeight: 700,
+                  letterSpacing: "0.2em",
+                  color: C.accent,
+                  textTransform: "uppercase",
+                  marginBottom: "28px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "12px",
+                }}
+              >
+                <span
+                  style={{
+                    display: "inline-block",
+                    width: "32px",
+                    height: "1px",
+                    background: C.accent,
+                  }}
+                />
+                Branding Studio · Paris
+              </motion.div>
+
+              <motion.h1
+                initial={{ opacity: 0, y: 40 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.2 }}
+                style={{
+                  fontFamily: "'Space Grotesk', sans-serif",
+                  fontSize: "clamp(52px, 7vw, 96px)",
+                  fontWeight: 700,
+                  letterSpacing: "-0.04em",
+                  lineHeight: 0.95,
+                  color: C.text,
+                  marginBottom: "32px",
+                }}
+              >
+                Brands that
+                <br />
+                <span style={{ color: C.accent }}>shift</span>
+                <br />
+                perception.
+              </motion.h1>
+
+              <motion.p
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7, delay: 0.35 }}
+                style={{
+                  fontFamily: "'Space Grotesk', sans-serif",
+                  fontSize: "clamp(15px, 1.4vw, 18px)",
+                  lineHeight: 1.7,
+                  color: C.textMuted,
+                  maxWidth: "480px",
+                  marginBottom: "48px",
+                }}
+              >
+                We build identity systems for ambitious companies — from seed-stage startups to century-old maisons. Strategy, visual identity, and art direction that makes the right people stop scrolling.
+              </motion.p>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.5 }}
+                style={{ display: "flex", gap: "16px", alignItems: "center", flexWrap: "wrap" }}
+              >
+                <a
+                  href="#work"
+                  style={{
+                    fontFamily: "'Space Grotesk', sans-serif",
+                    fontSize: "14px",
+                    fontWeight: 600,
+                    letterSpacing: "0.05em",
+                    color: C.white,
+                    background: C.accent,
+                    padding: "16px 32px",
+                    textDecoration: "none",
+                    borderRadius: "2px",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "10px",
+                    transition: "transform 0.15s, background 0.2s",
+                  }}
+                  onMouseEnter={(e) => {
+                    (e.currentTarget as HTMLElement).style.transform = "scale(0.97)";
+                    (e.currentTarget as HTMLElement).style.background = C.accentDark;
+                  }}
+                  onMouseLeave={(e) => {
+                    (e.currentTarget as HTMLElement).style.transform = "scale(1)";
+                    (e.currentTarget as HTMLElement).style.background = C.accent;
+                  }}
+                >
+                  View Our Work
+                  <ArrowRight size={16} />
+                </a>
+                <a
+                  href="#contact"
+                  style={{
+                    fontFamily: "'Space Grotesk', sans-serif",
+                    fontSize: "14px",
+                    fontWeight: 500,
+                    letterSpacing: "0.05em",
+                    color: C.textMuted,
+                    textDecoration: "none",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                    transition: "color 0.2s",
+                  }}
+                  onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = C.text)}
+                  onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = C.textMuted)}
+                >
+                  Get in touch
+                  <ArrowRight size={14} />
+                </a>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.7, delay: 0.8 }}
+                style={{
+                  marginTop: "64px",
+                  paddingTop: "32px",
+                  borderTop: `1px solid ${C.border}`,
+                  display: "flex",
+                  gap: "40px",
+                }}
+              >
+                {["94 projects", "12 countries", "Est. 2015"].map((tag) => (
+                  <div
+                    key={tag}
+                    style={{
+                      fontFamily: "'Space Grotesk', sans-serif",
+                      fontSize: "12px",
+                      fontWeight: 500,
+                      color: C.textMuted,
+                      letterSpacing: "0.05em",
+                    }}
+                  >
+                    {tag}
+                  </div>
+                ))}
+              </motion.div>
+            </div>
+
+            {/* Right — Orbit signature element */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 1, delay: 0.4, ease: [0.25, 0, 0, 1] }}
+              style={{ scale: orbitScale }}
+            >
+              <OrbitCenter />
+            </motion.div>
           </div>
+        </motion.div>
+
+        {/* Scroll indicator */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.2, duration: 0.6 }}
+          style={{
+            position: "absolute",
+            bottom: "40px",
+            left: "50%",
+            transform: "translateX(-50%)",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: "8px",
+          }}
+        >
+          <motion.div
+            animate={{ y: [0, 8, 0] }}
+            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+          >
+            <ChevronDown size={20} style={{ color: C.textMuted }} />
+          </motion.div>
         </motion.div>
       </section>
 
-      {/* ==========================================
-          2. THE MINTING ENGINE (Protocol Details)
-          ========================================== */}
-      <section
-        id="engine"
-        className="py-32 bg-[#05030f] border-y border-white/5"
-      >
-        <div className="max-w-[1400px] mx-auto px-6 md:px-12">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 md:gap-32 items-center">
-            <div className="lg:col-span-5">
-              <Reveal>
-                <span className="text-[10px] uppercase tracking-[0.4em] font-bold text-fuchsia-600 mb-6 block">
-                  The Nexus Protocol
-                </span>
-                <h2 className="text-5xl md:text-7xl font-black tracking-tighter leading-tight mb-12 text-white uppercase italic">
-                  Immutable <br />{" "}
-                  <span className="text-fuchsia-600">Assets.</span>
-                </h2>
-                <p className="text-lg text-white/30 leading-relaxed font-bold mb-16 uppercase tracking-tight italic">
-                  Every artifact is secured via ERC-721A with decentralized
-                  storage on IPFS and Arweave, ensuring permanence beyond the
-                  marketplace.
-                </p>
-
-                <div className="space-y-10">
-                  {SPECS.map((item, i) => (
-                    <div
-                      key={i}
-                      className="group border-l border-fuchsia-600/20 pl-8 hover:border-fuchsia-600 transition-all"
-                    >
-                      <div className="text-fuchsia-600 mb-4">{item.icon}</div>
-                      <h4 className="text-sm font-bold uppercase tracking-tight mb-2 text-white/60">
-                        {item.label}
-                      </h4>
-                      <div className="text-3xl font-black text-white mb-2 uppercase italic tabular-nums">
-                        {item.val}
-                      </div>
-                      <p className="text-[10px] text-white/20 leading-relaxed font-bold uppercase tracking-widest">
-                        Protocol Verified
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </Reveal>
-            </div>
-
-            <div className="lg:col-span-7">
-              <Reveal className="relative aspect-video rounded-3xl overflow-hidden shadow-2xl border border-white/5 bg-[#0a0a0a] p-1 group">
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(162,28,175,0.1)_0%,transparent_70%)] animate-pulse" />
-                <div className="relative h-full w-full border border-white/5 bg-[#05030f] p-8 flex flex-col justify-between overflow-hidden">
-                  <div className="flex items-center justify-between mb-10 pb-6 border-b border-white/5">
-                    <div className="flex items-center gap-4">
-                      <Binary className="w-5 h-5 text-fuchsia-600" />
-                      <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-fuchsia-600">
-                        Blockchain_Logs_Live
-                      </span>
-                    </div>
-                    <div className="flex gap-2">
-                      <div className="w-1.5 h-1.5 bg-fuchsia-600 rounded-full animate-pulse" />
-                      <div className="w-1.5 h-1.5 bg-fuchsia-600/30 rounded-full" />
-                    </div>
-                  </div>
-
-                  <div className="space-y-4 font-mono">
-                    {LOGS.map((log, i) => (
-                      <div
-                        key={i}
-                        className="flex items-center gap-6 text-[10px] py-2 border-b border-white/[0.02] group/log"
-                      >
-                        <span className="text-white/20 italic">{log.time}</span>
-                        <span className="text-fuchsia-600 font-black uppercase tracking-widest">
-                          {log.event}
-                        </span>
-                        <span className="text-white/40 flex-1 truncate">
-                          {log.user} purchased {log.asset}
-                        </span>
-                        <span className="text-fuchsia-600/40 font-black">
-                          [{log.val}]
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="mt-12 flex justify-between items-end">
-                    <div className="space-y-2">
-                      <span className="text-[9px] font-bold text-white/20 uppercase tracking-widest">
-                        Network Load
-                      </span>
-                      <div className="text-2xl font-black text-white italic">
-                        4.2 Gwei
-                      </div>
-                    </div>
-                    <div className="h-10 w-32 flex items-end gap-1">
-                      {[4, 7, 5, 9, 4, 6, 8, 5, 7, 3, 6, 9].map((h, i) => (
-                        <motion.div
-                          key={i}
-                          initial={{ height: 0 }}
-                          animate={{ height: `${h * 10}%` }}
-                          transition={{
-                            repeat: Infinity,
-                            duration: 1,
-                            delay: i * 0.1,
-                            repeatType: "reverse",
-                          }}
-                          className="w-full bg-fuchsia-600/40 rounded-t-sm"
-                        />
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </Reveal>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ==========================================
-          3. DROPS (Vertical Grid)
-          ========================================== */}
-      <section id="drops" className="py-32 bg-[#05030f]">
-        <div className="max-w-[1400px] mx-auto px-6 md:px-12">
-          <div className="flex flex-col md:flex-row justify-between items-end mb-24 gap-12">
-            <Reveal>
-              <h2 className="text-5xl md:text-8xl font-black tracking-tighter uppercase leading-[0.9] text-white italic">
-                Active <br /> <span className="text-fuchsia-600">Drops.</span>
-              </h2>
-            </Reveal>
-            <p className="max-w-sm text-sm text-white/30 leading-relaxed font-bold uppercase tracking-widest italic text-right">
-              Explore the latest artifacts from verified NEXUS creators. Direct
-              mint enabled.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {DROPS.map((p, i) => (
-              <Reveal key={p.id} delay={i * 0.1}>
-                <div
-                  onClick={() => setActiveDrop(i)}
-                  className="group cursor-pointer bg-white/[0.02] border border-white/5 hover:border-fuchsia-600/40 transition-all rounded-3xl p-4 shadow-sm overflow-hidden"
-                >
-                  <div className="relative aspect-square rounded-2xl overflow-hidden mb-8">
-                    <Image
-                      src={p.img}
-                      alt={p.title}
-                      fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-1000"
-                    />
-                    <div
-                      className={`absolute inset-0 bg-gradient-to-br ${p.gradient} opacity-20 mix-blend-overlay`}
-                    />
-                  </div>
-                  <div className="px-4 pb-4">
-                    <span className="text-[10px] uppercase tracking-widest text-fuchsia-600 font-black mb-2 block">
-                      {p.artist}
-                    </span>
-                    <h3 className="text-xl font-black uppercase tracking-tight mb-4 text-white truncate">
-                      {p.title}
-                    </h3>
-                    <div className="flex justify-between items-center">
-                      <span className="text-xl font-black text-white/40 italic">
-                        {p.price}
-                      </span>
-                      <button className="p-3 bg-fuchsia-600 text-white rounded-full hover:bg-white hover:text-black transition-all">
-                        <ArrowUpRight className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ==========================================
-          4. SECONDARY MARKET (Stats Table)
-          ========================================== */}
-      <section
-        id="activity"
-        className="py-32 bg-[#05030f] border-y border-white/5"
-      >
-        <div className="max-w-[1400px] mx-auto px-6 md:px-12 text-center">
-          <Reveal className="max-w-2xl mx-auto mb-20">
-            <span className="text-[10px] uppercase tracking-[0.5em] font-black text-fuchsia-600 mb-6 block">
-              Market Liquidity
-            </span>
-            <h2 className="text-5xl md:text-7xl font-black tracking-tighter uppercase italic text-white">
-              Live Index.
-            </h2>
-          </Reveal>
-
-          <div className="overflow-x-auto">
-            <table className="w-full text-left font-mono">
-              <thead>
-                <tr className="border-b border-white/5 text-[10px] uppercase tracking-widest text-white/20">
-                  <th className="pb-8 font-black">Asset_Name</th>
-                  <th className="pb-8 font-black">Floor_Price</th>
-                  <th className="pb-8 font-black">24h_Volume</th>
-                  <th className="pb-8 font-black">Holders</th>
-                  <th className="pb-8 font-black">Market_Cap</th>
-                </tr>
-              </thead>
-              <tbody className="text-sm">
-                {[
-                  {
-                    name: "Void Genesis",
-                    floor: "2.4 ETH",
-                    vol: "142 ETH",
-                    holders: "420",
-                    cap: "1,200 ETH",
-                    trend: "+",
-                  },
-                  {
-                    name: "Neural Bloom",
-                    floor: "0.8 ETH",
-                    vol: "88 ETH",
-                    holders: "1,200",
-                    cap: "8,800 ETH",
-                    trend: "-",
-                  },
-                  {
-                    name: "Chrome Epoch",
-                    floor: "1.2 ETH",
-                    vol: "64 ETH",
-                    holders: "500",
-                    cap: "2,400 ETH",
-                    trend: "+",
-                  },
-                  {
-                    name: "Prism Cascade",
-                    floor: "0.4 ETH",
-                    vol: "32 ETH",
-                    holders: "2,400",
-                    cap: "4,200 ETH",
-                    trend: "+",
-                  },
-                ].map((row, i) => (
-                  <tr
-                    key={i}
-                    className="border-b border-white/[0.02] hover:bg-white/[0.02] transition-colors group"
-                  >
-                    <td className="py-8 font-black text-white group-hover:text-fuchsia-600 transition-colors uppercase italic">
-                      {row.name}
-                    </td>
-                    <td className="py-8 text-white/60 tabular-nums">
-                      {row.floor}
-                    </td>
-                    <td className="py-8 text-white/60 tabular-nums">
-                      {row.vol}
-                    </td>
-                    <td className="py-8 text-white/60 tabular-nums">
-                      {row.holders}
-                    </td>
-                    <td className="py-8 flex items-center justify-between">
-                      <span className="text-white/60 tabular-nums">
-                        {row.cap}
-                      </span>
-                      <span
-                        className={
-                          row.trend === "+"
-                            ? "text-emerald-500"
-                            : "text-rose-500"
-                        }
-                      >
-                        {row.trend}12.4%
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </section>
-
-      {/* ==========================================
-          5. STATS (Counter)
-          ========================================== */}
-      <section className="py-24 bg-[#05030f] border-b border-white/5">
-        <div className="max-w-[1400px] mx-auto px-6 md:px-12 grid grid-cols-2 lg:grid-cols-4 gap-16 text-center">
-          {[
-            { label: "Total_Traded", val: 142000, suffix: " ETH" },
-            { label: "Verified_Artists", val: 840, suffix: " Creators" },
-            { label: "NFT_Circulation", val: 12000, suffix: " Assets" },
-            { label: "Royalty_Paid", val: 12400, suffix: " ETH" },
-          ].map((stat, i) => (
-            <Reveal key={i} delay={i * 0.1}>
-              <div className="text-5xl md:text-7xl font-black text-fuchsia-600 mb-4 italic tabular-nums">
-                <Counter to={stat.val} suffix={stat.suffix} />
-              </div>
-              <div className="text-[10px] font-bold uppercase tracking-[0.5em] text-white/20">
-                {stat.label}
-              </div>
-            </Reveal>
-          ))}
-        </div>
-      </section>
-
-      {/* ==========================================
-          6. FAQ (Accordion)
-          ========================================== */}
-      <section className="py-32 bg-[#05030f]">
-        <div className="max-w-3xl mx-auto px-6">
-          <Reveal className="text-center mb-24">
-            <h2 className="text-4xl md:text-5xl font-black tracking-tighter leading-none uppercase italic text-white">
-              Market_Protocol
-            </h2>
-          </Reveal>
-
-          <Accordion type="single" collapsible className="space-y-4">
-            {[
-              {
-                q: "How are royalties enforced?",
-                a: "NEXUS implements EIP-2981, ensuring that 10% of every secondary sale is automatically routed to the creator's wallet on-chain.",
-              },
-              {
-                q: "What chains are supported?",
-                a: "We currently support Ethereum Mainnet and Base (L2). Multi-chain bridge for Solana and Polygon is in private beta.",
-              },
-              {
-                q: "Is the art stored on-chain?",
-                a: "Artifact metadata is on-chain, while media files are stored on IPFS and Arweave for long-term decentralized permanence.",
-              },
-              {
-                q: "How do I apply as a creator?",
-                a: "Artist applications are reviewed monthly. We prioritize high-density digital craftsmanship and clear on-chain history.",
-              },
-            ].map((faq, i) => (
-              <AccordionItem
+      {/* ─── STATS ───────────────────────────────────────────────────────── */}
+      <section style={{ background: C.bgAlt, borderTop: `1px solid ${C.border}`, borderBottom: `1px solid ${C.border}` }}>
+        <div
+          style={{
+            maxWidth: "1200px",
+            margin: "0 auto",
+            padding: "80px 40px",
+            display: "grid",
+            gridTemplateColumns: "repeat(4, 1fr)",
+            gap: "0",
+          }}
+        >
+          {STATS.map((stat, i) => {
+            const ref = useRef(null);
+            const inView = useInView(ref, { once: true });
+            return (
+              <motion.div
                 key={i}
-                value={`item-${i}`}
-                className="border-b border-white/10"
+                ref={ref}
+                initial={{ opacity: 0, y: 30 }}
+                animate={inView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 0.6, delay: i * 0.1 }}
+                style={{
+                  padding: "40px",
+                  borderRight: i < 3 ? `1px solid ${C.border}` : "none",
+                  textAlign: "center",
+                }}
               >
-                <AccordionTrigger className="text-left text-sm uppercase font-bold tracking-widest py-8 hover:text-fuchsia-600 hover:no-underline">
-                  {faq.q}
-                </AccordionTrigger>
-                <AccordionContent className="text-sm text-white/40 leading-relaxed font-bold uppercase tracking-widest pb-8 italic">
-                  {faq.a}
-                </AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
+                <div
+                  style={{
+                    fontFamily: "'Space Grotesk', sans-serif",
+                    fontSize: "clamp(36px, 4vw, 54px)",
+                    fontWeight: 700,
+                    letterSpacing: "-0.04em",
+                    color: C.text,
+                    lineHeight: 1,
+                    marginBottom: "8px",
+                  }}
+                >
+                  {stat.prefix}
+                  <AnimatedCounter value={parseFloat(stat.value)} />
+                  {stat.suffix}
+                </div>
+                <div
+                  style={{
+                    fontFamily: "'Space Grotesk', sans-serif",
+                    fontSize: "13px",
+                    fontWeight: 600,
+                    color: C.text,
+                    marginBottom: "4px",
+                  }}
+                >
+                  {stat.label}
+                </div>
+                <div
+                  style={{
+                    fontFamily: "'Space Grotesk', sans-serif",
+                    fontSize: "12px",
+                    color: C.textMuted,
+                  }}
+                >
+                  {stat.sub}
+                </div>
+              </motion.div>
+            );
+          })}
         </div>
       </section>
 
-      {/* ==========================================
-          7. MEGA FOOTER (Cyber-Web3)
-          ========================================== */}
-      <footer className="bg-[#0a0a0a] pt-32 pb-12 px-6 md:px-12 border-t border-white/5 relative overflow-hidden">
-        <div className="max-w-[1600px] mx-auto relative z-10">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-16 mb-32">
-            <div className="lg:col-span-5">
-              <Reveal>
-                <div className="flex flex-col mb-10">
-                  <span className="text-[10px] font-bold uppercase tracking-[0.6em] text-white/20 mb-1">
-                    Marketplace.
-                  </span>
-                  <span className="text-2xl font-black tracking-tighter uppercase text-white">
-                    NEXUS<span className="text-fuchsia-600">.</span>
-                  </span>
-                </div>
-                <p className="text-white/20 max-w-sm mb-12 uppercase tracking-widest text-[10px] font-bold leading-relaxed italic">
-                  Immutable digital artifacts for the next generation of
-                  collectors. Secured by the Nexus Protocol.
-                </p>
-                <form
-                  className="relative max-w-md"
-                  onSubmit={(e) => e.preventDefault()}
-                >
-                  <input
-                    type="email"
-                    placeholder="AUTHENTICATED_EMAIL"
-                    className="w-full bg-white/[0.02] border border-white/5 rounded-none px-6 py-4 text-xs font-bold outline-none focus:border-fuchsia-600 text-white transition-all uppercase tracking-widest"
-                  />
+      {/* ─── WORK ────────────────────────────────────────────────────────── */}
+      <section id="work" style={{ padding: "120px 40px" }}>
+        <div style={{ maxWidth: "1300px", margin: "0 auto" }}>
+          {/* Header */}
+          <div style={{ marginBottom: "60px" }}>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+              style={{
+                fontFamily: "'Space Grotesk', sans-serif",
+                fontSize: "11px",
+                fontWeight: 700,
+                letterSpacing: "0.2em",
+                color: C.accent,
+                textTransform: "uppercase",
+                marginBottom: "20px",
+                display: "flex",
+                alignItems: "center",
+                gap: "12px",
+              }}
+            >
+              <span style={{ display: "inline-block", width: "24px", height: "1px", background: C.accent }} />
+              Selected Work
+            </motion.div>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: "24px" }}>
+              <motion.h2
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.7 }}
+                style={{
+                  fontFamily: "'Space Grotesk', sans-serif",
+                  fontSize: "clamp(36px, 5vw, 60px)",
+                  fontWeight: 700,
+                  letterSpacing: "-0.03em",
+                  color: C.text,
+                  lineHeight: 1.05,
+                }}
+              >
+                94 projects.
+                <br />
+                <span style={{ color: C.textMuted }}>6 shown here.</span>
+              </motion.h2>
+
+              {/* Filters */}
+              <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+                {filters.map((f) => (
                   <button
-                    type="submit"
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-bold text-fuchsia-600 hover:text-white transition-colors uppercase tracking-[0.3em]"
+                    key={f}
+                    onClick={() => setActiveFilter(f)}
+                    style={{
+                      fontFamily: "'Space Grotesk', sans-serif",
+                      fontSize: "12px",
+                      fontWeight: 600,
+                      letterSpacing: "0.08em",
+                      padding: "8px 16px",
+                      borderRadius: "2px",
+                      border: `1px solid ${activeFilter === f ? C.accent : C.border}`,
+                      background: activeFilter === f ? C.accent : "transparent",
+                      color: activeFilter === f ? C.white : C.textMuted,
+                      cursor: "pointer",
+                      transition: "all 0.2s",
+                    }}
                   >
-                    ENROLL
+                    {f}
                   </button>
-                </form>
-              </Reveal>
-            </div>
-
-            <div className="lg:col-span-2 lg:col-start-7">
-              <h4 className="text-[10px] font-bold uppercase tracking-widest text-fuchsia-600 mb-10">
-                Protocol
-              </h4>
-              <ul className="space-y-4 text-[10px] font-bold uppercase tracking-widest text-white/20">
-                <li>
-                  <Link
-                    href="#"
-                    className="hover:text-fuchsia-600 transition-colors"
-                  >
-                    Drops_Live
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="#"
-                    className="hover:text-fuchsia-600 transition-colors"
-                  >
-                    Secondary_Market
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="#"
-                    className="hover:text-fuchsia-600 transition-colors"
-                  >
-                    Auction_Nodes
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="#"
-                    className="hover:text-fuchsia-600 transition-colors"
-                  >
-                    Artist_Portal
-                  </Link>
-                </li>
-              </ul>
-            </div>
-
-            <div className="lg:col-span-2">
-              <h4 className="text-[10px] font-bold uppercase tracking-widest text-fuchsia-600 mb-10">
-                Network
-              </h4>
-              <ul className="space-y-4 text-[10px] font-bold uppercase tracking-widest text-white/20">
-                <li>
-                  <Link
-                    href="#"
-                    className="hover:text-fuchsia-600 transition-colors"
-                  >
-                    Nexus_SDK
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="#"
-                    className="hover:text-fuchsia-600 transition-colors"
-                  >
-                    Validator_Stats
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="#"
-                    className="hover:text-fuchsia-600 transition-colors"
-                  >
-                    Governance_DAO
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="#"
-                    className="hover:text-fuchsia-600 transition-colors"
-                  >
-                    Permanence_Vault
-                  </Link>
-                </li>
-              </ul>
-            </div>
-
-            <div className="lg:col-span-2">
-              <h4 className="text-[10px] font-bold uppercase tracking-widest text-fuchsia-600 mb-10">
-                Terminal
-              </h4>
-              <ul className="space-y-4 text-[10px] font-bold uppercase tracking-widest text-white/20">
-                <li>
-                  <Link
-                    href="#"
-                    className="hover:text-fuchsia-600 transition-colors flex items-center gap-3"
-                  >
-                    <Globe className="w-3 h-3" /> Globe
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="#"
-                    className="hover:text-fuchsia-600 transition-colors flex items-center gap-3"
-                  >
-                    <Globe className="w-3 h-3" /> X_Protocol
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="#"
-                    className="hover:text-fuchsia-600 transition-colors flex items-center gap-3"
-                  >
-                    <Mail className="w-3 h-3" /> Contact_IRL
-                  </Link>
-                </li>
-              </ul>
+                ))}
+              </div>
             </div>
           </div>
 
-          <div className="flex flex-col md:flex-row justify-between items-center gap-8 pt-10 border-t border-white/5 text-[9px] font-bold uppercase tracking-widest text-white/10">
-            <div className="flex items-center gap-10">
-              <span>
-                &copy; {new Date().getFullYear()} NEXUS Protocol Labs.
-              </span>
-              <Link href="#" className="hover:text-white transition-colors">
-                Regulatory_Terms
-              </Link>
-              <Link href="#" className="hover:text-white transition-colors">
-                Privacy_Buffer
-              </Link>
-            </div>
-            <div className="flex gap-10">
-              <span>Ethereum Mainnet // Base L2</span>
-              <span>Provenance as Art</span>
-            </div>
+          {/* Projects grid */}
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(2, 1fr)",
+              gap: "2px",
+            }}
+          >
+            <AnimatePresence mode="popLayout">
+              {filteredProjects.map((project, i) => (
+                <ProjectCard key={project.id} project={project} index={i} />
+              ))}
+            </AnimatePresence>
           </div>
         </div>
-      </footer>
+      </section>
 
-      {/* DROP MODAL */}
-      <AnimatePresence>
-        {activeDrop !== null && (
+      {/* ─── SERVICES ────────────────────────────────────────────────────── */}
+      <section
+        id="services"
+        style={{
+          padding: "120px 40px",
+          background: C.bgAlt,
+          borderTop: `1px solid ${C.border}`,
+          borderBottom: `1px solid ${C.border}`,
+        }}
+      >
+        <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[200] bg-black/90 backdrop-blur-xl flex items-center justify-center p-6"
-            onClick={() => setActiveDrop(null)}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            style={{
+              fontFamily: "'Space Grotesk', sans-serif",
+              fontSize: "11px",
+              fontWeight: 700,
+              letterSpacing: "0.2em",
+              color: C.accent,
+              textTransform: "uppercase",
+              marginBottom: "20px",
+              display: "flex",
+              alignItems: "center",
+              gap: "12px",
+            }}
           >
-            <motion.div
-              initial={{ scale: 0.9, y: 30 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.9, y: 30 }}
-              className="bg-[#0e0a1a] border border-white/10 max-w-4xl w-full grid grid-cols-1 md:grid-cols-2 overflow-hidden rounded-3xl shadow-2xl relative"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <button
-                onClick={() => setActiveDrop(null)}
-                className="absolute top-8 right-8 text-white/20 hover:text-fuchsia-600 transition-colors z-10"
-              >
-                <X className="w-6 h-6" />
-              </button>
-              <div className="relative aspect-square md:aspect-auto">
-                <Image
-                  src={DROPS[activeDrop].img}
-                  alt="Drop"
-                  fill
-                  className="object-cover brightness-75"
-                />
-                <div
-                  className={`absolute inset-0 bg-gradient-to-br ${DROPS[activeDrop].gradient} opacity-40 mix-blend-overlay`}
-                />
-              </div>
-              <div className="p-12 flex flex-col justify-between bg-[#0e0a1a]">
-                <div>
-                  <div className="text-[10px] uppercase tracking-widest text-fuchsia-600 font-black mb-4">
-                    On-Chain Artifact // {DROPS[activeDrop].edition}
+            <span style={{ display: "inline-block", width: "24px", height: "1px", background: C.accent }} />
+            What We Do
+          </motion.div>
+          <motion.h2
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7 }}
+            style={{
+              fontFamily: "'Space Grotesk', sans-serif",
+              fontSize: "clamp(36px, 5vw, 60px)",
+              fontWeight: 700,
+              letterSpacing: "-0.03em",
+              color: C.text,
+              marginBottom: "64px",
+              lineHeight: 1.05,
+            }}
+          >
+            Four disciplines.
+            <br />
+            <span style={{ color: C.textMuted }}>One obsession.</span>
+          </motion.h2>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "2px" }}>
+            {SERVICES.map((svc, i) => {
+              const Icon = svc.icon;
+              const isActive = activeService === i;
+              return (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 40 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.6, delay: i * 0.1 }}
+                  onClick={() => setActiveService(isActive ? null : i)}
+                  style={{
+                    padding: "48px",
+                    background: isActive ? C.bgCard : "transparent",
+                    border: `1px solid ${isActive ? C.accent : C.border}`,
+                    cursor: "pointer",
+                    transition: "all 0.3s",
+                    position: "relative",
+                  }}
+                >
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "24px" }}>
+                    <div
+                      style={{
+                        width: "48px",
+                        height: "48px",
+                        borderRadius: "4px",
+                        background: isActive ? C.accent : C.border,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        transition: "background 0.3s",
+                      }}
+                    >
+                      <Icon size={22} style={{ color: isActive ? C.white : C.textMuted }} />
+                    </div>
+                    <div
+                      style={{
+                        fontFamily: "'Space Grotesk', sans-serif",
+                        fontSize: "12px",
+                        fontWeight: 600,
+                        color: isActive ? C.accent : C.textMuted,
+                        letterSpacing: "0.05em",
+                        transition: "color 0.3s",
+                      }}
+                    >
+                      {svc.price}
+                    </div>
                   </div>
-                  <h3 className="text-4xl font-black uppercase tracking-tighter italic text-white mb-6 leading-none">
-                    {DROPS[activeDrop].title}
+
+                  <h3
+                    style={{
+                      fontFamily: "'Space Grotesk', sans-serif",
+                      fontSize: "22px",
+                      fontWeight: 700,
+                      letterSpacing: "-0.02em",
+                      color: C.text,
+                      marginBottom: "16px",
+                    }}
+                  >
+                    {svc.title}
                   </h3>
-                  <p className="text-sm text-white/40 leading-relaxed font-bold mb-10 italic">
-                    "{DROPS[activeDrop].desc}"
+
+                  <p
+                    style={{
+                      fontFamily: "'Space Grotesk', sans-serif",
+                      fontSize: "14px",
+                      lineHeight: 1.7,
+                      color: C.textMuted,
+                      marginBottom: "24px",
+                    }}
+                  >
+                    {svc.desc}
                   </p>
 
-                  <div className="grid grid-cols-1 gap-4 mb-10">
-                    {SPECS.map((s, i) => (
-                      <div
-                        key={i}
-                        className="flex justify-between text-[10px] border-b border-white/5 pb-2 font-mono"
+                  <AnimatePresence>
+                    {isActive && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                        transition={{ duration: 0.3 }}
+                        style={{ overflow: "hidden" }}
                       >
-                        <div className="flex items-center gap-2">
-                          <div className="text-fuchsia-600">{s.icon}</div>
-                          <span className="uppercase tracking-widest text-white/20 font-black">
-                            {s.label}
-                          </span>
+                        <div style={{ paddingTop: "16px", borderTop: `1px solid ${C.border}` }}>
+                          {svc.deliverables.map((d) => (
+                            <div
+                              key={d}
+                              style={{
+                                fontFamily: "'Space Grotesk', sans-serif",
+                                fontSize: "13px",
+                                color: C.textMuted,
+                                padding: "8px 0",
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "10px",
+                              }}
+                            >
+                              <Check size={14} style={{ color: C.accent, flexShrink: 0 }} />
+                              {d}
+                            </div>
+                          ))}
                         </div>
-                        <span className="font-black text-white/60 italic">
-                          {s.val}
-                        </span>
-                      </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </motion.div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* ─── PROCESS ─────────────────────────────────────────────────────── */}
+      <section id="process" style={{ padding: "120px 40px" }}>
+        <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            style={{
+              fontFamily: "'Space Grotesk', sans-serif",
+              fontSize: "11px",
+              fontWeight: 700,
+              letterSpacing: "0.2em",
+              color: C.accent,
+              textTransform: "uppercase",
+              marginBottom: "20px",
+              display: "flex",
+              alignItems: "center",
+              gap: "12px",
+            }}
+          >
+            <span style={{ display: "inline-block", width: "24px", height: "1px", background: C.accent }} />
+            How We Work
+          </motion.div>
+          <motion.h2
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            style={{
+              fontFamily: "'Space Grotesk', sans-serif",
+              fontSize: "clamp(36px, 5vw, 60px)",
+              fontWeight: 700,
+              letterSpacing: "-0.03em",
+              color: C.text,
+              marginBottom: "80px",
+              lineHeight: 1.05,
+            }}
+          >
+            A process built for
+            <br />
+            <span style={{ color: C.accent }}>honest work.</span>
+          </motion.h2>
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0", borderTop: `1px solid ${C.border}` }}>
+            {PROCESS_STEPS.map((step, i) => {
+              const ref = useRef(null);
+              const inView = useInView(ref, { once: true, margin: "-60px" });
+              return (
+                <motion.div
+                  key={i}
+                  ref={ref}
+                  initial={{ opacity: 0, x: i % 2 === 0 ? -40 : 40 }}
+                  animate={inView ? { opacity: 1, x: 0 } : {}}
+                  transition={{ duration: 0.7, delay: i * 0.1 }}
+                  style={{
+                    padding: "48px",
+                    borderBottom: `1px solid ${C.border}`,
+                    borderRight: i % 2 === 0 ? `1px solid ${C.border}` : "none",
+                    position: "relative",
+                  }}
+                >
+                  <div
+                    style={{
+                      fontFamily: "'Space Grotesk', sans-serif",
+                      fontSize: "11px",
+                      fontWeight: 700,
+                      letterSpacing: "0.12em",
+                      color: C.textMuted,
+                      marginBottom: "16px",
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                    }}
+                  >
+                    <span style={{ color: C.accent, fontSize: "28px", fontWeight: 700, letterSpacing: "-0.02em" }}>
+                      {step.num}
+                    </span>
+                    <span style={{ fontSize: "11px", letterSpacing: "0.08em", color: C.textMuted }}>
+                      {step.duration}
+                    </span>
+                  </div>
+                  <h3
+                    style={{
+                      fontFamily: "'Space Grotesk', sans-serif",
+                      fontSize: "20px",
+                      fontWeight: 700,
+                      letterSpacing: "-0.01em",
+                      color: C.text,
+                      marginBottom: "16px",
+                    }}
+                  >
+                    {step.title}
+                  </h3>
+                  <p
+                    style={{
+                      fontFamily: "'Space Grotesk', sans-serif",
+                      fontSize: "14px",
+                      lineHeight: 1.7,
+                      color: C.textMuted,
+                    }}
+                  >
+                    {step.desc}
+                  </p>
+                </motion.div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* ─── TESTIMONIALS ────────────────────────────────────────────────── */}
+      <section
+        style={{
+          padding: "120px 40px",
+          background: C.bgAlt,
+          borderTop: `1px solid ${C.border}`,
+          borderBottom: `1px solid ${C.border}`,
+        }}
+      >
+        <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            style={{
+              fontFamily: "'Space Grotesk', sans-serif",
+              fontSize: "11px",
+              fontWeight: 700,
+              letterSpacing: "0.2em",
+              color: C.accent,
+              textTransform: "uppercase",
+              marginBottom: "20px",
+              display: "flex",
+              alignItems: "center",
+              gap: "12px",
+            }}
+          >
+            <span style={{ display: "inline-block", width: "24px", height: "1px", background: C.accent }} />
+            Client Stories
+          </motion.div>
+          <motion.h2
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            style={{
+              fontFamily: "'Space Grotesk', sans-serif",
+              fontSize: "clamp(36px, 5vw, 60px)",
+              fontWeight: 700,
+              letterSpacing: "-0.03em",
+              color: C.text,
+              marginBottom: "64px",
+              lineHeight: 1.05,
+            }}
+          >
+            Words from
+            <br />
+            <span style={{ color: C.textMuted }}>the people we built for.</span>
+          </motion.h2>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "2px" }}>
+            {TESTIMONIALS.map((t, i) => {
+              const ref = useRef(null);
+              const inView = useInView(ref, { once: true, margin: "-60px" });
+              return (
+                <motion.div
+                  key={i}
+                  ref={ref}
+                  initial={{ opacity: 0, y: 40 }}
+                  animate={inView ? { opacity: 1, y: 0 } : {}}
+                  transition={{ duration: 0.6, delay: i * 0.1 }}
+                  style={{
+                    padding: "48px",
+                    background: C.bgCard,
+                    border: `1px solid ${C.border}`,
+                    position: "relative",
+                  }}
+                >
+                  <div style={{ display: "flex", gap: "4px", marginBottom: "24px" }}>
+                    {Array.from({ length: t.rating }).map((_, si) => (
+                      <Star key={si} size={14} fill={C.accent} style={{ color: C.accent }} />
                     ))}
                   </div>
-                </div>
-                <div className="space-y-4">
-                  <button className="w-full py-5 bg-fuchsia-600 text-white text-[10px] font-bold uppercase tracking-widest hover:bg-white hover:text-black transition-all cursor-pointer shadow-xl shadow-fuchsia-600/10">
-                    PLACE_BID — {DROPS[activeDrop].price}
-                  </button>
-                  <button className="w-full py-5 border border-white/10 text-white text-[10px] font-bold uppercase tracking-widest hover:bg-fuchsia-600 transition-all cursor-pointer">
-                    VIEW_ON_ETHERSCAN
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
-      <style>{`::-webkit-scrollbar{width:4px;background:#05030f}::-webkit-scrollbar-thumb{background:rgba(162,28,175,0.2)}`}</style>
+                  <p
+                    style={{
+                      fontFamily: "'Space Grotesk', sans-serif",
+                      fontSize: "15px",
+                      lineHeight: 1.8,
+                      color: C.text,
+                      marginBottom: "32px",
+                      fontStyle: "italic",
+                    }}
+                  >
+                    "{t.text}"
+                  </p>
+
+                  <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+                    <div
+                      style={{
+                        width: "44px",
+                        height: "44px",
+                        borderRadius: "50%",
+                        background: C.accent,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontFamily: "'Space Grotesk', sans-serif",
+                        fontSize: "14px",
+                        fontWeight: 700,
+                        color: C.white,
+                        flexShrink: 0,
+                      }}
+                    >
+                      {t.initials}
+                    </div>
+                    <div>
+                      <div
+                        style={{
+                          fontFamily: "'Space Grotesk', sans-serif",
+                          fontSize: "14px",
+                          fontWeight: 600,
+                          color: C.text,
+                        }}
+                      >
+                        {t.name}
+                      </div>
+                      <div
+                        style={{
+                          fontFamily: "'Space Grotesk', sans-serif",
+                          fontSize: "12px",
+                          color: C.textMuted,
+                        }}
+                      >
+                        {t.role}
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* ─── STUDIO / TEAM ───────────────────────────────────────────────── */}
+      <section id="studio" style={{ padding: "120px 40px" }}>
+        <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            style={{
+              fontFamily: "'Space Grotesk', sans-serif",
+              fontSize: "11px",
+              fontWeight: 700,
+              letterSpacing: "0.2em",
+              color: C.accent,
+              textTransform: "uppercase",
+              marginBottom: "20px",
+              display: "flex",
+              alignItems: "center",
+              gap: "12px",
+            }}
+          >
+            <span style={{ display: "inline-block", width: "24px", height: "1px", background: C.accent }} />
+            The Studio
+          </motion.div>
+          <motion.h2
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            style={{
+              fontFamily: "'Space Grotesk', sans-serif",
+              fontSize: "clamp(36px, 5vw, 60px)",
+              fontWeight: 700,
+              letterSpacing: "-0.03em",
+              color: C.text,
+              marginBottom: "24px",
+              lineHeight: 1.05,
+            }}
+          >
+            Four people.
+            <br />
+            <span style={{ color: C.textMuted }}>Senior on every project.</span>
+          </motion.h2>
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            style={{
+              fontFamily: "'Space Grotesk', sans-serif",
+              fontSize: "16px",
+              lineHeight: 1.7,
+              color: C.textMuted,
+              maxWidth: "560px",
+              marginBottom: "72px",
+            }}
+          >
+            Orbit is intentionally small. We take 4 projects per quarter — never more. Every client gets every senior person in the room. That's the model and we won't change it.
+          </motion.p>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "2px" }}>
+            {TEAM.map((member, i) => {
+              const ref = useRef(null);
+              const inView = useInView(ref, { once: true, margin: "-60px" });
+              return (
+                <motion.div
+                  key={i}
+                  ref={ref}
+                  initial={{ opacity: 0, y: 40 }}
+                  animate={inView ? { opacity: 1, y: 0 } : {}}
+                  transition={{ duration: 0.6, delay: i * 0.1 }}
+                  style={{
+                    padding: "36px",
+                    background: C.bgCard,
+                    border: `1px solid ${C.border}`,
+                  }}
+                >
+                  <div
+                    style={{
+                      width: "56px",
+                      height: "56px",
+                      borderRadius: "50%",
+                      background: `${C.accent}22`,
+                      border: `1px solid ${C.accent}44`,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontFamily: "'Space Grotesk', sans-serif",
+                      fontSize: "16px",
+                      fontWeight: 700,
+                      color: C.accent,
+                      marginBottom: "20px",
+                    }}
+                  >
+                    {member.initials}
+                  </div>
+                  <div
+                    style={{
+                      fontFamily: "'Space Grotesk', sans-serif",
+                      fontSize: "16px",
+                      fontWeight: 700,
+                      color: C.text,
+                      marginBottom: "4px",
+                    }}
+                  >
+                    {member.name}
+                  </div>
+                  <div
+                    style={{
+                      fontFamily: "'Space Grotesk', sans-serif",
+                      fontSize: "12px",
+                      color: C.accent,
+                      fontWeight: 600,
+                      letterSpacing: "0.06em",
+                      marginBottom: "16px",
+                    }}
+                  >
+                    {member.role}
+                  </div>
+                  <p
+                    style={{
+                      fontFamily: "'Space Grotesk', sans-serif",
+                      fontSize: "13px",
+                      lineHeight: 1.7,
+                      color: C.textMuted,
+                    }}
+                  >
+                    {member.bio}
+                  </p>
+                </motion.div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* ─── FAQ ─────────────────────────────────────────────────────────── */}
+      <section
+        style={{
+          padding: "120px 40px",
+          background: C.bgAlt,
+          borderTop: `1px solid ${C.border}`,
+          borderBottom: `1px solid ${C.border}`,
+        }}
+      >
+        <div style={{ maxWidth: "860px", margin: "0 auto" }}>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            style={{
+              fontFamily: "'Space Grotesk', sans-serif",
+              fontSize: "11px",
+              fontWeight: 700,
+              letterSpacing: "0.2em",
+              color: C.accent,
+              textTransform: "uppercase",
+              marginBottom: "20px",
+              display: "flex",
+              alignItems: "center",
+              gap: "12px",
+            }}
+          >
+            <span style={{ display: "inline-block", width: "24px", height: "1px", background: C.accent }} />
+            Common Questions
+          </motion.div>
+          <motion.h2
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            style={{
+              fontFamily: "'Space Grotesk', sans-serif",
+              fontSize: "clamp(32px, 4vw, 52px)",
+              fontWeight: 700,
+              letterSpacing: "-0.03em",
+              color: C.text,
+              marginBottom: "60px",
+              lineHeight: 1.05,
+            }}
+          >
+            Before you reach out.
+          </motion.h2>
+
+          <div>
+            {FAQS.map((faq, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: i * 0.07 }}
+                style={{ borderBottom: `1px solid ${C.border}` }}
+              >
+                <button
+                  onClick={() => setActiveFaq(activeFaq === i ? null : i)}
+                  style={{
+                    width: "100%",
+                    background: "none",
+                    border: "none",
+                    padding: "24px 0",
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    cursor: "pointer",
+                    gap: "16px",
+                    textAlign: "left",
+                  }}
+                >
+                  <span
+                    style={{
+                      fontFamily: "'Space Grotesk', sans-serif",
+                      fontSize: "16px",
+                      fontWeight: 600,
+                      color: activeFaq === i ? C.accent : C.text,
+                      transition: "color 0.2s",
+                    }}
+                  >
+                    {faq.q}
+                  </span>
+                  <motion.div
+                    animate={{ rotate: activeFaq === i ? 45 : 0 }}
+                    transition={{ duration: 0.25 }}
+                    style={{
+                      width: "28px",
+                      height: "28px",
+                      borderRadius: "50%",
+                      border: `1px solid ${activeFaq === i ? C.accent : C.border}`,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      color: activeFaq === i ? C.accent : C.textMuted,
+                      flexShrink: 0,
+                      transition: "border-color 0.2s, color 0.2s",
+                      fontSize: "18px",
+                      fontWeight: 300,
+                    }}
+                  >
+                    +
+                  </motion.div>
+                </button>
+                <AnimatePresence initial={false}>
+                  {activeFaq === i && (
+                    <motion.div
+                      key="answer"
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.35, ease: "easeInOut" }}
+                      style={{ overflow: "hidden" }}
+                    >
+                      <p
+                        style={{
+                          fontFamily: "'Space Grotesk', sans-serif",
+                          fontSize: "15px",
+                          lineHeight: 1.8,
+                          color: C.textMuted,
+                          paddingBottom: "24px",
+                        }}
+                      >
+                        {faq.a}
+                      </p>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ─── CTA / CONTACT ───────────────────────────────────────────────── */}
+      <section
+        id="contact"
+        style={{
+          padding: "160px 40px",
+          textAlign: "center",
+          position: "relative",
+          overflow: "hidden",
+        }}
+      >
+        {/* Background accent */}
+        <div
+          style={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: "600px",
+            height: "600px",
+            borderRadius: "50%",
+            background: `radial-gradient(circle, ${C.orangeGlow} 0%, transparent 70%)`,
+            pointerEvents: "none",
+          }}
+        />
+
+        <div style={{ position: "relative", zIndex: 1, maxWidth: "800px", margin: "0 auto" }}>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            style={{
+              fontFamily: "'Space Grotesk', sans-serif",
+              fontSize: "11px",
+              fontWeight: 700,
+              letterSpacing: "0.2em",
+              color: C.accent,
+              textTransform: "uppercase",
+              marginBottom: "24px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "12px",
+            }}
+          >
+            <span style={{ display: "inline-block", width: "24px", height: "1px", background: C.accent }} />
+            Start a Project
+            <span style={{ display: "inline-block", width: "24px", height: "1px", background: C.accent }} />
+          </motion.div>
+
+          <motion.h2
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+            style={{
+              fontFamily: "'Space Grotesk', sans-serif",
+              fontSize: "clamp(48px, 7vw, 88px)",
+              fontWeight: 700,
+              letterSpacing: "-0.04em",
+              lineHeight: 0.95,
+              color: C.text,
+              marginBottom: "32px",
+            }}
+          >
+            Ready to build
+            <br />
+            <span style={{ color: C.accent }}>something real?</span>
+          </motion.h2>
+
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.2 }}
+            style={{
+              fontFamily: "'Space Grotesk', sans-serif",
+              fontSize: "17px",
+              lineHeight: 1.7,
+              color: C.textMuted,
+              marginBottom: "48px",
+            }}
+          >
+            We're selective about new projects. Tell us what you're building and we'll respond within 48 hours with an honest assessment of how we can help — or who else might.
+          </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.3 }}
+            style={{ display: "flex", gap: "16px", justifyContent: "center", flexWrap: "wrap" }}
+          >
+            <a
+              href="mailto:hello@orbitstudio.fr"
+              style={{
+                fontFamily: "'Space Grotesk', sans-serif",
+                fontSize: "15px",
+                fontWeight: 600,
+                letterSpacing: "0.05em",
+                color: C.white,
+                background: C.accent,
+                padding: "18px 40px",
+                textDecoration: "none",
+                borderRadius: "2px",
+                display: "flex",
+                alignItems: "center",
+                gap: "10px",
+                transition: "transform 0.15s, background 0.2s",
+              }}
+              onMouseEnter={(e) => {
+                (e.currentTarget as HTMLElement).style.transform = "scale(0.97)";
+                (e.currentTarget as HTMLElement).style.background = C.accentDark;
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget as HTMLElement).style.transform = "scale(1)";
+                (e.currentTarget as HTMLElement).style.background = C.accent;
+              }}
+            >
+              <Mail size={16} />
+              hello@orbitstudio.fr
+            </a>
+            <div
+              style={{
+                fontFamily: "'Space Grotesk', sans-serif",
+                fontSize: "13px",
+                color: C.textMuted,
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+              }}
+            >
+              <Clock size={14} />
+              Responding within 48h
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ─── FOOTER ──────────────────────────────────────────────────────── */}
+      <footer
+        style={{
+          borderTop: `1px solid ${C.border}`,
+          padding: "60px 40px",
+          background: C.bgAlt,
+        }}
+      >
+        <div
+          style={{
+            maxWidth: "1200px",
+            margin: "0 auto",
+            display: "grid",
+            gridTemplateColumns: "1fr auto auto auto",
+            gap: "60px",
+            alignItems: "start",
+          }}
+        >
+          <div>
+            <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "16px" }}>
+              <div
+                style={{
+                  width: "28px",
+                  height: "28px",
+                  borderRadius: "50%",
+                  border: `2px solid ${C.accent}`,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: C.accent }} />
+              </div>
+              <span
+                style={{
+                  fontFamily: "'Space Grotesk', sans-serif",
+                  fontWeight: 700,
+                  fontSize: "16px",
+                  color: C.text,
+                }}
+              >
+                Orbit<span style={{ color: C.accent }}>.</span>
+              </span>
+            </div>
+            <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: "13px", color: C.textMuted, lineHeight: 1.7, maxWidth: "240px" }}>
+              Brand identity studio. Paris, France. Est. 2015. Senior-led, intentionally small.
+            </p>
+            <div style={{ marginTop: "20px", display: "flex", gap: "16px" }}>
+              {[MessageSquare, Camera, Link2].map((Icon, i) => (
+                <div
+                  key={i}
+                  style={{
+                    width: "36px",
+                    height: "36px",
+                    borderRadius: "4px",
+                    border: `1px solid ${C.border}`,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    cursor: "pointer",
+                    transition: "border-color 0.2s, color 0.2s",
+                    color: C.textMuted,
+                  }}
+                  onMouseEnter={(e) => {
+                    (e.currentTarget as HTMLElement).style.borderColor = C.accent;
+                    (e.currentTarget as HTMLElement).style.color = C.accent;
+                  }}
+                  onMouseLeave={(e) => {
+                    (e.currentTarget as HTMLElement).style.borderColor = C.border;
+                    (e.currentTarget as HTMLElement).style.color = C.textMuted;
+                  }}
+                >
+                  <Icon size={15} />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {[
+            {
+              title: "Services",
+              links: ["Brand Identity", "Art Direction", "Brand Strategy", "Digital Expression"],
+            },
+            {
+              title: "Studio",
+              links: ["About Orbit", "Our Process", "Case Studies", "Contact"],
+            },
+            {
+              title: "Legal",
+              links: ["Privacy Policy", "Terms of Service", "Cookie Policy"],
+            },
+          ].map((col) => (
+            <div key={col.title}>
+              <div
+                style={{
+                  fontFamily: "'Space Grotesk', sans-serif",
+                  fontSize: "11px",
+                  fontWeight: 700,
+                  letterSpacing: "0.15em",
+                  color: C.textMuted,
+                  textTransform: "uppercase",
+                  marginBottom: "20px",
+                }}
+              >
+                {col.title}
+              </div>
+              {col.links.map((link) => (
+                <a
+                  key={link}
+                  href="#"
+                  style={{
+                    display: "block",
+                    fontFamily: "'Space Grotesk', sans-serif",
+                    fontSize: "13px",
+                    color: C.textMuted,
+                    textDecoration: "none",
+                    marginBottom: "10px",
+                    transition: "color 0.2s",
+                  }}
+                  onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = C.text)}
+                  onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = C.textMuted)}
+                >
+                  {link}
+                </a>
+              ))}
+            </div>
+          ))}
+        </div>
+
+        <div
+          style={{
+            maxWidth: "1200px",
+            margin: "48px auto 0",
+            paddingTop: "24px",
+            borderTop: `1px solid ${C.border}`,
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: "12px", color: C.textMuted }}>
+            © 2024 Orbit Studio. All rights reserved.
+          </p>
+          <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: "12px", color: C.textMuted }}>
+            Paris · hello@orbitstudio.fr · +33 1 42 86 55 22
+          </p>
+        </div>
+      </footer>
     </div>
   );
 }

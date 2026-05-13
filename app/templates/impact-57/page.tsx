@@ -9,1024 +9,720 @@ import {
   useMotionValue,
   useSpring,
 } from "framer-motion";
-import { useState, useRef, useEffect } from "react";
-import Image from "next/image";
-import Link from "next/link";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
-import { Progress } from "@/components/ui/progress";
-import { Separator } from "@/components/ui/separator";
-import { Activity, Zap, Shield, ChevronRight, Star, Check, Menu, X, ArrowRight, Play, TrendingUp, Timer, Cpu, BarChart3, Bolt, Radio, Layers, Gauge, Globe, Database, Server, Smartphone, Search, ShoppingBag, Heart, Dna, Microscope, Binary, FlaskConical, Target, Award } from "lucide-react";
+import { useRef, useState, useEffect } from "react";
 
-import "../premium.css";
+const C = {
+  bg: "#050505",
+  bgCard: "#0D0D0D",
+  bgLight: "#111111",
+  text: "#F0EDE8",
+  textMuted: "#888",
+  textDim: "#3A3A3A",
+  accent: "#E8FF00",
+  accentAlt: "#FF4D00",
+  border: "#1A1A1A",
+};
 
-/* ==========================================================================
-   DATA STRUCTURES
-   ========================================================================== */
+const FONT = `
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap');
+`;
 
-const PRODUCTS = [
+const PROJECTS = [
   {
-    id: 1,
-    name: "APEX PRO X1",
-    category: "Exoskeleton",
-    price: "$3,499",
-    stat: "+34% Peak Power",
-    badge: "FLAGSHIP",
-    img: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=1200&q=80",
-    specs: [
-      ["Sensor Rate", "1,200 Hz"],
-      ["Weight", "380 g"],
-      ["Battery", "8–14 hr"],
-      ["Connectivity", "BLE 5.4"],
-    ],
-    desc: "Carbon-fibre actuators driven by our proprietary muscle-synergy algorithm. 1,200 data points per second. Real-time micro-force amplification that feels like an extension of your own nervous system.",
-  },
-  {
-    id: 2,
-    name: "NEURAL STRIDE",
-    category: "Running Analysis",
-    price: "$899",
-    stat: "2ms Gait Latency",
-    badge: "BEST SELLER",
-    img: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200&q=80",
-    specs: [
-      ["Latency", "2 ms"],
-      ["Sensors", "48 IMUs"],
-      ["App Sync", "Real-time"],
-      ["Water Rating", "IP68"],
-    ],
-    desc: "48 inertial measurement units capture every millisecond of your stride. Neural Stride translates raw biomechanical data into actionable coaching — in real time, mid-run.",
-  },
-  {
-    id: 3,
-    name: "CRYO RECOVERY",
-    category: "Recovery Tech",
-    price: "$1,250",
-    stat: "−40% Recovery Time",
-    badge: "NEW 2026",
-    img: "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=1200&q=80",
-    specs: [
-      ["Temp Range", "−5°C–15°C"],
-      ["Cycle Time", "12 min"],
-      ["Sessions", "Unlimited"],
-      ["Control", "App + Voice"],
-    ],
-    desc: "Precision cryotherapy calibrated to your tissue temperature in real time. The only recovery system that adapts its protocol based on your current HRV and lactate proxy data.",
-  },
-];
-
-const RESEARCH_MILESTONES = [
-  {
+    id: "01",
+    title: "ARCANE",
+    client: "Balenciaga",
+    type: "Brand Identity · Campaign",
     year: "2024",
-    title: "Neural Link Alpha",
-    desc: "First successful real-time motor neuron feedback loop in elite sprinters.",
-    icon: <Binary className="w-5 h-5" />,
+    tags: ["Identity", "Film", "3D"],
+    color: "#E8FF00",
+    dark: true,
   },
   {
-    year: "2025",
-    title: "Carbon Actuation V2",
-    desc: "Proprietary lightweight carbon actuators reach 94% efficiency rating.",
-    icon: <Layers className="w-5 h-5" />,
+    id: "02",
+    title: "VOID",
+    client: "Nike x Off-White",
+    type: "Digital Experience · AR",
+    year: "2024",
+    tags: ["XR", "Web", "Motion"],
+    color: "#FF4D00",
+    dark: false,
   },
   {
-    year: "2026",
-    title: "Graphene Power Cell",
-    desc: "Deployment of high-density solid-state batteries for 14-hour continuous assist.",
-    icon: <Zap className="w-5 h-5" />,
+    id: "03",
+    title: "CIPHER",
+    client: "Hermès",
+    type: "Editorial · Motion",
+    year: "2023",
+    tags: ["Editorial", "Motion", "Film"],
+    color: "#F0EDE8",
+    dark: true,
+  },
+  {
+    id: "04",
+    title: "PULSE",
+    client: "Dior Beauty",
+    type: "Campaign · Digital",
+    year: "2023",
+    tags: ["Campaign", "CGI", "Social"],
+    color: "#8B5CF6",
+    dark: false,
+  },
+  {
+    id: "05",
+    title: "GHOST",
+    client: "Maison Margiela",
+    type: "Brand Film · Identity",
+    year: "2023",
+    tags: ["Film", "Identity", "3D"],
+    color: "#1A1A1A",
+    dark: false,
   },
 ];
 
-const LAB_SPECS = [
-  {
-    label: "Tissue Density Analysis",
-    val: "99.2%",
-    icon: <Microscope className="w-4 h-4" />,
-  },
-  {
-    label: "Lactate Proxy Accuracy",
-    val: "±0.02%",
-    icon: <Dna className="w-4 h-4" />,
-  },
-  {
-    label: "Neural Latency",
-    val: "1.4ms",
-    icon: <Binary className="w-4 h-4" />,
-  },
-  {
-    label: "Material Fatigue Resistance",
-    val: "800k Cycles",
-    icon: <FlaskConical className="w-4 h-4" />,
-  },
+const SERVICES = [
+  { n: "01", title: "Brand Identity", desc: "Systèmes visuels qui persistent. Logos, typographies, guidelines — construits pour durer une décennie." },
+  { n: "02", title: "Motion Design", desc: "Animation qui raconte. Titres cinétiques, transitions d'état, transitions de marque." },
+  { n: "03", title: "Digital Experience", desc: "Interfaces qui surprennent. Webgl, scroll storytelling, expériences immersives." },
+  { n: "04", title: "Art Direction", desc: "Regard éditorial sur chaque pixel. Du brief à la livraison, une vision cohérente." },
 ];
 
-const PERFORMANCE_CENTERS = [
-  { city: "Berlin", center: "Hub-01", status: "Active", latency: "0.8ms" },
-  { city: "Seoul", center: "Hub-02", status: "Active", latency: "1.2ms" },
-  { city: "Palo Alto", center: "Hub-03", status: "Active", latency: "0.9ms" },
-  { city: "Tokyo", center: "Hub-04", status: "Standby", latency: "---" },
+const STATS = [
+  { n: "180+", label: "Projets livrés" },
+  { n: "38", label: "Awards AWWWARDS" },
+  { n: "12", label: "Années d'expertise" },
+  { n: "6", label: "Continents" },
 ];
 
-/* ==========================================================================
-   UTILITY COMPONENTS
-   ========================================================================== */
+const TEAM = [
+  { name: "Axel Mörk", role: "Creative Director", specialty: "Art Direction" },
+  { name: "Yuki Tanaka", role: "Motion Lead", specialty: "3D · Animation" },
+  { name: "Célia Rousset", role: "Brand Strategist", specialty: "Identity · Systems" },
+  { name: "Dev Kapoor", role: "Tech Director", specialty: "WebGL · Three.js" },
+];
 
-function Reveal({
-  children,
-  delay = 0,
-  y = 30,
-}: {
-  children: React.ReactNode;
-  delay?: number;
-  y?: number;
-}) {
-  const ref = useRef(null);
+// ── Cursor follower ──────────────────────────────────────────────────────────
+function CustomCursor() {
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+  const sx = useSpring(x, { stiffness: 200, damping: 20 });
+  const sy = useSpring(y, { stiffness: 200, damping: 20 });
+
+  useEffect(() => {
+    const move = (e: MouseEvent) => { x.set(e.clientX); y.set(e.clientY); };
+    window.addEventListener("mousemove", move);
+    return () => window.removeEventListener("mousemove", move);
+  }, [x, y]);
+
+  return (
+    <motion.div
+      style={{
+        position: "fixed",
+        left: sx,
+        top: sy,
+        width: "8px",
+        height: "8px",
+        background: C.accent,
+        borderRadius: "50%",
+        pointerEvents: "none",
+        zIndex: 9999,
+        transform: "translate(-50%, -50%)",
+        mixBlendMode: "difference",
+      }}
+    />
+  );
+}
+
+// ── Masked title (signature element) ────────────────────────────────────────
+function MaskedTitle({ text, delay = 0 }: { text: string; delay?: number }) {
+  const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: "-50px" });
+  return (
+    <div ref={ref} style={{ overflow: "hidden" }}>
+      <motion.div
+        initial={{ y: "110%" }}
+        animate={inView ? { y: 0 } : {}}
+        transition={{ duration: 0.9, delay, ease: [0.22, 1, 0.36, 1] }}
+      >
+        {text}
+      </motion.div>
+    </div>
+  );
+}
+
+// ── Project row ──────────────────────────────────────────────────────────────
+function ProjectRow({ project, index }: { project: typeof PROJECTS[0]; index: number }) {
+  const [hovered, setHovered] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true });
+
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, y }}
+      initial={{ opacity: 0, y: 20 }}
       animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.8, delay, ease: [0.25, 0.1, 0.25, 1] }}
+      transition={{ duration: 0.6, delay: index * 0.08 }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        display: "grid",
+        gridTemplateColumns: "4rem 1fr auto auto",
+        alignItems: "center",
+        gap: "3rem",
+        padding: "2rem 0",
+        borderBottom: `1px solid ${C.border}`,
+        cursor: "pointer",
+        position: "relative",
+        overflow: "hidden",
+      }}
     >
-      {children}
+      {/* Hover background fill */}
+      <AnimatePresence>
+        {hovered && (
+          <motion.div
+            initial={{ scaleX: 0 }}
+            animate={{ scaleX: 1 }}
+            exit={{ scaleX: 0 }}
+            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+            style={{
+              position: "absolute",
+              inset: 0,
+              background: project.color,
+              transformOrigin: "left",
+              zIndex: 0,
+            }}
+          />
+        )}
+      </AnimatePresence>
+
+      <div style={{ position: "relative", zIndex: 1 }}>
+        <span style={{
+          fontFamily: "'Space Mono', monospace",
+          fontSize: "0.7rem",
+          color: hovered ? (project.dark ? C.bg : C.text) : C.textDim,
+          transition: "color 0.3s",
+        }}>
+          {project.id}
+        </span>
+      </div>
+
+      <div style={{ position: "relative", zIndex: 1 }}>
+        <div style={{
+          fontFamily: "'Space Grotesk', sans-serif",
+          fontSize: "clamp(1.5rem, 3vw, 2.5rem)",
+          fontWeight: 700,
+          color: hovered ? (project.dark ? C.bg : C.text) : C.text,
+          letterSpacing: "-0.02em",
+          transition: "color 0.3s",
+        }}>
+          {project.title}
+        </div>
+        <div style={{
+          fontFamily: "'Space Mono', monospace",
+          fontSize: "0.65rem",
+          color: hovered ? (project.dark ? "#333" : "#aaa") : C.textMuted,
+          marginTop: "0.2rem",
+          transition: "color 0.3s",
+        }}>
+          {project.type}
+        </div>
+      </div>
+
+      <div style={{ position: "relative", zIndex: 1, display: "flex", gap: "0.5rem" }}>
+        {project.tags.map((tag) => (
+          <span key={tag} style={{
+            fontFamily: "'Space Mono', monospace",
+            fontSize: "0.55rem",
+            letterSpacing: "0.1em",
+            padding: "0.3rem 0.6rem",
+            border: `1px solid ${hovered ? (project.dark ? "#33330A" : C.border) : C.border}`,
+            color: hovered ? (project.dark ? C.bg : C.textMuted) : C.textMuted,
+            transition: "all 0.3s",
+          }}>
+            {tag}
+          </span>
+        ))}
+      </div>
+
+      <div style={{ position: "relative", zIndex: 1, display: "flex", alignItems: "center", gap: "1rem" }}>
+        <span style={{
+          fontFamily: "'Space Mono', monospace",
+          fontSize: "0.65rem",
+          color: hovered ? (project.dark ? C.bg : C.textMuted) : C.textDim,
+          transition: "color 0.3s",
+        }}>
+          {project.year}
+        </span>
+        <motion.div
+          animate={hovered ? { x: 0, opacity: 1 } : { x: -10, opacity: 0 }}
+          transition={{ duration: 0.3 }}
+          style={{ width: "2rem", height: "1px", background: hovered ? (project.dark ? C.bg : C.text) : C.text }}
+        />
+      </div>
     </motion.div>
   );
 }
 
-function Counter({
-  to,
-  suffix = "",
-  prefix = "",
-}: {
-  to: number;
-  suffix?: string;
-  prefix?: string;
-}) {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true });
-  const [count, setCount] = useState(0);
-  useEffect(() => {
-    if (!isInView) return;
-    let cur = 0;
-    const step = to / 70;
-    const t = setInterval(() => {
-      cur += step;
-      if (cur >= to) {
-        setCount(to);
-        clearInterval(t);
-      } else {
-        setCount(Math.floor(cur));
-      }
-    }, 16);
-    return () => clearInterval(t);
-  }, [isInView, to]);
-  return (
-    <span ref={ref}>
-      {prefix}
-      {count}
-      {suffix}
-    </span>
-  );
-}
+// ── Page ─────────────────────────────────────────────────────────────────────
+export default function MaskUnit() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const heroRef = useRef<HTMLDivElement>(null);
 
-/* ==========================================================================
-   MAIN PAGE COMPONENT
-   ========================================================================== */
+  const { scrollYProgress } = useScroll({ target: containerRef });
+  const { scrollYProgress: heroScroll } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
 
-export default function StrydePerformancePage() {
-  const [scrolled, setScrolled] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [activeProduct, setActiveProduct] = useState<number | null>(null);
-
-  const heroRef = useRef(null);
-  const { scrollYProgress } = useScroll({
-    target: heroRef,
-    offset: ["start start", "end start"],
-  });
-  const heroY = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
-
-  useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 50);
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  const heroScale = useTransform(heroScroll, [0, 1], [1, 1.1]);
+  const heroOpacity = useTransform(heroScroll, [0, 0.7], [1, 0]);
+  const navOpacity = useTransform(scrollYProgress, [0, 0.04], [0, 1]);
+  const progressWidth = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
 
   return (
-    <div
-      className="premium-theme min-h-screen bg-[#060810] text-white font-mono selection:bg-[#00e5ff] selection:text-black overflow-x-hidden"
-      style={{ scrollBehavior: "smooth" }}
-    >
-      {/* ==========================================
-          SCANLINE / HUD OVERLAY
-          ========================================== */}
-      <div className="fixed inset-0 pointer-events-none z-[100] opacity-[0.03] bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_2px,3px_100%]" />
+    <div ref={containerRef} style={{ background: C.bg, color: C.text, fontFamily: "'Space Grotesk', sans-serif", minHeight: "100vh", overflowX: "hidden" }}>
+      <style>{FONT}</style>
+      <CustomCursor />
 
-      {/* ==========================================
-          NAVIGATION
-          ========================================== */}
-      <nav
-        className={`fixed top-0 left-0 w-full z-50 transition-all duration-700 ${scrolled ? "bg-[#060810]/95 backdrop-blur-md py-4 border-b border-white/5 shadow-[0_0_20px_rgba(0,229,255,0.05)]" : "bg-transparent py-10"}`}
+      {/* Progress bar */}
+      <motion.div
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          height: "2px",
+          background: C.accent,
+          width: progressWidth,
+          zIndex: 200,
+          transformOrigin: "left",
+        }}
+      />
+
+      {/* ── Navigation ─────────────────────────────────────────────────── */}
+      <motion.nav
+        style={{
+          position: "fixed", top: 0, left: 0, right: 0, zIndex: 100,
+          opacity: navOpacity,
+          background: "rgba(5,5,5,0.9)",
+          backdropFilter: "blur(20px)",
+          borderBottom: `1px solid ${C.border}`,
+          padding: "0 2.5rem",
+          height: "60px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
       >
-        <div className="max-w-[1600px] mx-auto px-6 md:px-12 flex items-center justify-between">
-          <Link
-            href="/"
-            className="text-xl md:text-2xl font-black tracking-tighter uppercase flex items-center gap-2"
-          >
-            STRYDE<span className="text-[#00e5ff]">TECH</span>
-          </Link>
-
-          <div className="hidden lg:flex items-center gap-10 text-[10px] font-bold uppercase tracking-[0.3em] text-white/50">
-            <Link href="#" className="hover:text-[#00e5ff] transition-colors">
-              Systems
-            </Link>
-            <Link href="#" className="hover:text-[#00e5ff] transition-colors">
-              Research
-            </Link>
-            <Link href="#" className="hover:text-[#00e5ff] transition-colors">
-              Performance_Log
-            </Link>
-            <Link href="#" className="hover:text-[#00e5ff] transition-colors">
-              Pricing
-            </Link>
-          </div>
-
-          <div className="flex items-center gap-6">
-            <button className="hidden md:block hover:text-[#00e5ff] transition-colors text-white/40">
-              <Search className="w-5 h-5" />
-            </button>
-            <button className="px-6 py-2 bg-[#00e5ff] text-[#060810] text-[10px] font-black uppercase tracking-widest hover:bg-white transition-all">
-              Request_Access
-            </button>
-            <button onClick={() => setMenuOpen(true)} className="lg:hidden">
-              <Menu className="w-6 h-6" />
-            </button>
-          </div>
+        <div style={{ fontFamily: "'Space Mono', monospace", fontSize: "0.9rem", fontWeight: 700, letterSpacing: "0.05em" }}>
+          MASK<span style={{ color: C.accent }}>_</span>UNIT
         </div>
-      </nav>
-
-      {/* MOBILE MENU */}
-      <AnimatePresence>
-        {menuOpen && (
-          <motion.div
-            initial={{ opacity: 0, x: "100%" }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: "100%" }}
-            transition={{ type: "tween", duration: 0.5 }}
-            className="fixed inset-0 z-[100] bg-[#060810] p-8 pt-32 flex flex-col border-l border-[#00e5ff]/10"
-          >
-            <button
-              onClick={() => setMenuOpen(false)}
-              className="absolute top-10 right-8"
+        <div style={{ display: "flex", gap: "3rem" }}>
+          {["Work", "Studio", "Services", "Contact"].map((item) => (
+            <motion.a
+              key={item}
+              href="#"
+              style={{ fontFamily: "'Space Mono', monospace", fontSize: "0.7rem", color: C.textMuted, textDecoration: "none", cursor: "pointer" }}
+              whileHover={{ color: C.accent }}
             >
-              <X className="w-8 h-8" />
-            </button>
-            <div className="flex flex-col gap-10 text-4xl font-black tracking-tighter uppercase">
-              <Link href="#" onClick={() => setMenuOpen(false)}>
-                Systems
-              </Link>
-              <Link href="#" onClick={() => setMenuOpen(false)}>
-                Research
-              </Link>
-              <Link href="#" onClick={() => setMenuOpen(false)}>
-                Performance_Log
-              </Link>
-              <Link href="#" onClick={() => setMenuOpen(false)}>
-                Pricing
-              </Link>
-            </div>
-            <div className="mt-auto pt-10 border-t border-white/5">
-              <div className="text-[10px] uppercase tracking-widest text-[#00e5ff] mb-4">
-                Uptime: 99.998%
-              </div>
-              <div className="w-full h-0.5 bg-white/10 overflow-hidden">
-                <motion.div
-                  animate={{ x: ["-100%", "100%"] }}
-                  transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-                  className="h-full w-1/3 bg-[#00e5ff]"
-                />
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+              {item}
+            </motion.a>
+          ))}
+        </div>
+        <motion.button
+          whileHover={{ backgroundColor: C.accent, color: C.bg }}
+          style={{
+            background: "transparent",
+            border: `1px solid ${C.border}`,
+            color: C.textMuted,
+            padding: "0.5rem 1.25rem",
+            fontFamily: "'Space Mono', monospace",
+            fontSize: "0.65rem",
+            letterSpacing: "0.1em",
+            cursor: "pointer",
+            transition: "all 0.3s",
+          }}
+        >
+          START A PROJECT
+        </motion.button>
+      </motion.nav>
 
-      {/* ==========================================
-          1. HERO (HUD Aesthetic)
-          ========================================== */}
+      {/* ── Hero ───────────────────────────────────────────────────────── */}
       <section
         ref={heroRef}
-        className="relative w-full h-[100svh] flex flex-col justify-center overflow-hidden"
+        style={{ height: "100vh", display: "flex", flexDirection: "column", justifyContent: "flex-end", padding: "3rem", position: "relative", overflow: "hidden" }}
       >
+        {/* Massive background text */}
         <motion.div
-          style={{ y: heroY, opacity: heroOpacity }}
-          className="absolute inset-0 z-0"
+          style={{
+            position: "absolute",
+            inset: 0,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            scale: heroScale,
+            userSelect: "none",
+            pointerEvents: "none",
+          }}
         >
-          <Image
-            src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=1600&q=80"
-            alt="Sports Performance Hero"
-            fill
-            className="object-cover grayscale brightness-50"
-            priority
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#060810] via-[#060810]/40 to-transparent" />
+          <div style={{
+            fontFamily: "'Space Grotesk', sans-serif",
+            fontSize: "clamp(8rem, 22vw, 20rem)",
+            fontWeight: 700,
+            color: "#0A0A0A",
+            letterSpacing: "-0.04em",
+            lineHeight: 0.85,
+            textAlign: "center",
+          }}>
+            MASK<br />UNIT
+          </div>
         </motion.div>
 
-        {/* HUD Graphics */}
-        <div className="absolute inset-0 z-10 pointer-events-none">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80vw] h-[80vh] border border-[#00e5ff]/5 flex items-center justify-center">
-            <div className="w-full h-[1px] bg-[#00e5ff]/5" />
-            <div className="h-full w-[1px] bg-[#00e5ff]/5 absolute" />
-            {/* Circular HUD Elements */}
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
-              className="absolute w-[500px] h-[500px] border border-dashed border-[#00e5ff]/10 rounded-full"
-            />
-            <motion.div
-              animate={{ rotate: -360 }}
-              transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
-              className="absolute w-[300px] h-[300px] border border-dotted border-[#00e5ff]/20 rounded-full"
-            />
+        {/* Top left counter */}
+        <div style={{ position: "absolute", top: "2rem", left: "3rem" }}>
+          <div style={{ fontFamily: "'Space Mono', monospace", fontSize: "0.65rem", color: C.textDim, letterSpacing: "0.2em" }}>
+            CREATIVE STUDIO
+          </div>
+          <div style={{ fontFamily: "'Space Mono', monospace", fontSize: "0.6rem", color: C.textDim, marginTop: "0.25rem" }}>
+            EST. 2012 · PARIS
           </div>
         </div>
 
-        <div className="relative z-20 max-w-[1400px] mx-auto px-6 md:px-12 w-full">
-          <Reveal>
-            <div className="flex items-center gap-4 mb-8">
-              <Badge className="bg-[#00e5ff]/10 border border-[#00e5ff]/30 text-[#00e5ff] rounded-none px-4 py-1 text-[10px] tracking-widest font-bold">
-                ALPHA_UNIT // 2026
-              </Badge>
-              <span className="text-[10px] text-white/30 tracking-[0.3em] font-bold">
-                LATENCY: 1.4MS
-              </span>
-            </div>
-            <h1 className="text-6xl md:text-8xl lg:text-[9rem] font-black leading-[0.82] tracking-tighter mb-10 uppercase">
-              Human <br /> <span className="text-[#00e5ff]">Optimized.</span>
-            </h1>
-            <p className="max-w-2xl text-lg md:text-xl text-white/50 leading-relaxed font-light mb-12 uppercase tracking-widest">
-              Carbon-fibre exoskeletons. Neural gait analysis. Cryogenic
-              recovery. We don't just measure performance; we engineer it.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-6">
-              <button className="px-12 py-5 bg-[#00e5ff] text-[#060810] text-[10px] uppercase tracking-[0.4em] font-black hover:bg-white transition-all cursor-pointer shadow-[0_0_30px_rgba(0,229,255,0.2)]">
-                Initialize Systems
-              </button>
-              <button className="px-12 py-5 border border-white/20 text-white text-[10px] uppercase tracking-[0.4em] font-black hover:bg-white hover:text-[#060810] transition-all cursor-pointer">
-                View Performance_Log
-              </button>
-            </div>
-          </Reveal>
-        </div>
-
-        {/* Data Stream Sidebar */}
-        <div className="absolute right-12 top-1/2 -translate-y-1/2 hidden xl:flex flex-col gap-10 z-20">
-          {[
-            { label: "VO2_MAX_DELTA", val: "+14.2%" },
-            { label: "LACTATE_PROXY", val: "0.82 mmol/L" },
-            { label: "NEURAL_SYNC", val: "99.4%" },
-          ].map((stat, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 1 + i * 0.2 }}
-              className="text-right border-r-2 border-[#00e5ff] pr-6"
-            >
-              <div className="text-[9px] text-white/30 tracking-widest mb-1 font-bold">
-                {stat.label}
-              </div>
-              <div className="text-2xl font-black text-[#00e5ff]">
-                {stat.val}
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </section>
-
-      {/* ==========================================
-          2. THE RESEARCH (The Lab)
-          ========================================== */}
-      <section className="py-32 bg-[#080a14] border-y border-white/5">
-        <div className="max-w-[1400px] mx-auto px-6 md:px-12">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 md:gap-32 items-center">
-            <div className="lg:col-span-5">
-              <Reveal>
-                <span className="text-[10px] uppercase tracking-[0.4em] font-bold text-[#00e5ff] mb-6 block">
-                  Research_Facility // Hub_03
-                </span>
-                <h2 className="text-5xl md:text-6xl font-black tracking-tighter leading-tight mb-12 uppercase">
-                  Biological <br />{" "}
-                  <span className="text-white/20">Validation.</span>
-                </h2>
-
-                <div className="space-y-12">
-                  {RESEARCH_MILESTONES.map((milestone, i) => (
-                    <div key={i} className="group flex gap-8">
-                      <div className="w-14 h-14 bg-white/5 border border-white/10 flex items-center justify-center text-[#00e5ff] group-hover:bg-[#00e5ff] group-hover:text-black transition-all">
-                        {milestone.icon}
-                      </div>
-                      <div>
-                        <div className="text-[10px] font-black text-[#00e5ff] mb-1">
-                          {milestone.year}
-                        </div>
-                        <h4 className="text-lg font-bold uppercase tracking-tight mb-2">
-                          {milestone.title}
-                        </h4>
-                        <p className="text-sm text-white/40 leading-relaxed font-light">
-                          {milestone.desc}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </Reveal>
-            </div>
-
-            <div className="lg:col-span-7 grid grid-cols-1 md:grid-cols-2 gap-8">
-              {LAB_SPECS.map((spec, i) => (
-                <Reveal key={i} delay={i * 0.1}>
-                  <div className="p-10 bg-[#060810] border border-white/5 hover:border-[#00e5ff]/30 transition-all group">
-                    <div className="text-[#00e5ff]/40 mb-8 group-hover:text-[#00e5ff]">
-                      {spec.icon}
-                    </div>
-                    <div className="text-4xl font-black text-white mb-4">
-                      {spec.val}
-                    </div>
-                    <div className="text-[10px] uppercase tracking-[0.3em] text-white/30 font-bold">
-                      {spec.label}
-                    </div>
-                  </div>
-                </Reveal>
-              ))}
-
-              <Reveal className="md:col-span-2 relative aspect-[21/9] rounded-sm overflow-hidden border border-white/5">
-                <Image
-                  src="https://images.unsplash.com/photo-1530124560677-bdaea92c5a3b?q=80&w=1200&auto=format&fit=crop"
-                  alt="Lab Scan"
-                  fill
-                  className="object-cover opacity-40 grayscale"
-                />
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,#060810_100%)]" />
-                <div className="absolute bottom-6 left-6 text-[8px] font-bold text-[#00e5ff] flex gap-8 uppercase tracking-widest">
-                  <span>BIO_FEEDBACK: STABLE</span>
-                  <span>SYNC_RATE: 99.98%</span>
-                  <span>ENCRYPTION: AES-256</span>
-                </div>
-              </Reveal>
-            </div>
+        {/* Top right */}
+        <div style={{ position: "absolute", top: "2rem", right: "3rem", textAlign: "right" }}>
+          <div style={{ fontFamily: "'Space Mono', monospace", fontSize: "0.65rem", color: C.textDim }}>
+            AWWWARDS SOTD ×38
           </div>
         </div>
-      </section>
 
-      {/* ==========================================
-          3. SYSTEMS GRID
-          ========================================== */}
-      <section className="py-32 bg-[#060810]">
-        <div className="max-w-[1400px] mx-auto px-6 md:px-12">
-          <div className="flex flex-col md:flex-row justify-between items-end mb-24 gap-12">
-            <Reveal>
-              <h2 className="text-5xl md:text-7xl font-black tracking-tighter uppercase leading-[0.9]">
-                Integrated <br />{" "}
-                <span className="text-[#00e5ff]">Ecosystem.</span>
-              </h2>
-            </Reveal>
-            <p className="max-w-sm text-sm text-white/40 leading-relaxed uppercase tracking-widest font-light">
-              Our suite of hardware and software works in absolute mechanical
-              harmony, providing a 360-degree performance overview.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-            {PRODUCTS.map((product, i) => (
-              <Reveal key={product.id} delay={i * 0.1}>
-                <div
-                  onClick={() => setActiveProduct(i)}
-                  className="group cursor-pointer bg-[#0c0f1d] border border-white/5 hover:border-[#00e5ff]/20 transition-all p-1"
-                >
-                  <div className="relative aspect-[4/5] overflow-hidden mb-8">
-                    <Image
-                      src={product.img}
-                      alt={product.name}
-                      fill
-                      className="object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-1000"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#0c0f1d] to-transparent" />
-                    <div className="absolute top-6 left-6">
-                      <Badge className="bg-[#00e5ff] text-[#060810] rounded-none px-4 py-1 text-[9px] font-black uppercase tracking-widest">
-                        {product.badge}
-                      </Badge>
-                    </div>
-                    <div className="absolute bottom-6 left-6 right-6">
-                      <div className="text-[9px] uppercase tracking-[0.4em] text-white/40 mb-2">
-                        {product.category}
-                      </div>
-                      <h3 className="text-3xl font-black uppercase tracking-tighter group-hover:text-[#00e5ff] transition-colors">
-                        {product.name}
-                      </h3>
-                    </div>
-                  </div>
-                  <div className="p-8 pt-0">
-                    <p className="text-sm text-white/40 leading-relaxed font-light mb-8 italic">
-                      "{product.desc.slice(0, 100)}..."
-                    </p>
-                    <div className="flex items-center justify-between">
-                      <span className="text-2xl font-black text-white">
-                        {product.price}
-                      </span>
-                      <button className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-[#00e5ff] group-hover:translate-x-2 transition-transform">
-                        Initialize <ChevronRight className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ==========================================
-          4. PERFORMANCE CENTERS (Global Hubs)
-          ========================================== */}
-      <section className="py-32 bg-[#080a14] border-t border-white/5">
-        <div className="max-w-[1400px] mx-auto px-6 md:px-12">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-24 items-center">
+        {/* Bottom content */}
+        <motion.div
+          style={{ position: "relative", zIndex: 1, opacity: heroOpacity }}
+        >
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4rem", alignItems: "flex-end" }}>
             <div>
-              <Reveal>
-                <span className="text-[10px] uppercase tracking-[0.4em] font-bold text-[#00e5ff] mb-6 block">
-                  Global_Network
-                </span>
-                <h2 className="text-5xl md:text-6xl font-black tracking-tighter leading-tight mb-12 uppercase">
-                  Performance <br />{" "}
-                  <span className="text-white/20">Centres.</span>
-                </h2>
-                <p className="text-lg text-white/50 leading-relaxed font-light mb-12 max-w-lg">
-                  Our physical infrastructure provides the ultra-low latency
-                  compute required for real-time neural processing. Every center
-                  is equipped with Tier-1 medical biomechanics labs.
-                </p>
-
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left text-[10px] uppercase tracking-widest font-bold">
-                    <thead className="border-b border-white/10">
-                      <tr>
-                        <th className="pb-6 text-white/30 font-bold">
-                          Location
-                        </th>
-                        <th className="pb-6 text-white/30 font-bold">
-                          Center_ID
-                        </th>
-                        <th className="pb-6 text-white/30 font-bold">Status</th>
-                        <th className="pb-6 text-white/30 font-bold">
-                          Latency
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-white/5">
-                      {PERFORMANCE_CENTERS.map((hub, i) => (
-                        <tr
-                          key={i}
-                          className="hover:bg-white/2 transition-colors"
-                        >
-                          <td className="py-6 text-white">{hub.city}</td>
-                          <td className="py-6 text-white/50">{hub.center}</td>
-                          <td className="py-6">
-                            <span
-                              className={`inline-flex items-center gap-2 ${hub.status === "Active" ? "text-green-400" : "text-red-400"}`}
-                            >
-                              <div
-                                className={`w-1.5 h-1.5 rounded-full ${hub.status === "Active" ? "bg-green-400 animate-pulse" : "bg-red-400"}`}
-                              />
-                              {hub.status}
-                            </span>
-                          </td>
-                          <td className="py-6 text-[#00e5ff]">{hub.latency}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </Reveal>
-            </div>
-
-            <Reveal className="relative aspect-square md:aspect-video rounded-sm overflow-hidden group">
-              <Image
-                src="https://images.unsplash.com/photo-1544450173-8c87924045cc?q=80&w=1200&auto=format&fit=crop"
-                alt="Center"
-                fill
-                className="object-cover grayscale brightness-75 group-hover:scale-105 transition-transform duration-[2s]"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#080a14] via-transparent to-transparent" />
-              <div className="absolute top-10 left-10">
-                <div className="flex items-center gap-4 text-[10px] font-bold text-[#00e5ff] uppercase tracking-widest">
-                  <Globe className="w-4 h-4" /> Network: Active
-                </div>
-              </div>
-            </Reveal>
-          </div>
-        </div>
-      </section>
-
-      {/* ==========================================
-          5. STATS COUNTER BAR
-          ========================================== */}
-      <section className="py-24 bg-[#00e5ff] text-[#060810]">
-        <div className="max-w-[1400px] mx-auto px-6 md:px-12 grid grid-cols-2 lg:grid-cols-4 gap-16 text-center">
-          {[
-            { label: "Elite_Athletes", val: 12400, suffix: "+" },
-            { label: "Data_Points_Sec", val: 1200, suffix: "" },
-            { label: "Perf_Delta_Avg", val: 34, suffix: "%" },
-            { label: "Scientific_Pubs", val: 127, suffix: "+" },
-          ].map((stat, i) => (
-            <Reveal key={i} delay={i * 0.1}>
-              <div className="text-5xl md:text-7xl font-black mb-4">
-                <Counter to={stat.val} suffix={stat.suffix} />
-              </div>
-              <div className="text-[10px] font-black uppercase tracking-[0.4em]">
-                {stat.label}
-              </div>
-            </Reveal>
-          ))}
-        </div>
-      </section>
-
-      {/* ==========================================
-          6. PROFESSIONAL INTEGRATION
-          ========================================== */}
-      <section className="py-32 bg-[#060810]">
-        <div className="max-w-[1400px] mx-auto px-6 md:px-12">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-32 items-center">
-            <Reveal className="relative aspect-square md:aspect-[4/5] rounded-sm overflow-hidden">
-              <Image
-                src="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?q=80&w=1200&auto=format&fit=crop"
-                alt="Pro Integration"
-                fill
-                className="object-cover opacity-60 grayscale"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#060810] via-transparent to-transparent" />
-              <div className="absolute bottom-12 left-12 right-12">
-                <h3 className="text-3xl font-black uppercase tracking-tighter italic text-white mb-6">
-                  Built for <br /> Organizations.
-                </h3>
-                <button className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-[#00e5ff] hover:translate-x-2 transition-transform">
-                  Enterprise_Solutions <ArrowRight className="w-4 h-4" />
-                </button>
-              </div>
-            </Reveal>
-
-            <div>
-              <Reveal>
-                <span className="text-[10px] uppercase tracking-[0.4em] font-bold text-[#00e5ff] mb-6 block">
-                  Organization_Log
-                </span>
-                <h2 className="text-5xl md:text-7xl font-black tracking-tighter leading-[0.9] mb-12 uppercase">
-                  Pro-Grade <br />{" "}
-                  <span className="text-white/20">Deployment.</span>
-                </h2>
-                <div className="space-y-10">
-                  {[
-                    {
-                      title: "Centralized Fleet Management",
-                      desc: "Monitor entire rosters in real time from a single encrypted dashboard.",
-                      icon: <Server className="w-5 h-5" />,
-                    },
-                    {
-                      title: "Secure Data Protocol",
-                      desc: "HIPAA and GDPR compliant data processing for athlete privacy.",
-                      icon: <Shield className="w-5 h-5" />,
-                    },
-                    {
-                      title: "Bespoke Algorithm Tuning",
-                      desc: "Customized feedback parameters based on specific sport biomechanics.",
-                      icon: <Binary className="w-5 h-5" />,
-                    },
-                  ].map((item, i) => (
-                    <div key={i} className="flex gap-8 group">
-                      <div className="text-white/20 group-hover:text-[#00e5ff] transition-colors">
-                        {item.icon}
-                      </div>
-                      <div>
-                        <h4 className="text-lg font-bold uppercase mb-2 text-white">
-                          {item.title}
-                        </h4>
-                        <p className="text-sm text-white/40 leading-relaxed font-light">
-                          {item.desc}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </Reveal>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ==========================================
-          7. FAQ (Technical Data)
-          ========================================== */}
-      <section className="py-32 bg-[#080a14] border-y border-white/5">
-        <div className="max-w-3xl mx-auto px-6">
-          <Reveal className="text-center mb-24">
-            <h2 className="text-4xl md:text-5xl font-black uppercase tracking-tighter">
-              Intel_Buffer
-            </h2>
-          </Reveal>
-
-          <Accordion type="single" collapsible className="space-y-4">
-            {[
-              {
-                q: "How is data processed in real-time?",
-                a: "Every STRYDE unit contains an on-board neural processor performing edge computing to reduce latency to under 1.4ms. Secondary high-density data is offloaded to our global performance centers for deep biomechanical analysis.",
-              },
-              {
-                q: "Is the hardware water resistant?",
-                a: "Yes. All NEURAL STRIDE and APEX PRO X1 units are rated IP68, allowing for training in all weather conditions, including extreme moisture and dust exposure.",
-              },
-              {
-                q: "What is the expected lifespan of the actuators?",
-                a: "Our Grade 5 carbon actuators are stress-tested for 800,000 cycles, equivalent to approximately 5 years of professional-grade daily training. We offer a full replacement program at 600,000 cycles.",
-              },
-              {
-                q: "Do you offer private server installations?",
-                a: "For Tier-1 national programs and professional franchises, we offer on-site private server installations for absolute data sovereignty.",
-              },
-            ].map((faq, i) => (
-              <AccordionItem
-                key={i}
-                value={`item-${i}`}
-                className="border-b border-white/5"
+              <motion.h1
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+                style={{
+                  fontFamily: "'Space Grotesk', sans-serif",
+                  fontSize: "clamp(2rem, 4.5vw, 4rem)",
+                  fontWeight: 700,
+                  lineHeight: 1.05,
+                  letterSpacing: "-0.03em",
+                  color: C.text,
+                  marginBottom: "1.5rem",
+                }}
               >
-                <AccordionTrigger className="text-left text-sm uppercase font-bold tracking-widest py-6 hover:text-[#00e5ff] hover:no-underline">
-                  {faq.q}
-                </AccordionTrigger>
-                <AccordionContent className="text-sm text-white/40 leading-relaxed font-light italic pb-8">
-                  {faq.a}
-                </AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
+                <MaskedTitle text="We Build" delay={0.3} />
+                <MaskedTitle text="Brands That" delay={0.4} />
+                <span style={{ color: C.accent }}>
+                  <MaskedTitle text="Break Rules." delay={0.5} />
+                </span>
+              </motion.h1>
+              <motion.p
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7, delay: 0.9 }}
+                style={{ fontFamily: "'Space Mono', monospace", fontSize: "0.85rem", color: C.textMuted, lineHeight: 1.8, maxWidth: "45ch" }}
+              >
+                Studio créatif spécialisé dans les identités de marque disruptives, le motion design et les expériences digitales immersives.
+              </motion.p>
+            </div>
+            <div style={{ textAlign: "right" }}>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.7, delay: 1 }}
+                style={{ display: "flex", flexDirection: "column", gap: "1rem", alignItems: "flex-end" }}
+              >
+                <motion.button
+                  whileHover={{ scale: 1.04, backgroundColor: C.accentAlt }}
+                  whileTap={{ scale: 0.97 }}
+                  style={{
+                    background: C.accent,
+                    color: C.bg,
+                    border: "none",
+                    padding: "1rem 2.5rem",
+                    fontFamily: "'Space Mono', monospace",
+                    fontSize: "0.75rem",
+                    letterSpacing: "0.1em",
+                    fontWeight: 700,
+                    cursor: "pointer",
+                    transition: "background 0.3s",
+                  }}
+                >
+                  SEE OUR WORK →
+                </motion.button>
+                <span style={{ fontFamily: "'Space Mono', monospace", fontSize: "0.6rem", color: C.textDim }}>
+                  Available for Q3 2025
+                </span>
+              </motion.div>
+            </div>
+          </div>
+        </motion.div>
+      </section>
+
+      {/* ── Stats strip ─────────────────────────────────────────────────── */}
+      <section style={{ borderTop: `1px solid ${C.border}`, borderBottom: `1px solid ${C.border}`, padding: "0" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)" }}>
+          {STATS.map((stat, i) => {
+            const ref = useRef<HTMLDivElement>(null);
+            const inView = useInView(ref, { once: true });
+            return (
+              <motion.div
+                key={stat.label}
+                ref={ref}
+                initial={{ opacity: 0 }}
+                animate={inView ? { opacity: 1 } : {}}
+                transition={{ duration: 0.5, delay: i * 0.1 }}
+                style={{
+                  padding: "2.5rem 2rem",
+                  borderRight: i < 3 ? `1px solid ${C.border}` : "none",
+                  textAlign: "center",
+                }}
+              >
+                <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: "2.5rem", fontWeight: 700, color: C.accent, letterSpacing: "-0.02em" }}>
+                  {stat.n}
+                </div>
+                <div style={{ fontFamily: "'Space Mono', monospace", fontSize: "0.6rem", letterSpacing: "0.15em", color: C.textMuted, marginTop: "0.4rem" }}>
+                  {stat.label}
+                </div>
+              </motion.div>
+            );
+          })}
         </div>
       </section>
 
-      {/* ==========================================
-          8. MEGA FOOTER (Technical Layout)
-          ========================================== */}
-      <footer className="bg-[#060810] pt-32 pb-12 px-6 md:px-12 border-t border-white/5 relative overflow-hidden">
-        <div className="max-w-[1600px] mx-auto relative z-10">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-16 mb-32">
-            <div className="lg:col-span-5">
-              <Reveal>
-                <div className="text-2xl font-black tracking-tighter uppercase mb-10">
-                  STRYDE<span className="text-[#00e5ff]">TECH</span>
-                </div>
-                <p className="text-white/40 max-w-sm mb-12 uppercase tracking-widest text-[11px] leading-relaxed">
-                  The only integrated performance system trusted by the world's
-                  elite athletic organizations. Neural biomechanics. Carbon
-                  actuation. Cryogenic recovery.
-                </p>
-                <form
-                  className="relative max-w-md"
-                  onSubmit={(e) => e.preventDefault()}
-                >
-                  <input
-                    type="email"
-                    placeholder="ENCRYPTED_EMAIL"
-                    className="w-full bg-white/2 border border-white/10 rounded-none px-6 py-4 text-xs font-bold outline-none focus:border-[#00e5ff] text-white transition-all uppercase tracking-widest"
-                  />
-                  <button
-                    type="submit"
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-black text-[#00e5ff] hover:text-white transition-colors uppercase tracking-[0.3em]"
-                  >
-                    AUTHENTICATE
-                  </button>
-                </form>
-              </Reveal>
+      {/* ── Selected Work ──────────────────────────────────────────────── */}
+      <section style={{ padding: "6rem 3rem" }}>
+        <div style={{ maxWidth: "1300px", margin: "0 auto" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: "3rem" }}>
+            <div>
+              <div style={{ fontFamily: "'Space Mono', monospace", fontSize: "0.6rem", letterSpacing: "0.25em", color: C.textDim, marginBottom: "0.75rem" }}>
+                / SELECTED WORK
+              </div>
+              <h2 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: "clamp(2rem, 4vw, 3rem)", fontWeight: 700, letterSpacing: "-0.03em", color: C.text }}>
+                Recent Projects
+              </h2>
             </div>
-
-            <div className="lg:col-span-2 lg:col-start-7">
-              <h4 className="text-[10px] font-black uppercase tracking-widest text-white/20 mb-10">
-                Directory
-              </h4>
-              <ul className="space-y-4 text-[10px] font-bold uppercase tracking-widest text-white/40">
-                <li>
-                  <Link
-                    href="#"
-                    className="hover:text-[#00e5ff] transition-colors"
-                  >
-                    Exoskeletons
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="#"
-                    className="hover:text-[#00e5ff] transition-colors"
-                  >
-                    Neural_Stride
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="#"
-                    className="hover:text-[#00e5ff] transition-colors"
-                  >
-                    Recovery_Lab
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="#"
-                    className="hover:text-[#00e5ff] transition-colors"
-                  >
-                    Pricing_Access
-                  </Link>
-                </li>
-              </ul>
-            </div>
-
-            <div className="lg:col-span-2">
-              <h4 className="text-[10px] font-black uppercase tracking-widest text-white/20 mb-10">
-                Intel
-              </h4>
-              <ul className="space-y-4 text-[10px] font-bold uppercase tracking-widest text-white/40">
-                <li>
-                  <Link
-                    href="#"
-                    className="hover:text-[#00e5ff] transition-colors"
-                  >
-                    Research_Docs
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="#"
-                    className="hover:text-[#00e5ff] transition-colors"
-                  >
-                    Safety_Protocol
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="#"
-                    className="hover:text-[#00e5ff] transition-colors"
-                  >
-                    API_Reference
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="#"
-                    className="hover:text-[#00e5ff] transition-colors"
-                  >
-                    FAQ_Buffer
-                  </Link>
-                </li>
-              </ul>
-            </div>
-
-            <div className="lg:col-span-2">
-              <h4 className="text-[10px] font-black uppercase tracking-widest text-white/20 mb-10">
-                Social_Log
-              </h4>
-              <ul className="space-y-4 text-[10px] font-bold uppercase tracking-widest text-white/40">
-                <li>
-                  <Link
-                    href="#"
-                    className="hover:text-[#00e5ff] transition-colors flex items-center gap-3"
-                  >
-                    <Globe className="w-3 h-3" /> Globe
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="#"
-                    className="hover:text-[#00e5ff] transition-colors flex items-center gap-3"
-                  >
-                    <Globe className="w-3 h-3" /> X_Protocol
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="#"
-                    className="hover:text-[#00e5ff] transition-colors flex items-center gap-3"
-                  >
-                    <Globe className="w-3 h-3" /> Neural_Link
-                  </Link>
-                </li>
-              </ul>
-            </div>
+            <motion.a
+              href="#"
+              style={{ fontFamily: "'Space Mono', monospace", fontSize: "0.65rem", color: C.textMuted, textDecoration: "none", display: "flex", alignItems: "center", gap: "0.75rem", cursor: "pointer" }}
+              whileHover={{ color: C.accent }}
+            >
+              ALL PROJECTS
+              <div style={{ width: "2rem", height: "1px", background: "currentcolor" }} />
+            </motion.a>
           </div>
 
-          <div className="flex flex-col md:flex-row justify-between items-center gap-8 pt-10 border-t border-white/5 text-[9px] font-bold uppercase tracking-widest text-white/20">
-            <div className="flex items-center gap-10">
-              <span>
-                &copy; {new Date().getFullYear()} Stryde Performance Systems
-                Inc.
-              </span>
-              <Link href="#" className="hover:text-white transition-colors">
-                Privacy_Protocol
-              </Link>
-              <Link href="#" className="hover:text-white transition-colors">
-                Terms_of_Trade
-              </Link>
+          {/* Project list */}
+          <div style={{ borderTop: `1px solid ${C.border}` }}>
+            {PROJECTS.map((project, i) => (
+              <ProjectRow key={project.id} project={project} index={i} />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Services ───────────────────────────────────────────────────── */}
+      <section style={{ padding: "6rem 3rem", background: C.bgLight, borderTop: `1px solid ${C.border}` }}>
+        <div style={{ maxWidth: "1300px", margin: "0 auto" }}>
+          <div style={{ marginBottom: "4rem" }}>
+            <div style={{ fontFamily: "'Space Mono', monospace", fontSize: "0.6rem", letterSpacing: "0.25em", color: C.textDim, marginBottom: "0.75rem" }}>
+              / WHAT WE DO
             </div>
-            <div className="flex gap-10">
-              <span>Location: Palo Alto // Hub_03</span>
-              <span className="flex items-center gap-2">
-                Status:{" "}
-                <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />{" "}
-                Fully Optimized
-              </span>
+            <h2 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: "clamp(2rem, 4vw, 3rem)", fontWeight: 700, letterSpacing: "-0.03em", color: C.text }}>
+              Services
+            </h2>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "1px", background: C.border }}>
+            {SERVICES.map((svc, i) => {
+              const ref = useRef<HTMLDivElement>(null);
+              const inView = useInView(ref, { once: true, margin: "-60px" });
+              return (
+                <motion.div
+                  key={svc.title}
+                  ref={ref}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={inView ? { opacity: 1, y: 0 } : {}}
+                  transition={{ duration: 0.6, delay: (i % 2) * 0.1 }}
+                  whileHover={{ backgroundColor: C.bgCard }}
+                  style={{ background: C.bgLight, padding: "3rem", position: "relative", cursor: "default" }}
+                >
+                  <div style={{ fontFamily: "'Space Mono', monospace", fontSize: "0.6rem", color: C.accent, marginBottom: "1.5rem" }}>
+                    {svc.n}
+                  </div>
+                  <h3 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: "1.4rem", fontWeight: 700, color: C.text, marginBottom: "0.75rem", letterSpacing: "-0.02em" }}>
+                    {svc.title}
+                  </h3>
+                  <p style={{ fontFamily: "'Space Mono', monospace", fontSize: "0.8rem", color: C.textMuted, lineHeight: 1.75 }}>
+                    {svc.desc}
+                  </p>
+                </motion.div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Team ───────────────────────────────────────────────────────── */}
+      <section style={{ padding: "6rem 3rem" }}>
+        <div style={{ maxWidth: "1300px", margin: "0 auto" }}>
+          <div style={{ marginBottom: "4rem" }}>
+            <div style={{ fontFamily: "'Space Mono', monospace", fontSize: "0.6rem", letterSpacing: "0.25em", color: C.textDim, marginBottom: "0.75rem" }}>
+              / THE TEAM
             </div>
+            <h2 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: "clamp(2rem, 4vw, 3rem)", fontWeight: 700, letterSpacing: "-0.03em", color: C.text }}>
+              Qui Sommes-Nous
+            </h2>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "2px", background: C.border }}>
+            {TEAM.map((member, i) => {
+              const ref = useRef<HTMLDivElement>(null);
+              const inView = useInView(ref, { once: true });
+              return (
+                <motion.div
+                  key={member.name}
+                  ref={ref}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={inView ? { opacity: 1, y: 0 } : {}}
+                  transition={{ duration: 0.6, delay: i * 0.08 }}
+                  style={{ background: C.bg, padding: "2.5rem 2rem" }}
+                >
+                  <div style={{ width: "48px", height: "48px", background: i % 2 === 0 ? C.accent : C.accentAlt, marginBottom: "1.5rem" }} />
+                  <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: "1rem", fontWeight: 600, color: C.text, marginBottom: "0.25rem" }}>
+                    {member.name}
+                  </div>
+                  <div style={{ fontFamily: "'Space Mono', monospace", fontSize: "0.6rem", color: C.textMuted, marginBottom: "1rem" }}>
+                    {member.role}
+                  </div>
+                  <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap" }}>
+                    {member.specialty.split(" · ").map((s) => (
+                      <span key={s} style={{ fontFamily: "'Space Mono', monospace", fontSize: "0.55rem", padding: "0.25rem 0.5rem", border: `1px solid ${C.border}`, color: C.textDim }}>
+                        {s}
+                      </span>
+                    ))}
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Contact CTA ────────────────────────────────────────────────── */}
+      <section style={{ padding: "8rem 3rem", background: C.accent, position: "relative", overflow: "hidden" }}>
+        {/* BG text */}
+        <div style={{
+          position: "absolute",
+          inset: 0,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          userSelect: "none",
+          pointerEvents: "none",
+        }}>
+          <div style={{
+            fontFamily: "'Space Grotesk', sans-serif",
+            fontSize: "clamp(6rem, 18vw, 16rem)",
+            fontWeight: 700,
+            color: "rgba(0,0,0,0.06)",
+            letterSpacing: "-0.04em",
+            whiteSpace: "nowrap",
+          }}>
+            LET'S WORK
+          </div>
+        </div>
+        <div style={{ maxWidth: "900px", margin: "0 auto", textAlign: "center", position: "relative", zIndex: 1 }}>
+          <h2 style={{
+            fontFamily: "'Space Grotesk', sans-serif",
+            fontSize: "clamp(2.5rem, 6vw, 5.5rem)",
+            fontWeight: 700,
+            color: C.bg,
+            letterSpacing: "-0.03em",
+            lineHeight: 0.95,
+            marginBottom: "2rem",
+          }}>
+            Prêt à Casser<br />
+            Les Codes ?
+          </h2>
+          <p style={{
+            fontFamily: "'Space Mono', monospace",
+            fontSize: "0.9rem",
+            color: "rgba(0,0,0,0.6)",
+            lineHeight: 1.75,
+            marginBottom: "3rem",
+            maxWidth: "50ch",
+            margin: "0 auto 3rem",
+          }}>
+            On a de la place pour 3 nouveaux clients en Q3 2025. Si votre projet nous intrigue, on peut en parler.
+          </p>
+          <motion.button
+            whileHover={{ backgroundColor: C.bg, color: C.accent }}
+            whileTap={{ scale: 0.97 }}
+            style={{
+              background: "transparent",
+              border: `2px solid ${C.bg}`,
+              color: C.bg,
+              padding: "1rem 3rem",
+              fontFamily: "'Space Mono', monospace",
+              fontSize: "0.8rem",
+              fontWeight: 700,
+              letterSpacing: "0.1em",
+              cursor: "pointer",
+              transition: "all 0.3s",
+            }}
+          >
+            PARLONS-EN →
+          </motion.button>
+          <div style={{ marginTop: "2rem", fontFamily: "'Space Mono', monospace", fontSize: "0.65rem", color: "rgba(0,0,0,0.5)" }}>
+            hello@maskunit.studio
+          </div>
+        </div>
+      </section>
+
+      {/* ── Footer ─────────────────────────────────────────────────────── */}
+      <footer style={{ borderTop: `1px solid ${C.border}`, padding: "3rem", background: C.bg }}>
+        <div style={{ maxWidth: "1300px", margin: "0 auto", display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr", gap: "3rem" }}>
+          <div>
+            <div style={{ fontFamily: "'Space Mono', monospace", fontSize: "1rem", fontWeight: 700, color: C.text, marginBottom: "0.75rem" }}>
+              MASK<span style={{ color: C.accent }}>_</span>UNIT
+            </div>
+            <p style={{ fontFamily: "'Space Mono', monospace", fontSize: "0.7rem", color: C.textDim, lineHeight: 1.8, maxWidth: "32ch" }}>
+              Studio créatif indépendant. Paris, France. Branding · Motion · Digital.
+            </p>
+          </div>
+          {[
+            { title: "WORK", items: ["Selected Projects", "All Work", "Awards", "Process"] },
+            { title: "STUDIO", items: ["About", "Team", "Values", "Careers"] },
+            { title: "CONTACT", items: ["Start a Project", "Press", "Instagram", "LinkedIn"] },
+          ].map((col) => (
+            <div key={col.title}>
+              <div style={{ fontFamily: "'Space Mono', monospace", fontSize: "0.55rem", letterSpacing: "0.25em", color: C.textDim, marginBottom: "1.5rem" }}>
+                {col.title}
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+                {col.items.map((item) => (
+                  <motion.a
+                    key={item}
+                    href="#"
+                    style={{ fontFamily: "'Space Mono', monospace", fontSize: "0.7rem", color: C.textMuted, textDecoration: "none", cursor: "pointer" }}
+                    whileHover={{ color: C.accent }}
+                  >
+                    {item}
+                  </motion.a>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+        <div style={{ maxWidth: "1300px", margin: "2.5rem auto 0", paddingTop: "2rem", borderTop: `1px solid ${C.border}`, display: "flex", justifyContent: "space-between" }}>
+          <div style={{ fontFamily: "'Space Mono', monospace", fontSize: "0.55rem", color: C.textDim }}>
+            © 2025 MASK UNIT STUDIO
+          </div>
+          <div style={{ fontFamily: "'Space Mono', monospace", fontSize: "0.55rem", color: C.textDim }}>
+            PARIS · BRANDING · MOTION · DIGITAL
           </div>
         </div>
       </footer>
-
-      {/* PRODUCT MODAL (Placeholder logic) */}
-      <AnimatePresence>
-        {activeProduct !== null && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[200] bg-black/90 backdrop-blur-md flex items-center justify-center p-6"
-            onClick={() => setActiveProduct(null)}
-          >
-            <motion.div
-              initial={{ scale: 0.9, y: 30 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.9, y: 30 }}
-              className="bg-[#0c1020] border border-[#00e5ff]/20 max-w-4xl w-full grid grid-cols-1 md:grid-cols-2 overflow-hidden rounded-sm"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="relative aspect-square md:aspect-auto">
-                <Image
-                  src={PRODUCTS[activeProduct].img}
-                  alt="Product"
-                  fill
-                  className="object-cover grayscale"
-                />
-              </div>
-              <div className="p-12 flex flex-col justify-between">
-                <div>
-                  <div className="text-[10px] uppercase tracking-widest text-[#00e5ff] font-black mb-4">
-                    {PRODUCTS[activeProduct].category} //{" "}
-                    {PRODUCTS[activeProduct].badge}
-                  </div>
-                  <h3 className="text-4xl font-black uppercase tracking-tight text-white mb-6">
-                    {PRODUCTS[activeProduct].name}
-                  </h3>
-                  <p className="text-sm text-white/40 leading-relaxed font-light mb-10 italic">
-                    "{PRODUCTS[activeProduct].desc}"
-                  </p>
-
-                  <div className="grid grid-cols-1 gap-4 mb-10">
-                    {PRODUCTS[activeProduct].specs.map(([k, v]) => (
-                      <div
-                        key={k}
-                        className="flex justify-between text-xs border-b border-white/10 pb-2"
-                      >
-                        <span className="uppercase tracking-widest text-white/30">
-                          {k}
-                        </span>
-                        <span className="font-bold text-white">{v}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                <button className="w-full py-5 bg-[#00e5ff] text-[#060810] text-[10px] font-black uppercase tracking-widest hover:bg-white transition-all cursor-pointer">
-                  Initialize Acquisition &mdash; {PRODUCTS[activeProduct].price}
-                </button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      <style>{`::-webkit-scrollbar{width:4px;background:#060810}::-webkit-scrollbar-thumb{background:#00e5ff10}`}</style>
     </div>
   );
 }

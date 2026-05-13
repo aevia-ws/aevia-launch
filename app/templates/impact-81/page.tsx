@@ -6,868 +6,730 @@ import {
   useTransform,
   useInView,
   AnimatePresence,
-  useMotionValue,
-  useSpring,
 } from "framer-motion";
-import { useState, useRef, useEffect, useCallback } from "react";
-import Image from "next/image";
-import Link from "next/link";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
-import { Progress } from "@/components/ui/progress";
-import { Separator } from "@/components/ui/separator";
-import { Camera, Film, Sparkles, Wand2, Zap, Globe, Activity, Terminal, Box, Share2, Layers, Maximize, Monitor, MousePointer2, Navigation, Wifi, Shield, ShoppingBag, Search, Star, Mail, Phone, Check, Menu, X, MapPin, Clock, Lock, Plus, Bell, Settings, ArrowRight, ArrowUpRight, ChevronRight, Eye, PenTool } from "lucide-react";
+import { useRef, useState, useEffect } from "react";
 
-import "../premium.css";
+const C = {
+  bg: "#F8F6F3",
+  bgDark: "#0A0A0A",
+  text: "#0A0A0A",
+  textLight: "#F8F6F3",
+  textMuted: "#6B6B6B",
+  textDim: "#B0B0B0",
+  border: "#E0DDD8",
+  borderDark: "#1E1E1E",
+  accent: "#C8A882",
+  accentDark: "#8A6840",
+};
 
-/* ==========================================================================
-   DATA STRUCTURES
-   ========================================================================= */
+const FONT = `
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap');
+`;
 
 const EDITORIALS = [
   {
     id: 1,
-    title: "NEO_CLASSIC",
+    title: "NOIR TOTAL",
+    subtitle: "La disparition du superflu",
     category: "Cover Story",
-    img: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=1200&q=80",
-    size: "lg",
+    issue: "Vol. XII",
+    size: "hero",
+    color: "#0A0A0A",
+    textColor: "#F8F6F3",
   },
   {
     id: 2,
-    title: "SHADOW_WALK",
+    title: "GEOMETRY OF DESIRE",
+    subtitle: "Structures qui séduisent",
     category: "Editorial",
-    img: "https://images.unsplash.com/photo-1539109132304-391490211181?w=800&q=80",
-    size: "sm",
+    issue: "Mai 2024",
+    size: "tall",
+    color: "#1C1C1C",
+    textColor: "#F8F6F3",
   },
   {
     id: 3,
-    title: "BRUTAL_FORM",
-    category: "Lookbook",
-    img: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=800&q=80",
-    size: "sm",
+    title: "WHITE NOISE",
+    subtitle: "L'éloquence du vide",
+    category: "Portfolio",
+    issue: "Série Exclusive",
+    size: "wide",
+    color: "#F0EDE8",
+    textColor: "#0A0A0A",
   },
   {
     id: 4,
-    title: "KINETIC_SILK",
-    category: "Feature",
-    img: "https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=1200&q=80",
-    size: "md",
+    title: "OMBRES PORTÉES",
+    subtitle: "Lumière et absence",
+    category: "Photography",
+    issue: "Collection Hiver",
+    size: "sq",
+    color: "#3A3A3A",
+    textColor: "#F8F6F3",
   },
   {
     id: 5,
-    title: "VOID_FASHION",
-    category: "Experimental",
-    img: "https://images.unsplash.com/photo-1509631179647-0177331693ae?w=800&q=80",
-    size: "sm",
+    title: "CORPS RADICAL",
+    subtitle: "Formes qui résistent",
+    category: "Fashion",
+    issue: "SS 2025",
+    size: "sq",
+    color: "#E8E4DE",
+    textColor: "#0A0A0A",
+  },
+  {
+    id: 6,
+    title: "INVISIBLE EMPIRE",
+    subtitle: "Le luxe sans signature",
+    category: "Luxury",
+    issue: "Hors-série",
+    size: "tall",
+    color: "#C8A882",
+    textColor: "#0A0A0A",
   },
 ];
 
-/* ==========================================================================
-   UTILITY COMPONENTS
-   ========================================================================= */
+const ISSUES = [
+  { season: "Printemps", year: "2025", theme: "Dissolution", cover: "#0A0A0A", num: "Vol. XIV" },
+  { season: "Hiver", year: "2024", theme: "Architecture", cover: "#1C1C1C", num: "Vol. XIII" },
+  { season: "Automne", year: "2024", theme: "Disparition", cover: "#3A3A3A", num: "Vol. XII" },
+  { season: "Été", year: "2024", theme: "Corps", cover: "#C8A882", num: "Vol. XI" },
+];
 
-function Reveal({
-  children,
-  delay = 0,
-  y = 30,
-}: {
-  children: React.ReactNode;
-  delay?: number;
-  y?: number;
-}) {
-  const ref = useRef(null);
-  const inView = useInView(ref, { once: true, margin: "-50px" });
+const CONTRIBUTORS = [
+  { name: "Solène Varga", role: "Directrice artistique", initials: "SV" },
+  { name: "Marcus Leth", role: "Photographie", initials: "ML" },
+  { name: "Ida Reuter", role: "Rédactrice en chef", initials: "IR" },
+  { name: "Pham Duc Anh", role: "Direction mode", initials: "PA" },
+];
+
+const MANIFESTE = [
+  "Vogue Noire ne suit pas la mode.",
+  "Elle la précède, la questionne, la défait.",
+  "Chaque numéro est un acte éditorial.",
+  "Chaque image, un argument visuel.",
+];
+
+// ── Ticker ─────────────────────────────────────────────────────────────────
+function Ticker() {
+  const items = ["VOGUE NOIRE", "NO. XIV", "PRINTEMPS 2025", "DISSOLUTION", "ARCHITECTURE ÉDITORIALE", "PHOTOGRAPHIE HAUTE COUTURE", "PARIS · MILAN · TOKYO"];
+  const doubled = [...items, ...items];
+  return (
+    <div style={{ overflow: "hidden", borderTop: `1px solid ${C.border}`, borderBottom: `1px solid ${C.border}`, padding: "0.6rem 0", background: C.bg }}>
+      <motion.div
+        animate={{ x: ["0%", "-50%"] }}
+        transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
+        style={{ display: "flex", gap: "4rem", whiteSpace: "nowrap" }}
+      >
+        {doubled.map((item, i) => (
+          <span key={i} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.65rem", letterSpacing: "0.3em", color: C.textMuted }}>
+            {item}
+          </span>
+        ))}
+      </motion.div>
+    </div>
+  );
+}
+
+// ── Mosaic Card ─────────────────────────────────────────────────────────────
+function MosaicCard({ item, delay }: { item: typeof EDITORIALS[0]; delay: number }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true, margin: "-60px" });
+  const [hovered, setHovered] = useState(false);
+
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, y }}
+      initial={{ opacity: 0, y: 30 }}
       animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 1, delay, ease: [0.25, 0.1, 0.25, 1] }}
+      transition={{ duration: 0.8, delay, ease: [0.22, 1, 0.36, 1] }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        background: item.color,
+        padding: "2.5rem",
+        position: "relative",
+        overflow: "hidden",
+        cursor: "pointer",
+        minHeight: item.size === "hero" ? "500px" : item.size === "tall" ? "380px" : item.size === "wide" ? "260px" : "280px",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "space-between",
+        border: `1px solid ${item.color === C.bg ? C.border : "transparent"}`,
+      }}
     >
-      {children}
+      {/* Category chip */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+        <span style={{
+          fontFamily: "'DM Sans', sans-serif",
+          fontSize: "0.6rem",
+          letterSpacing: "0.25em",
+          color: item.textColor,
+          opacity: 0.6,
+        }}>
+          {item.category}
+        </span>
+        <span style={{
+          fontFamily: "'DM Sans', sans-serif",
+          fontSize: "0.6rem",
+          letterSpacing: "0.15em",
+          color: item.textColor,
+          opacity: 0.4,
+        }}>
+          {item.issue}
+        </span>
+      </div>
+
+      {/* Decorative element */}
+      <motion.div
+        animate={hovered ? { scale: 1.5, opacity: 0.06 } : { scale: 1, opacity: 0 }}
+        transition={{ duration: 0.6 }}
+        style={{
+          position: "absolute",
+          inset: 0,
+          background: item.textColor,
+        }}
+      />
+
+      {/* Title */}
+      <div style={{ position: "relative", zIndex: 1 }}>
+        <motion.div
+          animate={hovered ? { x: 6 } : { x: 0 }}
+          transition={{ duration: 0.4 }}
+        >
+          <div style={{
+            fontFamily: "'Playfair Display', serif",
+            fontSize: item.size === "hero" ? "clamp(2.5rem, 5vw, 4.5rem)" : "clamp(1.5rem, 3vw, 2.5rem)",
+            fontWeight: 900,
+            color: item.textColor,
+            lineHeight: 0.9,
+            letterSpacing: "-0.02em",
+            textTransform: "uppercase",
+            marginBottom: "0.75rem",
+          }}>
+            {item.title}
+          </div>
+          <div style={{
+            fontFamily: "'Cormorant Garamond', serif",
+            fontSize: "1rem",
+            fontStyle: "italic",
+            color: item.textColor,
+            opacity: 0.65,
+          }}>
+            {item.subtitle}
+          </div>
+        </motion.div>
+        {/* Arrow on hover */}
+        <AnimatePresence>
+          {hovered && (
+            <motion.div
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -10 }}
+              style={{ marginTop: "1.5rem", display: "flex", alignItems: "center", gap: "0.5rem" }}
+            >
+              <div style={{ width: "2rem", height: "1px", background: item.textColor, opacity: 0.5 }} />
+              <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.65rem", letterSpacing: "0.2em", color: item.textColor, opacity: 0.7 }}>
+                LIRE
+              </span>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
     </motion.div>
   );
 }
 
-function Counter({
-  to,
-  prefix = "",
-  suffix = "",
-}: {
-  to: number;
-  prefix?: string;
-  suffix?: string;
-}) {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true });
-  const [count, setCount] = useState(0);
-  useEffect(() => {
-    if (!isInView) return;
-    let cur = 0;
-    const step = to / 70;
-    const t = setInterval(() => {
-      cur += step;
-      if (cur >= to) {
-        setCount(to);
-        clearInterval(t);
-      } else {
-        setCount(Math.floor(cur));
-      }
-    }, 16);
-    return () => clearInterval(t);
-  }, [isInView, to]);
-  return (
-    <span ref={ref}>
-      {prefix}
-      {count.toLocaleString()}
-      {suffix}
-    </span>
-  );
-}
-
-function MagneticBtn({
-  children,
-  className = "",
-  onClick,
-}: {
-  children: React.ReactNode;
-  className?: string;
-  onClick?: () => void;
-}) {
-  const ref = useRef<HTMLButtonElement>(null);
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-  const sx = useSpring(x, { stiffness: 200, damping: 20 });
-  const sy = useSpring(y, { stiffness: 200, damping: 20 });
-
-  const handleMouse = useCallback(
-    (e: React.MouseEvent) => {
-      const rect = ref.current?.getBoundingClientRect();
-      if (!rect) return;
-      x.set((e.clientX - rect.left - rect.width / 2) * 0.35);
-      y.set((e.clientY - rect.top - rect.height / 2) * 0.35);
-    },
-    [x, y],
-  );
-
-  const reset = useCallback(() => {
-    x.set(0);
-    y.set(0);
-  }, [x, y]);
-
-  return (
-    <motion.button
-      ref={ref}
-      style={{ x: sx, y: sy }}
-      onMouseMove={handleMouse}
-      onMouseLeave={reset}
-      onClick={onClick}
-      className={className}
-    >
-      {children}
-    </motion.button>
-  );
-}
-
-/* ==========================================================================
-   MAIN PAGE COMPONENT
-   ========================================================================= */
-
-export default function MosaicOSPage() {
-  const [scrolled, setScrolled] = useState(false);
+// ── Page ───────────────────────────────────────────────────────────────────
+export default function VogueNoire() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const heroRef = useRef<HTMLDivElement>(null);
+  const [activeIssue, setActiveIssue] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [activeEditorial, setActiveEditorial] = useState<number | null>(null);
 
-  const heroRef = useRef(null);
-  const { scrollYProgress } = useScroll({
-    target: heroRef,
-    offset: ["start start", "end start"],
-  });
-  const heroY = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
+  const { scrollYProgress } = useScroll({ target: containerRef });
+  const { scrollYProgress: heroScroll } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
 
-  useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 50);
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  const heroY = useTransform(heroScroll, [0, 1], ["0%", "30%"]);
+  const navBg = useTransform(scrollYProgress, [0, 0.06], ["rgba(248,246,243,0)", "rgba(248,246,243,0.97)"]);
 
   return (
-    <div
-      className="premium-theme min-h-screen bg-[#fcfcfc] text-[#0a0a0a] font-serif selection:bg-stone-900 selection:text-white overflow-x-hidden"
-      style={{ scrollBehavior: "smooth" }}
-    >
-      {/* ==========================================
-          NAVIGATION
-          ========================================== */}
-      <nav
-        className={`fixed top-0 left-0 w-full z-50 transition-all duration-1000 ${scrolled ? "bg-white/95 backdrop-blur-xl py-4 border-b border-black/5 shadow-sm" : "bg-transparent py-10"}`}
+    <div ref={containerRef} style={{ background: C.bg, color: C.text, fontFamily: "'DM Sans', sans-serif", minHeight: "100vh", overflowX: "hidden" }}>
+      <style>{FONT}</style>
+
+      {/* ── Navigation ─────────────────────────────────────────────────── */}
+      <motion.nav
+        style={{
+          position: "fixed", top: 0, left: 0, right: 0, zIndex: 100,
+          background: navBg,
+          backdropFilter: "blur(16px)",
+          borderBottom: `1px solid ${C.border}`,
+          padding: "0 2.5rem",
+          height: "64px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
       >
-        <div className="max-w-[1400px] mx-auto px-6 md:px-12 flex items-center justify-between">
-          <Link href="/" className="flex flex-col items-center">
-            <span className="text-[10px] font-bold uppercase tracking-[0.6em] text-stone-400 mb-1 italic">
-              Edition.081
-            </span>
-            <span className="text-xl md:text-3xl font-black tracking-tighter uppercase text-black italic">
-              VOGUE<span className="text-stone-300">.NOIRE</span>
-            </span>
-          </Link>
-
-          <div className="hidden lg:flex items-center gap-12 text-[10px] font-bold uppercase tracking-[0.3em] text-stone-400">
-            <Link
-              href="#editorials"
-              className="hover:text-black transition-colors"
+        <div style={{ display: "flex", gap: "2.5rem" }}>
+          {["Éditorial", "Collections", "Archives"].map((item) => (
+            <motion.a
+              key={item}
+              href="#"
+              style={{ fontSize: "0.7rem", letterSpacing: "0.2em", color: C.textMuted, textDecoration: "none", cursor: "pointer" }}
+              whileHover={{ color: C.text }}
             >
-              Editorials
-            </Link>
-            <Link
-              href="#archive"
-              className="hover:text-black transition-colors"
-            >
-              Archive
-            </Link>
-            <li>
-              <Link
-                href="#culture"
-                className="hover:text-black transition-colors"
-              >
-                Culture
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="#boutique"
-                className="hover:text-black transition-colors"
-              >
-                Shop
-              </Link>
-            </li>
-          </div>
+              {item}
+            </motion.a>
+          ))}
+        </div>
 
-          <div className="flex items-center gap-8">
-            <div className="hidden xl:flex flex-col items-end">
-              <span className="text-[9px] font-bold text-stone-300 uppercase tracking-widest">
-                Paris // 14:48
-              </span>
-              <span className="text-[11px] font-black text-black flex items-center gap-1">
-                LIVE_ISSUE <Activity className="w-3 h-3" />
-              </span>
-            </div>
-            <MagneticBtn className="px-8 py-3 bg-black text-white text-[10px] font-bold uppercase tracking-widest rounded-none hover:bg-stone-800 transition-all shadow-xl">
-              SUBSCRIBE
-            </MagneticBtn>
-            <button onClick={() => setMenuOpen(true)} className="lg:hidden">
-              <Menu className="w-6 h-6 text-stone-500" />
-            </button>
+        {/* Masthead */}
+        <div style={{ textAlign: "center" }}>
+          <div style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.5rem", fontWeight: 900, color: C.text, letterSpacing: "0.12em", lineHeight: 1 }}>
+            VOGUE NOIRE
           </div>
         </div>
-      </nav>
 
-      {/* MOBILE MENU */}
-      <AnimatePresence>
-        {menuOpen && (
-          <motion.div
-            initial={{ opacity: 0, x: "100%" }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: "100%" }}
-            transition={{ type: "tween", duration: 0.5 }}
-            className="fixed inset-0 z-[100] bg-white p-8 pt-32 flex flex-col border-l border-black/5"
-          >
-            <button
-              onClick={() => setMenuOpen(false)}
-              className="absolute top-10 right-8 text-stone-300"
+        <div style={{ display: "flex", gap: "2.5rem", justifyContent: "flex-end" }}>
+          {["Boutique", "Abonnement"].map((item) => (
+            <motion.a
+              key={item}
+              href="#"
+              style={{ fontSize: "0.7rem", letterSpacing: "0.2em", color: C.textMuted, textDecoration: "none", cursor: "pointer" }}
+              whileHover={{ color: C.text }}
             >
-              <X className="w-8 h-8" />
-            </button>
-            <div className="flex flex-col gap-10 text-6xl font-black tracking-tighter uppercase italic text-stone-100">
-              <Link href="#editorials" onClick={() => setMenuOpen(false)}>
-                Editorials
-              </Link>
-              <Link href="#archive" onClick={() => setMenuOpen(false)}>
-                Archive
-              </Link>
-              <Link href="#culture" onClick={() => setMenuOpen(false)}>
-                Culture
-              </Link>
-              <Link href="#boutique" onClick={() => setMenuOpen(false)}>
-                Shop
-              </Link>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+              {item}
+            </motion.a>
+          ))}
+        </div>
+      </motion.nav>
 
-      {/* ==========================================
-          1. HERO (Editorial Cover)
-          ========================================== */}
+      {/* ── Hero: Full-bleed masthead ───────────────────────────────────── */}
       <section
         ref={heroRef}
-        className="relative w-full h-[100svh] flex flex-col justify-center overflow-hidden"
+        style={{
+          height: "100vh",
+          background: C.bgDark,
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "flex-end",
+          padding: "0 3rem 4rem",
+          position: "relative",
+          overflow: "hidden",
+        }}
       >
+        {/* Animated typographic background */}
         <motion.div
-          style={{ y: heroY, opacity: heroOpacity }}
-          className="absolute inset-0 z-0"
+          style={{ position: "absolute", inset: 0, y: heroY, display: "flex", alignItems: "center", justifyContent: "center", userSelect: "none" }}
         >
-          <Image
-            src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=1600&q=80"
-            alt="Vogue Hero"
-            fill
-            className="object-cover grayscale-[0.5] contrast-125"
-            priority
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#fcfcfc] via-transparent to-transparent" />
+          <div style={{
+            fontFamily: "'Playfair Display', serif",
+            fontSize: "clamp(10rem, 25vw, 22rem)",
+            fontWeight: 900,
+            color: "#111",
+            letterSpacing: "-0.05em",
+            lineHeight: 0.85,
+            textTransform: "uppercase",
+            textAlign: "center",
+          }}>
+            NOIR
+          </div>
         </motion.div>
 
-        <div className="relative z-10 max-w-[1400px] mx-auto px-6 md:px-12 w-full">
-          <Reveal>
-            <div className="inline-flex items-center gap-3 px-4 py-2 bg-white/40 backdrop-blur-md rounded-none border border-black/5 text-black text-[10px] font-bold uppercase tracking-widest mb-10 shadow-sm italic">
-              <Camera className="w-3.5 h-3.5" />
-              Featured: The Neo-Classical Shift
-            </div>
-            <h1 className="text-8xl md:text-[12rem] lg:text-[15rem] font-black leading-[0.8] tracking-tighter mb-12 uppercase italic text-black">
-              High <br />{" "}
-              <span className="text-stone-300 not-italic">Fashion.</span>
-            </h1>
-            <p className="max-w-xl text-xl md:text-2xl text-black/40 leading-relaxed font-bold mb-12 uppercase tracking-tight italic">
-              Unveiling the structural future of luxury. A visceral exploration
-              of form, shadow, and kinetic silk.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-6">
-              <MagneticBtn className="px-12 py-5 bg-black text-white text-[10px] font-bold uppercase tracking-[0.4em] rounded-none hover:bg-stone-800 transition-all cursor-pointer shadow-2xl">
-                Read Cover Story
-              </MagneticBtn>
-              <button className="px-12 py-5 border border-black/10 text-black text-[10px] font-bold uppercase tracking-[0.4em] rounded-none hover:bg-black hover:text-white transition-all cursor-pointer">
-                Browse_Gallery
-              </button>
-            </div>
-          </Reveal>
+        {/* Top bar */}
+        <div style={{ position: "absolute", top: "5.5rem", left: "3rem", right: "3rem", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.6rem", letterSpacing: "0.3em", color: "#555" }}>
+            VOL. XIV · PRINTEMPS 2025
+          </span>
+          <div style={{ display: "flex", gap: "2rem" }}>
+            {["MODE", "BEAUTÉ", "ART", "CULTURE"].map((cat) => (
+              <span key={cat} style={{ fontSize: "0.6rem", letterSpacing: "0.25em", color: "#444" }}>{cat}</span>
+            ))}
+          </div>
+          <span style={{ fontSize: "0.6rem", letterSpacing: "0.25em", color: "#444" }}>
+            PARIS · MILAN · TOKYO
+          </span>
         </div>
 
-        <motion.div
-          style={{ opacity: heroOpacity }}
-          className="absolute bottom-10 left-12 hidden md:block"
-        >
-          <div className="flex flex-col items-start gap-3">
-            <span className="text-[9px] font-bold text-stone-300 uppercase tracking-[0.5em]">
-              VOGUE_NOIRE_INTL // ISSUE_081
-            </span>
-            <div className="w-32 h-[1px] bg-black/10" />
+        {/* Bottom content */}
+        <div style={{ position: "relative", zIndex: 1, display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4rem", alignItems: "flex-end" }}>
+          <div>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              style={{ fontSize: "0.6rem", letterSpacing: "0.3em", color: C.accent, marginBottom: "1rem" }}
+            >
+              COUVERTURE CE NUMÉRO
+            </motion.div>
+            <motion.h1
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
+              style={{
+                fontFamily: "'Playfair Display', serif",
+                fontSize: "clamp(2.5rem, 6vw, 5rem)",
+                fontWeight: 900,
+                color: C.textLight,
+                lineHeight: 0.9,
+                letterSpacing: "-0.02em",
+                textTransform: "uppercase",
+                marginBottom: "1.5rem",
+              }}
+            >
+              DISSOLUTION<br />
+              <em style={{ fontWeight: 400, color: C.accent }}>du Regard</em>
+            </motion.h1>
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.8, delay: 0.8 }}
+              style={{ fontSize: "1rem", color: "#888", lineHeight: 1.7, maxWidth: "40ch" }}
+            >
+              Quand la mode cesse d'être un vêtement pour devenir une philosophie du corps dans l'espace.
+            </motion.p>
           </div>
+          <div style={{ textAlign: "right" }}>
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8, delay: 0.9 }}
+            >
+              <div style={{ fontSize: "0.6rem", letterSpacing: "0.2em", color: "#555", marginBottom: "0.75rem" }}>
+                AVEC
+              </div>
+              <div style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.3rem", fontStyle: "italic", color: C.textLight, marginBottom: "0.25rem" }}>
+                Mila Forsberg
+              </div>
+              <div style={{ fontSize: "0.7rem", color: "#666" }}>
+                Photographiée par Marcus Leth
+              </div>
+              <div style={{ marginTop: "2rem" }}>
+                <motion.button
+                  whileHover={{ backgroundColor: C.accent }}
+                  style={{
+                    background: C.textLight,
+                    color: C.bgDark,
+                    border: "none",
+                    padding: "0.75rem 2rem",
+                    fontFamily: "'DM Sans', sans-serif",
+                    fontSize: "0.65rem",
+                    letterSpacing: "0.25em",
+                    cursor: "pointer",
+                    transition: "background 0.3s",
+                  }}
+                >
+                  LIRE LE NUMÉRO
+                </motion.button>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+
+        {/* Scroll indicator */}
+        <motion.div
+          animate={{ y: [0, 8, 0] }}
+          transition={{ duration: 2, repeat: Infinity }}
+          style={{ position: "absolute", bottom: "2rem", left: "50%", transform: "translateX(-50%)", display: "flex", flexDirection: "column", alignItems: "center", gap: "0.5rem" }}
+        >
+          <div style={{ width: "1px", height: "3rem", background: "linear-gradient(180deg, transparent, #444)" }} />
         </motion.div>
       </section>
 
-      {/* ==========================================
-          2. ASYMMETRIC MOSAIC (Grid)
-          ========================================== */}
-      <section
-        id="editorials"
-        className="py-32 bg-[#fcfcfc] border-y border-black/5"
-      >
-        <div className="max-w-[1400px] mx-auto px-6 md:px-12">
-          <div className="flex flex-col md:flex-row justify-between items-end mb-32 gap-12">
-            <Reveal>
-              <h2 className="text-5xl md:text-8xl font-black tracking-tighter uppercase leading-[0.9] text-black italic">
-                Recent <br />{" "}
-                <span className="text-stone-300 not-italic">Editorials.</span>
+      {/* ── Ticker ─────────────────────────────────────────────────────────── */}
+      <Ticker />
+
+      {/* ── Mosaic Grid ────────────────────────────────────────────────────── */}
+      <section style={{ padding: "4rem clamp(1.5rem, 4vw, 4rem)" }}>
+        <div style={{ maxWidth: "1300px", margin: "0 auto" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: "3rem" }}>
+            <div>
+              <div style={{ fontSize: "0.6rem", letterSpacing: "0.3em", color: C.textMuted, marginBottom: "0.5rem" }}>
+                SOMMAIRE
+              </div>
+              <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(2rem, 4vw, 3.5rem)", fontWeight: 900, color: C.text, lineHeight: 0.9 }}>
+                Ce Numéro
               </h2>
-            </Reveal>
-            <p className="max-w-sm text-sm text-stone-400 leading-relaxed font-bold uppercase tracking-widest italic text-right">
-              Our non-exhaustive exploration of the modern silhouette. Pushing
-              materials to their absolute aesthetic limit.
-            </p>
+            </div>
+            <div style={{ fontSize: "0.7rem", letterSpacing: "0.15em", color: C.textMuted }}>
+              6 éditoriaux exclusifs
+            </div>
           </div>
 
-          <div className="columns-1 md:columns-2 lg:columns-3 gap-12 space-y-12">
-            {EDITORIALS.map((e, i) => (
-              <Reveal key={e.id} delay={i * 0.1}>
-                <div
-                  onClick={() => setActiveEditorial(i)}
-                  className="group cursor-pointer bg-white border border-black/5 p-4 shadow-sm hover:shadow-2xl transition-all duration-1000"
+          {/* Asymmetric grid */}
+          <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr", gridTemplateRows: "auto", gap: "2px" }}>
+            {/* Hero item */}
+            <div style={{ gridRow: "1 / 3" }}>
+              <MosaicCard item={EDITORIALS[0]} delay={0} />
+            </div>
+            {/* Tall right */}
+            <div style={{ gridRow: "1 / 2" }}>
+              <MosaicCard item={EDITORIALS[1]} delay={0.1} />
+            </div>
+            <div style={{ gridRow: "1 / 2" }}>
+              <MosaicCard item={EDITORIALS[5]} delay={0.15} />
+            </div>
+            {/* Bottom row */}
+            <div style={{ gridColumn: "2 / 3" }}>
+              <MosaicCard item={EDITORIALS[3]} delay={0.2} />
+            </div>
+            <div style={{ gridColumn: "3 / 4" }}>
+              <MosaicCard item={EDITORIALS[4]} delay={0.25} />
+            </div>
+          </div>
+
+          {/* Wide card */}
+          <div style={{ marginTop: "2px" }}>
+            <MosaicCard item={EDITORIALS[2]} delay={0.3} />
+          </div>
+        </div>
+      </section>
+
+      {/* ── Manifeste ─────────────────────────────────────────────────────── */}
+      <section style={{ padding: "8rem clamp(2rem, 6vw, 6rem)", background: C.bgDark, overflow: "hidden" }}>
+        <div style={{ maxWidth: "900px", margin: "0 auto" }}>
+          <div style={{ marginBottom: "3rem" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "1rem" }}>
+              <div style={{ width: "2rem", height: "1px", background: C.accent }} />
+              <span style={{ fontSize: "0.6rem", letterSpacing: "0.3em", color: C.accent }}>MANIFESTE</span>
+            </div>
+          </div>
+          {MANIFESTE.map((line, i) => {
+            const ref = useRef<HTMLDivElement>(null);
+            const inView = useInView(ref, { once: true, margin: "-40px" });
+            return (
+              <motion.div
+                key={i}
+                ref={ref}
+                initial={{ opacity: 0, x: -30 }}
+                animate={inView ? { opacity: 1, x: 0 } : {}}
+                transition={{ duration: 0.8, delay: i * 0.12, ease: [0.22, 1, 0.36, 1] }}
+                style={{
+                  fontFamily: "'Playfair Display', serif",
+                  fontSize: "clamp(1.5rem, 3.5vw, 3rem)",
+                  fontWeight: i === 0 ? 900 : 400,
+                  color: i === 0 ? C.textLight : i === 3 ? C.accent : "#666",
+                  lineHeight: 1.2,
+                  paddingBottom: "1.5rem",
+                  marginBottom: "1.5rem",
+                  borderBottom: i < 3 ? `1px solid #1E1E1E` : "none",
+                  fontStyle: i % 2 === 1 ? "italic" : "normal",
+                }}
+              >
+                {line}
+              </motion.div>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* ── Archives Issues ───────────────────────────────────────────────── */}
+      <section style={{ padding: "8rem clamp(2rem, 6vw, 6rem)" }}>
+        <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: "4rem" }}>
+            <div>
+              <div style={{ fontSize: "0.6rem", letterSpacing: "0.3em", color: C.textMuted, marginBottom: "0.5rem" }}>
+                NUMÉROS PRÉCÉDENTS
+              </div>
+              <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(1.8rem, 3vw, 3rem)", fontWeight: 900, color: C.text }}>
+                Les Archives
+              </h2>
+            </div>
+            <motion.a
+              href="#"
+              style={{ fontSize: "0.65rem", letterSpacing: "0.2em", color: C.textMuted, textDecoration: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: "0.5rem" }}
+              whileHover={{ color: C.text }}
+            >
+              TOUTES LES ARCHIVES
+              <div style={{ width: "1.5rem", height: "1px", background: "currentcolor" }} />
+            </motion.a>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "2px" }}>
+            {ISSUES.map((issue, i) => {
+              const ref = useRef<HTMLDivElement>(null);
+              const inView = useInView(ref, { once: true });
+              return (
+                <motion.div
+                  key={i}
+                  ref={ref}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={inView ? { opacity: 1, y: 0 } : {}}
+                  transition={{ duration: 0.6, delay: i * 0.1 }}
+                  whileHover={{ scale: 1.02 }}
+                  style={{
+                    background: issue.cover,
+                    padding: "2.5rem 2rem",
+                    cursor: "pointer",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "space-between",
+                    minHeight: "320px",
+                    border: `1px solid ${issue.cover === "#C8A882" ? "transparent" : "#111"}`,
+                  }}
                 >
-                  <div className="relative aspect-[3/4] mb-8 overflow-hidden bg-stone-100">
-                    <Image
-                      src={e.img}
-                      alt={e.title}
-                      fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-1000 grayscale-[0.2] group-hover:grayscale-0"
-                    />
-                    <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-all duration-1000" />
-                  </div>
-                  <div className="flex justify-between items-end">
-                    <div>
-                      <span className="text-[10px] font-black uppercase tracking-widest text-stone-300 mb-2 block">
-                        {e.category}
-                      </span>
-                      <h3 className="text-2xl font-black uppercase tracking-tighter text-black italic">
-                        {e.title}
-                      </h3>
+                  <div>
+                    <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.55rem", letterSpacing: "0.25em", color: "#888", marginBottom: "0.75rem" }}>
+                      {issue.num}
                     </div>
-                    <button className="w-10 h-10 rounded-full border border-black/10 flex items-center justify-center group-hover:bg-black group-hover:text-white transition-all">
-                      <ArrowUpRight className="w-4 h-4" />
-                    </button>
+                    <div style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.6rem", fontWeight: 900, color: "#F0EDE8", lineHeight: 0.9, textTransform: "uppercase" }}>
+                      {issue.theme}
+                    </div>
                   </div>
-                </div>
-              </Reveal>
+                  <div>
+                    <div style={{ width: "100%", height: "1px", background: "#222", marginBottom: "1rem" }} />
+                    <div style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic", fontSize: "0.85rem", color: "#999" }}>
+                      {issue.season} {issue.year}
+                    </div>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Contributors ──────────────────────────────────────────────────── */}
+      <section style={{ padding: "6rem clamp(2rem, 6vw, 6rem)", borderTop: `1px solid ${C.border}`, borderBottom: `1px solid ${C.border}` }}>
+        <div style={{ maxWidth: "1000px", margin: "0 auto" }}>
+          <div style={{ fontSize: "0.6rem", letterSpacing: "0.3em", color: C.textMuted, marginBottom: "3rem" }}>
+            COLLABORATRICES & COLLABORATEURS
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "3rem" }}>
+            {CONTRIBUTORS.map((c, i) => {
+              const ref = useRef<HTMLDivElement>(null);
+              const inView = useInView(ref, { once: true });
+              return (
+                <motion.div
+                  key={c.name}
+                  ref={ref}
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={inView ? { opacity: 1, y: 0 } : {}}
+                  transition={{ duration: 0.6, delay: i * 0.1 }}
+                >
+                  <div style={{ width: "56px", height: "56px", background: C.bgDark, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "1.25rem" }}>
+                    <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "1rem", fontWeight: 700, color: C.textLight }}>
+                      {c.initials}
+                    </span>
+                  </div>
+                  <div style={{ fontFamily: "'Playfair Display', serif", fontSize: "1rem", fontWeight: 700, color: C.text, marginBottom: "0.25rem" }}>
+                    {c.name}
+                  </div>
+                  <div style={{ fontSize: "0.7rem", letterSpacing: "0.1em", color: C.textMuted }}>
+                    {c.role}
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Newsletter CTA ────────────────────────────────────────────────── */}
+      <section style={{ padding: "8rem clamp(2rem, 6vw, 6rem)", background: C.bgDark }}>
+        <div style={{ maxWidth: "700px", margin: "0 auto", textAlign: "center" }}>
+          <div style={{ width: "1px", height: "3rem", background: "#222", margin: "0 auto 2rem" }} />
+          <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(2rem, 4vw, 3.5rem)", fontWeight: 900, color: C.textLight, marginBottom: "1rem", lineHeight: 0.95 }}>
+            Ne Ratez Plus<br />
+            <em style={{ fontWeight: 400, color: C.accent }}>un Numéro</em>
+          </h2>
+          <p style={{ fontSize: "0.95rem", color: "#777", lineHeight: 1.75, marginBottom: "2.5rem" }}>
+            Chaque saison, Vogue Noire sort en édition limitée. Abonnez-vous pour recevoir votre exemplaire avant épuisement des stocks.
+          </p>
+          <div style={{ display: "flex", gap: "0", maxWidth: "440px", margin: "0 auto" }}>
+            <input
+              type="email"
+              placeholder="votre@email.com"
+              style={{
+                flex: 1,
+                background: "#111",
+                border: "none",
+                borderBottom: "1px solid #333",
+                padding: "0.85rem 1rem",
+                color: C.textLight,
+                fontSize: "0.85rem",
+                fontFamily: "'DM Sans', sans-serif",
+                outline: "none",
+              }}
+            />
+            <motion.button
+              whileHover={{ backgroundColor: C.accent }}
+              style={{
+                background: C.textLight,
+                color: C.bgDark,
+                border: "none",
+                padding: "0.85rem 1.5rem",
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: "0.65rem",
+                letterSpacing: "0.2em",
+                cursor: "pointer",
+                whiteSpace: "nowrap",
+                transition: "background 0.3s",
+              }}
+            >
+              S'ABONNER
+            </motion.button>
+          </div>
+          <div style={{ marginTop: "1rem", fontSize: "0.65rem", color: "#444", letterSpacing: "0.1em" }}>
+            ÉDITION LIMITÉE · LIVRAISON MONDIALE · SANS ENGAGEMENT
+          </div>
+        </div>
+      </section>
+
+      {/* ── Footer ─────────────────────────────────────────────────────────── */}
+      <footer style={{ borderTop: `1px solid #1E1E1E`, padding: "3rem clamp(2rem, 6vw, 6rem)", background: C.bgDark }}>
+        <div style={{ maxWidth: "1200px", margin: "0 auto", display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr", gap: "3rem" }}>
+          <div>
+            <div style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.3rem", fontWeight: 900, color: C.textLight, letterSpacing: "0.12em", marginBottom: "0.5rem" }}>
+              VOGUE NOIRE
+            </div>
+            <div style={{ fontSize: "0.6rem", letterSpacing: "0.2em", color: "#444", marginBottom: "1.5rem" }}>
+              MAGAZINE · PARIS
+            </div>
+            <p style={{ fontSize: "0.85rem", color: "#555", lineHeight: 1.65 }}>
+              La mode comme langage.<br />
+              L'image comme argument.<br />
+              Trimestriel depuis 2018.
+            </p>
+          </div>
+          {[
+            { title: "MAGAZINE", items: ["Éditoriaux", "Archives", "Collections", "Manifeste"] },
+            { title: "BOUTIQUE", items: ["Abonnement", "Numéros précédents", "Tirages photos", "Livres"] },
+            { title: "MAISON", items: ["À propos", "Collaborer", "Presse", "Contact"] },
+          ].map((col) => (
+            <div key={col.title}>
+              <div style={{ fontSize: "0.55rem", letterSpacing: "0.3em", color: "#444", marginBottom: "1.5rem" }}>
+                {col.title}
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+                {col.items.map((item) => (
+                  <motion.a
+                    key={item}
+                    href="#"
+                    style={{ fontSize: "0.85rem", color: "#555", textDecoration: "none", cursor: "pointer" }}
+                    whileHover={{ color: C.textLight }}
+                  >
+                    {item}
+                  </motion.a>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+        <div style={{ maxWidth: "1200px", margin: "2.5rem auto 0", paddingTop: "2rem", borderTop: "1px solid #1E1E1E", display: "flex", justifyContent: "space-between" }}>
+          <div style={{ fontSize: "0.55rem", letterSpacing: "0.2em", color: "#333" }}>
+            © 2025 VOGUE NOIRE. TOUS DROITS RÉSERVÉS.
+          </div>
+          <div style={{ display: "flex", gap: "2rem" }}>
+            {["Mentions légales", "Confidentialité"].map((item) => (
+              <motion.a key={item} href="#" style={{ fontSize: "0.55rem", letterSpacing: "0.15em", color: "#333", textDecoration: "none", cursor: "pointer" }} whileHover={{ color: "#666" }}>
+                {item}
+              </motion.a>
             ))}
           </div>
         </div>
-      </section>
-
-      {/* ==========================================
-          3. CULTURE (Magazine Content)
-          ========================================== */}
-      <section id="culture" className="py-32 bg-[#fcfcfc]">
-        <div className="max-w-[1400px] mx-auto px-6 md:px-12">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 md:gap-32 items-start">
-            <div className="lg:col-span-5 sticky top-32">
-              <Reveal>
-                <span className="text-[10px] uppercase tracking-[0.4em] font-bold text-stone-400 mb-6 block">
-                  Editorial Manifest
-                </span>
-                <h2 className="text-5xl md:text-7xl font-black tracking-tighter leading-tight mb-12 text-black uppercase italic">
-                  Cultural <br />{" "}
-                  <span className="text-stone-300 not-italic">Entropy.</span>
-                </h2>
-                <p className="text-lg text-stone-500 leading-relaxed font-bold mb-16 uppercase tracking-tight italic">
-                  Nous croyons que la mode est une science de la déconstruction.
-                  Chaque numéro explore la tension entre l'ordre classique et le
-                  chaos moderne.
-                </p>
-
-                <div className="space-y-12">
-                  {[
-                    {
-                      label: "Global Readership",
-                      val: 1.2,
-                      suffix: "M",
-                      desc: "Our network spans 42 countries, connecting visionaries across every timezone.",
-                    },
-                    {
-                      label: "Annual Issues",
-                      val: 4,
-                      suffix: "",
-                      desc: "Four seasonal deep-dives into the heart of the industry's evolution.",
-                    },
-                    {
-                      label: "Archive Depth",
-                      val: 15000,
-                      suffix: "+",
-                      desc: "Decades of structural fashion photography digitized for the new era.",
-                    },
-                  ].map((item, i) => (
-                    <div
-                      key={i}
-                      className="group border-l border-black/5 pl-8 hover:border-black transition-all"
-                    >
-                      <h4 className="text-sm font-bold uppercase tracking-tight mb-2 text-stone-400">
-                        {item.label}
-                      </h4>
-                      <div className="text-3xl font-black text-black mb-2 uppercase italic tabular-nums">
-                        <Counter to={item.val} suffix={item.suffix} />
-                      </div>
-                      <p className="text-[10px] text-stone-300 leading-relaxed font-bold uppercase tracking-widest">
-                        {item.desc}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </Reveal>
-            </div>
-
-            <div className="lg:col-span-7 space-y-32">
-              {[
-                {
-                  title: "THE_ALCHEMIST",
-                  date: "FEB 2026",
-                  desc: "Exploring the chemical relationship between raw textiles and human sweat.",
-                  img: "https://images.unsplash.com/photo-1509631179647-0177331693ae?w=1200&q=80",
-                },
-                {
-                  title: "SILICON_SILK",
-                  date: "APR 2026",
-                  desc: "The integration of wearable computing into high-end Parisian couture.",
-                  img: "https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=1200&q=80",
-                },
-              ].map((post, i) => (
-                <Reveal key={i}>
-                  <div className="group cursor-pointer">
-                    <div className="relative aspect-video mb-12 overflow-hidden shadow-xl">
-                      <Image
-                        src={post.img}
-                        alt={post.title}
-                        fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-1000"
-                      />
-                    </div>
-                    <div className="flex justify-between items-center mb-6">
-                      <span className="text-[10px] font-black uppercase tracking-widest text-stone-300">
-                        {post.date}
-                      </span>
-                      <div className="h-[1px] flex-grow mx-8 bg-black/5" />
-                      <span className="text-[10px] font-black uppercase tracking-widest text-black">
-                        Featured_Article
-                      </span>
-                    </div>
-                    <h3 className="text-4xl md:text-6xl font-black tracking-tighter uppercase italic text-black mb-8 group-hover:text-stone-400 transition-colors">
-                      {post.title}
-                    </h3>
-                    <p className="text-xl text-stone-500 leading-relaxed font-bold uppercase tracking-tight italic mb-12">
-                      {post.desc}
-                    </p>
-                    <button className="px-10 py-4 border border-black/10 text-[10px] font-bold uppercase tracking-[0.4em] hover:bg-black hover:text-white transition-all">
-                      READ_ARTICLE
-                    </button>
-                  </div>
-                </Reveal>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ==========================================
-          4. BOUTIQUE (Product)
-          ========================================== */}
-      <section
-        id="boutique"
-        className="py-32 bg-[#fcfcfc] border-t border-black/5"
-      >
-        <div className="max-w-[1400px] mx-auto px-6 md:px-12">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 md:gap-32 items-center">
-            <div className="lg:col-span-7">
-              <Reveal className="relative aspect-square bg-stone-100 flex items-center justify-center p-24 group">
-                <Image
-                  src="https://images.unsplash.com/photo-1539109132304-391490211181?w=800&q=80"
-                  alt="Magazine"
-                  width={500}
-                  height={700}
-                  className="shadow-2xl group-hover:-translate-y-4 transition-transform duration-1000"
-                />
-                <div className="absolute top-12 left-12">
-                  <span className="text-[8vw] font-black text-black/5 italic select-none">
-                    EDITION.081
-                  </span>
-                </div>
-              </Reveal>
-            </div>
-            <div className="lg:col-span-5">
-              <Reveal>
-                <span className="text-[10px] uppercase tracking-[0.4em] font-bold text-stone-400 mb-6 block">
-                  Print Archive
-                </span>
-                <h2 className="text-5xl md:text-7xl font-black tracking-tighter leading-tight mb-12 text-black uppercase italic">
-                  Physical <br />{" "}
-                  <span className="text-stone-300 not-italic">Manifest.</span>
-                </h2>
-                <p className="text-lg text-stone-500 leading-relaxed font-bold mb-16 uppercase tracking-tight italic">
-                  Possédez un morceau de l'histoire du design. Nos éditions
-                  limitées sont imprimées sur du papier italien 250g avec une
-                  finition mat-profond.
-                </p>
-                <div className="space-y-6">
-                  {[
-                    {
-                      name: "Edition 081: Neo-Classic",
-                      price: "€45",
-                      stock: "LOW_STOCK",
-                    },
-                    {
-                      name: "The Anthology Box (V1-V10)",
-                      price: "€350",
-                      stock: "AVAILABLE",
-                    },
-                    {
-                      name: "Vogue Noire Manifesto Tote",
-                      price: "€28",
-                      stock: "LIMITED",
-                    },
-                  ].map((p, i) => (
-                    <div
-                      key={i}
-                      className="flex items-center justify-between p-8 border border-black/5 hover:border-black transition-all cursor-pointer group"
-                    >
-                      <div>
-                        <span className="text-[10px] font-black uppercase text-black tracking-widest block mb-2">
-                          {p.name}
-                        </span>
-                        <span className="text-[8px] font-bold text-stone-300 uppercase tracking-widest">
-                          {p.stock}
-                        </span>
-                      </div>
-                      <span className="text-xl font-black text-black italic">
-                        {p.price}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-                <button className="w-full mt-12 py-6 bg-black text-white text-[10px] font-bold uppercase tracking-widest rounded-none hover:bg-stone-800 transition-all shadow-2xl">
-                  VISIT_FULL_BOUTIQUE
-                </button>
-              </Reveal>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ==========================================
-          5. MEGA FOOTER (Premium Minimal)
-          ========================================== */}
-      <footer className="bg-white pt-32 pb-12 px-6 md:px-12 border-t border-black/5 relative overflow-hidden">
-        <div className="max-w-[1600px] mx-auto relative z-10">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-16 mb-32">
-            <div className="lg:col-span-5">
-              <Reveal>
-                <div className="flex flex-col mb-10">
-                  <span className="text-[10px] font-bold uppercase tracking-[0.6em] text-stone-300 mb-1 italic">
-                    Edition.081
-                  </span>
-                  <span className="text-2xl font-black tracking-tighter uppercase text-black italic">
-                    VOGUE<span className="text-stone-300">.NOIRE</span>
-                  </span>
-                </div>
-                <p className="text-stone-300 max-w-sm mb-12 uppercase tracking-widest text-[10px] font-bold leading-relaxed italic">
-                  The infrastructure for the next generation of fashion media.
-                  Est. 2026. Precision distilled. Globally distributed.
-                </p>
-                <form
-                  className="relative max-w-md"
-                  onSubmit={(e) => e.preventDefault()}
-                >
-                  <input
-                    type="email"
-                    placeholder="JOIN_THE_MANIFESTO"
-                    className="w-full bg-stone-50 border border-black/5 rounded-none px-6 py-4 text-xs font-bold outline-none focus:border-black text-black transition-all uppercase tracking-widest"
-                  />
-                  <button
-                    type="submit"
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-bold text-stone-300 hover:text-black transition-colors uppercase tracking-[0.3em]"
-                  >
-                    JOIN
-                  </button>
-                </form>
-              </Reveal>
-            </div>
-
-            <div className="lg:col-span-2 lg:col-start-7">
-              <h4 className="text-[10px] font-bold uppercase tracking-widest text-black mb-10">
-                Editorials
-              </h4>
-              <ul className="space-y-4 text-[10px] font-bold uppercase tracking-widest text-stone-300">
-                <li>
-                  <Link href="#" className="hover:text-black transition-colors">
-                    Cover_Stories
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#" className="hover:text-black transition-colors">
-                    Lookbooks
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#" className="hover:text-black transition-colors">
-                    Fashion_Films
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#" className="hover:text-black transition-colors">
-                    Archive_Labs
-                  </Link>
-                </li>
-              </ul>
-            </div>
-
-            <div className="lg:col-span-2">
-              <h4 className="text-[10px] font-bold uppercase tracking-widest text-black mb-10">
-                Culture
-              </h4>
-              <ul className="space-y-4 text-[10px] font-bold uppercase tracking-widest text-stone-300">
-                <li>
-                  <Link href="#" className="hover:text-black transition-colors">
-                    Art_Design
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#" className="hover:text-black transition-colors">
-                    Architecture
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#" className="hover:text-black transition-colors">
-                    Sustainability
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#" className="hover:text-black transition-colors">
-                    Contact_Control
-                  </Link>
-                </li>
-              </ul>
-            </div>
-
-            <div className="lg:col-span-2">
-              <h4 className="text-[10px] font-bold uppercase tracking-widest text-black mb-10">
-                Network
-              </h4>
-              <ul className="space-y-4 text-[10px] font-bold uppercase tracking-widest text-stone-300">
-                <li>
-                  <Link
-                    href="#"
-                    className="hover:text-black transition-colors flex items-center gap-3"
-                  >
-                    <Globe className="w-3 h-3" /> Globe
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="#"
-                    className="hover:text-black transition-colors flex items-center gap-3"
-                  >
-                    <Globe className="w-3 h-3" /> X_Mission
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="#"
-                    className="hover:text-black transition-colors flex items-center gap-3"
-                  >
-                    <Mail className="w-3 h-3" /> Headquarters
-                  </Link>
-                </li>
-              </ul>
-            </div>
-          </div>
-
-          <div className="flex flex-col md:flex-row justify-between items-center gap-8 pt-10 border-t border-black/5 text-[9px] font-bold uppercase tracking-widest text-stone-200">
-            <div className="flex items-center gap-10">
-              <span>
-                &copy; {new Date().getFullYear()} VOGUE NOIRE Media Group.
-              </span>
-              <Link href="#" className="hover:text-black transition-colors">
-                Regulatory_Terms
-              </Link>
-              <Link href="#" className="hover:text-black transition-colors">
-                Privacy_Buffer
-              </Link>
-            </div>
-            <div className="flex gap-10">
-              <span>Paris // Milan // Tokyo</span>
-              <span>In Form We Trust</span>
-            </div>
-          </div>
-        </div>
       </footer>
-
-      {/* EDITORIAL MODAL */}
-      <AnimatePresence>
-        {activeEditorial !== null && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[200] bg-white/98 backdrop-blur-3xl flex items-center justify-center p-6"
-            onClick={() => setActiveEditorial(null)}
-          >
-            <motion.div
-              initial={{ scale: 0.9, y: 30 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.9, y: 30 }}
-              className="bg-white border border-black/5 max-w-6xl w-full grid grid-cols-1 lg:grid-cols-12 overflow-hidden rounded-none shadow-2xl relative"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <button
-                onClick={() => setActiveEditorial(null)}
-                className="absolute top-8 right-8 text-stone-300 hover:text-black transition-colors z-10"
-              >
-                <X className="w-6 h-6" />
-              </button>
-
-              {/* IMAGE AREA */}
-              <div className="lg:col-span-8 relative aspect-video lg:aspect-auto bg-stone-50">
-                <Image
-                  src={EDITORIALS[activeEditorial].img}
-                  alt="Editorial"
-                  fill
-                  className="object-cover grayscale-[0.2]"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-white/20 via-transparent to-transparent" />
-                <div className="absolute bottom-8 left-8">
-                  <h3 className="text-4xl font-black text-black italic">
-                    {EDITORIALS[activeEditorial].title}
-                  </h3>
-                </div>
-              </div>
-
-              {/* SIDEBAR AREA */}
-              <div className="lg:col-span-4 p-8 flex flex-col justify-between bg-white border-l border-black/5">
-                <div>
-                  <div className="text-[10px] font-black uppercase tracking-widest text-stone-300 mb-6 flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-stone-300" />
-                    Editorial Specification Report
-                  </div>
-                  <div className="space-y-6 mb-12">
-                    {[
-                      {
-                        label: "Category",
-                        val: EDITORIALS[activeEditorial].category,
-                      },
-                      { label: "Photographer", val: "Aevia Lens" },
-                      { label: "Stylist", val: "Julian Vane" },
-                      { label: "Status", val: "ARCHIVED_V1" },
-                    ].map((spec, i) => (
-                      <div
-                        key={i}
-                        className="flex justify-between items-center border-b border-black/5 pb-4"
-                      >
-                        <span className="text-[9px] font-bold text-stone-300 uppercase tracking-widest">
-                          {spec.label}
-                        </span>
-                        <span className="text-[10px] font-black text-black uppercase italic">
-                          {spec.val}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                  <p className="text-xs text-stone-400 leading-relaxed font-bold uppercase tracking-tight italic mb-10">
-                    An exploration of the modern silhouette, captured under
-                    high-contrast studio conditions.
-                  </p>
-                </div>
-
-                <button className="w-full py-5 bg-black text-white text-[10px] font-bold uppercase tracking-widest hover:bg-stone-800 transition-all cursor-pointer shadow-xl">
-                  REQUEST_FULL_ASSETS
-                </button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      <style>{`
-        ::-webkit-scrollbar{width:4px;background:#fcfcfc}
-        ::-webkit-scrollbar-thumb{background:#000}
-      `}</style>
     </div>
   );
 }

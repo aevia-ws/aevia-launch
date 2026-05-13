@@ -1,1061 +1,1135 @@
 "use client";
 
-import {
-  motion,
-  useScroll,
-  useTransform,
-  useInView,
-  AnimatePresence,
-  useMotionValue,
-  useSpring,
-} from "framer-motion";
-import { useState, useRef, useEffect, useCallback } from "react";
-import Image from "next/image";
+import { useRef, useState, useEffect } from "react";
+import { motion, useScroll, useTransform, useInView, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
-import { Progress } from "@/components/ui/progress";
-import { Separator } from "@/components/ui/separator";
-import { ArrowRight, ArrowUpRight, Star, Check, Menu, X, Globe, Clock, Quote, Search, ShoppingBag, Heart, Scissors, Ruler, Palette, Layers, Camera, MapPin, Phone, Mail, ChevronDown, Plus, Minus } from "lucide-react";
+  Shield,
+  Terminal,
+  AlertTriangle,
+  Lock,
+  Server,
+  Eye,
+  Cpu,
+  Globe,
+  ArrowRight,
+  Check,
+  ChevronDown,
+  Phone,
+  Mail,
+  MapPin,
+  Activity,
+  Database,
+  Zap,
+  Code2,
+  GitBranch,
+  MessageSquare,
+  Link2,
+} from "lucide-react";
 
-import "../premium.css";
+const C = {
+  bg: "#030b05",
+  bgAlt: "#060f08",
+  bgCard: "#091209",
+  text: "#e8f5e9",
+  textMuted: "#6b8f6e",
+  green: "#00e676",
+  greenDim: "rgba(0,230,118,0.65)",
+  greenGlow: "rgba(0,230,118,0.12)",
+  greenBorder: "rgba(0,230,118,0.18)",
+  greenBorderHover: "rgba(0,230,118,0.45)",
+  red: "#ef5350",
+  orange: "#ffb74d",
+  blue: "#40c4ff",
+  border: "rgba(0,230,118,0.12)",
+  white: "#ffffff",
+};
 
-/* ==========================================================================
-   DATA STRUCTURES
-   ========================================================================= */
+const mono = '"JetBrains Mono", "Fira Code", "Courier New", monospace';
+const sans = "system-ui, -apple-system, sans-serif";
 
-const COLLECTIONS = [
+// ─── LIVE THREAT FEED ────────────────────────────────────────────────────────
+const THREAT_POOL = [
+  { severity: "CRIT", msg: "Brute-force SSH bloquée — 185.234.219.4 → srv-db-02", color: "#ef5350" },
+  { severity: "HIGH", msg: "SQL injection tentée — endpoint /api/auth — IP 91.108.4.18", color: "#ffb74d" },
+  { severity: "CRIT", msg: "Scan de ports détecté — 0.0.0.0/0 — 4 096 ports en 2.3s", color: "#ef5350" },
+  { severity: "BLOCK", msg: "DDoS SYN flood mitigé — 2.4Gbps absorbés — origin AS16509", color: "#00e676" },
+  { severity: "WARN", msg: "Certificat TLS expiré — cdn-static.prod.internal", color: "#ffb74d" },
+  { severity: "HIGH", msg: "Exfiltration DNS suspectée — domaine: exfil-c2-87.ru", color: "#ffb74d" },
+  { severity: "CRIT", msg: "Privilege escalation — user 'deploy' → root — srv-api-01", color: "#ef5350" },
+  { severity: "BLOCK", msg: "XSS persistant neutralisé — payload injecté via cookie", color: "#00e676" },
+  { severity: "INFO", msg: "Patch CVE-2025-1337 appliqué — 14 hosts mis à jour", color: "rgba(0,230,118,0.65)" },
+  { severity: "HIGH", msg: "RDP exposé — 3389/tcp public — violation policy ISO 27001", color: "#ffb74d" },
+  { severity: "CRIT", msg: "Ransomware signature détectée — LockBit 3.0 — quarantaine", color: "#ef5350" },
+  { severity: "BLOCK", msg: "C2 callback bloqué — beacon Cobalt Strike — IP 104.21.98.7", color: "#00e676" },
+];
+
+const SERVICES = [
   {
-    id: 1,
-    name: "Éclat de Sable",
-    season: "SS 2026",
-    type: "Ready-to-Wear",
-    price: "€ 1,240",
-    img: "https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=1200&q=80",
-    tag: "New Arrival",
-    desc: "A structural linen coat inspired by the moving light of the Normandy coast.",
+    icon: Shield,
+    title: "SOC 24/7",
+    subtitle: "Centre opérationnel permanent",
+    desc: "Surveillance active de votre infrastructure en continu. Nos analystes Level 1 à Level 3 traitent chaque alerte en moins de 8 minutes, 365 jours par an.",
+    metrics: ["MTTR < 8 min", "99.98% uptime", "24/7/365"],
+    price: "À partir de 2 400 €/mois",
   },
   {
-    id: 2,
-    name: "Brume de Lin",
-    season: "SS 2026",
-    type: "Tailoring",
-    price: "€ 2,180",
-    img: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=1200&q=80",
-    tag: "Bestseller",
-    desc: "Precision tailoring in Italian virgin wool with hand-stitched silk lapels.",
+    icon: Eye,
+    title: "Red Team",
+    subtitle: "Pentest offensif avancé",
+    desc: "Simulation d'attaquants réels : APT, social engineering, physical breach. Rapport complet avec CVSS scoring et roadmap de remédiation priorisée.",
+    metrics: ["PTES methodology", "CVSSv3 scoring", "Rapport ISO 27001"],
+    price: "À partir de 8 500 €/mission",
   },
   {
-    id: 3,
-    name: "Voile d'Ivoire",
-    season: "SS 2026",
-    type: "Eveningwear",
-    price: "€ 3,950",
-    img: "https://images.unsplash.com/photo-1485968579580-b6d095142e6e?w=1200&q=80",
-    tag: "Limited Edition",
-    desc: "A floor-length gown in recycled silk crepe, limited to 50 numbered pieces.",
+    icon: Database,
+    title: "SIEM & EDR",
+    subtitle: "Détection & réponse aux incidents",
+    desc: "Déploiement et gestion de votre SIEM (Splunk / Elastic) et EDR (CrowdStrike / SentinelOne). Corrélation de 50 000+ événements/seconde.",
+    metrics: ["50K events/sec", "MITRE ATT&CK", "SOAR intégré"],
+    price: "À partir de 1 800 €/mois",
   },
   {
-    id: 4,
-    name: "Grain de Sel",
-    season: "SS 2026",
-    type: "Accessories",
-    price: "€ 680",
-    img: "https://images.unsplash.com/photo-1529139574466-a303027c1d8b?w=1200&q=80",
-    tag: "Exclusive",
-    desc: "Hand-crafted leather tote featuring our signature raw-edge finishing.",
+    icon: Lock,
+    title: "Conformité",
+    subtitle: "ISO 27001 · NIS2 · RGPD",
+    desc: "Audit de conformité, gap analysis et accompagnement à la certification. Nos consultants ont accompagné 140+ entreprises vers la certification ISO 27001.",
+    metrics: ["140+ certifications", "Gap analysis", "Plan de traitement"],
+    price: "À partir de 6 000 €/audit",
+  },
+  {
+    icon: Globe,
+    title: "Threat Intel",
+    subtitle: "Renseignement sur les menaces",
+    desc: "Flux de threat intelligence propriétaires + MISP. Surveillance du dark web, analyse d'IoCs, profiling d'acteurs malveillants spécifiques à votre secteur.",
+    metrics: ["Dark web monitoring", "IoC correlation", "MISP intégré"],
+    price: "À partir de 900 €/mois",
+  },
+  {
+    icon: Cpu,
+    title: "Hardening",
+    subtitle: "Durcissement systèmes & réseaux",
+    desc: "CIS Benchmarks, segmentation réseau Zero Trust, hardening Cloud (AWS/Azure/GCP). Score de conformité garanti ≥ 85% CIS Level 2.",
+    metrics: ["CIS Benchmarks", "Zero Trust", "≥85% CIS L2"],
+    price: "À partir de 4 500 €/périmètre",
   },
 ];
 
-const FABRICS = [
+const STATS = [
+  { value: 3800, suffix: "+", label: "Incidents traités en 2025" },
+  { value: 99.98, suffix: "%", label: "SLA uptime garanti", decimals: 2 },
+  { value: 8, suffix: "min", label: "Temps de réponse moyen" },
+  { value: 140, suffix: "+", label: "Certifications ISO 27001" },
+];
+
+const TESTIMONIALS = [
   {
-    name: "Recycled Crepe de Chine",
-    origin: "Lake Como, Italy",
-    property: "Zero-water dyeing process",
-    cert: "GRS Certified",
+    name: "Alexandre Morin",
+    role: "RSSI — Groupe Crédit Mutuel Arkéa",
+    text: "NeuronSec a détecté en 6 heures ce que notre équipe interne n'avait pas vu en 3 semaines. L'incident a été contenu avant toute exfiltration. Leur SOC est d'un autre niveau.",
+    stars: 5,
   },
   {
-    name: "Organic Normandy Linen",
-    origin: "Caen, France",
-    property: "Carbon-neutral cultivation",
-    cert: "Masters of Linen",
+    name: "Isabelle Fontaine",
+    role: "DSI — CHU de Nantes",
+    text: "Après le ransomware de 2024, nous avions besoin d'un partenaire capable de tout reconstruire proprement. NeuronSec a livré un périmètre ISO 27001 en 4 mois. Incroyable.",
+    stars: 5,
   },
   {
-    name: "Virgin Merino Wool",
-    origin: "Biella, Italy",
-    property: "Mulesing-free ethical sourcing",
-    cert: "RWS Standard",
+    name: "Renaud Castets",
+    role: "CTO — Ledger SAS",
+    text: "Le Red Team NeuronSec a trouvé une chaîne d'exploitation critique que 2 audits précédents avaient ratée. Rapport précis, remédiation claire, équipe de haut vol.",
+    stars: 5,
+  },
+  {
+    name: "Sophie Dalmau",
+    role: "Directrice Conformité — BPCE",
+    text: "Accompagnement NIS2 exemplaire. NeuronSec connaît les textes européens par cœur et sait les traduire en actions concrètes. Certification obtenue du premier coup.",
+    stars: 5,
+  },
+  {
+    name: "Marc-Antoine Lheureux",
+    role: "CISO — Dalkia (EDF Group)",
+    text: "Nos infrastructures OT/IT étaient un angle mort total. NeuronSec a cartographié l'ensemble et déployé une segmentation Zero Trust en 3 mois. Niveau de risque divisé par 8.",
+    stars: 5,
   },
 ];
 
-const FLAGSHIPS = [
+const PRICING = [
   {
-    city: "Paris",
-    street: "8 Rue de l'Amiral",
-    contact: "+33 1 47 20 00 00",
-    hours: "Mon–Sat: 10h–19h",
+    name: "Sentinel",
+    price: "900",
+    period: "/mois",
+    highlight: false,
+    tag: null,
+    desc: "Threat intelligence et monitoring passif pour PME",
+    features: [
+      "Flux threat intel quotidien",
+      "Dark web monitoring",
+      "Alertes email/Slack",
+      "Dashboard conformité RGPD",
+      "Support ticket 9h-18h",
+      "Rapport mensuel PDF",
+    ],
   },
   {
-    city: "London",
-    street: "22 Savile Row",
-    contact: "+44 20 7434 2000",
-    hours: "Mon–Sat: 10h–18h",
+    name: "Guardian",
+    price: "2 400",
+    period: "/mois",
+    highlight: true,
+    tag: "RECOMMANDÉ",
+    desc: "SOC 24/7 + SIEM géré pour ETI et scale-ups",
+    features: [
+      "SOC 24/7/365 — Level 1 à 3",
+      "SIEM Elastic déployé et géré",
+      "EDR SentinelOne inclus",
+      "MTTR garanti < 8 minutes",
+      "Astreinte téléphonique 24h",
+      "Rapport hebdomadaire executive",
+      "1 pentest web/an inclus",
+    ],
   },
   {
-    city: "Tokyo",
-    street: "Minami-Aoyama 5-11",
-    contact: "+81 3 5468 0000",
-    hours: "Daily: 11h–20h",
+    name: "Fortress",
+    price: "Sur devis",
+    period: "",
+    highlight: false,
+    tag: "ENTERPRISE",
+    desc: "Programme complet pour grands comptes et OIV",
+    features: [
+      "Tout Guardian +",
+      "Red Team trimestriel",
+      "ISO 27001 / NIS2 accompagnement",
+      "Threat hunting proactif",
+      "CSIRT dédié on-call",
+      "SLA contractuel personnalisé",
+      "vCISO à temps partiel",
+    ],
   },
 ];
 
-/* ==========================================================================
-   UTILITY COMPONENTS
-   ========================================================================= */
+const TEAM = [
+  {
+    name: "Théo Marchetti",
+    role: "CEO & Co-fondateur",
+    bio: "Ex-ANSSI 8 ans. Expert APT et cyberguerre étatique. Certifié CISSP, OSCP. Conférencier au FIC et RSA Conference.",
+    certs: ["CISSP", "OSCP", "CEH"],
+  },
+  {
+    name: "Camille Dufresne",
+    role: "Head of Red Team",
+    bio: "Ancienne offensive security analyst chez Orange Cyberdefense. 12 ans de pentest. CVE discoverer. Bug bounty top 0.1% HackerOne.",
+    certs: ["OSEP", "CRTO", "GXPN"],
+  },
+  {
+    name: "Ibrahim Al-Rashid",
+    role: "SIEM & Threat Intel Lead",
+    bio: "Spécialiste Splunk Enterprise Security et MITRE ATT&CK. Ex-Thales Cybersecurity. Construit le SOC de 3 banques systémiques.",
+    certs: ["Splunk SIEM", "GCIH", "GREM"],
+  },
+  {
+    name: "Nora Blanchard",
+    role: "GRC & Conformité",
+    bio: "Auditrice principale ISO 27001:2022 et NIS2. 140 accompagnements réussis. Formatrice certifiée BSI. Docteure en droit numérique.",
+    certs: ["ISO 27001 LA", "CISM", "CRISC"],
+  },
+];
 
-function Reveal({
-  children,
-  delay = 0,
-  y = 30,
-}: {
-  children: React.ReactNode;
-  delay?: number;
-  y?: number;
-}) {
-  const ref = useRef(null);
-  const inView = useInView(ref, { once: true, margin: "-50px" });
-  return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, y }}
-      animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 1, delay, ease: [0.25, 0.1, 0.25, 1] }}
-    >
-      {children}
-    </motion.div>
-  );
-}
+const FAQ = [
+  {
+    q: "Combien de temps pour déployer un SOC 24/7 ?",
+    a: "Entre 5 et 15 jours ouvrés selon la complexité de votre SI. Nous commençons par un audit d'inventaire, puis déployons les agents SIEM/EDR, configurons les règles de détection et formons votre équipe. Aucune interruption de service.",
+  },
+  {
+    q: "Que couvre exactement la certification ISO 27001 ?",
+    a: "L'ISO 27001:2022 certifie votre Système de Management de la Sécurité de l'Information (SMSI). Elle couvre 93 mesures de sécurité réparties en 4 domaines. Nous vous accompagnons de l'analyse d'écart jusqu'à l'audit de certification par un organisme accrédité COFRAC.",
+  },
+  {
+    q: "Vos équipes accèdent-elles à nos données ?",
+    a: "Nos analystes SOC voient uniquement les logs et métadonnées réseau nécessaires à la détection. Aucun accès aux données métier. Tout est contractualisé via DPA RGPD, accord de confidentialité NDA, et les données restent hébergées en France (datacenters Tier IV à Lyon et Paris).",
+  },
+  {
+    q: "Comment fonctionne le Red Team / pentest ?",
+    a: "Nous simulons un attaquant réel avec autorisation contractuelle. Trois phases : reconnaissance (OSINT), exploitation (applicatif, réseau, social engineering), post-exploitation (élévation de privilèges, persistance). Rapport CVSS v3.1 avec preuves vidéo et POC de correction.",
+  },
+  {
+    q: "Êtes-vous qualifiés ANSSI ?",
+    a: "NeuronSec est prestataire qualifié PRIS (Prestataire de Réponse aux Incidents de Sécurité) niveau Expert par l'ANSSI. Nos analystes sont habilités pour intervenir sur les OIV (Opérateurs d'Importance Vitale) et les OES (Opérateurs de Services Essentiels).",
+  },
+];
 
-function Counter({
-  to,
-  prefix = "",
-  suffix = "",
-}: {
-  to: number;
-  prefix?: string;
-  suffix?: string;
-}) {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true });
+// ─── COUNTER HOOK ──────────────────────────────────────────────────────────
+function useCounter(target: number, active: boolean, decimals = 0, duration = 2000) {
   const [count, setCount] = useState(0);
   useEffect(() => {
-    if (!isInView) return;
-    let cur = 0;
-    const step = to / 70;
-    const t = setInterval(() => {
-      cur += step;
-      if (cur >= to) {
-        setCount(to);
-        clearInterval(t);
-      } else {
-        setCount(Math.floor(cur));
-      }
+    if (!active) return;
+    let start = 0;
+    const steps = duration / 16;
+    const step = target / steps;
+    const timer = setInterval(() => {
+      start += step;
+      if (start >= target) { setCount(target); clearInterval(timer); }
+      else setCount(start);
     }, 16);
-    return () => clearInterval(t);
-  }, [isInView, to]);
-  return (
-    <span ref={ref}>
-      {prefix}
-      {count.toLocaleString()}
-      {suffix}
-    </span>
-  );
+    return () => clearInterval(timer);
+  }, [active, target, duration]);
+  return decimals > 0 ? count.toFixed(decimals) : Math.floor(count);
 }
 
-function MagneticBtn({
-  children,
-  className = "",
-  onClick,
-}: {
-  children: React.ReactNode;
-  className?: string;
-  onClick?: () => void;
-}) {
-  const ref = useRef<HTMLButtonElement>(null);
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-  const sx = useSpring(x, { stiffness: 200, damping: 20 });
-  const sy = useSpring(y, { stiffness: 200, damping: 20 });
-
-  const handleMouse = useCallback(
-    (e: React.MouseEvent) => {
-      const rect = ref.current?.getBoundingClientRect();
-      if (!rect) return;
-      x.set((e.clientX - rect.left - rect.width / 2) * 0.35);
-      y.set((e.clientY - rect.top - rect.height / 2) * 0.35);
-    },
-    [x, y],
-  );
-
-  const reset = useCallback(() => {
-    x.set(0);
-    y.set(0);
-  }, [x, y]);
-
-  return (
-    <motion.button
-      ref={ref}
-      style={{ x: sx, y: sy }}
-      onMouseMove={handleMouse}
-      onMouseLeave={reset}
-      onClick={onClick}
-      className={className}
-    >
-      {children}
-    </motion.button>
-  );
-}
-
-/* ==========================================================================
-   MAIN PAGE COMPONENT
-   ========================================================================= */
-
-export default function AtelierMarePage() {
-  const [scrolled, setScrolled] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [activeProduct, setActiveProduct] = useState<number | null>(null);
-
-  const heroRef = useRef(null);
-  const { scrollYProgress } = useScroll({
-    target: heroRef,
-    offset: ["start start", "end start"],
-  });
-  const heroY = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
+// ─── LIVE TERMINAL ────────────────────────────────────────────────────────
+function LiveTerminal() {
+  const [lines, setLines] = useState<{ severity: string; msg: string; color: string; ts: string }[]>([]);
+  const [key, setKey] = useState(0);
 
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 50);
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+    setLines([]);
+    let idx = 0;
+    const getTs = () => {
+      const now = new Date();
+      return `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}:${String(now.getSeconds()).padStart(2, "0")}`;
+    };
+    const add = () => {
+      if (idx >= THREAT_POOL.length) {
+        setTimeout(() => { setKey(k => k + 1); }, 800);
+        return;
+      }
+      const item = THREAT_POOL[idx++];
+      setLines(prev => [...prev.slice(-11), { ...item, ts: getTs() }]);
+      setTimeout(add, 600 + Math.random() * 900);
+    };
+    const timer = setTimeout(add, 400);
+    return () => clearTimeout(timer);
+  }, [key]);
 
   return (
-    <div
-      className="premium-theme min-h-screen bg-[#f7f4ef] text-[#1a1814] font-sans selection:bg-[#1a1814] selection:text-[#f7f4ef] overflow-x-hidden"
-      style={{ scrollBehavior: "smooth" }}
-    >
-      {/* ==========================================
-          NAVIGATION
-          ========================================== */}
-      <nav
-        className={`fixed top-0 left-0 w-full z-50 transition-all duration-1000 ${scrolled ? "bg-[#f7f4ef]/95 backdrop-blur-md py-4 border-b border-[#1a1814]/5 shadow-sm" : "bg-transparent py-10"}`}
-      >
-        <div className="max-w-[1400px] mx-auto px-6 md:px-12 flex items-center justify-between">
-          <Link href="/" className="flex flex-col items-center">
-            <span className="text-[10px] md:text-[12px] font-light uppercase tracking-[0.6em] text-[#1a1814]/40 mb-1">
-              Atelier
-            </span>
-            <span className="text-xl md:text-3xl font-light tracking-[0.4em] uppercase">
-              MARÉ
-            </span>
-          </Link>
-
-          <div className="hidden lg:flex items-center gap-12 text-[10px] font-bold uppercase tracking-[0.3em] text-[#1a1814]/30">
-            <Link
-              href="#collections"
-              className="hover:text-[#1a1814] transition-colors"
+    <div style={{
+      background: C.bgCard,
+      border: `1px solid ${C.greenBorder}`,
+      borderRadius: "8px",
+      overflow: "hidden",
+      fontFamily: mono,
+      boxShadow: `0 0 60px rgba(0,230,118,0.06), 0 24px 80px rgba(0,0,0,0.6)`,
+    }}>
+      <div style={{
+        background: "#060f08",
+        borderBottom: `1px solid ${C.greenBorder}`,
+        padding: "0.65rem 1rem",
+        display: "flex",
+        alignItems: "center",
+        gap: "0.5rem",
+      }}>
+        <div style={{ width: "10px", height: "10px", borderRadius: "50%", background: "#ef5350" }} />
+        <div style={{ width: "10px", height: "10px", borderRadius: "50%", background: "#ffb74d" }} />
+        <div style={{ width: "10px", height: "10px", borderRadius: "50%", background: "#00e676" }} />
+        <span style={{ marginLeft: "0.75rem", fontSize: "0.7rem", color: C.textMuted }}>
+          neuronsec-soc — threat-feed v3.1.0 — LIVE
+        </span>
+        <span style={{ marginLeft: "auto", fontSize: "0.65rem", color: C.green, display: "flex", alignItems: "center", gap: "0.3rem" }}>
+          <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: C.green, display: "inline-block", boxShadow: `0 0 6px ${C.green}` }} />
+          ACTIF
+        </span>
+      </div>
+      <div style={{ padding: "1rem 1.25rem", minHeight: "320px", maxHeight: "320px", overflowY: "hidden" }}>
+        <AnimatePresence mode="popLayout">
+          {lines.map((l, i) => (
+            <motion.div
+              key={`${key}-${i}`}
+              initial={{ opacity: 0, x: -12 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.2 }}
+              style={{ fontSize: "0.71rem", lineHeight: 1.9, display: "flex", gap: "0.75rem", alignItems: "flex-start" }}
             >
-              Collections
-            </Link>
-            <Link
-              href="#atelier"
-              className="hover:text-[#1a1814] transition-colors"
-            >
-              The_Atelier
-            </Link>
-            <Link
-              href="#world"
-              className="hover:text-[#1a1814] transition-colors"
-            >
-              World_Of_Mare
-            </Link>
-            <Link
-              href="#contact"
-              className="hover:text-[#1a1814] transition-colors"
-            >
-              Stockists
-            </Link>
-          </div>
-
-          <div className="flex items-center gap-8">
-            <div className="hidden md:flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-[#1a1814]/20">
-              <Globe className="w-3.5 h-3.5" />
-              <span>EN / EU</span>
-            </div>
-            <MagneticBtn className="p-3 border border-[#1a1814]/10 rounded-full hover:bg-[#1a1814] hover:text-white transition-all shadow-xl">
-              <ShoppingBag className="w-4 h-4" />
-            </MagneticBtn>
-            <button onClick={() => setMenuOpen(true)} className="lg:hidden">
-              <Menu className="w-6 h-6" />
-            </button>
-          </div>
-        </div>
-      </nav>
-
-      {/* MOBILE MENU */}
-      <AnimatePresence>
-        {menuOpen && (
-          <motion.div
-            initial={{ opacity: 0, x: "100%" }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: "100%" }}
-            transition={{ type: "tween", duration: 0.5 }}
-            className="fixed inset-0 z-[100] bg-[#f7f4ef] p-8 pt-32 flex flex-col border-l border-black/5"
-          >
-            <button
-              onClick={() => setMenuOpen(false)}
-              className="absolute top-10 right-8"
-            >
-              <X className="w-8 h-8" />
-            </button>
-            <div className="flex flex-col gap-10 text-5xl font-light tracking-tighter uppercase italic">
-              <Link href="#collections" onClick={() => setMenuOpen(false)}>
-                Collections
-              </Link>
-              <Link href="#atelier" onClick={() => setMenuOpen(false)}>
-                Atelier
-              </Link>
-              <Link href="#world" onClick={() => setMenuOpen(false)}>
-                World
-              </Link>
-              <Link href="#contact" onClick={() => setMenuOpen(false)}>
-                Contact
-              </Link>
-            </div>
-          </motion.div>
+              <span style={{ color: C.textMuted, flexShrink: 0 }}>{l.ts}</span>
+              <span style={{ color: l.color, fontWeight: 700, flexShrink: 0, minWidth: "42px" }}>[{l.severity}]</span>
+              <span style={{ color: C.text, opacity: 0.85 }}>{l.msg}</span>
+            </motion.div>
+          ))}
+        </AnimatePresence>
+        {lines.length < THREAT_POOL.length && (
+          <span style={{ color: C.green, fontSize: "0.8rem" }}>█</span>
         )}
-      </AnimatePresence>
+      </div>
+      <div style={{
+        background: "#060f08",
+        borderTop: `1px solid ${C.greenBorder}`,
+        padding: "0.55rem 1.25rem",
+        display: "flex",
+        justifyContent: "space-between",
+        fontSize: "0.68rem",
+        color: C.textMuted,
+      }}>
+        <span style={{ color: C.green }}>● SOC ACTIF — PARIS</span>
+        <span>Events/sec: 48 293</span>
+        <span>TLS 1.3 · ISO 27001</span>
+        <span>PRIS ANSSI ✓</span>
+      </div>
+    </div>
+  );
+}
 
-      {/* ==========================================
-          1. HERO (Editorial Fashion)
-          ========================================== */}
-      <section
-        ref={heroRef}
-        className="relative w-full h-[100svh] flex flex-col justify-end overflow-hidden pb-32"
-      >
-        <motion.div
-          style={{ y: heroY, opacity: heroOpacity }}
-          className="absolute inset-0 z-0"
-        >
-          <Image
-            src="https://images.unsplash.com/photo-1629236?w=1600&q=80"
-            alt="Fashion Hero"
-            fill
-            className="object-cover object-top brightness-90 grayscale-[20%]"
-            priority
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#f7f4ef] via-[#f7f4ef]/30 to-transparent" />
-        </motion.div>
+// ─── NAVBAR ───────────────────────────────────────────────────────────────
+function Navbar() {
+  const [scrolled, setScrolled] = useState(false);
 
-        <div className="relative z-10 max-w-[1400px] mx-auto px-6 md:px-12 w-full">
-          <Reveal>
-            <h1 className="text-7xl md:text-9xl lg:text-[11rem] font-light leading-[0.8] tracking-tighter mb-12">
-              Éclat <br />{" "}
-              <span className="italic font-normal text-[#1a1814]/40">
-                de Lumière.
-              </span>
-            </h1>
-            <p className="max-w-xl text-lg md:text-xl text-[#1a1814]/40 leading-relaxed font-light mb-12 italic">
-              Spring-Summer 2026. A structural dialogue between organic linen
-              and the morning light of the Normandy coast.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-6">
-              <MagneticBtn className="px-12 py-5 bg-[#1a1814] text-white text-[10px] font-bold uppercase tracking-[0.4em] rounded hover:bg-[#2d2820] transition-all cursor-pointer shadow-2xl">
-                Shop SS26
-              </MagneticBtn>
-              <button className="px-12 py-5 border border-[#1a1814]/10 text-[#1a1814] text-[10px] font-bold uppercase tracking-[0.4em] rounded hover:bg-white transition-all cursor-pointer">
-                The Editorial
-              </button>
-            </div>
-          </Reveal>
+  useEffect(() => {
+    const fn = () => setScrolled(window.scrollY > 40);
+    window.addEventListener("scroll", fn);
+    return () => window.removeEventListener("scroll", fn);
+  }, []);
+
+  const links = ["Solutions", "SOC 24/7", "Conformité", "Red Team", "Tarifs"];
+
+  return (
+    <motion.nav
+      initial={{ y: -80, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.6 }}
+      style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 100 }}
+    >
+      <motion.div
+        initial={{ scaleX: 0 }}
+        animate={{ scaleX: 1 }}
+        transition={{ delay: 0.5, duration: 0.9 }}
+        style={{ height: "2px", background: `linear-gradient(90deg, transparent, ${C.green}, transparent)`, transformOrigin: "left" }}
+      />
+      <div style={{
+        background: scrolled ? "rgba(3,11,5,0.97)" : "transparent",
+        backdropFilter: scrolled ? "blur(16px)" : "none",
+        borderBottom: scrolled ? `1px solid ${C.greenBorder}` : "none",
+        padding: "0 2.5rem",
+        height: "68px",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        transition: "all 0.3s",
+      }}>
+        <span style={{ fontFamily: mono, fontSize: "0.9rem", fontWeight: 700, color: C.green, letterSpacing: "0.05em" }}>
+          NEURON<span style={{ color: C.text }}>SEC</span>
+        </span>
+        <div style={{ display: "flex", gap: "2rem", alignItems: "center" }}>
+          {links.map(l => (
+            <Link key={l} href="#" style={{ fontFamily: mono, fontSize: "0.72rem", color: C.textMuted, textDecoration: "none", letterSpacing: "0.08em", transition: "color 0.2s" }}
+              onMouseEnter={e => (e.currentTarget.style.color = C.green)}
+              onMouseLeave={e => (e.currentTarget.style.color = C.textMuted)}
+            >
+              {l.toUpperCase()}
+            </Link>
+          ))}
+          <Link href="#" style={{
+            fontFamily: mono, fontSize: "0.7rem", fontWeight: 700, letterSpacing: "0.1em",
+            background: C.green, color: C.bg, padding: "0.55rem 1.2rem",
+            borderRadius: "4px", textDecoration: "none", transition: "box-shadow 0.2s",
+          }}
+            onMouseEnter={e => (e.currentTarget.style.boxShadow = `0 0 20px rgba(0,230,118,0.4)`)}
+            onMouseLeave={e => (e.currentTarget.style.boxShadow = "none")}
+          >
+            AUDIT GRATUIT
+          </Link>
         </div>
+      </div>
+    </motion.nav>
+  );
+}
 
-        <motion.div
-          style={{ opacity: heroOpacity }}
-          className="absolute bottom-10 right-12 hidden md:block"
-        >
-          <div className="flex flex-col items-end gap-3">
-            <span className="text-[9px] font-bold text-[#1a1814]/20 uppercase tracking-[0.5em]">
-              Lyon // Paris // Milan
-            </span>
-            <div className="w-24 h-[1px] bg-[#1a1814]/10" />
+// ─── MAIN PAGE ─────────────────────────────────────────────────────────────
+export default function Impact64Page() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({ target: containerRef });
+  const heroY = useTransform(scrollYProgress, [0, 0.3], [0, -80]);
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.25], [1, 0]);
+
+  const statsRef = useRef(null);
+  const statsInView = useInView(statsRef, { once: true, margin: "-100px" });
+
+  const servicesRef = useRef(null);
+  const servicesInView = useInView(servicesRef, { once: true, margin: "-80px" });
+
+  const terminalRef = useRef(null);
+  const terminalInView = useInView(terminalRef, { once: true, margin: "-80px" });
+
+  const pricingRef = useRef(null);
+  const pricingInView = useInView(pricingRef, { once: true, margin: "-80px" });
+
+  const [faqOpen, setFaqOpen] = useState<number | null>(null);
+  const [hoveredService, setHoveredService] = useState<number | null>(null);
+  const [hoveredPlan, setHoveredPlan] = useState<number | null>(null);
+
+  const stat0 = useCounter(STATS[0].value, statsInView, 0);
+  const stat1 = useCounter(STATS[1].value, statsInView, 2);
+  const stat2 = useCounter(STATS[2].value, statsInView, 0);
+  const stat3 = useCounter(STATS[3].value, statsInView, 0);
+  const statValues = [stat0, stat1, stat2, stat3];
+
+  return (
+    <div ref={containerRef} style={{ background: C.bg, color: C.text, minHeight: "100vh", overflowX: "hidden" }}>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&display=swap');
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+        ::selection { background: rgba(0,230,118,0.25); color: #e8f5e9; }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: #030b05; }
+        ::-webkit-scrollbar-thumb { background: rgba(0,230,118,0.3); border-radius: 2px; }
+      `}</style>
+
+      <Navbar />
+
+      {/* ── HERO ─────────────────────────────────────────────────────── */}
+      <section style={{ minHeight: "100vh", display: "flex", alignItems: "center", padding: "8rem 2.5rem 4rem", position: "relative", overflow: "hidden" }}>
+        <div style={{
+          position: "absolute", inset: 0,
+          backgroundImage: `linear-gradient(rgba(0,230,118,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0,230,118,0.04) 1px, transparent 1px)`,
+          backgroundSize: "60px 60px",
+        }} />
+        <div style={{
+          position: "absolute", top: "20%", left: "50%", transform: "translateX(-50%)",
+          width: "600px", height: "400px",
+          background: "radial-gradient(ellipse, rgba(0,230,118,0.06) 0%, transparent 70%)",
+          pointerEvents: "none",
+        }} />
+
+        <motion.div style={{ y: heroY, opacity: heroOpacity, maxWidth: "1400px", margin: "0 auto", width: "100%", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4rem", alignItems: "center" }}>
+          <div>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2, duration: 0.6 }}
+              style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem", background: "rgba(0,230,118,0.08)", border: `1px solid ${C.greenBorder}`, borderRadius: "4px", padding: "0.4rem 0.9rem", marginBottom: "2rem" }}
+            >
+              <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: C.green, boxShadow: `0 0 8px ${C.green}`, display: "inline-block" }} />
+              <span style={{ fontFamily: mono, fontSize: "0.68rem", color: C.green, letterSpacing: "0.12em" }}>PRIS ANSSI · NIS2 COMPLIANT · SOC ACTIF 24/7</span>
+            </motion.div>
+
+            <motion.h1
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.35, duration: 0.7 }}
+              style={{ fontFamily: mono, fontSize: "clamp(42px, 6vw, 88px)", fontWeight: 700, lineHeight: 1.05, letterSpacing: "-0.02em", marginBottom: "1.75rem" }}
+            >
+              <span style={{ color: C.text }}>Votre infrastructure.</span>
+              <br />
+              <span style={{ color: C.green }}>Nos sentinelles.</span>
+              <br />
+              <span style={{ color: C.textMuted, fontSize: "0.55em", fontWeight: 400 }}>SOC · Red Team · ISO 27001</span>
+            </motion.h1>
+
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5, duration: 0.6 }}
+              style={{ fontFamily: sans, fontSize: "1.1rem", color: C.textMuted, lineHeight: 1.75, maxWidth: "500px", marginBottom: "2.5rem" }}
+            >
+              NeuronSec est le centre opérationnel de cybersécurité des entreprises qui ne peuvent pas se permettre d'être hackées. SOC 24/7, Red Team offensif, conformité NIS2 et ISO 27001.
+            </motion.p>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.65, duration: 0.5 }}
+              style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}
+            >
+              <Link href="#" style={{
+                fontFamily: mono, fontSize: "0.78rem", fontWeight: 700, letterSpacing: "0.1em",
+                background: C.green, color: C.bg, padding: "0.9rem 2rem",
+                borderRadius: "4px", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: "0.5rem",
+                transition: "box-shadow 0.2s, transform 0.15s",
+              }}
+                onMouseEnter={e => { e.currentTarget.style.boxShadow = `0 0 30px rgba(0,230,118,0.5)`; e.currentTarget.style.transform = "translateY(-1px)"; }}
+                onMouseLeave={e => { e.currentTarget.style.boxShadow = "none"; e.currentTarget.style.transform = "translateY(0)"; }}
+              >
+                AUDIT GRATUIT <ArrowRight size={14} />
+              </Link>
+              <Link href="#" style={{
+                fontFamily: mono, fontSize: "0.78rem", letterSpacing: "0.1em",
+                background: "transparent", color: C.green, padding: "0.9rem 2rem",
+                borderRadius: "4px", textDecoration: "none", border: `1px solid ${C.greenBorder}`,
+                transition: "border-color 0.2s, background 0.2s",
+              }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = C.green; e.currentTarget.style.background = "rgba(0,230,118,0.05)"; }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = C.greenBorder; e.currentTarget.style.background = "transparent"; }}
+              >
+                VOIR LE SOC
+              </Link>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 1, duration: 0.6 }}
+              style={{ marginTop: "3rem", display: "flex", gap: "2rem" }}
+            >
+              {[{ v: "3 800+", l: "incidents traités" }, { v: "99.98%", l: "SLA garanti" }, { v: "<8 min", l: "MTTR moyen" }].map(s => (
+                <div key={s.l}>
+                  <div style={{ fontFamily: mono, fontSize: "1.3rem", fontWeight: 700, color: C.green }}>{s.v}</div>
+                  <div style={{ fontFamily: mono, fontSize: "0.65rem", color: C.textMuted, letterSpacing: "0.08em" }}>{s.l}</div>
+                </div>
+              ))}
+            </motion.div>
           </div>
+
+          <motion.div
+            initial={{ opacity: 0, x: 60 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.5, duration: 0.8 }}
+          >
+            <LiveTerminal />
+          </motion.div>
         </motion.div>
       </section>
 
-      {/* ==========================================
-          2. COLLECTIONS (Minimalist Grid)
-          ========================================== */}
-      <section
-        id="collections"
-        className="py-32 bg-[#f7f4ef] border-y border-[#1a1814]/5"
-      >
-        <div className="max-w-[1400px] mx-auto px-6 md:px-12">
-          <div className="flex flex-col md:flex-row justify-between items-end mb-24 gap-12">
-            <Reveal>
-              <span className="text-[10px] uppercase tracking-[0.5em] font-bold text-[#1a1814]/40 mb-6 block">
-                Selection SS26
+      {/* ── TICKER ──────────────────────────────────────────────────── */}
+      <section style={{ padding: "1.5rem 0", borderTop: `1px solid ${C.greenBorder}`, borderBottom: `1px solid ${C.greenBorder}`, overflow: "hidden", background: C.bgAlt }}>
+        <motion.div
+          animate={{ x: ["0%", "-50%"] }}
+          transition={{ duration: 28, repeat: Infinity, ease: "linear" }}
+          style={{ display: "flex", gap: "4rem", whiteSpace: "nowrap" }}
+        >
+          {[...Array(2)].map((_, rep) => (
+            ["3 847 incidents bloqués cette année", "● SOC ACTIF 24H/24", "ISO 27001:2022 certifié", "PRIS ANSSI — niveau Expert", "99.98% uptime SLA", "NIS2 compliant", "CVSSv3.1 scoring", "MITRE ATT&CK framework"].map((item, i) => (
+              <span key={`${rep}-${i}`} style={{ fontFamily: mono, fontSize: "0.72rem", color: item.startsWith("●") ? C.green : C.textMuted, letterSpacing: "0.1em" }}>
+                {item}
               </span>
-              <h2 className="text-5xl md:text-8xl font-light tracking-tighter uppercase leading-[0.9]">
-                The <br />{" "}
-                <span className="italic text-[#1a1814]/30">Pieces.</span>
-              </h2>
-            </Reveal>
-            <p className="max-w-xs text-[10px] font-bold uppercase tracking-widest text-[#1a1814]/30 leading-relaxed italic">
-              Every garment is limited to 200 units, crafted by hand in our Lyon
-              workshop using only traceable organic textiles.
-            </p>
-          </div>
+            ))
+          ))}
+        </motion.div>
+      </section>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {COLLECTIONS.map((item, i) => (
-              <Reveal key={item.id} delay={i * 0.1}>
-                <div
-                  onClick={() => setActiveProduct(i)}
-                  className="group cursor-pointer bg-white p-2 rounded shadow-sm border border-[#1a1814]/5 hover:shadow-2xl transition-all"
+      {/* ── STATS ─────────────────────────────────────────────────────── */}
+      <section ref={statsRef} style={{ padding: "8rem 2.5rem", background: C.bg }}>
+        <div style={{ maxWidth: "1200px", margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "2px" }}>
+          {STATS.map((stat, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 30 }}
+              animate={statsInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ delay: i * 0.12, duration: 0.6 }}
+              style={{
+                padding: "3rem 2rem",
+                border: `1px solid ${C.greenBorder}`,
+                background: i % 2 === 0 ? C.bgCard : "transparent",
+                textAlign: "center",
+              }}
+            >
+              <div style={{ fontFamily: mono, fontSize: "clamp(36px, 4vw, 60px)", fontWeight: 700, color: C.green, lineHeight: 1 }}>
+                {statValues[i]}{stat.suffix}
+              </div>
+              <div style={{ fontFamily: mono, fontSize: "0.7rem", color: C.textMuted, marginTop: "0.75rem", letterSpacing: "0.08em" }}>{stat.label.toUpperCase()}</div>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── SERVICES ──────────────────────────────────────────────────── */}
+      <section ref={servicesRef} style={{ padding: "8rem 2.5rem", background: C.bgAlt }}>
+        <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={servicesInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.6 }}
+            style={{ marginBottom: "4rem" }}
+          >
+            <span style={{ fontFamily: mono, fontSize: "0.7rem", color: C.green, letterSpacing: "0.15em", display: "block", marginBottom: "1rem" }}>// SOLUTIONS</span>
+            <h2 style={{ fontFamily: mono, fontSize: "clamp(28px, 3.5vw, 48px)", fontWeight: 700, lineHeight: 1.15, color: C.text }}>
+              Architecture de sécurité<br /><span style={{ color: C.green }}>complète et opérationnelle.</span>
+            </h2>
+          </motion.div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1px", background: C.greenBorder }}>
+            {SERVICES.map((svc, i) => {
+              const Icon = svc.icon;
+              const hovered = hoveredService === i;
+              return (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={servicesInView ? { opacity: 1, y: 0 } : {}}
+                  transition={{ delay: i * 0.08, duration: 0.5 }}
+                  onMouseEnter={() => setHoveredService(i)}
+                  onMouseLeave={() => setHoveredService(null)}
+                  style={{
+                    background: hovered ? "rgba(0,230,118,0.04)" : C.bgCard,
+                    padding: "2.5rem",
+                    cursor: "default",
+                    transition: "background 0.3s",
+                    position: "relative",
+                    overflow: "hidden",
+                  }}
                 >
-                  <div className="relative aspect-[3/4] overflow-hidden rounded mb-6">
-                    <Image
-                      src={item.img}
-                      alt={item.name}
-                      fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-1000"
+                  {hovered && (
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      style={{
+                        position: "absolute", top: 0, left: 0, right: 0, height: "2px",
+                        background: `linear-gradient(90deg, transparent, ${C.green}, transparent)`,
+                      }}
                     />
-                    <div className="absolute top-4 left-4 px-3 py-1 bg-white text-[9px] font-bold uppercase tracking-widest shadow-sm">
-                      {item.tag}
-                    </div>
-                    <button className="absolute top-4 right-4 p-2 bg-white/80 backdrop-blur rounded-full text-[#1a1814]/40 hover:text-red-500 transition-colors">
-                      <Heart className="w-3.5 h-3.5" />
-                    </button>
+                  )}
+                  <div style={{
+                    width: "44px", height: "44px", borderRadius: "8px",
+                    background: hovered ? "rgba(0,230,118,0.12)" : "rgba(0,230,118,0.05)",
+                    border: `1px solid ${hovered ? C.greenBorderHover : C.greenBorder}`,
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    marginBottom: "1.5rem", transition: "all 0.3s",
+                  }}>
+                    <Icon size={20} color={hovered ? C.green : C.textMuted} />
                   </div>
-                  <div className="px-4 pb-4">
-                    <div className="text-[9px] uppercase tracking-[0.3em] text-[#1a1814]/20 mb-2">
-                      {item.type}
-                    </div>
-                    <h3 className="text-xl font-light tracking-tight mb-2 group-hover:text-[#1a1814]/60 transition-colors">
-                      {item.name}
-                    </h3>
-                    <span className="text-sm font-bold text-[#1a1814]">
-                      {item.price}
-                    </span>
+                  <div style={{ fontFamily: mono, fontSize: "0.65rem", color: C.textMuted, letterSpacing: "0.12em", marginBottom: "0.5rem" }}>{svc.subtitle.toUpperCase()}</div>
+                  <h3 style={{ fontFamily: mono, fontSize: "1.1rem", fontWeight: 700, color: C.text, marginBottom: "1rem" }}>{svc.title}</h3>
+                  <p style={{ fontFamily: sans, fontSize: "0.875rem", color: C.textMuted, lineHeight: 1.7, marginBottom: "1.5rem" }}>{svc.desc}</p>
+                  <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", marginBottom: "1.5rem" }}>
+                    {svc.metrics.map(m => (
+                      <span key={m} style={{
+                        fontFamily: mono, fontSize: "0.62rem", color: C.green,
+                        background: "rgba(0,230,118,0.06)", border: `1px solid ${C.greenBorder}`,
+                        borderRadius: "3px", padding: "0.2rem 0.5rem", letterSpacing: "0.05em",
+                      }}>{m}</span>
+                    ))}
                   </div>
+                  <div style={{ fontFamily: mono, fontSize: "0.72rem", color: hovered ? C.green : C.textMuted, transition: "color 0.3s" }}>{svc.price}</div>
+                </motion.div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* ── PROCESS ───────────────────────────────────────────────────── */}
+      <section style={{ padding: "8rem 2.5rem", background: C.bg }}>
+        <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-80px" }}
+            transition={{ duration: 0.6 }}
+            style={{ marginBottom: "5rem", textAlign: "center" }}
+          >
+            <span style={{ fontFamily: mono, fontSize: "0.7rem", color: C.green, letterSpacing: "0.15em", display: "block", marginBottom: "1rem" }}>// PROCESSUS</span>
+            <h2 style={{ fontFamily: mono, fontSize: "clamp(28px, 3.5vw, 48px)", fontWeight: 700, color: C.text }}>
+              Opérationnel en <span style={{ color: C.green }}>5 à 15 jours.</span>
+            </h2>
+          </motion.div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: "0", position: "relative" }}>
+            <div style={{ position: "absolute", top: "28px", left: "10%", right: "10%", height: "1px", background: C.greenBorder, zIndex: 0 }} />
+            {[
+              { step: "01", title: "Audit SI", desc: "Cartographie de votre infrastructure, inventaire des assets et identification des risques critiques." },
+              { step: "02", title: "Gap Analysis", desc: "Analyse d'écart vis-à-vis de ISO 27001, NIS2 et des best practices CIS Benchmarks." },
+              { step: "03", title: "Déploiement", desc: "Installation des agents SIEM/EDR sans interruption. Formation de vos équipes internes." },
+              { step: "04", title: "Calibration", desc: "Tuning des règles de détection pour réduire les faux positifs. Paramétrage des alertes." },
+              { step: "05", title: "Go Live", desc: "SOC opérationnel 24/7. Votre tableau de bord disponible immédiatement. Premier rapport sous 7 jours." },
+            ].map((s, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-60px" }}
+                transition={{ delay: i * 0.1, duration: 0.5 }}
+                style={{ padding: "0 1.5rem", textAlign: "center", position: "relative", zIndex: 1 }}
+              >
+                <div style={{
+                  width: "56px", height: "56px", borderRadius: "50%",
+                  background: C.bg, border: `2px solid ${C.green}`,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  margin: "0 auto 1.5rem",
+                  boxShadow: `0 0 20px rgba(0,230,118,0.15)`,
+                }}>
+                  <span style={{ fontFamily: mono, fontSize: "0.75rem", fontWeight: 700, color: C.green }}>{s.step}</span>
                 </div>
-              </Reveal>
+                <h4 style={{ fontFamily: mono, fontSize: "0.8rem", fontWeight: 700, color: C.text, marginBottom: "0.75rem", letterSpacing: "0.05em" }}>{s.title.toUpperCase()}</h4>
+                <p style={{ fontFamily: sans, fontSize: "0.8rem", color: C.textMuted, lineHeight: 1.65 }}>{s.desc}</p>
+              </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ==========================================
-          3. THE FABRIC ARCHIVE (Tracing Origins)
-          ========================================== */}
-      <section className="py-32 bg-white">
-        <div className="max-w-[1400px] mx-auto px-6 md:px-12">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-24 items-center">
-            <Reveal className="relative aspect-square md:aspect-[4/5] rounded overflow-hidden group shadow-2xl">
-              <Image
-                src="https://images.unsplash.com/photo-1496747611176-843222e1e57c?w=1200&q=80"
-                alt="Fabric Detail"
-                fill
-                className="object-cover grayscale group-hover:grayscale-0 transition-all duration-1000"
-              />
-              <div className="absolute inset-0 bg-[#1a1814]/5 mix-blend-multiply" />
-              <div className="absolute inset-0 p-12 flex flex-col justify-end">
-                <div className="bg-white/95 backdrop-blur-md p-10 shadow-2xl border border-black/5">
-                  <h3 className="text-3xl font-light italic mb-6 text-[#1a1814] uppercase tracking-tighter">
-                    The Archive.
-                  </h3>
-                  <div className="space-y-6">
-                    {FABRICS.map((f, i) => (
-                      <div
-                        key={i}
-                        className="border-b border-black/5 pb-4 last:border-0"
-                      >
-                        <div className="flex justify-between text-[10px] font-black uppercase tracking-widest text-[#1a1814] mb-1">
-                          <span>{f.name}</span>
-                          <span className="text-[#1a1814]/30">{f.cert}</span>
-                        </div>
-                        <p className="text-[9px] font-bold uppercase tracking-widest text-[#1a1814]/40">
-                          {f.origin} // {f.property}
-                        </p>
+      {/* ── LIVE THREAT SECTION ───────────────────────────────────────── */}
+      <section ref={terminalRef} style={{ padding: "8rem 2.5rem", background: C.bgAlt }}>
+        <div style={{ maxWidth: "1200px", margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "5rem", alignItems: "center" }}>
+          <motion.div
+            initial={{ opacity: 0, x: -40 }}
+            animate={terminalInView ? { opacity: 1, x: 0 } : {}}
+            transition={{ duration: 0.7 }}
+          >
+            <span style={{ fontFamily: mono, fontSize: "0.7rem", color: C.green, letterSpacing: "0.15em", display: "block", marginBottom: "1.5rem" }}>// SIGNATURE ELEMENT — SOC LIVE</span>
+            <h2 style={{ fontFamily: mono, fontSize: "clamp(26px, 3vw, 42px)", fontWeight: 700, color: C.text, lineHeight: 1.2, marginBottom: "1.5rem" }}>
+              Chaque menace, en<br /><span style={{ color: C.green }}>temps réel.</span>
+            </h2>
+            <p style={{ fontFamily: sans, fontSize: "1rem", color: C.textMuted, lineHeight: 1.75, marginBottom: "2.5rem" }}>
+              Notre SOC surveille en permanence 50 000+ événements par seconde. Ce flux en direct représente le type d'activité que nous traitons pour nos clients.
+            </p>
+            <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+              {[
+                { icon: Shield, text: "Corrélation MITRE ATT&CK en temps réel" },
+                { icon: Zap, text: "Temps de réponse moyen < 8 minutes" },
+                { icon: Activity, text: "50 000+ événements analysés par seconde" },
+                { icon: Lock, text: "Données hébergées en France — Tier IV" },
+              ].map((item, i) => {
+                const Icon = item.icon;
+                return (
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={terminalInView ? { opacity: 1, x: 0 } : {}}
+                    transition={{ delay: 0.3 + i * 0.1, duration: 0.5 }}
+                    style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}
+                  >
+                    <Icon size={16} color={C.green} />
+                    <span style={{ fontFamily: sans, fontSize: "0.875rem", color: C.textMuted }}>{item.text}</span>
+                  </motion.div>
+                );
+              })}
+            </div>
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, x: 40 }}
+            animate={terminalInView ? { opacity: 1, x: 0 } : {}}
+            transition={{ duration: 0.7, delay: 0.2 }}
+          >
+            {terminalInView && <LiveTerminal />}
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ── TESTIMONIALS ──────────────────────────────────────────────── */}
+      <section style={{ padding: "8rem 2.5rem", background: C.bg }}>
+        <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            style={{ marginBottom: "4rem" }}
+          >
+            <span style={{ fontFamily: mono, fontSize: "0.7rem", color: C.green, letterSpacing: "0.15em", display: "block", marginBottom: "1rem" }}>// CLIENTS</span>
+            <h2 style={{ fontFamily: mono, fontSize: "clamp(26px, 3vw, 42px)", fontWeight: 700, color: C.text }}>Ils nous font confiance.</h2>
+          </motion.div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1px", background: C.greenBorder }}>
+            {TESTIMONIALS.slice(0, 3).map((t, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1, duration: 0.5 }}
+                style={{ background: C.bgCard, padding: "2.5rem" }}
+              >
+                <div style={{ display: "flex", gap: "2px", marginBottom: "1.5rem" }}>
+                  {[...Array(t.stars)].map((_, j) => (
+                    <span key={j} style={{ color: C.green, fontSize: "0.8rem" }}>★</span>
+                  ))}
+                </div>
+                <p style={{ fontFamily: sans, fontSize: "0.875rem", color: C.text, lineHeight: 1.75, marginBottom: "2rem", opacity: 0.85 }}>"{t.text}"</p>
+                <div>
+                  <div style={{ fontFamily: mono, fontSize: "0.75rem", fontWeight: 700, color: C.text }}>{t.name}</div>
+                  <div style={{ fontFamily: mono, fontSize: "0.65rem", color: C.textMuted, marginTop: "0.25rem", letterSpacing: "0.06em" }}>{t.role}</div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "1px", background: C.greenBorder, marginTop: "1px" }}>
+            {TESTIMONIALS.slice(3).map((t, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1, duration: 0.5 }}
+                style={{ background: C.bgCard, padding: "2.5rem" }}
+              >
+                <div style={{ display: "flex", gap: "2px", marginBottom: "1.5rem" }}>
+                  {[...Array(t.stars)].map((_, j) => (
+                    <span key={j} style={{ color: C.green, fontSize: "0.8rem" }}>★</span>
+                  ))}
+                </div>
+                <p style={{ fontFamily: sans, fontSize: "0.875rem", color: C.text, lineHeight: 1.75, marginBottom: "2rem", opacity: 0.85 }}>"{t.text}"</p>
+                <div>
+                  <div style={{ fontFamily: mono, fontSize: "0.75rem", fontWeight: 700, color: C.text }}>{t.name}</div>
+                  <div style={{ fontFamily: mono, fontSize: "0.65rem", color: C.textMuted, marginTop: "0.25rem", letterSpacing: "0.06em" }}>{t.role}</div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── PRICING ───────────────────────────────────────────────────── */}
+      <section ref={pricingRef} style={{ padding: "8rem 2.5rem", background: C.bgAlt }}>
+        <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={pricingInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.6 }}
+            style={{ textAlign: "center", marginBottom: "4rem" }}
+          >
+            <span style={{ fontFamily: mono, fontSize: "0.7rem", color: C.green, letterSpacing: "0.15em", display: "block", marginBottom: "1rem" }}>// TARIFS</span>
+            <h2 style={{ fontFamily: mono, fontSize: "clamp(26px, 3vw, 42px)", fontWeight: 700, color: C.text }}>Choisissez votre niveau de protection.</h2>
+          </motion.div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1px", background: C.greenBorder }}>
+            {PRICING.map((plan, i) => {
+              const hovered = hoveredPlan === i;
+              return (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={pricingInView ? { opacity: 1, y: 0 } : {}}
+                  transition={{ delay: i * 0.1, duration: 0.5 }}
+                  onMouseEnter={() => setHoveredPlan(i)}
+                  onMouseLeave={() => setHoveredPlan(null)}
+                  style={{
+                    background: plan.highlight ? "rgba(0,230,118,0.05)" : C.bgCard,
+                    padding: "2.5rem",
+                    position: "relative",
+                    cursor: "default",
+                    transition: "background 0.3s",
+                  }}
+                >
+                  {plan.highlight && <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "3px", background: `linear-gradient(90deg, transparent, ${C.green}, transparent)` }} />}
+                  {plan.tag && (
+                    <div style={{ position: "absolute", top: "1.5rem", right: "1.5rem" }}>
+                      <span style={{ fontFamily: mono, fontSize: "0.6rem", color: C.green, background: "rgba(0,230,118,0.1)", border: `1px solid ${C.greenBorder}`, borderRadius: "3px", padding: "0.2rem 0.5rem", letterSpacing: "0.1em" }}>
+                        {plan.tag}
+                      </span>
+                    </div>
+                  )}
+                  <div style={{ fontFamily: mono, fontSize: "0.65rem", color: C.textMuted, letterSpacing: "0.12em", marginBottom: "0.5rem" }}>{plan.name.toUpperCase()}</div>
+                  <div style={{ marginBottom: "0.75rem" }}>
+                    <span style={{ fontFamily: mono, fontSize: "clamp(28px, 3vw, 40px)", fontWeight: 700, color: plan.highlight ? C.green : C.text }}>
+                      {plan.price === "Sur devis" ? plan.price : `${plan.price} €`}
+                    </span>
+                    {plan.period && <span style={{ fontFamily: mono, fontSize: "0.75rem", color: C.textMuted }}>{plan.period}</span>}
+                  </div>
+                  <p style={{ fontFamily: sans, fontSize: "0.82rem", color: C.textMuted, lineHeight: 1.6, marginBottom: "2rem" }}>{plan.desc}</p>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem", marginBottom: "2.5rem" }}>
+                    {plan.features.map(f => (
+                      <div key={f} style={{ display: "flex", alignItems: "flex-start", gap: "0.6rem" }}>
+                        <Check size={13} color={C.green} style={{ flexShrink: 0, marginTop: "2px" }} />
+                        <span style={{ fontFamily: sans, fontSize: "0.82rem", color: C.textMuted }}>{f}</span>
                       </div>
                     ))}
                   </div>
-                </div>
-              </div>
-            </Reveal>
-
-            <div>
-              <Reveal>
-                <span className="text-[10px] uppercase tracking-[0.4em] font-bold text-[#1a1814]/40 mb-6 block">
-                  Transparency Protocol
-                </span>
-                <h2 className="text-5xl md:text-7xl font-light tracking-tighter leading-tight mb-12 uppercase">
-                  Grown <br /> <span className="italic">to Wear.</span>
-                </h2>
-                <p className="text-lg text-[#1a1814]/40 leading-relaxed font-light mb-16 italic max-w-lg">
-                  We trace every fiber back to its soil. Our SS26 collection
-                  utilizes Normandy linen cultivated under carbon-neutral
-                  standards, woven in a family-run mill in Caen.
-                </p>
-
-                <div className="grid grid-cols-2 gap-8 mb-16">
-                  {[
-                    { label: "Traceable_Units", val: 100, suffix: "%" },
-                    { label: "Organic_Mass", val: 92, suffix: "%" },
-                    { label: "Water_Neutrality", val: 2024, prefix: "Est " },
-                    { label: "Atelier_Units", val: 200, prefix: "Max " },
-                  ].map((stat, i) => (
-                    <div
-                      key={i}
-                      className="flex flex-col gap-2 p-8 border border-black/5 bg-[#f7f4ef]/50 hover:bg-white hover:border-[#1a1814]/20 transition-all"
-                    >
-                      <div className="text-4xl font-light text-[#1a1814]">
-                        <Counter
-                          to={stat.val}
-                          prefix={stat.prefix}
-                          suffix={stat.suffix}
-                        />
-                      </div>
-                      <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-[#1a1814]/30">
-                        {stat.label}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-                <button className="flex items-center gap-3 text-[10px] font-bold uppercase tracking-widest text-[#1a1814] hover:text-[#1a1814]/60 transition-colors">
-                  View_Sourcing_Manifesto <ArrowRight className="w-4 h-4" />
-                </button>
-              </Reveal>
-            </div>
+                  <Link href="#" style={{
+                    display: "block", textAlign: "center",
+                    fontFamily: mono, fontSize: "0.72rem", fontWeight: 700, letterSpacing: "0.1em",
+                    background: plan.highlight ? C.green : "transparent",
+                    color: plan.highlight ? C.bg : C.green,
+                    border: `1px solid ${plan.highlight ? C.green : C.greenBorder}`,
+                    padding: "0.85rem", borderRadius: "4px", textDecoration: "none",
+                    transition: "all 0.2s",
+                  }}>
+                    {plan.price === "Sur devis" ? "CONTACTER L'ÉQUIPE" : "COMMENCER"}
+                  </Link>
+                </motion.div>
+              );
+            })}
           </div>
         </div>
       </section>
 
-      {/* ==========================================
-          4. THE ATELIER (Craftsmanship Matrix)
-          ========================================== */}
-      <section
-        id="atelier"
-        className="py-32 bg-[#f7f4ef] border-y border-[#1a1814]/5"
-      >
-        <div className="max-w-[1400px] mx-auto px-6 md:px-12">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-24 items-center">
-            <div className="lg:col-span-5 order-2 lg:order-1">
-              <Reveal>
-                <span className="text-[10px] uppercase tracking-[0.4em] font-bold text-[#1a1814]/40 mb-6 block">
-                  The Manual Era
-                </span>
-                <h2 className="text-5xl md:text-8xl font-light tracking-tighter leading-tight mb-12 uppercase">
-                  Craft as <br /> <span className="italic">Conviction.</span>
-                </h2>
-                <p className="text-lg text-[#1a1814]/30 leading-relaxed font-light mb-12 italic">
-                  MARÉ is built on the belief that fashion is at its most
-                  beautiful when it is also at its most considered.
-                </p>
-
-                <div className="space-y-6">
-                  {[
-                    {
-                      title: "Precision Patterning",
-                      icon: <Ruler className="w-4 h-4" />,
-                      prog: 100,
-                    },
-                    {
-                      title: "Manual Extraction",
-                      icon: <Scissors className="w-4 h-4" />,
-                      prog: 100,
-                    },
-                    {
-                      title: "Hand-Stitched Finish",
-                      icon: <Palette className="w-4 h-4" />,
-                      prog: 100,
-                    },
-                    {
-                      title: "Quality Authentication",
-                      icon: <Layers className="w-4 h-4" />,
-                      prog: 100,
-                    },
-                  ].map((item, i) => (
-                    <div
-                      key={i}
-                      className="p-8 border border-black/5 bg-white/50"
-                    >
-                      <div className="flex items-center justify-between mb-4">
-                        <div className="flex items-center gap-4">
-                          <div className="text-[#1a1814]/30">{item.icon}</div>
-                          <span className="text-[10px] font-bold uppercase tracking-widest">
-                            {item.title}
-                          </span>
-                        </div>
-                        <span className="text-[10px] font-bold text-[#1a1814]/20">
-                          STEP_0{i + 1}
-                        </span>
-                      </div>
-                      <Progress
-                        value={item.prog}
-                        className="h-0.5 bg-black/[0.05] [&>div]:bg-[#1a1814]/20"
-                      />
-                    </div>
-                  ))}
-                </div>
-              </Reveal>
-            </div>
-
-            <div className="lg:col-span-7 order-1 lg:order-2">
-              <Reveal className="relative aspect-square md:aspect-[16/9] rounded overflow-hidden shadow-2xl">
-                <Image
-                  src="https://images.unsplash.com/photo-1509631179647-0177331693ae?w=1200&q=80"
-                  alt="Atelier Work"
-                  fill
-                  className="object-cover"
-                />
-                <div className="absolute inset-0 bg-[#1a1814]/10 mix-blend-overlay" />
-                <div className="absolute bottom-10 right-10 flex gap-4">
-                  <div className="px-6 py-3 bg-white/10 backdrop-blur-md border border-white/10 text-white text-[10px] font-bold uppercase tracking-widest">
-                    Est. 2024
-                  </div>
-                  <div className="px-6 py-3 bg-[#1a1814] text-white text-[10px] font-bold uppercase tracking-widest shadow-xl">
-                    Lyon Atelier
-                  </div>
-                </div>
-              </Reveal>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ==========================================
-          5. PRESS & MEDIA (Editorial)
-          ========================================== */}
-      <section id="world" className="py-32 bg-white">
-        <div className="max-w-[1400px] mx-auto px-6 md:px-12 text-center">
-          <Reveal className="max-w-2xl mx-auto mb-20">
-            <span className="text-[10px] uppercase tracking-[0.5em] font-black text-[#1a1814]/30 mb-6 block">
-              The Perspective
-            </span>
-            <h2 className="text-5xl md:text-7xl font-light tracking-tighter uppercase italic mb-8">
-              World of Maré.
+      {/* ── TEAM ──────────────────────────────────────────────────────── */}
+      <section style={{ padding: "8rem 2.5rem", background: C.bg }}>
+        <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            style={{ marginBottom: "4rem" }}
+          >
+            <span style={{ fontFamily: mono, fontSize: "0.7rem", color: C.green, letterSpacing: "0.15em", display: "block", marginBottom: "1rem" }}>// ÉQUIPE</span>
+            <h2 style={{ fontFamily: mono, fontSize: "clamp(26px, 3vw, 42px)", fontWeight: 700, color: C.text }}>
+              Des experts qui ont vu<br /><span style={{ color: C.green }}>des vraies attaques.</span>
             </h2>
-            <p className="text-[#1a1814]/40 italic font-medium leading-relaxed">
-              A structural exploration of space and garment through the lens of
-              modern minimalism.
-            </p>
-          </Reveal>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-0">
-            {[
-              "https://images.unsplash.com/photo-1483985988355-763728e1935b?w=1200&q=80",
-              "https://images.unsplash.com/photo-1496747611176-843222e1e57c?w=1200&q=80",
-              "https://images.unsplash.com/photo-1629236?w=1200&q=80",
-            ].map((src, i) => (
-              <Reveal key={i} delay={i * 0.1}>
-                <div className="relative aspect-[3/4] overflow-hidden group border border-black/5">
-                  <Image
-                    src={src}
-                    alt={`Editorial ${i + 1}`}
-                    fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-1000"
-                  />
-                  <div className="absolute inset-0 bg-[#1a1814]/0 group-hover:bg-[#1a1814]/20 transition-colors" />
-                  <div className="absolute bottom-8 left-8 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <span className="text-[10px] font-bold text-white uppercase tracking-widest">
-                      Look_0{i + 1}
-                    </span>
-                  </div>
-                </div>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ==========================================
-          6. STOCKISTS (Locator)
-          ========================================== */}
-      <section id="contact" className="py-32 bg-[#f7f4ef]">
-        <div className="max-w-[1400px] mx-auto px-6 md:px-12">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-24 items-start">
-            <div className="lg:col-span-4">
-              <Reveal>
-                <span className="text-[10px] uppercase tracking-[0.5em] font-black text-[#1a1814]/30 mb-6 block">
-                  Global Presence
-                </span>
-                <h2 className="text-5xl font-light tracking-tighter uppercase italic mb-8">
-                  Stockists.
-                </h2>
-                <p className="text-[#1a1814]/40 italic font-medium leading-relaxed mb-12">
-                  Visit our flagship boutiques for a personalized atelier
-                  experience.
-                </p>
-                <button className="w-full py-5 border border-[#1a1814]/10 text-[#1a1814] text-[10px] font-bold uppercase tracking-widest hover:bg-[#1a1814] hover:text-white transition-all cursor-pointer">
-                  Book_Atelier_Visit
-                </button>
-              </Reveal>
-            </div>
-
-            <div className="lg:col-span-8">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-                {FLAGSHIPS.map((shop, i) => (
-                  <Reveal key={i} delay={i * 0.1}>
-                    <div className="p-10 bg-white border border-black/[0.03] group hover:shadow-2xl transition-all">
-                      <div className="flex justify-between items-start mb-10">
-                        <h3 className="text-3xl font-light tracking-tighter uppercase italic group-hover:text-[#1a1814]/40 transition-colors">
-                          {shop.city}
-                        </h3>
-                        <MapPin className="w-4 h-4 text-[#1a1814]/20 group-hover:text-[#1a1814] transition-colors" />
-                      </div>
-                      <div className="space-y-4 mb-10">
-                        <p className="text-[11px] font-bold uppercase tracking-widest text-[#1a1814]/60">
-                          {shop.street}
-                        </p>
-                        <p className="text-[11px] font-bold uppercase tracking-widest text-[#1a1814]/60">
-                          {shop.contact}
-                        </p>
-                        <p className="text-[10px] font-bold uppercase tracking-widest text-[#1a1814]/30 italic">
-                          {shop.hours}
-                        </p>
-                      </div>
-                      <button className="flex items-center gap-2 text-[9px] font-black uppercase tracking-[0.3em] hover:text-[#1a1814] transition-colors">
-                        Get_Directions <ArrowUpRight className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  </Reveal>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ==========================================
-          7. FAQ (Accordion)
-          ========================================== */}
-      <section className="py-32 bg-white">
-        <div className="max-w-3xl mx-auto px-6">
-          <Reveal className="text-center mb-24">
-            <h2 className="text-4xl md:text-5xl font-light tracking-tighter leading-none uppercase italic">
-              Intel_Buffer
-            </h2>
-          </Reveal>
-
-          <Accordion type="single" collapsible className="space-y-4">
-            {[
-              {
-                q: "Where are your garments produced?",
-                a: "Every piece is crafted in our atelier in Lyon, France, and in a network of family-run Italian workshops.",
-              },
-              {
-                q: "What is your sustainability approach?",
-                a: "We source exclusively from certified organic and recycled fabric suppliers. Packaging is 100% compostable.",
-              },
-              {
-                q: "Do you offer made-to-measure?",
-                a: "Our Atelier Service offers bespoke tailoring for all ready-to-wear shapes. Appointments available in major hubs.",
-              },
-              {
-                q: "What is the return policy?",
-                a: "We offer free returns within 30 days of delivery, with complimentary alteration on full-price purchases.",
-              },
-            ].map((faq, i) => (
-              <AccordionItem
+          </motion.div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "1px", background: C.greenBorder }}>
+            {TEAM.map((member, i) => (
+              <motion.div
                 key={i}
-                value={`item-${i}`}
-                className="border-b border-black/[0.05]"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1, duration: 0.5 }}
+                style={{ background: C.bgCard, padding: "2rem" }}
               >
-                <AccordionTrigger className="text-left text-sm uppercase font-bold tracking-widest py-8 hover:text-[#1a1814]/60 hover:no-underline">
-                  {faq.q}
-                </AccordionTrigger>
-                <AccordionContent className="text-sm text-[#1a1814]/30 leading-relaxed font-bold uppercase tracking-widest pb-8 italic">
-                  {faq.a}
-                </AccordionContent>
-              </AccordionItem>
+                <div style={{
+                  width: "52px", height: "52px", borderRadius: "50%",
+                  background: "rgba(0,230,118,0.08)", border: `1px solid ${C.greenBorder}`,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  marginBottom: "1.25rem",
+                }}>
+                  <span style={{ fontFamily: mono, fontSize: "1rem", fontWeight: 700, color: C.green }}>
+                    {member.name.split(" ").map(n => n[0]).join("")}
+                  </span>
+                </div>
+                <h4 style={{ fontFamily: mono, fontSize: "0.85rem", fontWeight: 700, color: C.text, marginBottom: "0.25rem" }}>{member.name}</h4>
+                <div style={{ fontFamily: mono, fontSize: "0.62rem", color: C.green, letterSpacing: "0.08em", marginBottom: "1rem" }}>{member.role}</div>
+                <p style={{ fontFamily: sans, fontSize: "0.8rem", color: C.textMuted, lineHeight: 1.65, marginBottom: "1.25rem" }}>{member.bio}</p>
+                <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap" }}>
+                  {member.certs.map(c => (
+                    <span key={c} style={{
+                      fontFamily: mono, fontSize: "0.58rem", color: C.textMuted,
+                      background: "rgba(0,230,118,0.04)", border: `1px solid ${C.greenBorder}`,
+                      borderRadius: "3px", padding: "0.15rem 0.4rem", letterSpacing: "0.06em",
+                    }}>{c}</span>
+                  ))}
+                </div>
+              </motion.div>
             ))}
-          </Accordion>
+          </div>
         </div>
       </section>
 
-      {/* ==========================================
-          8. MEGA FOOTER (Premium Minimal)
-          ========================================== */}
-      <footer className="bg-[#f7f4ef] pt-32 pb-12 px-6 md:px-12 border-t border-black/5 relative overflow-hidden">
-        <div className="max-w-[1600px] mx-auto relative z-10">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-16 mb-32">
-            <div className="lg:col-span-5">
-              <Reveal>
-                <div className="flex flex-col mb-10">
-                  <span className="text-[10px] font-bold uppercase tracking-[0.6em] text-[#1a1814]/40 mb-1">
-                    Atelier
-                  </span>
-                  <span className="text-2xl font-light tracking-[0.4em] uppercase">
-                    MARÉ
-                  </span>
-                </div>
-                <p className="text-[#1a1814]/20 max-w-sm mb-12 uppercase tracking-widest text-[10px] font-bold leading-relaxed italic">
-                  Advancing the manual era through architectural garment
-                  exploration and organic material mastery.
-                </p>
-                <form
-                  className="relative max-w-md"
-                  onSubmit={(e) => e.preventDefault()}
+      {/* ── FAQ ───────────────────────────────────────────────────────── */}
+      <section style={{ padding: "8rem 2.5rem", background: C.bgAlt }}>
+        <div style={{ maxWidth: "860px", margin: "0 auto" }}>
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            style={{ marginBottom: "3rem" }}
+          >
+            <span style={{ fontFamily: mono, fontSize: "0.7rem", color: C.green, letterSpacing: "0.15em", display: "block", marginBottom: "1rem" }}>// FAQ</span>
+            <h2 style={{ fontFamily: mono, fontSize: "clamp(24px, 2.5vw, 38px)", fontWeight: 700, color: C.text }}>Questions fréquentes.</h2>
+          </motion.div>
+          <div style={{ display: "flex", flexDirection: "column", gap: "1px", background: C.greenBorder }}>
+            {FAQ.map((item, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 10 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.07, duration: 0.4 }}
+                style={{ background: C.bgCard, overflow: "hidden" }}
+              >
+                <button
+                  onClick={() => setFaqOpen(faqOpen === i ? null : i)}
+                  style={{
+                    width: "100%", padding: "1.5rem 2rem",
+                    display: "flex", justifyContent: "space-between", alignItems: "center",
+                    background: "none", border: "none", cursor: "pointer", textAlign: "left",
+                  }}
                 >
-                  <input
-                    type="email"
-                    placeholder="AUTHENTICATE_EMAIL"
-                    className="w-full bg-white border border-black/5 rounded-none px-6 py-4 text-xs font-bold outline-none focus:border-[#1a1814] text-[#1a1814] transition-all uppercase tracking-widest"
-                  />
-                  <button
-                    type="submit"
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-bold text-[#1a1814] hover:text-[#1a1814]/60 transition-colors uppercase tracking-[0.3em]"
-                  >
-                    ENROLL
-                  </button>
-                </form>
-              </Reveal>
-            </div>
-
-            <div className="lg:col-span-2 lg:col-start-7">
-              <h4 className="text-[10px] font-bold uppercase tracking-widest text-[#1a1814]/40 mb-10">
-                Collections
-              </h4>
-              <ul className="space-y-4 text-[10px] font-bold uppercase tracking-widest text-[#1a1814]/20">
-                <li>
-                  <Link
-                    href="#"
-                    className="hover:text-[#1a1814] transition-colors"
-                  >
-                    SS26_Ready_To_Wear
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="#"
-                    className="hover:text-[#1a1814] transition-colors"
-                  >
-                    Atelier_Tailoring
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="#"
-                    className="hover:text-[#1a1814] transition-colors"
-                  >
-                    Recycled_Silk_Series
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="#"
-                    className="hover:text-[#1a1814] transition-colors"
-                  >
-                    Seasonal_Archives
-                  </Link>
-                </li>
-              </ul>
-            </div>
-
-            <div className="lg:col-span-2">
-              <h4 className="text-[10px] font-bold uppercase tracking-widest text-[#1a1814]/40 mb-10">
-                The_Atelier
-              </h4>
-              <ul className="space-y-4 text-[10px] font-bold uppercase tracking-widest text-[#1a1814]/20">
-                <li>
-                  <Link
-                    href="#"
-                    className="hover:text-[#1a1814] transition-colors"
-                  >
-                    Sourcing_Manifesto
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="#"
-                    className="hover:text-[#1a1814] transition-colors"
-                  >
-                    Craft_Matrix
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="#"
-                    className="hover:text-[#1a1814] transition-colors"
-                  >
-                    Repair_Service
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="#"
-                    className="hover:text-[#1a1814] transition-colors"
-                  >
-                    Atelier_Appointments
-                  </Link>
-                </li>
-              </ul>
-            </div>
-
-            <div className="lg:col-span-2">
-              <h4 className="text-[10px] font-bold uppercase tracking-widest text-[#1a1814]/40 mb-10">
-                Network
-              </h4>
-              <ul className="space-y-4 text-[10px] font-bold uppercase tracking-widest text-[#1a1814]/20">
-                <li>
-                  <Link
-                    href="#"
-                    className="hover:text-[#1a1814] transition-colors flex items-center gap-3"
-                  >
-                    <Globe className="w-3 h-3" /> Globe
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="#"
-                    className="hover:text-[#1a1814] transition-colors flex items-center gap-3"
-                  >
-                    <Globe className="w-3 h-3" /> X_Protocol
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="#"
-                    className="hover:text-[#1a1814] transition-colors flex items-center gap-3"
-                  >
-                    <Mail className="w-3 h-3" /> Press_Buffer
-                  </Link>
-                </li>
-              </ul>
-            </div>
+                  <span style={{ fontFamily: mono, fontSize: "0.85rem", fontWeight: 700, color: faqOpen === i ? C.green : C.text }}>{item.q}</span>
+                  <motion.div animate={{ rotate: faqOpen === i ? 180 : 0 }} transition={{ duration: 0.2 }}>
+                    <ChevronDown size={16} color={faqOpen === i ? C.green : C.textMuted} />
+                  </motion.div>
+                </button>
+                <AnimatePresence>
+                  {faqOpen === i && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.3 }}
+                      style={{ overflow: "hidden" }}
+                    >
+                      <div style={{ padding: "0 2rem 1.5rem", paddingTop: "1.25rem", fontFamily: sans, fontSize: "0.875rem", color: C.textMuted, lineHeight: 1.75, borderTop: `1px solid ${C.greenBorder}` }}>
+                        {item.a}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            ))}
           </div>
+        </div>
+      </section>
 
-          <div className="flex flex-col md:flex-row justify-between items-center gap-8 pt-10 border-t border-black/5 text-[9px] font-bold uppercase tracking-widest text-[#1a1814]/10">
-            <div className="flex items-center gap-10">
-              <span>&copy; {new Date().getFullYear()} Atelier Maré SAS.</span>
-              <Link href="#" className="hover:text-[#1a1814] transition-colors">
-                Legal_Protocols
-              </Link>
-              <Link href="#" className="hover:text-[#1a1814] transition-colors">
-                Privacy_Buffer
-              </Link>
+      {/* ── CTA FINAL ─────────────────────────────────────────────────── */}
+      <section style={{ padding: "8rem 2.5rem", background: C.bg, textAlign: "center", position: "relative", overflow: "hidden" }}>
+        <div style={{ position: "absolute", inset: 0, backgroundImage: `linear-gradient(rgba(0,230,118,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,230,118,0.03) 1px, transparent 1px)`, backgroundSize: "60px 60px" }} />
+        <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", width: "500px", height: "300px", background: "radial-gradient(ellipse, rgba(0,230,118,0.07) 0%, transparent 70%)", pointerEvents: "none" }} />
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.7 }}
+          style={{ position: "relative" }}
+        >
+          <span style={{ fontFamily: mono, fontSize: "0.7rem", color: C.green, letterSpacing: "0.15em", display: "block", marginBottom: "1.5rem" }}>// COMMENCER</span>
+          <h2 style={{ fontFamily: mono, fontSize: "clamp(32px, 5vw, 72px)", fontWeight: 700, color: C.text, lineHeight: 1.1, marginBottom: "1.5rem" }}>
+            Audit de sécurité<br /><span style={{ color: C.green }}>offert.</span> Sans engagement.
+          </h2>
+          <p style={{ fontFamily: sans, fontSize: "1.1rem", color: C.textMuted, maxWidth: "560px", margin: "0 auto 3rem", lineHeight: 1.7 }}>
+            2 heures avec nos experts. Rapport complet offert. Vous repartez avec une vision claire de votre exposition aux risques.
+          </p>
+          <Link href="#" style={{
+            fontFamily: mono, fontSize: "0.8rem", fontWeight: 700, letterSpacing: "0.1em",
+            background: C.green, color: C.bg, padding: "1rem 2.5rem",
+            borderRadius: "4px", textDecoration: "none",
+            boxShadow: `0 0 40px rgba(0,230,118,0.25)`,
+            transition: "box-shadow 0.2s, transform 0.15s",
+            display: "inline-block",
+          }}
+            onMouseEnter={e => { e.currentTarget.style.boxShadow = `0 0 60px rgba(0,230,118,0.45)`; e.currentTarget.style.transform = "translateY(-2px)"; }}
+            onMouseLeave={e => { e.currentTarget.style.boxShadow = `0 0 40px rgba(0,230,118,0.25)`; e.currentTarget.style.transform = "translateY(0)"; }}
+          >
+            DEMANDER MON AUDIT GRATUIT
+          </Link>
+        </motion.div>
+      </section>
+
+      {/* ── FOOTER ────────────────────────────────────────────────────── */}
+      <footer style={{ background: C.bgCard, borderTop: `1px solid ${C.greenBorder}`, padding: "4rem 2.5rem 2rem" }}>
+        <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr", gap: "3rem", marginBottom: "3rem" }}>
+            <div>
+              <div style={{ fontFamily: mono, fontSize: "1rem", fontWeight: 700, color: C.green, marginBottom: "1rem", letterSpacing: "0.05em" }}>
+                NEURON<span style={{ color: C.text }}>SEC</span>
+              </div>
+              <p style={{ fontFamily: sans, fontSize: "0.82rem", color: C.textMuted, lineHeight: 1.7, maxWidth: "300px", marginBottom: "1.5rem" }}>
+                Centre opérationnel de cybersécurité. SOC 24/7, Red Team, ISO 27001. Qualifié PRIS ANSSI niveau Expert. Paris, France.
+              </p>
+              <div style={{ display: "flex", gap: "0.75rem" }}>
+                {[{ icon: MessageSquare, label: "Contact" }, { icon: Link2, label: "LinkedIn" }, { icon: GitBranch, label: "GitHub" }].map(s => {
+                  const Icon = s.icon;
+                  return (
+                    <Link key={s.label} href="#" style={{
+                      width: "36px", height: "36px", borderRadius: "6px",
+                      background: "rgba(0,230,118,0.05)", border: `1px solid ${C.greenBorder}`,
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                      transition: "border-color 0.2s, background 0.2s",
+                    }}
+                      onMouseEnter={e => { e.currentTarget.style.borderColor = C.green; e.currentTarget.style.background = "rgba(0,230,118,0.1)"; }}
+                      onMouseLeave={e => { e.currentTarget.style.borderColor = C.greenBorder; e.currentTarget.style.background = "rgba(0,230,118,0.05)"; }}
+                    >
+                      <Icon size={14} color={C.textMuted} />
+                    </Link>
+                  );
+                })}
+              </div>
             </div>
-            <div className="flex gap-10">
-              <span>Lyon // Paris // Milan</span>
-              <span>Worn with Intention</span>
+            {[
+              { title: "Solutions", links: ["SOC 24/7", "Red Team", "SIEM & EDR", "Conformité", "Threat Intel", "Hardening"] },
+              { title: "Entreprise", links: ["À propos", "Équipe", "Certifications", "Blog sécurité", "Presse", "Carrières"] },
+              { title: "Contact", links: ["Paris — 10ème arr.", "+33 1 44 62 87 00", "soc@neuronsec.fr", "Astreinte 24/7", "Urgence cyber"] },
+            ].map(col => (
+              <div key={col.title}>
+                <div style={{ fontFamily: mono, fontSize: "0.65rem", color: C.green, letterSpacing: "0.15em", marginBottom: "1.25rem" }}>{col.title.toUpperCase()}</div>
+                <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
+                  {col.links.map(l => (
+                    <Link key={l} href="#" style={{ fontFamily: sans, fontSize: "0.82rem", color: C.textMuted, textDecoration: "none", transition: "color 0.2s" }}
+                      onMouseEnter={e => (e.currentTarget.style.color = C.green)}
+                      onMouseLeave={e => (e.currentTarget.style.color = C.textMuted)}
+                    >
+                      {l}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+          <div style={{ borderTop: `1px solid ${C.greenBorder}`, paddingTop: "2rem", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <span style={{ fontFamily: mono, fontSize: "0.65rem", color: C.textMuted }}>© 2026 NeuronSec SAS — Tous droits réservés</span>
+            <div style={{ display: "flex", gap: "2rem" }}>
+              {["Mentions légales", "CGU", "RGPD", "Politique de sécurité"].map(l => (
+                <Link key={l} href="#" style={{ fontFamily: mono, fontSize: "0.62rem", color: C.textMuted, textDecoration: "none", letterSpacing: "0.05em" }}>{l}</Link>
+              ))}
             </div>
           </div>
         </div>
       </footer>
-
-      {/* PRODUCT MODAL */}
-      <AnimatePresence>
-        {activeProduct !== null && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[200] bg-[#1a1814]/80 backdrop-blur-md flex items-center justify-center p-6"
-            onClick={() => setActiveProduct(null)}
-          >
-            <motion.div
-              initial={{ scale: 0.9, y: 30 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.9, y: 30 }}
-              className="bg-[#f7f4ef] border border-black/5 max-w-4xl w-full grid grid-cols-1 md:grid-cols-2 overflow-hidden rounded shadow-2xl relative"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <button
-                onClick={() => setActiveProduct(null)}
-                className="absolute top-8 right-8 text-[#1a1814]/20 hover:text-[#1a1814] transition-colors z-10"
-              >
-                <X className="w-6 h-6" />
-              </button>
-              <div className="relative aspect-square md:aspect-auto">
-                <Image
-                  src={COLLECTIONS[activeProduct].img}
-                  alt="Product"
-                  fill
-                  className="object-cover"
-                />
-              </div>
-              <div className="p-12 flex flex-col justify-between bg-white">
-                <div>
-                  <div className="text-[10px] uppercase tracking-widest text-[#1a1814]/30 font-bold mb-4">
-                    {COLLECTIONS[activeProduct].season} //{" "}
-                    {COLLECTIONS[activeProduct].type}
-                  </div>
-                  <h3 className="text-4xl font-light uppercase tracking-tighter italic text-[#1a1814] mb-6 leading-none">
-                    {COLLECTIONS[activeProduct].name}
-                  </h3>
-                  <p className="text-sm text-[#1a1814]/40 leading-relaxed font-bold mb-10 italic">
-                    "{COLLECTIONS[activeProduct].desc}"
-                  </p>
-
-                  <div className="grid grid-cols-1 gap-4 mb-10">
-                    {[
-                      { l: "Composition", v: "72% Organic Linen, 28% Silk" },
-                      { l: "Origin", v: "Lyon, France" },
-                      { l: "Care", v: "Dry Clean Only" },
-                    ].map((spec, i) => (
-                      <div
-                        key={i}
-                        className="flex justify-between text-xs border-b border-black/5 pb-2"
-                      >
-                        <span className="uppercase tracking-widest text-[#1a1814]/20 font-bold">
-                          {spec.l}
-                        </span>
-                        <span className="font-bold text-[#1a1814]/60">
-                          {spec.v}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                <div className="space-y-4">
-                  <button className="w-full py-5 bg-[#1a1814] text-white text-[10px] font-bold uppercase tracking-widest hover:bg-[#2d2820] transition-all cursor-pointer">
-                    Add_To_Bag — {COLLECTIONS[activeProduct].price}
-                  </button>
-                  <button className="w-full py-5 border border-black/10 text-[#1a1814] text-[10px] font-bold uppercase tracking-widest hover:bg-[#f7f4ef] transition-all cursor-pointer">
-                    Save_To_Wishlist
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      <style>{`::-webkit-scrollbar{width:4px;background:#f7f4ef}::-webkit-scrollbar-thumb{background:#1a181410}`}</style>
     </div>
   );
 }

@@ -6,1026 +6,1035 @@ import {
   useTransform,
   useInView,
   AnimatePresence,
-  useMotionValue,
-  useSpring,
 } from "framer-motion";
-import { useState, useRef, useEffect, useCallback } from "react";
-import Image from "next/image";
-import Link from "next/link";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
-import { Progress } from "@/components/ui/progress";
-import { Separator } from "@/components/ui/separator";
-import { ArrowRight, ArrowUpRight, Star, Check, Menu, X, Globe, Clock, Quote, Search, ShoppingBag, Activity, Zap, BookOpen, Terminal, Shield, Lock, TrendingUp, TrendingDown, BarChart2, Cpu, Database, Server, AlertTriangle, MousePointer2, Smartphone, Code2 } from "lucide-react";
+import { useRef, useState } from "react";
 
-import "../premium.css";
+const C = {
+  bg: "#0E0C0A",
+  bgCard: "#1C1814",
+  bgSection: "#131110",
+  gold: "#C9A96E",
+  goldLight: "#E8D5A3",
+  goldDim: "#8A6E44",
+  text: "#F5F0E8",
+  textMuted: "#9A8E7E",
+  textDim: "#5C5347",
+  border: "#2E2820",
+  borderGold: "#3A3020",
+};
 
-/* ==========================================================================
-   DATA STRUCTURES
-   ========================================================================= */
+const FONT = `
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Cormorant+SC:wght@300;400;500&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap');
+`;
 
-const ASSETS = [
+const COLLECTIONS = [
   {
-    symbol: "BTC/USD",
-    price: "67,432.80",
-    change: "+3.24%",
-    up: true,
-    vol: "42.1B",
+    id: "perpetuelle",
+    name: "Perpétuelle",
+    ref: "MD-2891-PP",
+    price: "CHF 38,500",
+    desc: "Calendrier perpétuel mécanique. Mouvement manufacture 2891, 72h de réserve de marche. Boîtier or blanc 18 carats, cadran guilloché main.",
+    movement: "Calibre MD-2891 — 45 rubis",
+    case: "Or blanc 18K — Ø 40mm",
+    water: "50m",
+    image: "perpétuelle",
+    accent: "#C9A96E",
   },
   {
-    symbol: "ETH/USD",
-    price: "3,891.55",
-    change: "+1.87%",
-    up: true,
-    vol: "18.6B",
+    id: "tourbillon",
+    name: "Tourbillon Souverain",
+    ref: "MD-0001-TB",
+    price: "CHF 124,000",
+    desc: "Tourbillon volant à cage ouverte. Le summum de l'horlogerie fine, 6 jours de réserve de marche. Serti de 47 diamants VS.",
+    movement: "Calibre MD-TB01 — 72 rubis",
+    case: "Platine 950 — Ø 42mm",
+    water: "30m",
+    image: "tourbillon",
+    accent: "#E8D5A3",
   },
   {
-    symbol: "SOL/USD",
-    price: "182.40",
-    change: "-0.93%",
-    up: false,
-    vol: "4.2B",
+    id: "marine",
+    name: "Marine Chronographe",
+    ref: "MD-7750-MC",
+    price: "CHF 18,200",
+    desc: "Chronographe colonne-roue. Cadran bleu océan, index luminescents. Bracelet acier satins-poli aux transitions précises.",
+    movement: "Calibre ETA 7750 — 17 rubis",
+    case: "Acier 316L — Ø 42mm",
+    water: "200m",
+    image: "marine",
+    accent: "#6B8FBF",
   },
-  { symbol: "ARB/USD", price: "1.24", change: "+8.11%", up: true, vol: "920M" },
   {
-    symbol: "AVAX/USD",
-    price: "38.72",
-    change: "-1.55%",
-    up: false,
-    vol: "2.1B",
+    id: "classique",
+    name: "Classique Dame",
+    ref: "MD-2892-CD",
+    price: "CHF 9,600",
+    desc: "Élégance intemporelle pour femme. Cadran nacre naturelle, aiguilles feuille dorées. Le premier achat d'une vie d'horlogerie.",
+    movement: "Calibre ETA 2892 — 21 rubis",
+    case: "Or rose 18K — Ø 33mm",
+    water: "30m",
+    image: "classique",
+    accent: "#C9A96E",
   },
 ];
 
-const SECURITY_STACK = [
+const HERITAGE = [
   {
-    title: "MPC Cold Storage",
-    desc: "Multi-party computation with threshold signing ensuring zero single-point failure.",
-    icon: <Shield className="w-5 h-5" />,
+    year: "1891",
+    title: "Fondation à Genève",
+    desc: "Édouard Drouet, maître horloger formé à l'École d'Horlogerie de Genève, ouvre son premier atelier rue de Rive. Cinq compagnons, un établi, l'ambition de l'excellence.",
   },
   {
-    title: "Proof of Reserve",
-    desc: "Real-time on-chain attestations published every 4 hours for 100% transparency.",
-    icon: <Database className="w-5 h-5" />,
+    year: "1923",
+    title: "Brevet Tourbillon",
+    desc: "Henri Drouet, fils du fondateur, dépose le brevet du tourbillon volant MD-01 — une cage allégée de 40% par rapport aux standards de l'époque. Médaille d'or à l'Exposition Universelle.",
   },
   {
-    title: "Hardware Isolation",
-    desc: "FIPS 140-2 Level 3 HSMs protecting all primary key material and execution logic.",
-    icon: <Lock className="w-5 h-5" />,
+    year: "1958",
+    title: "Manufacture Propre",
+    desc: "Construction de la manufacture du Plan-les-Ouates. Pour la première fois, chaque composant — du spiral au balancier — naît sous le même toit. 23 horlogers, 1 vision.",
   },
   {
-    title: "Audit Protocol",
-    desc: "Continuous security audits by Tier 1 firms (SOC2 Type II, ISO 27001).",
-    icon: <Check className="w-5 h-5" />,
+    year: "1989",
+    title: "Calendrier Perpétuel",
+    desc: "Présentation du calibre MD-2891, premier mouvement maison à complication perpétuelle. Reconnu par les grands musées de l'horlogerie, exposé au Patek Philippe Museum.",
+  },
+  {
+    year: "2019",
+    title: "Quatrième Génération",
+    desc: "Sophie Drouet prend la direction artistique. Alliance des techniques ancestrales et du design contemporain. La Maison entre dans l'ère de la rareté calculée.",
   },
 ];
 
-const LIQUIDITY_VENUES = [
-  { name: "Frankfurt Hub", roundtrip: "0.18ms", status: "Nominal" },
-  { name: "Singapore Gateway", roundtrip: "0.24ms", status: "Nominal" },
-  { name: "New York Bridge", roundtrip: "0.21ms", status: "Nominal" },
-  { name: "Tokyo Nexus", roundtrip: "0.19ms", status: "Nominal" },
+const SAVOIR_FAIRE = [
+  {
+    title: "Guillochage Main",
+    desc: "Chaque cadran est guilloché à la main sur tour à guillocher du XIXe siècle. Un cadran requiert 8 heures de travail. Aucun guilloché n'est identique.",
+    stat: "8h / cadran",
+  },
+  {
+    title: "Anglage",
+    desc: "Les chanfreins des ponts sont anglés, polis, biseautés à la main. 1 micron d'écart et la pièce est refusée. La précision n'est pas une option — c'est une obsession.",
+    stat: "±1 μm tolérance",
+  },
+  {
+    title: "Assemblage",
+    desc: "Un seul maître-horloger assemble chaque montre de bout en bout. Il la signe. Cette responsabilité totale garantit la cohérence absolue du résultat final.",
+    stat: "1 artisan / montre",
+  },
+  {
+    title: "Contrôle Qualité",
+    desc: "Chaque pièce est chronométrée 72 heures dans 5 positions. Seules les montres affichant moins de 2 secondes d'écart jour sortent de la manufacture.",
+    stat: "72h de tests",
+  },
 ];
 
-/* ==========================================================================
-   UTILITY COMPONENTS
-   ========================================================================= */
+const PRESS = [
+  {
+    quote: "La Perpétuelle de Drouet est, sans contestation possible, l'une des cinq meilleures complications mécaniques produites en ce siècle.",
+    author: "Jean-Marie Schaller",
+    outlet: "Revolution Watch",
+    year: "2024",
+  },
+  {
+    quote: "Sophie Drouet a réussi l'impossible : rendre Drouet désirable aux collectionneurs de la nouvelle génération sans trahir l'âme des anciens.",
+    author: "Cara Barrett",
+    outlet: "Town & Country",
+    year: "2023",
+  },
+  {
+    quote: "Entrer dans la Maison Drouet, c'est comprendre que la montre n'est pas un objet. C'est un argument philosophique sur le temps.",
+    author: "Nicolas Foulc",
+    outlet: "Vogue Paris",
+    year: "2024",
+  },
+];
 
-function Reveal({
-  children,
-  delay = 0,
-  y = 30,
-}: {
-  children: React.ReactNode;
-  delay?: number;
-  y?: number;
-}) {
-  const ref = useRef(null);
-  const inView = useInView(ref, { once: true, margin: "-50px" });
+const AWARDS = ["GPHG — Aiguille d'Or 2023", "Prix Gaïa 2021", "Red Dot Design 2022", "FHH Award 2024"];
+
+const BESPOKE_STEPS = [
+  {
+    n: "01",
+    title: "Consultation Privée",
+    desc: "Rendez-vous confidentiel dans notre salon de la rue de Rive. Vous exposez votre vision. Nos horlogers écoutent, questionnent, dessinent.",
+  },
+  {
+    n: "02",
+    title: "Design Sur Mesure",
+    desc: "Trois propositions de cadran, boîtier et bracelet. Gravures, guilloché personnalisé, monogramme. Chaque détail est validé ensemble.",
+  },
+  {
+    n: "03",
+    title: "Fabrication",
+    desc: "14 à 18 mois de fabrication par votre maître-horloger attitré. Des photos mensuelles vous témoignent de l'avancement de votre pièce.",
+  },
+  {
+    n: "04",
+    title: "Remise Solennelle",
+    desc: "Livraison en mains propres à Genève ou à domicile. Certificat d'authenticité numéroté, garantie à vie, passeport de service.",
+  },
+];
+
+// ── Orbital SVG Complication (signature element) ──────────────────────────────
+function OrbitalComplication({ scrollYProgress }: { scrollYProgress: ReturnType<typeof useScroll>["scrollYProgress"] }) {
+  const r1 = useTransform(scrollYProgress, [0, 1], [0, 360]);
+  const r2 = useTransform(scrollYProgress, [0, 1], [0, -240]);
+  const r3 = useTransform(scrollYProgress, [0, 1], [0, 180]);
+
+  return (
+    <motion.svg
+      viewBox="0 0 400 400"
+      style={{ width: "100%", height: "100%", overflow: "visible" }}
+    >
+      {/* Outer ring */}
+      <motion.g style={{ rotate: r1, originX: "200px", originY: "200px" }}>
+        <circle cx="200" cy="200" r="175" fill="none" stroke={C.goldDim} strokeWidth="0.5" strokeDasharray="4 8" />
+        <circle cx="200" cy="25" r="4" fill={C.gold} />
+        <circle cx="200" cy="375" r="2" fill={C.goldDim} />
+        {/* Hour markers outer */}
+        {Array.from({ length: 12 }).map((_, i) => {
+          const angle = (i * 30 * Math.PI) / 180;
+          const x1 = 200 + 165 * Math.sin(angle);
+          const y1 = 200 - 165 * Math.cos(angle);
+          const x2 = 200 + 175 * Math.sin(angle);
+          const y2 = 200 - 175 * Math.cos(angle);
+          return <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke={C.gold} strokeWidth={i % 3 === 0 ? "2" : "0.8"} />;
+        })}
+      </motion.g>
+
+      {/* Middle ring */}
+      <motion.g style={{ rotate: r2, originX: "200px", originY: "200px" }}>
+        <circle cx="200" cy="200" r="130" fill="none" stroke={C.borderGold} strokeWidth="1" />
+        <circle cx="200" cy="70" r="6" fill="none" stroke={C.gold} strokeWidth="1.5" />
+        <circle cx="200" cy="330" r="3" fill={C.goldDim} />
+        {Array.from({ length: 60 }).map((_, i) => {
+          const angle = (i * 6 * Math.PI) / 180;
+          const x1 = 200 + 122 * Math.sin(angle);
+          const y1 = 200 - 122 * Math.cos(angle);
+          const x2 = 200 + 130 * Math.sin(angle);
+          const y2 = 200 - 130 * Math.cos(angle);
+          return <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke={C.goldDim} strokeWidth={i % 5 === 0 ? "1.5" : "0.5"} />;
+        })}
+      </motion.g>
+
+      {/* Inner ring */}
+      <motion.g style={{ rotate: r3, originX: "200px", originY: "200px" }}>
+        <circle cx="200" cy="200" r="88" fill="none" stroke={C.border} strokeWidth="1.5" />
+        {Array.from({ length: 24 }).map((_, i) => {
+          const angle = (i * 15 * Math.PI) / 180;
+          const x1 = 200 + 80 * Math.sin(angle);
+          const y1 = 200 - 80 * Math.cos(angle);
+          const x2 = 200 + 88 * Math.sin(angle);
+          const y2 = 200 - 88 * Math.cos(angle);
+          return <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke={C.goldDim} strokeWidth="1" />;
+        })}
+      </motion.g>
+
+      {/* Watch face center */}
+      <circle cx="200" cy="200" r="65" fill={C.bgCard} stroke={C.border} strokeWidth="1" />
+      <circle cx="200" cy="200" r="60" fill="none" stroke={C.borderGold} strokeWidth="0.5" />
+
+      {/* Guilloché pattern suggestion */}
+      {Array.from({ length: 8 }).map((_, i) => {
+        const angle = (i * 45 * Math.PI) / 180;
+        return (
+          <line
+            key={i}
+            x1={200 + 15 * Math.cos(angle)}
+            y1={200 + 15 * Math.sin(angle)}
+            x2={200 + 55 * Math.cos(angle)}
+            y2={200 + 55 * Math.sin(angle)}
+            stroke={C.borderGold}
+            strokeWidth="0.5"
+          />
+        );
+      })}
+
+      {/* Hour hand */}
+      <motion.line
+        x1="200" y1="200" x2="200" y2="152"
+        stroke={C.text}
+        strokeWidth="2.5"
+        strokeLinecap="round"
+        animate={{ rotate: 360 }}
+        transition={{ duration: 43200, repeat: Infinity, ease: "linear" }}
+        style={{ originX: "200px", originY: "200px" }}
+      />
+      {/* Minute hand */}
+      <motion.line
+        x1="200" y1="200" x2="200" y2="145"
+        stroke={C.gold}
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        animate={{ rotate: 360 }}
+        transition={{ duration: 3600, repeat: Infinity, ease: "linear" }}
+        style={{ originX: "200px", originY: "200px" }}
+      />
+      {/* Seconds hand */}
+      <motion.line
+        x1="200" y1="220" x2="200" y2="142"
+        stroke="#C04040"
+        strokeWidth="0.8"
+        strokeLinecap="round"
+        animate={{ rotate: 360 }}
+        transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
+        style={{ originX: "200px", originY: "200px" }}
+      />
+
+      {/* Center cap */}
+      <circle cx="200" cy="200" r="4" fill={C.gold} />
+      <circle cx="200" cy="200" r="2" fill={C.bgCard} />
+
+      {/* Brand text */}
+      <text x="200" y="175" textAnchor="middle" fill={C.textMuted} fontSize="7" fontFamily="Cormorant SC, serif" letterSpacing="3">
+        MAISON
+      </text>
+      <text x="200" y="186" textAnchor="middle" fill={C.gold} fontSize="9" fontFamily="Cormorant SC, serif" letterSpacing="2">
+        DROUET
+      </text>
+      <text x="200" y="228" textAnchor="middle" fill={C.textDim} fontSize="5.5" fontFamily="Cormorant SC, serif" letterSpacing="2">
+        GENÈVE · EST. 1891
+      </text>
+    </motion.svg>
+  );
+}
+
+// ── Components ─────────────────────────────────────────────────────────────────
+function StatNumber({ value, label }: { value: string; label: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true, margin: "-80px" });
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, y }}
+      initial={{ opacity: 0, y: 20 }}
       animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 1, delay, ease: [0.25, 0.1, 0.25, 1] }}
+      transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+      style={{ textAlign: "center" }}
     >
-      {children}
+      <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(2rem, 4vw, 3.5rem)", fontWeight: 300, color: C.gold, letterSpacing: "-0.02em", lineHeight: 1 }}>
+        {value}
+      </div>
+      <div style={{ fontFamily: "'Cormorant SC', serif", fontSize: "0.65rem", letterSpacing: "0.2em", color: C.textMuted, marginTop: "0.5rem", textTransform: "uppercase" }}>
+        {label}
+      </div>
     </motion.div>
   );
 }
 
-function Counter({
-  to,
-  prefix = "",
-  suffix = "",
-}: {
-  to: number;
-  prefix?: string;
-  suffix?: string;
-}) {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true });
-  const [count, setCount] = useState(0);
-  useEffect(() => {
-    if (!isInView) return;
-    let cur = 0;
-    const step = to / 70;
-    const t = setInterval(() => {
-      cur += step;
-      if (cur >= to) {
-        setCount(to);
-        clearInterval(t);
-      } else {
-        setCount(Math.floor(cur));
-      }
-    }, 16);
-    return () => clearInterval(t);
-  }, [isInView, to]);
+function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <span ref={ref}>
-      {prefix}
-      {count.toLocaleString()}
-      {suffix}
-    </span>
+    <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "0.75rem" }}>
+      <div style={{ height: "1px", width: "2rem", background: C.goldDim }} />
+      <span style={{ fontFamily: "'Cormorant SC', serif", fontSize: "0.6rem", letterSpacing: "0.25em", color: C.goldDim, textTransform: "uppercase" }}>
+        {children}
+      </span>
+    </div>
   );
 }
 
-function MagneticBtn({
-  children,
-  className = "",
-  onClick,
-}: {
-  children: React.ReactNode;
-  className?: string;
-  onClick?: () => void;
-}) {
-  const ref = useRef<HTMLButtonElement>(null);
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-  const sx = useSpring(x, { stiffness: 200, damping: 20 });
-  const sy = useSpring(y, { stiffness: 200, damping: 20 });
-
-  const handleMouse = useCallback(
-    (e: React.MouseEvent) => {
-      const rect = ref.current?.getBoundingClientRect();
-      if (!rect) return;
-      x.set((e.clientX - rect.left - rect.width / 2) * 0.35);
-      y.set((e.clientY - rect.top - rect.height / 2) * 0.35);
-    },
-    [x, y],
-  );
-
-  const reset = useCallback(() => {
-    x.set(0);
-    y.set(0);
-  }, [x, y]);
-
+function HoverGoldLine() {
   return (
-    <motion.button
-      ref={ref}
-      style={{ x: sx, y: sy }}
-      onMouseMove={handleMouse}
-      onMouseLeave={reset}
-      onClick={onClick}
-      className={className}
-    >
-      {children}
-    </motion.button>
+    <motion.div
+      style={{ position: "absolute", bottom: 0, left: 0, height: "1px", background: C.gold, width: 0 }}
+      whileHover={{ width: "100%" }}
+      transition={{ duration: 0.4, ease: "easeOut" }}
+    />
   );
 }
 
-/* ==========================================================================
-   MAIN PAGE COMPONENT
-   ========================================================================= */
-
-export default function KryptaXProPage() {
-  const [scrolled, setScrolled] = useState(false);
+// ── Page ───────────────────────────────────────────────────────────────────────
+export default function MaisonDrouet() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const heroRef = useRef<HTMLDivElement>(null);
+  const [activeCol, setActiveCol] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [signupOpen, setSignupOpen] = useState(false);
 
-  const heroRef = useRef(null);
-  const { scrollYProgress } = useScroll({
-    target: heroRef,
-    offset: ["start start", "end start"],
-  });
-  const heroY = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
+  const { scrollYProgress } = useScroll({ target: containerRef });
+  const { scrollYProgress: heroScroll } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
 
-  useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 50);
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  const heroY = useTransform(heroScroll, [0, 1], ["0%", "25%"]);
+  const heroOpacity = useTransform(heroScroll, [0, 0.8], [1, 0]);
+
+  const navBg = useTransform(scrollYProgress, [0, 0.05], ["rgba(14,12,10,0)", "rgba(14,12,10,0.95)"]);
 
   return (
-    <div
-      className="premium-theme min-h-screen bg-[#060c08] text-[#e8f5e9] font-mono selection:bg-[#00ff9d] selection:text-black overflow-x-hidden"
-      style={{ scrollBehavior: "smooth" }}
-    >
-      {/* ==========================================
-          NAVIGATION
-          ========================================== */}
-      <nav
-        className={`fixed top-0 left-0 w-full z-50 transition-all duration-700 ${scrolled ? "bg-[#060c08]/98 backdrop-blur-md py-4 border-b border-[#00ff9d]/10 shadow-lg" : "bg-transparent py-10"}`}
+    <div ref={containerRef} style={{ background: C.bg, color: C.text, fontFamily: "'EB Garamond', serif", minHeight: "100vh", overflowX: "hidden" }}>
+      <style>{FONT}</style>
+
+      {/* ── Navigation ─────────────────────────────────────────────────────── */}
+      <motion.nav
+        style={{
+          position: "fixed", top: 0, left: 0, right: 0, zIndex: 100,
+          background: navBg,
+          backdropFilter: "blur(12px)",
+          borderBottom: `1px solid ${C.border}`,
+          padding: "0 2rem",
+          height: "70px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
       >
-        <div className="max-w-[1400px] mx-auto px-6 md:px-12 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded bg-[#00ff9d] flex items-center justify-center text-black shadow-[0_0_20px_rgba(0,255,157,0.3)]">
-              <Activity className="w-4.5 h-4.5" />
-            </div>
-            <span className="text-xl font-black tracking-tighter uppercase text-white">
-              KRYPTA<span className="text-[#00ff9d]">X</span>
-            </span>
-          </Link>
-
-          <div className="hidden lg:flex items-center gap-10 text-[10px] font-bold uppercase tracking-[0.3em] text-white/30">
-            <Link href="#" className="hover:text-[#00ff9d] transition-colors">
-              Markets
-            </Link>
-            <Link href="#" className="hover:text-[#00ff9d] transition-colors">
-              Institution
-            </Link>
-            <Link href="#" className="hover:text-[#00ff9d] transition-colors">
-              API_Docs
-            </Link>
-            <Link href="#" className="hover:text-[#00ff9d] transition-colors">
-              Custody
-            </Link>
-          </div>
-
-          <div className="flex items-center gap-8">
-            <div className="hidden xl:flex flex-col items-end">
-              <span className="text-[9px] font-bold text-white/20 uppercase tracking-widest">
-                BTC / USD
-              </span>
-              <span className="text-[11px] font-bold text-[#00ff9d] flex items-center gap-1">
-                67,432.80 <TrendingUp className="w-3 h-3" />
-              </span>
-            </div>
-            <button
-              onClick={() => setSignupOpen(true)}
-              className="px-8 py-3 bg-[#00ff9d] text-black text-[10px] font-bold uppercase tracking-widest rounded-sm hover:bg-white transition-all shadow-xl"
+        {/* Left nav */}
+        <div style={{ display: "flex", gap: "2rem", flex: 1 }}>
+          {["Collections", "Patrimoine", "Savoir-Faire"].map((item) => (
+            <motion.a
+              key={item}
+              href="#"
+              style={{ fontFamily: "'Cormorant SC', serif", fontSize: "0.7rem", letterSpacing: "0.2em", color: C.textMuted, textDecoration: "none", cursor: "pointer", position: "relative" }}
+              whileHover={{ color: C.text }}
+              transition={{ duration: 0.2 }}
             >
-              START_TRADING
-            </button>
-            <button onClick={() => setMenuOpen(true)} className="lg:hidden">
-              <Menu className="w-6 h-6" />
-            </button>
-          </div>
+              {item}
+              <HoverGoldLine />
+            </motion.a>
+          ))}
         </div>
-      </nav>
 
-      {/* MOBILE MENU */}
-      <AnimatePresence>
-        {menuOpen && (
-          <motion.div
-            initial={{ opacity: 0, x: "100%" }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: "100%" }}
-            transition={{ type: "tween", duration: 0.5 }}
-            className="fixed inset-0 z-[100] bg-[#060c08] p-8 pt-32 flex flex-col border-l border-[#00ff9d]/10"
-          >
-            <button
-              onClick={() => setMenuOpen(false)}
-              className="absolute top-10 right-8"
+        {/* Logo center */}
+        <div style={{ textAlign: "center", flex: 1 }}>
+          <div style={{ fontFamily: "'Cormorant SC', serif", fontSize: "0.6rem", letterSpacing: "0.3em", color: C.goldDim }}>MAISON</div>
+          <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.4rem", fontWeight: 400, letterSpacing: "0.15em", color: C.text, lineHeight: 1 }}>
+            DROUET
+          </div>
+          <div style={{ fontFamily: "'Cormorant SC', serif", fontSize: "0.5rem", letterSpacing: "0.3em", color: C.textDim }}>GENÈVE · 1891</div>
+        </div>
+
+        {/* Right nav */}
+        <div style={{ display: "flex", gap: "2rem", flex: 1, justifyContent: "flex-end" }}>
+          {["Bespoke", "Boutiques", "Contact"].map((item) => (
+            <motion.a
+              key={item}
+              href="#"
+              style={{ fontFamily: "'Cormorant SC', serif", fontSize: "0.7rem", letterSpacing: "0.2em", color: C.textMuted, textDecoration: "none", cursor: "pointer", position: "relative" }}
+              whileHover={{ color: C.text }}
+              transition={{ duration: 0.2 }}
             >
-              <X className="w-8 h-8" />
-            </button>
-            <div className="flex flex-col gap-10 text-4xl font-black tracking-tighter uppercase">
-              <Link href="#" onClick={() => setMenuOpen(false)}>
-                Markets
-              </Link>
-              <Link href="#" onClick={() => setMenuOpen(false)}>
-                Trade
-              </Link>
-              <Link href="#" onClick={() => setMenuOpen(false)}>
-                API
-              </Link>
-              <Link href="#" onClick={() => setMenuOpen(false)}>
-                Security
-              </Link>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+              {item}
+              <HoverGoldLine />
+            </motion.a>
+          ))}
+        </div>
+      </motion.nav>
 
-      {/* ==========================================
-          1. HERO (Cyber-Institutional)
-          ========================================== */}
+      {/* ── Hero ───────────────────────────────────────────────────────────── */}
       <section
         ref={heroRef}
-        className="relative w-full h-[100svh] flex flex-col justify-center overflow-hidden"
+        style={{
+          minHeight: "100vh",
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr",
+          alignItems: "center",
+          position: "relative",
+          overflow: "hidden",
+        }}
       >
-        <motion.div
-          style={{ y: heroY, opacity: heroOpacity }}
-          className="absolute inset-0 z-0"
-        >
-          <Image
-            src="https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=1600&q=80"
-            alt="Exchange Hero"
-            fill
-            className="object-cover opacity-[0.08]"
-            priority
+        {/* Left: text */}
+        <motion.div style={{ y: heroY, opacity: heroOpacity, padding: "clamp(4rem, 10vw, 8rem) 3rem clamp(4rem, 10vw, 8rem) clamp(2rem, 6vw, 6rem)" }}>
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 1, delay: 0.3 }}
+          >
+            <SectionLabel>Horlogerie Genevoise</SectionLabel>
+          </motion.div>
+          <motion.h1
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1.2, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
+            style={{
+              fontFamily: "'Cormorant Garamond', serif",
+              fontSize: "clamp(3rem, 7vw, 6.5rem)",
+              fontWeight: 300,
+              lineHeight: 0.95,
+              color: C.text,
+              margin: "1.5rem 0",
+              letterSpacing: "-0.02em",
+            }}
+          >
+            Le Temps<br />
+            <em style={{ color: C.gold, fontStyle: "italic" }}>Comme</em><br />
+            Philosophie
+          </motion.h1>
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, delay: 0.8 }}
+            style={{ fontSize: "1.1rem", color: C.textMuted, lineHeight: 1.7, maxWidth: "42ch", marginBottom: "2.5rem" }}
+          >
+            Depuis 1891, la Maison Drouet perpétue à Genève l'art de la Haute Horlogerie.
+            Chaque montre est une déclaration — contre la hâte, pour la permanence.
+          </motion.p>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, delay: 1 }}
+            style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}
+          >
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              style={{
+                background: C.gold,
+                color: C.bg,
+                border: "none",
+                padding: "0.85rem 2rem",
+                fontFamily: "'Cormorant SC', serif",
+                fontSize: "0.7rem",
+                letterSpacing: "0.2em",
+                cursor: "pointer",
+              }}
+            >
+              DÉCOUVRIR LES COLLECTIONS
+            </motion.button>
+            <motion.button
+              whileHover={{ borderColor: C.gold, color: C.gold }}
+              style={{
+                background: "transparent",
+                color: C.textMuted,
+                border: `1px solid ${C.border}`,
+                padding: "0.85rem 2rem",
+                fontFamily: "'Cormorant SC', serif",
+                fontSize: "0.7rem",
+                letterSpacing: "0.2em",
+                cursor: "pointer",
+                transition: "all 0.3s",
+              }}
+            >
+              BESPOKE
+            </motion.button>
+          </motion.div>
+
+          {/* Thin gold line */}
+          <motion.div
+            initial={{ scaleX: 0 }}
+            animate={{ scaleX: 1 }}
+            transition={{ duration: 1.5, delay: 1.2 }}
+            style={{ height: "1px", background: `linear-gradient(90deg, ${C.gold}, transparent)`, marginTop: "3rem", transformOrigin: "left" }}
           />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,#060c08_80%)]" />
         </motion.div>
 
-        {/* GRID OVERLAY */}
-        <div
-          className="absolute inset-0 z-1 opacity-10 pointer-events-none"
-          style={{
-            backgroundImage:
-              "linear-gradient(#00ff9d 1px, transparent 1px), linear-gradient(90deg, #00ff9d 1px, transparent 1px)",
-            backgroundSize: "80px 80px",
-          }}
-        />
-
-        <div className="relative z-10 max-w-[1400px] mx-auto px-6 md:px-12 w-full">
-          <Reveal>
-            <div className="inline-flex items-center gap-3 px-4 py-2 bg-[#00ff9d]/5 rounded border border-[#00ff9d]/20 text-[#00ff9d] text-[10px] font-bold uppercase tracking-widest mb-10 shadow-sm">
-              <span className="w-2 h-2 bg-[#00ff9d] rounded-full animate-pulse" />
-              Live: 1.2M Orders/sec matching deterministic
-            </div>
-            <h1 className="text-6xl md:text-8xl lg:text-[10rem] font-black leading-[0.85] tracking-tighter mb-12 text-white">
-              Institutional <br />{" "}
-              <span className="text-[#00ff9d]">Edge Tier.</span>
-            </h1>
-            <p className="max-w-xl text-lg md:text-xl text-white/30 leading-relaxed font-bold mb-12 uppercase tracking-tight">
-              Built for the top 1%. Sub-millisecond co-location, deterministic
-              sequencing, and zero-compromise MPC custody.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-6">
-              <MagneticBtn
-                onClick={() => setSignupOpen(true)}
-                className="px-12 py-5 bg-[#00ff9d] text-black text-[10px] font-bold uppercase tracking-[0.4em] rounded-sm hover:bg-white transition-all cursor-pointer shadow-2xl shadow-[#00ff9d]/20"
-              >
-                Open Account
-              </MagneticBtn>
-              <button className="px-12 py-5 border border-white/10 text-white text-[10px] font-bold uppercase tracking-[0.4em] rounded-sm hover:bg-white hover:text-black transition-all cursor-pointer">
-                Institutional_API
-              </button>
-            </div>
-          </Reveal>
-        </div>
-
+        {/* Right: Orbital */}
         <motion.div
-          style={{ opacity: heroOpacity }}
-          className="absolute bottom-10 right-12 hidden md:block"
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 1.5, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+          style={{ padding: "6rem 4rem 6rem 2rem", display: "flex", alignItems: "center", justifyContent: "center" }}
         >
-          <div className="flex flex-col items-end gap-3">
-            <span className="text-[9px] font-bold text-white/10 uppercase tracking-[0.5em]">
-              FRK // SGP // NY // TYO
-            </span>
-            <div className="w-32 h-[1px] bg-[#00ff9d]/20" />
+          <div style={{ width: "min(500px, 90%)", aspectRatio: "1" }}>
+            <OrbitalComplication scrollYProgress={scrollYProgress} />
           </div>
         </motion.div>
-      </section>
 
-      {/* ==========================================
-          2. THE LEDGER ENGINE (Performance)
-          ========================================== */}
-      <section className="py-32 bg-[#060c08] border-y border-[#00ff9d]/5">
-        <div className="max-w-[1400px] mx-auto px-6 md:px-12">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 md:gap-32 items-center">
-            <div className="lg:col-span-5">
-              <Reveal>
-                <span className="text-[10px] uppercase tracking-[0.4em] font-bold text-[#00ff9d] mb-6 block">
-                  Low-Latency Core
-                </span>
-                <h2 className="text-5xl md:text-7xl font-black tracking-tighter leading-tight mb-12 text-white uppercase">
-                  Deterministic <br />{" "}
-                  <span className="text-[#00ff9d]">Execution.</span>
-                </h2>
-                <p className="text-lg text-white/30 leading-relaxed font-bold mb-16 uppercase tracking-tight italic">
-                  Our matching engine processes 1.2M orders per second with
-                  sub-millisecond round-trips. No slippage, no lag, no
-                  exceptions.
-                </p>
-
-                <div className="space-y-10">
-                  {[
-                    {
-                      label: "Throughput",
-                      val: "1.2M+",
-                      suffix: " orders/s",
-                      desc: "Horizontal scaling with zero performance degradation.",
-                    },
-                    {
-                      label: "Deterministic",
-                      val: "100",
-                      suffix: "%",
-                      desc: "Every order sequence is verified and immutable.",
-                    },
-                    {
-                      label: "Availability",
-                      val: "99.999",
-                      suffix: "%",
-                      desc: "Multi-region failover with zero downtime history.",
-                    },
-                  ].map((item, i) => (
-                    <div
-                      key={i}
-                      className="group border-l border-[#00ff9d]/10 pl-8 hover:border-[#00ff9d] transition-all"
-                    >
-                      <h4 className="text-sm font-bold uppercase tracking-tight mb-2 text-white/60">
-                        {item.label}
-                      </h4>
-                      <div className="text-3xl font-black text-[#00ff9d] mb-2 uppercase italic">
-                        {item.val}
-                        {item.suffix}
-                      </div>
-                      <p className="text-[10px] text-white/20 leading-relaxed font-bold uppercase tracking-widest">
-                        {item.desc}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </Reveal>
-            </div>
-
-            <div className="lg:col-span-7">
-              <Reveal className="relative aspect-square rounded-sm overflow-hidden shadow-2xl border border-[#00ff9d]/10 bg-[#030806] p-8 group">
-                <div className="flex items-center justify-between mb-10 pb-6 border-b border-[#00ff9d]/10">
-                  <div className="flex items-center gap-4">
-                    <Terminal className="w-5 h-5 text-[#00ff9d]" />
-                    <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-[#00ff9d]">
-                      Matching_Core_Live
-                    </span>
-                  </div>
-                  <div className="flex gap-2">
-                    <div className="w-1.5 h-1.5 bg-[#00ff9d] rounded-full animate-pulse" />
-                    <div className="w-1.5 h-1.5 bg-[#00ff9d]/30 rounded-full" />
-                  </div>
-                </div>
-
-                <div className="space-y-4 font-mono">
-                  {[
-                    {
-                      time: "14:32:01.002",
-                      op: "RECV",
-                      val: "BUY 12.4 BTC @ 67432.80",
-                      status: "ACK",
-                    },
-                    {
-                      time: "14:32:01.003",
-                      op: "MTCH",
-                      val: "ORD_774x -> ORD_881y",
-                      status: "FILL",
-                    },
-                    {
-                      time: "14:32:01.004",
-                      op: "LDGR",
-                      val: "SETTLE_BATCH_0x99",
-                      status: "CONF",
-                    },
-                    {
-                      time: "14:32:01.005",
-                      op: "PUSH",
-                      val: "WS_PUBLISH_MD_TICK",
-                      status: "DONE",
-                    },
-                  ].map((log, i) => (
-                    <div
-                      key={i}
-                      className="flex items-center gap-6 text-[10px] py-2 border-b border-white/[0.02]"
-                    >
-                      <span className="text-white/20">{log.time}</span>
-                      <span className="text-[#00ff9d] font-black">
-                        {log.op}
-                      </span>
-                      <span className="text-white/50 flex-1 truncate">
-                        {log.val}
-                      </span>
-                      <span className="text-[#00ff9d]/40">[{log.status}]</span>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="mt-12 p-8 bg-[#00ff9d]/5 border border-[#00ff9d]/10">
-                  <div className="flex justify-between text-[10px] font-bold uppercase tracking-[0.3em] mb-4">
-                    <span className="text-white/40">Latency Buffer</span>
-                    <span className="text-[#00ff9d]">0.18ms</span>
-                  </div>
-                  <div className="h-1 bg-[#00ff9d]/10 rounded-full overflow-hidden">
-                    <motion.div
-                      initial={{ width: 0 }}
-                      whileInView={{ width: "88%" }}
-                      transition={{ duration: 2 }}
-                      className="h-full bg-[#00ff9d]"
-                    />
-                  </div>
-                </div>
-              </Reveal>
-            </div>
-          </div>
+        {/* Corner decorations */}
+        <div style={{ position: "absolute", top: "5rem", left: "3rem", fontFamily: "'Cormorant SC', serif", fontSize: "0.55rem", letterSpacing: "0.2em", color: C.textDim }}>
+          GENÈVE · SUISSE
+        </div>
+        <div style={{ position: "absolute", bottom: "3rem", right: "3rem", fontFamily: "'Cormorant SC', serif", fontSize: "0.55rem", letterSpacing: "0.2em", color: C.textDim, textAlign: "right" }}>
+          EST. MDCCCXCI
         </div>
       </section>
 
-      {/* ==========================================
-          3. ASSET ARCHIVE
-          ========================================== */}
-      <section className="py-32 bg-[#060c08]">
-        <div className="max-w-[1400px] mx-auto px-6 md:px-12">
-          <div className="flex flex-col md:flex-row justify-between items-end mb-24 gap-12">
-            <Reveal>
-              <h2 className="text-5xl md:text-8xl font-black tracking-tighter uppercase leading-[0.9] text-white">
-                Market <br /> <span className="text-[#00ff9d]">Atlas.</span>
-              </h2>
-            </Reveal>
-            <p className="max-w-sm text-sm text-white/30 leading-relaxed font-bold uppercase tracking-widest italic">
-              Real-time liquidity across 300+ pairs. Deterministic price feeds
-              with sub-second accuracy.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-            {ASSETS.map((a, i) => (
-              <Reveal key={a.symbol} delay={i * 0.05}>
-                <div className="group p-8 bg-[#030806] border border-white/[0.05] hover:border-[#00ff9d]/40 transition-all rounded shadow-sm">
-                  <div className="flex items-center justify-between mb-8">
-                    <span className="text-[9px] font-bold uppercase tracking-widest text-white/20">
-                      {a.symbol}
-                    </span>
-                    {a.up ? (
-                      <TrendingUp className="w-4 h-4 text-[#00ff9d]" />
-                    ) : (
-                      <TrendingDown className="w-4 h-4 text-red-500" />
-                    )}
-                  </div>
-                  <div className="text-2xl font-black text-white mb-2 italic">
-                    ${a.price}
-                  </div>
-                  <div
-                    className={`text-[10px] font-black ${a.up ? "text-[#00ff9d]" : "text-red-500"} mb-8`}
-                  >
-                    {a.change}
-                  </div>
-                  <div className="border-t border-white/[0.05] pt-6 flex items-center justify-between">
-                    <span className="text-[8px] font-bold text-white/10 uppercase tracking-widest">
-                      Vol: {a.vol}
-                    </span>
-                    <button className="text-[10px] font-bold text-[#00ff9d] hover:text-white transition-colors uppercase tracking-[0.2em]">
-                      Trade
-                    </button>
-                  </div>
-                </div>
-              </Reveal>
-            ))}
-          </div>
+      {/* ── Stats ──────────────────────────────────────────────────────────── */}
+      <section style={{ padding: "5rem clamp(2rem, 6vw, 6rem)", borderTop: `1px solid ${C.border}`, borderBottom: `1px solid ${C.border}`, background: C.bgSection }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "2rem", maxWidth: "1000px", margin: "0 auto" }}>
+          <StatNumber value="133" label="Années d'histoire" />
+          <StatNumber value="23" label="Maîtres-horlogers" />
+          <StatNumber value="4,200" label="Pièces par an" />
+          <StatNumber value="47" label="Distinctions" />
         </div>
       </section>
 
-      {/* ==========================================
-          4. SECURITY STACK
-          ========================================== */}
-      <section className="py-32 bg-[#030806] border-y border-[#00ff9d]/5">
-        <div className="max-w-[1400px] mx-auto px-6 md:px-12">
-          <Reveal className="text-center max-w-2xl mx-auto mb-24">
-            <span className="text-[10px] uppercase tracking-[0.5em] font-black text-[#00ff9d] mb-6 block">
-              Safety Protocol
-            </span>
-            <h2 className="text-5xl md:text-7xl font-black tracking-tighter uppercase italic text-white">
-              Trust Buffer.
+      {/* ── Collections ────────────────────────────────────────────────────── */}
+      <section style={{ padding: "8rem clamp(2rem, 6vw, 6rem)" }}>
+        <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
+          <div style={{ textAlign: "center", marginBottom: "4rem" }}>
+            <SectionLabel>Nos Collections</SectionLabel>
+            <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(2rem, 4vw, 3.5rem)", fontWeight: 300, color: C.text, letterSpacing: "-0.01em" }}>
+              Quatre Expressions<br />
+              <em style={{ color: C.gold }}>d'une Même Passion</em>
             </h2>
-          </Reveal>
+          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {SECURITY_STACK.map((item, i) => (
-              <Reveal key={i} delay={i * 0.1}>
-                <div className="group p-10 bg-[#060c08] border border-white/[0.03] hover:border-[#00ff9d]/40 transition-all text-left">
-                  <div className="w-12 h-12 bg-[#00ff9d]/5 rounded flex items-center justify-center text-[#00ff9d] mb-8 group-hover:scale-110 transition-transform">
-                    {item.icon}
-                  </div>
-                  <h4 className="text-xl font-black uppercase tracking-tight mb-4 text-white">
-                    {item.title}
-                  </h4>
-                  <p className="text-[11px] text-white/30 leading-relaxed font-bold uppercase tracking-widest italic">
-                    {item.desc}
-                  </p>
-                </div>
-              </Reveal>
+          {/* Tab selectors */}
+          <div style={{ display: "flex", gap: "0", marginBottom: "3rem", borderBottom: `1px solid ${C.border}` }}>
+            {COLLECTIONS.map((col, i) => (
+              <motion.button
+                key={col.id}
+                onClick={() => setActiveCol(i)}
+                style={{
+                  background: "none",
+                  border: "none",
+                  padding: "1rem 2rem",
+                  fontFamily: "'Cormorant SC', serif",
+                  fontSize: "0.7rem",
+                  letterSpacing: "0.2em",
+                  color: i === activeCol ? C.gold : C.textMuted,
+                  cursor: "pointer",
+                  position: "relative",
+                }}
+                whileHover={{ color: C.text }}
+              >
+                {col.name}
+                {i === activeCol && (
+                  <motion.div
+                    layoutId="col-indicator"
+                    style={{ position: "absolute", bottom: "-1px", left: 0, right: 0, height: "1px", background: C.gold }}
+                  />
+                )}
+              </motion.button>
             ))}
           </div>
-        </div>
-      </section>
 
-      {/* ==========================================
-          5. LIQUIDITY NETWORK
-          ========================================== */}
-      <section className="py-32 bg-[#060c08] relative overflow-hidden">
-        <div className="absolute inset-0 opacity-[0.03] pointer-events-none">
-          <Globe className="w-full h-full text-[#00ff9d]" />
-        </div>
-        <div className="max-w-[1400px] mx-auto px-6 md:px-12 relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-24 items-center">
-            <div>
-              <Reveal>
-                <span className="text-[10px] uppercase tracking-[0.5em] font-black text-[#00ff9d] mb-6 block">
-                  Global Nodes
-                </span>
-                <h2 className="text-5xl md:text-7xl font-black tracking-tighter leading-tight mb-12 uppercase text-white">
-                  Liquid <br /> <span className="text-[#00ff9d]">Bridge.</span>
-                </h2>
-                <p className="text-lg text-white/30 leading-relaxed font-bold mb-16 max-w-lg italic uppercase tracking-tight">
-                  Access aggregated liquidity from top-tier institutional
-                  providers through our proprietary cross-venue routing logic.
-                </p>
-
-                <div className="space-y-6">
-                  {LIQUIDITY_VENUES.map((venue, i) => (
-                    <div
-                      key={i}
-                      className="flex items-center justify-between p-6 bg-white/[0.02] border border-white/[0.05] hover:border-[#00ff9d]/30 transition-all"
-                    >
-                      <div className="flex items-center gap-6">
-                        <Server className="w-5 h-5 text-[#00ff9d]" />
-                        <div>
-                          <h4 className="text-sm font-black uppercase tracking-tight text-white">
-                            {venue.name}
-                          </h4>
-                          <span className="text-[9px] font-bold text-white/20 uppercase tracking-widest">
-                            Co-location Available
-                          </span>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <span className="text-[10px] font-black text-[#00ff9d] block mb-1">
-                          {venue.roundtrip}
-                        </span>
-                        <span className="text-[9px] font-bold text-green-500 uppercase tracking-widest">
-                          {venue.status}
-                        </span>
-                      </div>
-                    </div>
+          {/* Active collection */}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeCol}
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -15 }}
+              transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+              style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4rem", alignItems: "center" }}
+            >
+              {/* Visual placeholder */}
+              <div style={{
+                aspectRatio: "4/5",
+                background: C.bgCard,
+                border: `1px solid ${C.border}`,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                position: "relative",
+                overflow: "hidden",
+              }}>
+                {/* Guilloché pattern */}
+                <svg viewBox="0 0 400 500" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", opacity: 0.08 }}>
+                  {Array.from({ length: 20 }).map((_, i) => (
+                    <g key={i}>
+                      <line x1={i * 20} y1="0" x2={i * 20} y2="500" stroke={C.gold} strokeWidth="0.5" />
+                      <line x1="0" y1={i * 25} x2="400" y2={i * 25} stroke={C.gold} strokeWidth="0.5" />
+                    </g>
                   ))}
+                </svg>
+                <div style={{ textAlign: "center", zIndex: 1 }}>
+                  <div style={{ fontFamily: "'Cormorant SC', serif", fontSize: "0.55rem", letterSpacing: "0.3em", color: C.textDim, marginBottom: "1rem" }}>
+                    RÉFÉRENCE
+                  </div>
+                  <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.2rem", color: C.gold, letterSpacing: "0.1em" }}>
+                    {COLLECTIONS[activeCol].ref}
+                  </div>
+                  <div style={{ width: "40px", height: "1px", background: C.goldDim, margin: "1.5rem auto" }} />
+                  <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "2.5rem", fontWeight: 300, color: C.text }}>
+                    {COLLECTIONS[activeCol].name}
+                  </div>
                 </div>
-              </Reveal>
-            </div>
-
-            <Reveal className="bg-white/[0.01] border border-white/[0.05] p-12 rounded backdrop-blur-3xl shadow-2xl">
-              <div className="flex items-center justify-between mb-12">
-                <h3 className="text-2xl font-black uppercase tracking-tighter text-[#00ff9d]">
-                  Institutional_SDK
-                </h3>
-                <Code2 className="w-6 h-6 text-white/20" />
-              </div>
-              <div className="space-y-6 mb-12">
-                {[
-                  {
-                    title: "KryptaX FIX 4.4 Spec",
-                    size: "1.2 MB",
-                    type: "PDF",
-                  },
-                  {
-                    title: "WebSocket MD Stream v2",
-                    size: "0.8 MB",
-                    type: "JSON",
-                  },
-                  { title: "Python SDK for HFT", size: "4.5 MB", type: "GZIP" },
-                ].map((file, i) => (
-                  <div
-                    key={i}
-                    className="flex items-center justify-between group cursor-pointer border-b border-white/[0.05] pb-4"
-                  >
-                    <div className="flex items-center gap-6">
-                      <div className="w-8 h-8 rounded bg-white/5 flex items-center justify-center text-white/40 group-hover:bg-[#00ff9d] group-hover:text-black transition-all">
-                        <BookOpen className="w-4 h-4" />
-                      </div>
-                      <div>
-                        <h4 className="text-sm font-bold uppercase tracking-tight text-white group-hover:text-[#00ff9d] transition-colors">
-                          {file.title}
-                        </h4>
-                        <span className="text-[9px] font-bold text-white/20 uppercase tracking-widest">
-                          {file.size} // {file.type}
-                        </span>
-                      </div>
-                    </div>
-                    <ArrowUpRight className="w-4 h-4 text-white/20 group-hover:text-[#00ff9d] transition-all" />
+                {/* Corner marks */}
+                {[["0,0", "20,0", "0,20"], ["100%,0", "calc(100% - 20px),0", "100%,20px"]].map((_, i) => (
+                  <div key={i} style={{ position: "absolute", [i === 0 ? "top" : "top"]: "1rem", [i === 0 ? "left" : "right"]: "1rem" }}>
+                    <svg width="20" height="20" viewBox="0 0 20 20">
+                      <path d={i === 0 ? "M0,0 L20,0 M0,0 L0,20" : "M20,0 L0,0 M20,0 L20,20"} stroke={C.goldDim} strokeWidth="0.8" fill="none" />
+                    </svg>
                   </div>
                 ))}
               </div>
-              <button className="w-full py-5 bg-[#00ff9d] text-black text-[10px] font-bold uppercase tracking-[0.4em] rounded hover:bg-white transition-all cursor-pointer">
-                Access_Documentation
-              </button>
-            </Reveal>
+
+              {/* Details */}
+              <div>
+                <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(1.8rem, 3vw, 2.5rem)", fontWeight: 300, color: C.text, marginBottom: "0.5rem" }}>
+                  {COLLECTIONS[activeCol].name}
+                </div>
+                <div style={{ fontFamily: "'Cormorant SC', serif", fontSize: "0.6rem", letterSpacing: "0.2em", color: C.goldDim, marginBottom: "1.5rem" }}>
+                  {COLLECTIONS[activeCol].ref}
+                </div>
+                <p style={{ fontSize: "1.05rem", color: C.textMuted, lineHeight: 1.75, marginBottom: "2rem", maxWidth: "45ch" }}>
+                  {COLLECTIONS[activeCol].desc}
+                </p>
+
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "1.5rem", marginBottom: "2.5rem", paddingTop: "1.5rem", borderTop: `1px solid ${C.border}` }}>
+                  {[
+                    { label: "Mouvement", val: COLLECTIONS[activeCol].movement },
+                    { label: "Boîtier", val: COLLECTIONS[activeCol].case },
+                    { label: "Étanchéité", val: COLLECTIONS[activeCol].water },
+                  ].map((spec) => (
+                    <div key={spec.label}>
+                      <div style={{ fontFamily: "'Cormorant SC', serif", fontSize: "0.55rem", letterSpacing: "0.2em", color: C.textDim, marginBottom: "0.4rem" }}>
+                        {spec.label}
+                      </div>
+                      <div style={{ fontSize: "0.8rem", color: C.textMuted, lineHeight: 1.4 }}>{spec.val}</div>
+                    </div>
+                  ))}
+                </div>
+
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingTop: "1.5rem", borderTop: `1px solid ${C.border}` }}>
+                  <div>
+                    <div style={{ fontFamily: "'Cormorant SC', serif", fontSize: "0.55rem", letterSpacing: "0.2em", color: C.textDim }}>PRIX PUBLIC</div>
+                    <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.8rem", fontWeight: 300, color: C.gold }}>
+                      {COLLECTIONS[activeCol].price}
+                    </div>
+                  </div>
+                  <motion.button
+                    whileHover={{ scale: 1.02, backgroundColor: C.goldLight }}
+                    whileTap={{ scale: 0.98 }}
+                    style={{
+                      background: C.gold,
+                      color: C.bg,
+                      border: "none",
+                      padding: "0.75rem 1.75rem",
+                      fontFamily: "'Cormorant SC', serif",
+                      fontSize: "0.65rem",
+                      letterSpacing: "0.2em",
+                      cursor: "pointer",
+                      transition: "background 0.3s",
+                    }}
+                  >
+                    DEMANDER EN BOUTIQUE
+                  </motion.button>
+                </div>
+              </div>
+            </motion.div>
+          </AnimatePresence>
+        </div>
+      </section>
+
+      {/* ── Heritage Timeline ──────────────────────────────────────────────── */}
+      <section style={{ padding: "8rem clamp(2rem, 6vw, 6rem)", background: C.bgSection, borderTop: `1px solid ${C.border}` }}>
+        <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
+          <div style={{ marginBottom: "5rem" }}>
+            <SectionLabel>Notre Patrimoine</SectionLabel>
+            <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(2rem, 4vw, 3.5rem)", fontWeight: 300, color: C.text }}>
+              133 Ans<br />
+              <em style={{ color: C.gold }}>de Continuité</em>
+            </h2>
+          </div>
+
+          <div style={{ position: "relative" }}>
+            {/* Vertical line */}
+            <div style={{ position: "absolute", left: "6rem", top: 0, bottom: 0, width: "1px", background: `linear-gradient(180deg, transparent, ${C.border} 10%, ${C.border} 90%, transparent)` }} />
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "0" }}>
+              {HERITAGE.map((event, i) => {
+                const ref = useRef<HTMLDivElement>(null);
+                const inView = useInView(ref, { once: true, margin: "-100px" });
+                return (
+                  <motion.div
+                    key={event.year}
+                    ref={ref}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={inView ? { opacity: 1, x: 0 } : {}}
+                    transition={{ duration: 0.7, delay: i * 0.1, ease: [0.22, 1, 0.36, 1] }}
+                    style={{ display: "grid", gridTemplateColumns: "6rem 1fr", gap: "3rem", paddingBottom: "3.5rem", paddingTop: "0.5rem", position: "relative" }}
+                  >
+                    {/* Year */}
+                    <div style={{ textAlign: "right", paddingRight: "1.5rem" }}>
+                      <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1rem", fontWeight: 500, color: C.gold }}>
+                        {event.year}
+                      </div>
+                      {/* Dot on timeline */}
+                      <div style={{ position: "absolute", left: "calc(6rem - 3px)", top: "0.4rem", width: "7px", height: "7px", borderRadius: "50%", background: C.gold, border: `2px solid ${C.bgSection}` }} />
+                    </div>
+                    {/* Content */}
+                    <div>
+                      <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.2rem", fontWeight: 500, color: C.text, marginBottom: "0.5rem" }}>
+                        {event.title}
+                      </div>
+                      <p style={{ fontSize: "1rem", color: C.textMuted, lineHeight: 1.75, maxWidth: "60ch" }}>
+                        {event.desc}
+                      </p>
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </div>
           </div>
         </div>
       </section>
 
-      {/* ==========================================
-          6. STATS (Counter)
-          ========================================== */}
-      <section className="py-24 bg-[#030806] border-y border-[#00ff9d]/5">
-        <div className="max-w-[1400px] mx-auto px-6 md:px-12 grid grid-cols-2 lg:grid-cols-4 gap-16 text-center">
+      {/* ── Savoir-Faire ───────────────────────────────────────────────────── */}
+      <section style={{ padding: "8rem clamp(2rem, 6vw, 6rem)" }}>
+        <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
+          <div style={{ textAlign: "center", marginBottom: "5rem" }}>
+            <SectionLabel>Savoir-Faire</SectionLabel>
+            <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(2rem, 4vw, 3.5rem)", fontWeight: 300, color: C.text }}>
+              L'Art de<br />
+              <em style={{ color: C.gold }}>la Perfection</em>
+            </h2>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "1px", background: C.border }}>
+            {SAVOIR_FAIRE.map((sf, i) => {
+              const ref = useRef<HTMLDivElement>(null);
+              const inView = useInView(ref, { once: true, margin: "-80px" });
+              return (
+                <motion.div
+                  key={sf.title}
+                  ref={ref}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={inView ? { opacity: 1, y: 0 } : {}}
+                  transition={{ duration: 0.7, delay: (i % 2) * 0.15 }}
+                  style={{ background: C.bg, padding: "3.5rem", position: "relative", overflow: "hidden" }}
+                >
+                  {/* Background number */}
+                  <div style={{
+                    position: "absolute",
+                    top: "1rem",
+                    right: "1.5rem",
+                    fontFamily: "'Cormorant Garamond', serif",
+                    fontSize: "6rem",
+                    fontWeight: 300,
+                    color: C.border,
+                    lineHeight: 1,
+                    userSelect: "none",
+                  }}>
+                    {String(i + 1).padStart(2, "0")}
+                  </div>
+
+                  <div style={{ fontFamily: "'Cormorant SC', serif", fontSize: "1.6rem", color: C.gold, marginBottom: "1rem", position: "relative" }}>
+                    {sf.stat}
+                  </div>
+                  <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.4rem", fontWeight: 500, color: C.text, marginBottom: "0.75rem" }}>
+                    {sf.title}
+                  </h3>
+                  <p style={{ fontSize: "0.95rem", color: C.textMuted, lineHeight: 1.75 }}>
+                    {sf.desc}
+                  </p>
+                </motion.div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Bespoke ────────────────────────────────────────────────────────── */}
+      <section style={{ padding: "8rem clamp(2rem, 6vw, 6rem)", background: C.bgSection, borderTop: `1px solid ${C.border}`, borderBottom: `1px solid ${C.border}` }}>
+        <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "6rem", alignItems: "center" }}>
+            <div>
+              <SectionLabel>Création Unique</SectionLabel>
+              <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(2rem, 4vw, 3.5rem)", fontWeight: 300, color: C.text, marginBottom: "1.5rem" }}>
+                Votre Montre.<br />
+                <em style={{ color: C.gold }}>Nulle Autre.</em>
+              </h2>
+              <p style={{ fontSize: "1.05rem", color: C.textMuted, lineHeight: 1.75, maxWidth: "45ch" }}>
+                Le programme Bespoke Drouet transforme une vision personnelle en chef-d'œuvre horloger. Mouvement exclusif, cadran unique, gravures sur mesure. Une montre que personne d'autre au monde ne possédera.
+              </p>
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                style={{
+                  marginTop: "2rem",
+                  background: "transparent",
+                  color: C.gold,
+                  border: `1px solid ${C.gold}`,
+                  padding: "0.85rem 2rem",
+                  fontFamily: "'Cormorant SC', serif",
+                  fontSize: "0.7rem",
+                  letterSpacing: "0.2em",
+                  cursor: "pointer",
+                }}
+              >
+                DEMANDER UNE CONSULTATION
+              </motion.button>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: "0" }}>
+              {BESPOKE_STEPS.map((step, i) => {
+                const ref = useRef<HTMLDivElement>(null);
+                const inView = useInView(ref, { once: true, margin: "-80px" });
+                return (
+                  <motion.div
+                    key={step.n}
+                    ref={ref}
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={inView ? { opacity: 1, x: 0 } : {}}
+                    transition={{ duration: 0.6, delay: i * 0.1 }}
+                    style={{ display: "grid", gridTemplateColumns: "3rem 1fr", gap: "1.5rem", padding: "1.75rem 0", borderBottom: i < 3 ? `1px solid ${C.border}` : "none" }}
+                  >
+                    <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.4rem", fontWeight: 300, color: C.goldDim }}>
+                      {step.n}
+                    </div>
+                    <div>
+                      <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.05rem", fontWeight: 500, color: C.text, marginBottom: "0.4rem" }}>
+                        {step.title}
+                      </div>
+                      <p style={{ fontSize: "0.88rem", color: C.textMuted, lineHeight: 1.65 }}>{step.desc}</p>
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Press ──────────────────────────────────────────────────────────── */}
+      <section style={{ padding: "8rem clamp(2rem, 6vw, 6rem)" }}>
+        <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
+          <div style={{ textAlign: "center", marginBottom: "5rem" }}>
+            <SectionLabel>Presse & Distinctions</SectionLabel>
+            <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(2rem, 4vw, 3.5rem)", fontWeight: 300, color: C.text }}>
+              Ce Que l'On Dit<br />
+              <em style={{ color: C.gold }}>de Drouet</em>
+            </h2>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "2px", background: C.border, marginBottom: "4rem" }}>
+            {PRESS.map((item, i) => {
+              const ref = useRef<HTMLDivElement>(null);
+              const inView = useInView(ref, { once: true });
+              return (
+                <motion.div
+                  key={i}
+                  ref={ref}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={inView ? { opacity: 1, y: 0 } : {}}
+                  transition={{ duration: 0.7, delay: i * 0.1 }}
+                  style={{ background: C.bg, padding: "2.5rem" }}
+                >
+                  <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "2rem", color: C.goldDim, lineHeight: 1, marginBottom: "1rem" }}>"</div>
+                  <p style={{ fontFamily: "'EB Garamond', serif", fontSize: "1rem", fontStyle: "italic", color: C.text, lineHeight: 1.75, marginBottom: "1.5rem" }}>
+                    {item.quote}
+                  </p>
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                    <div style={{ width: "1.5rem", height: "1px", background: C.goldDim }} />
+                    <div>
+                      <div style={{ fontSize: "0.8rem", color: C.text }}>{item.author}</div>
+                      <div style={{ fontFamily: "'Cormorant SC', serif", fontSize: "0.55rem", letterSpacing: "0.2em", color: C.textMuted }}>{item.outlet} · {item.year}</div>
+                    </div>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
+
+          {/* Awards */}
+          <div style={{ display: "flex", justifyContent: "center", gap: "3rem", flexWrap: "wrap", paddingTop: "3rem", borderTop: `1px solid ${C.border}` }}>
+            {AWARDS.map((award) => (
+              <div key={award} style={{ textAlign: "center" }}>
+                <div style={{ width: "2px", height: "1.5rem", background: C.goldDim, margin: "0 auto 0.75rem" }} />
+                <div style={{ fontFamily: "'Cormorant SC', serif", fontSize: "0.6rem", letterSpacing: "0.2em", color: C.textMuted }}>
+                  {award}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Contact CTA ────────────────────────────────────────────────────── */}
+      <section style={{ padding: "8rem clamp(2rem, 6vw, 6rem)", background: C.bgCard, borderTop: `1px solid ${C.border}`, textAlign: "center" }}>
+        <div style={{ maxWidth: "700px", margin: "0 auto" }}>
+          <div style={{ marginBottom: "1.5rem" }}>
+            <div style={{ width: "40px", height: "1px", background: C.goldDim, margin: "0 auto 1rem" }} />
+            <SectionLabel>Nos Boutiques</SectionLabel>
+          </div>
+          <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(2.2rem, 5vw, 4rem)", fontWeight: 300, color: C.text, marginBottom: "1rem" }}>
+            Venez Nous Rendre<br />
+            <em style={{ color: C.gold }}>Visite à Genève</em>
+          </h2>
+          <p style={{ fontSize: "1.05rem", color: C.textMuted, lineHeight: 1.75, marginBottom: "1rem" }}>
+            42 rue de Rive, 1204 Genève<br />
+            Lundi–Samedi, 10h–18h30
+          </p>
+          <p style={{ fontFamily: "'Cormorant SC', serif", fontSize: "0.7rem", letterSpacing: "0.2em", color: C.textDim, marginBottom: "2.5rem" }}>
+            SUR RENDEZ-VOUS ÉGALEMENT DISPONIBLE
+          </p>
+          <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              style={{
+                background: C.gold,
+                color: C.bg,
+                border: "none",
+                padding: "0.85rem 2.5rem",
+                fontFamily: "'Cormorant SC', serif",
+                fontSize: "0.7rem",
+                letterSpacing: "0.2em",
+                cursor: "pointer",
+              }}
+            >
+              PRENDRE RENDEZ-VOUS
+            </motion.button>
+            <motion.button
+              whileHover={{ borderColor: C.gold, color: C.gold }}
+              style={{
+                background: "transparent",
+                color: C.textMuted,
+                border: `1px solid ${C.border}`,
+                padding: "0.85rem 2.5rem",
+                fontFamily: "'Cormorant SC', serif",
+                fontSize: "0.7rem",
+                letterSpacing: "0.2em",
+                cursor: "pointer",
+                transition: "all 0.3s",
+              }}
+            >
+              +41 22 000 00 00
+            </motion.button>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Footer ─────────────────────────────────────────────────────────── */}
+      <footer style={{ borderTop: `1px solid ${C.border}`, padding: "3rem clamp(2rem, 6vw, 6rem)" }}>
+        <div style={{ maxWidth: "1200px", margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: "3rem" }}>
+          {/* Brand */}
+          <div>
+            <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.3rem", letterSpacing: "0.15em", color: C.text, marginBottom: "0.25rem" }}>
+              MAISON DROUET
+            </div>
+            <div style={{ fontFamily: "'Cormorant SC', serif", fontSize: "0.55rem", letterSpacing: "0.3em", color: C.textDim, marginBottom: "1.5rem" }}>
+              HORLOGERS · GENÈVE · 1891
+            </div>
+            <p style={{ fontSize: "0.85rem", color: C.textDim, lineHeight: 1.65 }}>
+              Chaque seconde compte.<br />
+              Chaque montre témoigne.
+            </p>
+          </div>
+
           {[
-            { label: "Monthly_Flow", val: 400, suffix: "B+" },
-            { label: "Registered_Desks", val: 1200, suffix: "+" },
-            { label: "Pair_Density", val: 312, suffix: "+" },
-            { label: "Uptime_SLA", val: 99.99, suffix: "%" },
-          ].map((stat, i) => (
-            <Reveal key={i} delay={i * 0.1}>
-              <div className="text-5xl md:text-7xl font-black text-[#00ff9d] mb-4 italic tabular-nums">
-                <Counter to={stat.val} suffix={stat.suffix} />
+            { title: "Collections", items: ["Perpétuelle", "Tourbillon Souverain", "Marine Chronographe", "Classique Dame"] },
+            { title: "Maison", items: ["Notre Histoire", "Savoir-Faire", "Bespoke", "Carrières"] },
+            { title: "Service", items: ["Entretien & Révision", "Authentification", "Service Après-Vente", "FAQ"] },
+          ].map((col) => (
+            <div key={col.title}>
+              <div style={{ fontFamily: "'Cormorant SC', serif", fontSize: "0.6rem", letterSpacing: "0.25em", color: C.textDim, marginBottom: "1.5rem" }}>
+                {col.title}
               </div>
-              <div className="text-[10px] font-bold uppercase tracking-[0.5em] text-white/20">
-                {stat.label}
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+                {col.items.map((item) => (
+                  <motion.a
+                    key={item}
+                    href="#"
+                    style={{ fontSize: "0.88rem", color: C.textMuted, textDecoration: "none", cursor: "pointer" }}
+                    whileHover={{ color: C.text, x: 3 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    {item}
+                  </motion.a>
+                ))}
               </div>
-            </Reveal>
+            </div>
           ))}
         </div>
-      </section>
 
-      {/* ==========================================
-          7. FAQ (Accordion)
-          ========================================== */}
-      <section className="py-32 bg-[#060c08]">
-        <div className="max-w-3xl mx-auto px-6">
-          <Reveal className="text-center mb-24">
-            <h2 className="text-4xl md:text-5xl font-black tracking-tighter leading-none uppercase italic text-white">
-              Intel_Buffer
-            </h2>
-          </Reveal>
-
-          <Accordion type="single" collapsible className="space-y-4">
-            {[
-              {
-                q: "What asset classes are supported?",
-                a: "KryptaX supports 312+ spot pairs, 180+ perpetual futures, quarterly futures, and European-style options.",
-              },
-              {
-                q: "How is institutional custody handled?",
-                a: "Assets are held in MPC cold wallets with 3-of-5 threshold signing and $500M insurance coverage.",
-              },
-              {
-                q: "What API protocols are available?",
-                a: "FIX 4.4, REST (OpenAPI 3.1), and WebSocket (up to 200 streams per connection).",
-              },
-              {
-                q: "How do you handle compliance?",
-                a: "Registered with FINMA, FCA, and MAS. Full KYC/AML pipeline with real-time Chainalysis integration.",
-              },
-            ].map((faq, i) => (
-              <AccordionItem
-                key={i}
-                value={`item-${i}`}
-                className="border-b border-[#00ff9d]/10"
-              >
-                <AccordionTrigger className="text-left text-sm uppercase font-bold tracking-widest py-8 hover:text-[#00ff9d] hover:no-underline">
-                  {faq.q}
-                </AccordionTrigger>
-                <AccordionContent className="text-sm text-white/40 leading-relaxed font-bold uppercase tracking-widest pb-8 italic">
-                  {faq.a}
-                </AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
-        </div>
-      </section>
-
-      {/* ==========================================
-          8. MEGA FOOTER (Cyber-Minimal)
-          ========================================== */}
-      <footer className="bg-[#030806] pt-32 pb-12 px-6 md:px-12 border-t border-[#00ff9d]/10 relative overflow-hidden">
-        <div className="max-w-[1600px] mx-auto relative z-10">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-16 mb-32">
-            <div className="lg:col-span-5">
-              <Reveal>
-                <div className="text-xl font-black tracking-tighter uppercase mb-10 flex items-center gap-3">
-                  <div className="w-7 h-7 rounded bg-[#00ff9d] flex items-center justify-center text-black shadow-[0_0_20px_rgba(0,255,157,0.3)]">
-                    <Activity className="w-4 h-4" />
-                  </div>
-                  KRYPTA<span className="text-[#00ff9d]">X</span>
-                </div>
-                <p className="text-white/20 max-w-sm mb-12 uppercase tracking-widest text-[10px] font-bold leading-relaxed italic">
-                  Institutional-grade crypto infrastructure. Built for
-                  sub-millisecond execution and total security.
-                </p>
-                <form
-                  className="relative max-w-md"
-                  onSubmit={(e) => e.preventDefault()}
-                >
-                  <input
-                    type="email"
-                    placeholder="AUTHENTICATED_EMAIL"
-                    className="w-full bg-white/[0.02] border border-white/5 rounded-none px-6 py-4 text-xs font-bold outline-none focus:border-[#00ff9d] text-white transition-all uppercase tracking-widest"
-                  />
-                  <button
-                    type="submit"
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-bold text-[#00ff9d] hover:text-white transition-colors uppercase tracking-[0.3em]"
-                  >
-                    CONNECT
-                  </button>
-                </form>
-              </Reveal>
-            </div>
-
-            <div className="lg:col-span-2 lg:col-start-7">
-              <h4 className="text-[10px] font-bold uppercase tracking-widest text-[#00ff9d] mb-10">
-                Markets
-              </h4>
-              <ul className="space-y-4 text-[10px] font-bold uppercase tracking-widest text-white/20">
-                <li>
-                  <Link
-                    href="#"
-                    className="hover:text-[#00ff9d] transition-colors"
-                  >
-                    Spot_Trading
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="#"
-                    className="hover:text-[#00ff9d] transition-colors"
-                  >
-                    Perpetual_Futures
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="#"
-                    className="hover:text-[#00ff9d] transition-colors"
-                  >
-                    Options_Vault
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="#"
-                    className="hover:text-[#00ff9d] transition-colors"
-                  >
-                    Yield_Strategies
-                  </Link>
-                </li>
-              </ul>
-            </div>
-
-            <div className="lg:col-span-2">
-              <h4 className="text-[10px] font-bold uppercase tracking-widest text-[#00ff9d] mb-10">
-                Institutional
-              </h4>
-              <ul className="space-y-4 text-[10px] font-bold uppercase tracking-widest text-white/20">
-                <li>
-                  <Link
-                    href="#"
-                    className="hover:text-[#00ff9d] transition-colors"
-                  >
-                    Co-location
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="#"
-                    className="hover:text-[#00ff9d] transition-colors"
-                  >
-                    OTC_Direct
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="#"
-                    className="hover:text-[#00ff9d] transition-colors"
-                  >
-                    Custody_MPC
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="#"
-                    className="hover:text-[#00ff9d] transition-colors"
-                  >
-                    Market_Making
-                  </Link>
-                </li>
-              </ul>
-            </div>
-
-            <div className="lg:col-span-2">
-              <h4 className="text-[10px] font-bold uppercase tracking-widest text-[#00ff9d] mb-10">
-                Terminal
-              </h4>
-              <ul className="space-y-4 text-[10px] font-bold uppercase tracking-widest text-white/20">
-                <li>
-                  <Link
-                    href="#"
-                    className="hover:text-[#00ff9d] transition-colors flex items-center gap-3"
-                  >
-                    <Terminal className="w-3 h-3" /> API_Docs
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="#"
-                    className="hover:text-[#00ff9d] transition-colors flex items-center gap-3"
-                  >
-                    <Shield className="w-3 h-3" /> Status_Log
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="#"
-                    className="hover:text-[#00ff9d] transition-colors flex items-center gap-3"
-                  >
-                    <Smartphone className="w-3 h-3" /> Mobile_Pro
-                  </Link>
-                </li>
-              </ul>
-            </div>
+        <div style={{ maxWidth: "1200px", margin: "3rem auto 0", paddingTop: "2rem", borderTop: `1px solid ${C.border}`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div style={{ fontFamily: "'Cormorant SC', serif", fontSize: "0.55rem", letterSpacing: "0.2em", color: C.textDim }}>
+            © 2024 MAISON DROUET. TOUS DROITS RÉSERVÉS.
           </div>
-
-          <div className="flex flex-col md:flex-row justify-between items-center gap-8 pt-10 border-t border-white/5 text-[9px] font-bold uppercase tracking-widest text-white/10">
-            <div className="flex items-center gap-10">
-              <span>&copy; {new Date().getFullYear()} KryptaX Pro SA.</span>
-              <Link href="#" className="hover:text-white transition-colors">
-                Risk_Protocols
-              </Link>
-              <Link href="#" className="hover:text-white transition-colors">
-                Privacy_Buffer
-              </Link>
-            </div>
-            <div className="flex gap-10">
-              <span>Frankfurt // Singapore // NY // Tokyo</span>
-              <span>Sub-Millisecond Edge</span>
-            </div>
+          <div style={{ display: "flex", gap: "2rem" }}>
+            {["Mentions légales", "Confidentialité", "CGU"].map((item) => (
+              <motion.a
+                key={item}
+                href="#"
+                style={{ fontFamily: "'Cormorant SC', serif", fontSize: "0.55rem", letterSpacing: "0.15em", color: C.textDim, textDecoration: "none", cursor: "pointer" }}
+                whileHover={{ color: C.textMuted }}
+              >
+                {item}
+              </motion.a>
+            ))}
           </div>
         </div>
       </footer>
-
-      {/* SIGNUP DIALOG */}
-      <Dialog open={signupOpen} onOpenChange={setSignupOpen}>
-        <DialogContent className="bg-[#060c08] border border-[#00ff9d]/20 max-w-lg p-12 rounded shadow-2xl relative text-white">
-          <button
-            onClick={() => setSignupOpen(false)}
-            className="absolute top-8 right-8 text-white/20 hover:text-[#00ff9d] transition-colors"
-          >
-            <X className="w-6 h-6" />
-          </button>
-
-          <div className="text-center mb-12">
-            <span className="text-[10px] font-bold uppercase tracking-[0.5em] text-[#00ff9d] mb-4 block">
-              Secure Access
-            </span>
-            <h3 className="text-4xl font-black uppercase tracking-tighter italic">
-              Initialize Desk.
-            </h3>
-          </div>
-
-          <div className="space-y-6">
-            <div className="space-y-2">
-              <label className="text-[9px] font-black uppercase tracking-widest text-white/30">
-                Authentication_Email
-              </label>
-              <input
-                type="email"
-                placeholder="desk@fund.com"
-                className="w-full bg-white/[0.02] border border-white/5 p-4 text-xs font-bold outline-none focus:border-[#00ff9d] transition-all text-white"
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="text-[9px] font-black uppercase tracking-widest text-white/30">
-                Access_Key
-              </label>
-              <input
-                type="password"
-                placeholder="••••••••••••"
-                className="w-full bg-white/[0.02] border border-white/5 p-4 text-xs font-bold outline-none focus:border-[#00ff9d] transition-all text-white"
-              />
-            </div>
-            <div className="pt-4 flex items-center gap-4 text-[9px] font-bold uppercase tracking-widest text-white/20 italic">
-              <Shield className="w-4 h-4 text-[#00ff9d]" />
-              Encrypted with FIPS 140-2 Level 3
-            </div>
-            <button className="w-full py-5 bg-[#00ff9d] text-black text-[10px] font-bold uppercase tracking-widest hover:bg-white transition-all cursor-pointer">
-              Initialize_Authentication
-            </button>
-            <p className="text-[9px] text-center text-white/20 uppercase tracking-widest font-bold">
-              Desk activation requires 2FA and hardware key verification.
-            </p>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      <style>{`::-webkit-scrollbar{width:4px;background:#060c08}::-webkit-scrollbar-thumb{background:#00ff9d20}`}</style>
     </div>
   );
 }

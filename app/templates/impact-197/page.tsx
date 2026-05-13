@@ -1,541 +1,1002 @@
-"use client"
-import { motion, useScroll, useTransform, useInView, AnimatePresence, useMotionValue, useSpring } from "framer-motion"
-import { useState, useRef, useEffect } from "react"
-import Image from "next/image"
-import Link from "next/link"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
-import { Badge } from "@/components/ui/badge"
-import { Card, CardContent } from "@/components/ui/card"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel"
-import { Progress } from "@/components/ui/progress"
-import { Separator } from "@/components/ui/separator"
-import { Globe, Compass, Star, MapPin, Phone, Mail, Camera, MessageSquare, Link2, Users2, Menu, X, ChevronRight, Shield, Clock, Award, Users, Plane, Anchor, Mountain, Heart, Check, ArrowRight } from "lucide-react"
+"use client";
 
-function Reveal({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
-  const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, margin: "-80px" })
+import { useRef, useState, useEffect } from "react";
+import { motion, useScroll, useTransform, useInView, AnimatePresence, useMotionValue, useSpring } from "framer-motion";
+import Link from "next/link";
+import { Globe, Compass, Star, MapPin, Phone, Mail, MessageSquare, Users2, Menu, X, ChevronRight, Shield, Clock, Award, Users, Plane, Anchor, Mountain, Heart, Check, ArrowRight, ChevronDown, Calendar, Headphones, Gem, Leaf } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Badge } from "@/components/ui/badge";
+
+const C = {
+  bg: "#FBF7EF",
+  bgDark: "#0A2540",
+  bgCard: "#FFFFFF",
+  text: "#0A2540",
+  textMuted: "#6B7B8D",
+  textLight: "rgba(10,37,64,0.55)",
+  accent: "#C9A96E",
+  accentDark: "#9E7A45",
+  accentLight: "#F0E6D3",
+  marine: "#0A2540",
+  marineMid: "#1A3A5C",
+  sand: "#FBF7EF",
+  sandDark: "#F0E6D3",
+  white: "#FFFFFF",
+  border: "rgba(201,169,110,0.2)",
+  borderLight: "rgba(10,37,64,0.08)",
+};
+
+const DESTINATIONS = [
+  { name: "Maldives Privées", region: "Océan Indien", img: "photo-1514282401047-d79a71a590e8", duration: "10 nuits", price: "À partir de 12 400 €", tag: "Sérénité absolue", icon: Anchor, desc: "Villas sur pilotis, lagon turquoise privé, plongée de corail — l'archipel d'exception." },
+  { name: "Kyoto Impériale", region: "Japon", img: "photo-1528360983277-13d401cdc186", duration: "12 nuits", price: "À partir de 9 800 €", tag: "Patrimoine vivant", icon: Leaf, desc: "Ryokans historiques, cérémonie du thé privée, géishas et jardins zen au lever du soleil." },
+  { name: "Safari Masaï Mara", region: "Kenya", img: "photo-1516426122078-c23e76319801", duration: "9 nuits", price: "À partir de 14 200 €", tag: "Grande migration", icon: Mountain, desc: "Camp de luxe privé, safaris au lever du soleil, bush dinner sous les étoiles africaines." },
+  { name: "Patagonie Sauvage", region: "Argentine & Chili", img: "photo-1501854140801-50d01698950b", duration: "14 nuits", price: "À partir de 8 900 €", tag: "Bout du monde", icon: Compass, desc: "Torres del Paine, glaciers Perito Moreno, lodges isolés au cœur d'une nature absolue." },
+  { name: "Grèce des Cyclades", region: "Méditerranée", img: "photo-1533105079780-92b9be482077", duration: "8 nuits", price: "À partir de 7 600 €", tag: "Lumière dorée", icon: Anchor, desc: "Santorin, Mykonos, Folegandros — voilier privatisé et îles secrètes hors des sentiers battus." },
+  { name: "Rajasthan Royal", region: "Inde du Nord", img: "photo-1524492412937-b28074a5d7da", duration: "11 nuits", price: "À partir de 6 400 €", tag: "Fastes de l'Orient", icon: Gem, desc: "Palace hotels historiques, Jaipur, Udaipur, Jaisalmer — un voyage dans un voyage." },
+];
+
+const PACKAGES = [
+  {
+    name: "Évasion",
+    subtitle: "Le voyage essentiel",
+    price: "À partir de 4 900 €",
+    perPerson: "par personne",
+    color: C.marineMid,
+    features: [
+      "Vol en classe affaires",
+      "Hébergement 5 étoiles sélectionné",
+      "Transferts privés aéroport",
+      "Petit-déjeuner gastronomique inclus",
+      "Guide local francophone",
+      "Assistance voyage 6j/7",
+    ],
+    cta: "Découvrir",
+  },
+  {
+    name: "Prestige",
+    subtitle: "L'expérience signature",
+    price: "À partir de 8 200 €",
+    perPerson: "par personne",
+    featured: true,
+    color: C.accent,
+    features: [
+      "Vol en première classe",
+      "Suite ou villa de luxe",
+      "Transferts en véhicule premium",
+      "Pension complète gastronomique",
+      "Concierge privé dédié 24h/24",
+      "2 expériences exclusives incluses",
+      "Service bagagerie domicile",
+    ],
+    cta: "Réserver",
+  },
+  {
+    name: "Excellence",
+    subtitle: "Sur mesure absolu",
+    price: "Sur devis",
+    perPerson: "personnalisé",
+    color: C.marine,
+    features: [
+      "Jet privé affrété",
+      "Château ou propriété exclusive",
+      "Équipe dédiée à votre service",
+      "Expériences uniques au monde",
+      "Chef étoilé privé à bord",
+      "Conciergerie 24h/24 internationale",
+      "Accès aux lieux les plus secrets",
+    ],
+    cta: "Nous contacter",
+  },
+];
+
+const STATS = [
+  { val: "1 200+", label: "Voyageurs accompagnés", suffix: "" },
+  { val: "87", label: "Destinations maîtrisées", suffix: "+" },
+  { val: "4.97", label: "Note moyenne clients", suffix: "/5" },
+  { val: "18", label: "Années d'expertise", suffix: "" },
+];
+
+const TESTIMONIALS = [
+  {
+    name: "Hélène & Bertrand Favre",
+    origin: "Lyon",
+    trip: "Maldives Privées, 10 nuits",
+    rating: 5,
+    text: "Évasion Dorée a transformé notre voyage de noces en quelque chose d'absolument irréel. La villa sur pilotis, le dîner privé sur le lagon au coucher du soleil, la plongée avec les raies mantas… chaque détail était parfait.",
+    avatar: "HF",
+  },
+  {
+    name: "Jean-Philippe Moreau",
+    origin: "Paris",
+    trip: "Japon Imperial, 12 nuits",
+    rating: 5,
+    text: "Je voyage beaucoup pour mes affaires, mais jamais comme ça. L'accès au ryokan centenaire, la cérémonie du thé privée avec une maîtresse de thé octogénaire — c'est le genre d'expérience qu'on ne trouve pas seul.",
+    avatar: "JM",
+  },
+  {
+    name: "Camille Aubert",
+    origin: "Bordeaux",
+    trip: "Safari Kenya, 9 nuits",
+    rating: 5,
+    text: "La grande migration en exclusivité depuis notre camp de luxe… Les guides parlaient français couramment, les ballades au lever du soleil dans la savane, et le bush dinner sous les étoiles. Une vie, un voyage.",
+    avatar: "CA",
+  },
+  {
+    name: "Marc & Isabelle Delacroix",
+    origin: "Genève",
+    trip: "Grèce des Cyclades, 8 nuits",
+    rating: 5,
+    text: "Le voilier privatisé était une idée absolument parfaite. Santorin sans les foules à l'aube, Folegandros que personne ne connaît, une baie secrète à Amorgos… Évasion Dorée connaît vraiment la Grèce.",
+    avatar: "MD",
+  },
+  {
+    name: "Laurence Petit",
+    origin: "Toulouse",
+    trip: "Rajasthan Royal, 11 nuits",
+    rating: 5,
+    text: "Le palace hotel d'Udaipur sur le lac, le dîner aux chandelles dans un palais du XVIème siècle… Je m'attendais à du beau, j'ai eu du sublime. Leur concierge m'a obtenu un accès à des quartiers inaccessibles au public.",
+    avatar: "LP",
+  },
+  {
+    name: "Antoine Rousseau",
+    origin: "Nantes",
+    trip: "Patagonie, 14 nuits",
+    rating: 5,
+    text: "Patagonie avec lodge privatisé, randonnées guidées dans Torres del Paine au lever du soleil, et le glacier Perito Moreno en bateau privé. Évasion Dorée m'a envoyé au bout du monde avec une organisation sans faille.",
+    avatar: "AR",
+  },
+];
+
+const SERVICES_DETAIL = [
+  { icon: Compass, title: "Conception sur mesure", desc: "Chaque itinéraire est créé de zéro selon vos désirs, votre rythme et vos passions. Aucun voyage n'est jamais identique." },
+  { icon: Gem, title: "Accès ultra-exclusifs", desc: "Palaces, villas privées, accès VIP à des sites fermés au public — notre carnet d'adresses s'ouvre là où les agences classiques n'entrent pas." },
+  { icon: Headphones, title: "Conciergerie 24h/24", desc: "Un interlocuteur francophone dédié, joignable à toute heure, dans tous les fuseaux horaires. Parce que l'imprévu n'attend pas." },
+  { icon: Shield, title: "Garantie tranquillité", desc: "Assurance annulation premium, rapatriement toutes causes, protection juridique internationale — voyagez sans arrière-pensée." },
+  { icon: Plane, title: "Classe affaires garantie", desc: "Tous nos vols longue durée sont en classe affaires ou première. Votre voyage commence à l'aéroport." },
+  { icon: Award, title: "Sélection hôtelière", desc: "Chaque hébergement est visité et validé par notre équipe. Seuls les 5% les plus exceptionnels intègrent notre carnet." },
+];
+
+const PROCESS_STEPS = [
+  { num: "01", title: "Consultation découverte", desc: "Un appel de 30 minutes avec votre conseiller dédié pour comprendre vos envies, votre style de voyage, votre budget et vos contraintes." },
+  { num: "02", title: "Proposition personnalisée", desc: "Sous 72h, vous recevez 2 à 3 itinéraires sur mesure avec détail des hébergements, expériences et tarifs transparents." },
+  { num: "03", title: "Affinage et validation", desc: "Nous peaufinons ensemble chaque détail jusqu'à ce que l'itinéraire soit exactement ce que vous imaginiez — sans compromis." },
+  { num: "04", title: "Départ et suivi", desc: "Votre concierge est joignable 24h/24 tout au long du voyage. Retours, imprévus, demandes de dernière minute — nous gérons tout." },
+];
+
+const FAQS = [
+  { q: "Quel est le budget minimum pour vos voyages ?", a: "Nos voyages sur mesure débutent à partir de 4 900 € par personne (vol en classe affaires inclus). Pour les formules Excellence avec jet privé, comptez 25 000 € et au-delà. Nous adaptons chaque voyage au budget annoncé avec transparence totale." },
+  { q: "Combien de temps à l'avance dois-je réserver ?", a: "Idéalement 3 à 6 mois pour les haute saisons (été, Noël, Nouvel An). Pour les destinations très demandées comme les Maldives ou le Japon en sakura, 8 à 12 mois sont recommandés. Nous pouvons parfois créer des voyages express en 3 semaines." },
+  { q: "Proposez-vous des voyages en famille ?", a: "Absolument. Nous sommes spécialistes des voyages familiaux luxury : villas privées avec personnel dédié, activités adaptées à chaque âge, babysitters certifiés, menus enfants gastronomiques. Voyager en famille n'est pas un compromis, c'est une autre forme d'excellence." },
+  { q: "Que comprend votre service de conciergerie 24h/24 ?", a: "Votre concierge est joignable par téléphone, WhatsApp et email en permanence pendant le voyage. Il peut modifier des réservations, gérer un incident médical, organiser une surprise pour un anniversaire ou simplement vous recommander le meilleur restaurant du soir." },
+  { q: "Gérez-vous les visas et formalités ?", a: "Oui, nous prenons en charge l'ensemble des formalités : demandes de visas, assurances voyages, tests PCR si requis, enregistrement dans les ambassades, lettres d'invitation. Vous n'avez qu'à faire vos valises." },
+  { q: "Puis-je combiner plusieurs destinations ?", a: "C'est même notre spécialité. Les circuits multi-destinations — Japon + Bali, Maroc + Portugal, Afrique du Sud + Mozambique — sont au cœur de notre savoir-faire. Nous optimisons les connexions et rythmez le voyage pour éviter toute fatigue." },
+];
+
+// Signature element: World Map SVG avec destinations marquées
+function WorldMapSignature() {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin: "-100px" });
+  const [activeRegion, setActiveRegion] = useState<string | null>(null);
+
+  const destinations = [
+    { id: "maldives", x: "67%", y: "58%", label: "Maldives", region: "Océan Indien" },
+    { id: "kyoto", x: "80%", y: "38%", label: "Kyoto", region: "Japon" },
+    { id: "kenya", x: "57%", y: "60%", label: "Kenya", region: "Afrique de l'Est" },
+    { id: "patagonia", x: "28%", y: "82%", label: "Patagonie", region: "Amérique du Sud" },
+    { id: "greece", x: "52%", y: "38%", label: "Grèce", region: "Méditerranée" },
+    { id: "rajasthan", x: "66%", y: "43%", label: "Rajasthan", region: "Inde" },
+    { id: "peru", x: "26%", y: "70%", label: "Pérou", region: "Amérique du Sud" },
+    { id: "iceland", x: "44%", y: "22%", label: "Islande", region: "Europe du Nord" },
+  ];
+
+  return (
+    <div ref={ref} style={{ position: "relative", width: "100%", maxWidth: 900, margin: "0 auto" }}>
+      {/* Simplified world map silhouette */}
+      <svg viewBox="0 0 900 480" style={{ width: "100%", height: "auto", opacity: isInView ? 1 : 0, transition: "opacity 1s ease 0.3s" }}>
+        <defs>
+          <radialGradient id="mapGlow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor={C.accent} stopOpacity="0.15" />
+            <stop offset="100%" stopColor={C.accent} stopOpacity="0" />
+          </radialGradient>
+        </defs>
+        {/* Ocean background */}
+        <rect width="900" height="480" fill={C.marineMid} rx="16" opacity="0.06" />
+
+        {/* Continents — simplified paths */}
+        {/* North America */}
+        <path d="M80 80 L200 60 L240 100 L220 160 L180 200 L140 220 L100 180 L70 140 Z" fill={C.marine} opacity="0.18" />
+        {/* South America */}
+        <path d="M150 280 L200 260 L230 300 L220 380 L190 420 L160 400 L140 350 Z" fill={C.marine} opacity="0.18" />
+        {/* Europe */}
+        <path d="M400 80 L480 70 L510 100 L490 150 L450 160 L410 140 L390 110 Z" fill={C.marine} opacity="0.18" />
+        {/* Africa */}
+        <path d="M430 190 L510 180 L540 230 L530 320 L490 380 L450 370 L420 300 L410 230 Z" fill={C.marine} opacity="0.18" />
+        {/* Asia */}
+        <path d="M510 70 L750 60 L790 130 L740 200 L650 210 L560 180 L520 140 Z" fill={C.marine} opacity="0.18" />
+        {/* Australia */}
+        <path d="M700 300 L790 290 L820 340 L790 390 L720 390 L690 350 Z" fill={C.marine} opacity="0.18" />
+
+        {/* Connection lines between destinations */}
+        {destinations.slice(0, -2).map((d, i) => {
+          const next = destinations[i + 1];
+          return (
+            <motion.line
+              key={d.id}
+              x1={`${parseFloat(d.x) * 9}`}
+              y1={`${parseFloat(d.y) * 4.8}`}
+              x2={`${parseFloat(next.x) * 9}`}
+              y2={`${parseFloat(next.y) * 4.8}`}
+              stroke={C.accent}
+              strokeWidth="0.8"
+              strokeDasharray="4 6"
+              opacity="0.3"
+              initial={{ pathLength: 0 }}
+              animate={isInView ? { pathLength: 1 } : {}}
+              transition={{ duration: 2, delay: i * 0.25, ease: "easeInOut" }}
+            />
+          );
+        })}
+
+        {/* Destination pins */}
+        {destinations.map((dest, i) => (
+          <motion.g
+            key={dest.id}
+            initial={{ scale: 0, opacity: 0 }}
+            animate={isInView ? { scale: 1, opacity: 1 } : {}}
+            transition={{ duration: 0.4, delay: 0.5 + i * 0.1, ease: "backOut" }}
+            style={{ cursor: "pointer" }}
+            onMouseEnter={() => setActiveRegion(dest.id)}
+            onMouseLeave={() => setActiveRegion(null)}
+          >
+            <circle
+              cx={`${parseFloat(dest.x) * 9}`}
+              cy={`${parseFloat(dest.y) * 4.8}`}
+              r={activeRegion === dest.id ? "10" : "6"}
+              fill={activeRegion === dest.id ? C.accent : "transparent"}
+              stroke={C.accent}
+              strokeWidth="2"
+              style={{ transition: "all 0.3s" }}
+            />
+            <circle
+              cx={`${parseFloat(dest.x) * 9}`}
+              cy={`${parseFloat(dest.y) * 4.8}`}
+              r="2"
+              fill={C.accent}
+            />
+            {activeRegion === dest.id && (
+              <g>
+                <rect
+                  x={`${parseFloat(dest.x) * 9 - 50}`}
+                  y={`${parseFloat(dest.y) * 4.8 - 40}`}
+                  width="100"
+                  height="28"
+                  rx="4"
+                  fill={C.marine}
+                  opacity="0.95"
+                />
+                <text
+                  x={`${parseFloat(dest.x) * 9}`}
+                  y={`${parseFloat(dest.y) * 4.8 - 22}`}
+                  textAnchor="middle"
+                  fill={C.white}
+                  fontSize="10"
+                  fontFamily="system-ui"
+                >
+                  {dest.label}
+                </text>
+              </g>
+            )}
+          </motion.g>
+        ))}
+      </svg>
+      <div style={{ textAlign: "center", marginTop: 16, fontSize: 12, color: C.textMuted, fontFamily: "system-ui", letterSpacing: "0.06em" }}>
+        {activeRegion
+          ? destinations.find(d => d.id === activeRegion)?.region
+          : "87+ destinations — survolez pour explorer"}
+      </div>
+    </div>
+  );
+}
+
+function CounterStat({ value, label, suffix }: { value: string; label: string; suffix: string }) {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin: "-50px" });
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, y: 32 }}
+      initial={{ opacity: 0, y: 30 }}
       animate={isInView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.6, delay, ease: [0.22, 1, 0.36, 1] }}
+      transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+      style={{ textAlign: "center" }}
+    >
+      <div style={{ fontSize: "clamp(36px, 5vw, 56px)", fontWeight: 300, color: C.accent, letterSpacing: "-0.02em", lineHeight: 1 }}>
+        {value}
+      </div>
+      <div style={{ fontSize: 13, color: C.textMuted, fontFamily: "system-ui", marginTop: 8, letterSpacing: "0.04em" }}>{label}</div>
+    </motion.div>
+  );
+}
+
+function RevealSection({ children, delay = 0, direction = "up" }: { children: React.ReactNode; delay?: number; direction?: "up" | "left" | "right" }) {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin: "-80px" });
+  const variants = {
+    up: { initial: { opacity: 0, y: 40 }, animate: { opacity: 1, y: 0 } },
+    left: { initial: { opacity: 0, x: -40 }, animate: { opacity: 1, x: 0 } },
+    right: { initial: { opacity: 0, x: 40 }, animate: { opacity: 1, x: 0 } },
+  };
+  return (
+    <motion.div
+      ref={ref}
+      initial={variants[direction].initial}
+      animate={isInView ? variants[direction].animate : {}}
+      transition={{ duration: 0.7, delay, ease: [0.22, 1, 0.36, 1] }}
     >
       {children}
     </motion.div>
-  )
+  );
 }
 
-const DESTINATIONS = [
-  { name: "Maldives Privées", tag: "Océan Indien", img: "photo-1514282401047-d79a71a590e8", duration: "10 nuits", price: "12 400 €" },
-  { name: "Kyoto Imperiale", tag: "Japon", img: "photo-1528360983277-13d401cdc186", duration: "12 nuits", price: "9 800 €" },
-  { name: "Patagonie Sauvage", tag: "Chili & Argentine", img: "photo-1501854140801-50d01698950b", duration: "14 nuits", price: "11 200 €" },
-  { name: "Kenya & Masaï Mara", tag: "Afrique de l'Est", img: "photo-1547036967-23d11aacaee0", duration: "10 nuits", price: "8 900 €" },
-  { name: "Santorin Exclusive", tag: "Grèce", img: "photo-1533105079780-92b9be482077", duration: "8 nuits", price: "6 700 €" },
-  { name: "Antarctique Legend", tag: "Pôle Sud", img: "photo-1494548162494-384bba4ab999", duration: "18 nuits", price: "29 900 €" },
-]
+export default function EvasionDoree() {
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [activeDestination, setActiveDestination] = useState(0);
+  const [activePkg, setActivePkg] = useState(1);
+  const containerRef = useRef(null);
+  const heroRef = useRef(null);
 
-const STATS = [
-  { val: "4 200+", label: "Voyages sur mesure" },
-  { val: "98%", label: "Taux de satisfaction" },
-  { val: "87", label: "Pays parcourus" },
-  { val: "12 ans", label: "D'expertise premium" },
-  { val: "340+", label: "Partenaires exclusifs" },
-]
+  const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
+  const heroY = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
+  const heroScale = useTransform(scrollYProgress, [0, 1], [1, 1.08]);
 
-const TESTIMONIALS = [
-  { name: "Isabelle Fontaine", role: "CEO, Fontaine Industries", rating: 5, text: "Notre voyage aux Maldives était simplement parfait. L'équipe d'Évasion Dorée a pensé à chaque détail — du transfert en hydravion privé au menu personnalisé sur notre île.", avatar: "IF" },
-  { name: "Marc & Sophie Delacroix", role: "Couples voyageurs", rating: 5, text: "Notre safari au Kenya a dépassé toutes nos attentes. Les guides locaux exclusifs, le lodge privé, les couchers de soleil sur la savane... un rêve éveillé.", avatar: "MD" },
-  { name: "Philippe Aumont", role: "Directeur Général, Aumont Capital", rating: 5, text: "Évasion Dorée gère nos voyages d'affaires et de loisirs depuis 5 ans. Leur conciergerie 24h/24 est un atout inestimable pour un dirigeant comme moi.", avatar: "PA" },
-  { name: "Nathalie Rousseau", role: "Chirurgienne, Paris", rating: 5, text: "L'expédition en Antarctique organisée par Évasion Dorée a été l'aventure de ma vie. Logistique parfaite, confort et authenticité à la fois. Je recommande sans hésitation.", avatar: "NR" },
-  { name: "Antoine Leblanc", role: "Architecte & Entrepreneur", rating: 5, text: "De Kyoto aux temples d'Angkor, Évasion Dorée a créé pour moi un itinéraire sur mesure avec des accès exclusifs à des lieux fermés au grand public. Exceptionnel.", avatar: "AL" },
-]
-
-const PRICING = [
-  { name: "Découverte", price: "4 900", period: "par personne", color: "from-slate-700 to-slate-800", features: ["Itinéraire personnalisé", "Hôtels 4-5 étoiles sélectionnés", "Transfers & logistique", "Guide local francophone", "Assistance voyage 24/7", "2 excursions privées incluses"] },
-  { name: "Prestige", price: "12 400", period: "par personne", color: "from-amber-700 to-yellow-800", featured: true, features: ["Tout Découverte inclus", "Hôtels & lodges 5★ exclusifs", "Vol business class inclus", "Conciergerie dédiée", "Expériences privées illimitées", "Accès VIP monuments & sites", "Dîners gastronomiques réservés"] },
-  { name: "Signature", price: "29 900", period: "par personne", color: "from-slate-800 to-slate-900", features: ["Tout Prestige inclus", "Vol en jet privé", "Villa ou yacht privatisé", "Chef cuisinier dédié", "Médecin de voyage inclus", "Photographe professionnel", "Itinéraire 100% secret exclusif"] },
-]
-
-const FAQS = [
-  { q: "Comment fonctionne la création d'un voyage sur mesure ?", a: "Après un appel de découverte avec l'un de nos experts, nous créons un itinéraire personnalisé sous 72h. Vous validez, ajustez, et nous gérons tout le reste — de l'avion à l'hôtel en passant par chaque expérience." },
-  { q: "Quels sont les délais de réservation recommandés ?", a: "Pour les destinations prisées (Maldives, Japon en sakura, Antarctique), nous conseillons 6 à 12 mois à l'avance. Pour des voyages plus flexibles, 3 mois suffisent généralement." },
-  { q: "Proposez-vous des assurances et protections voyage ?", a: "Oui, chaque voyage Évasion Dorée inclut une assistance rapatriement, une assurance annulation premium et une couverture médicale internationale. Des formules renforcées sont disponibles." },
-  { q: "Peut-on modifier son itinéraire en cours de voyage ?", a: "Absolument. Notre équipe conciergerie est disponible 24h/24 et 7j/7. Si vous souhaitez prolonger votre séjour, changer de destination ou ajouter une expérience, nous nous en occupons en temps réel." },
-  { q: "Organisez-vous des voyages pour entreprises et séminaires ?", a: "Oui, nous avons un pôle MICE (Meetings, Incentives, Conferences, Events) spécialisé dans les voyages de motivation et séminaires de direction dans des cadres d'exception." },
-  { q: "Quelle est votre politique d'annulation ?", a: "Nous proposons des conditions d'annulation flexibles selon la formule choisie. La formule Prestige et Signature bénéficient d'annulation sans frais jusqu'à 30 jours avant le départ." },
-  { q: "Travaillez-vous avec des voyageurs en situation de handicap ?", a: "Nous sommes experts en voyages accessibles. Nos conseillers connaissent les hébergements et expériences adaptés dans chaque destination pour garantir confort et autonomie." },
-]
-
-export default function EvasionDoreePage() {
-  const [mobileOpen, setMobileOpen] = useState(false)
-  const [activeDestination, setActiveDestination] = useState<number | null>(null)
-  const heroRef = useRef(null)
-  const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] })
-  const bgY = useTransform(scrollYProgress, [0, 1], ["0%", "40%"])
-  const opacity = useTransform(scrollYProgress, [0, 0.8], [1, 0])
+  const NAV_LINKS = ["Destinations", "Services", "Processus", "Avis", "Tarifs"];
 
   return (
-    <div style={{ overflowX: "hidden", scrollBehavior: "smooth", background: "#06091a", color: "white", fontFamily: "'Cormorant Garamond', Georgia, serif" }}>
+    <div ref={containerRef} style={{ background: C.bg, color: C.text, minHeight: "100vh", fontFamily: "'Cormorant Garamond', Georgia, serif", overflowX: "hidden" }}>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,600&display=swap');
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: ${C.sandDark}; }
+        ::-webkit-scrollbar-thumb { background: ${C.accent}; border-radius: 3px; }
+      `}</style>
 
-      {/* NAVBAR */}
+      {/* NAV */}
       <motion.nav
         initial={{ y: -80, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-        style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 50, backdropFilter: "blur(16px)", background: "rgba(6,9,26,0.85)", borderBottom: "1px solid rgba(201,169,110,0.15)" }}
+        transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+        style={{
+          position: "fixed", top: 0, left: 0, right: 0, zIndex: 100,
+          background: "rgba(251,247,239,0.92)", backdropFilter: "blur(20px)",
+          borderBottom: `1px solid ${C.borderLight}`,
+        }}
       >
-        <div style={{ maxWidth: 1280, margin: "0 auto", padding: "0 32px", display: "flex", alignItems: "center", justifyContent: "space-between", height: 72 }}>
-          <Link href="/" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none" }}>
-            <div style={{ width: 36, height: 36, borderRadius: "50%", background: "linear-gradient(135deg, #c9a96e, #f0d090)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <Compass size={18} color="#06091a" />
-            </div>
-            <span style={{ fontSize: 20, fontWeight: 700, color: "#c9a96e", letterSpacing: "0.08em" }}>ÉVASION DORÉE</span>
-          </Link>
-
-          <div style={{ display: "flex", gap: 32, alignItems: "center" }} className="hidden md:flex">
-            {["Destinations", "Services", "Témoignages", "Contact"].map(item => (
-              <a key={item} href={`#${item.toLowerCase()}`} style={{ color: "rgba(255,255,255,0.7)", textDecoration: "none", fontSize: 14, letterSpacing: "0.06em", transition: "color 0.2s" }}
-                onMouseEnter={e => (e.currentTarget.style.color = "#c9a96e")}
-                onMouseLeave={e => (e.currentTarget.style.color = "rgba(255,255,255,0.7)")}>
-                {item}
+        <div style={{ maxWidth: 1320, margin: "0 auto", padding: "0 40px", height: 72, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <Compass size={22} color={C.accent} />
+            <span style={{ fontSize: 22, fontWeight: 400, letterSpacing: "0.08em", color: C.marine }}>Évasion Dorée</span>
+          </div>
+          <div style={{ display: "flex", gap: 32, alignItems: "center" }}>
+            {NAV_LINKS.map(link => (
+              <a
+                key={link}
+                href={`#${link.toLowerCase()}`}
+                style={{ fontSize: 13, color: C.textMuted, textDecoration: "none", fontFamily: "system-ui", letterSpacing: "0.04em", transition: "color 0.2s" }}
+                onMouseEnter={e => (e.currentTarget.style.color = C.accent)}
+                onMouseLeave={e => (e.currentTarget.style.color = C.textMuted)}
+              >
+                {link}
               </a>
             ))}
             <motion.button
-              whileHover={{ scale: 1.04 }}
+              whileHover={{ scale: 1.03, boxShadow: `0 6px 24px rgba(201,169,110,0.35)` }}
               whileTap={{ scale: 0.97 }}
-              style={{ padding: "10px 24px", background: "linear-gradient(135deg, #c9a96e, #f0d090)", color: "#06091a", border: "none", borderRadius: 4, fontSize: 13, fontWeight: 700, letterSpacing: "0.08em", cursor: "pointer" }}>
-              PLANIFIER MON VOYAGE
+              style={{ padding: "11px 28px", background: C.marine, color: C.white, border: "none", borderRadius: 3, fontSize: 12, fontFamily: "system-ui", fontWeight: 600, letterSpacing: "0.1em", cursor: "pointer" }}
+            >
+              CONSULTATION
             </motion.button>
           </div>
-
-          <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-            <SheetTrigger asChild>
-              <button style={{ display: "none", background: "none", border: "none", color: "white", cursor: "pointer" }} className="md:hidden block">
-                <Menu size={24} />
-              </button>
-            </SheetTrigger>
-            <SheetContent side="right" style={{ background: "#06091a", borderLeft: "1px solid rgba(201,169,110,0.2)" }}>
-              <div style={{ display: "flex", flexDirection: "column", gap: 24, paddingTop: 48 }}>
-                {["Destinations", "Services", "Témoignages", "Contact"].map(item => (
-                  <a key={item} href={`#${item.toLowerCase()}`} onClick={() => setMobileOpen(false)}
-                    style={{ color: "rgba(255,255,255,0.8)", textDecoration: "none", fontSize: 18, letterSpacing: "0.06em" }}>
-                    {item}
-                  </a>
-                ))}
-                <button style={{ padding: "14px 24px", background: "linear-gradient(135deg, #c9a96e, #f0d090)", color: "#06091a", border: "none", borderRadius: 4, fontSize: 14, fontWeight: 700, cursor: "pointer" }}>
-                  PLANIFIER MON VOYAGE
-                </button>
-              </div>
-            </SheetContent>
-          </Sheet>
+          <button
+            onClick={() => setMobileOpen(!mobileOpen)}
+            style={{ background: "none", border: "none", cursor: "pointer", color: C.marine, display: "none" }}
+          >
+            {mobileOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
         </div>
       </motion.nav>
 
       {/* HERO */}
-      <section ref={heroRef} style={{ position: "relative", height: "100vh", minHeight: 700, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
-        <motion.div style={{ position: "absolute", inset: 0, y: bgY }}>
-          <Image src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1600&q=80" alt="Destination de rêve" fill style={{ objectFit: "cover" }} priority />
-          <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(6,9,26,0.5) 0%, rgba(6,9,26,0.3) 40%, rgba(6,9,26,0.85) 100%)" }} />
+      <section
+        ref={heroRef}
+        style={{ position: "relative", height: "100vh", minHeight: 700, overflow: "hidden", display: "flex", alignItems: "center" }}
+      >
+        <motion.div style={{ position: "absolute", inset: 0, y: heroY, scale: heroScale }}>
+          <div
+            style={{
+              position: "absolute", inset: 0,
+              backgroundImage: `url(https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=1800&q=85)`,
+              backgroundSize: "cover", backgroundPosition: "center",
+            }}
+          />
+          <div style={{ position: "absolute", inset: 0, background: `linear-gradient(105deg, rgba(10,37,64,0.82) 40%, rgba(10,37,64,0.25) 100%)` }} />
         </motion.div>
 
-        <motion.div style={{ position: "relative", zIndex: 10, textAlign: "center", maxWidth: 800, padding: "0 32px", opacity }}>
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-            <Badge style={{ background: "rgba(201,169,110,0.15)", color: "#c9a96e", border: "1px solid rgba(201,169,110,0.4)", fontSize: 12, letterSpacing: "0.12em", marginBottom: 24, padding: "6px 16px" }}>
-              AGENCE DE VOYAGES PREMIUM — DEPUIS 2012
-            </Badge>
+        {/* Grain texture overlay */}
+        <svg style={{ position: "absolute", inset: 0, width: "100%", height: "100%", opacity: 0.04, pointerEvents: "none" }}>
+          <filter id="grain">
+            <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch" />
+            <feColorMatrix type="saturate" values="0" />
+          </filter>
+          <rect width="100%" height="100%" filter="url(#grain)" />
+        </svg>
+
+        <motion.div style={{ position: "relative", zIndex: 10, maxWidth: 1320, margin: "0 auto", padding: "0 60px", width: "100%", opacity: heroOpacity }}>
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2 }}>
+            <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(201,169,110,0.15)", border: "1px solid rgba(201,169,110,0.3)", borderRadius: 40, padding: "6px 16px", marginBottom: 36 }}>
+              <Gem size={12} color={C.accent} />
+              <span style={{ fontSize: 11, color: C.accent, fontFamily: "system-ui", letterSpacing: "0.14em", fontWeight: 500 }}>AGENCE VOYAGE LUXURY DEPUIS 2006</span>
+            </div>
           </motion.div>
 
           <motion.h1
-            initial={{ opacity: 0, y: 40 }}
+            initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
-            style={{ fontSize: "clamp(42px, 7vw, 88px)", fontWeight: 300, lineHeight: 1.05, letterSpacing: "-0.02em", marginBottom: 24, color: "white" }}>
-            Voyages <em style={{ color: "#c9a96e", fontStyle: "italic" }}>d'exception</em><br />pour âmes rares
+            transition={{ duration: 0.9, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+            style={{ fontSize: "clamp(48px, 7.5vw, 110px)", fontWeight: 300, lineHeight: 1.0, letterSpacing: "-0.02em", color: C.white, marginBottom: 28, maxWidth: 800 }}
+          >
+            Le monde<br />
+            <em style={{ color: C.accent, fontStyle: "italic" }}>autrement.</em>
           </motion.h1>
 
           <motion.p
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.3 }}
-            style={{ fontSize: 18, color: "rgba(255,255,255,0.75)", lineHeight: 1.7, marginBottom: 40, maxWidth: 560, margin: "0 auto 40px" }}>
-            Des itinéraires sur mesure vers les destinations les plus exclusives du monde. Chaque voyage, une œuvre unique.
+            transition={{ duration: 0.8, delay: 0.5 }}
+            style={{ fontSize: "clamp(16px, 2vw, 20px)", color: "rgba(255,255,255,0.65)", fontFamily: "system-ui", lineHeight: 1.8, marginBottom: 48, maxWidth: 520, fontWeight: 300 }}
+          >
+            Voyages sur mesure en classe affaires et première. Expériences exclusives inaccessibles au grand public. Conciergerie 24h/24 sur tous les continents.
           </motion.p>
 
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.45 }}
-            style={{ display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap" }}>
+            transition={{ duration: 0.6, delay: 0.7 }}
+            style={{ display: "flex", gap: 16, flexWrap: "wrap" }}
+          >
             <motion.button
-              whileHover={{ scale: 1.04, boxShadow: "0 8px 40px rgba(201,169,110,0.4)" }}
+              whileHover={{ scale: 1.04, boxShadow: "0 12px 40px rgba(201,169,110,0.4)" }}
               whileTap={{ scale: 0.97 }}
-              style={{ padding: "16px 36px", background: "linear-gradient(135deg, #c9a96e, #f0d090)", color: "#06091a", border: "none", borderRadius: 4, fontSize: 14, fontWeight: 700, letterSpacing: "0.08em", cursor: "pointer" }}>
+              style={{ padding: "18px 40px", background: C.accent, color: C.marine, border: "none", borderRadius: 3, fontSize: 13, fontFamily: "system-ui", fontWeight: 700, letterSpacing: "0.1em", cursor: "pointer" }}
+            >
               CRÉER MON VOYAGE
             </motion.button>
             <motion.button
-              whileHover={{ scale: 1.04 }}
-              whileTap={{ scale: 0.97 }}
-              style={{ padding: "16px 36px", background: "rgba(255,255,255,0.08)", color: "white", border: "1px solid rgba(255,255,255,0.25)", borderRadius: 4, fontSize: 14, letterSpacing: "0.08em", cursor: "pointer", backdropFilter: "blur(8px)" }}>
-              VOIR LES DESTINATIONS
+              whileHover={{ scale: 1.03, borderColor: "rgba(255,255,255,0.6)" }}
+              style={{ padding: "18px 40px", background: "transparent", color: C.white, border: "1px solid rgba(255,255,255,0.25)", borderRadius: 3, fontSize: 13, fontFamily: "system-ui", cursor: "pointer", display: "flex", alignItems: "center", gap: 8 }}
+            >
+              DÉCOUVRIR NOS DESTINATIONS <ChevronRight size={14} />
             </motion.button>
           </motion.div>
         </motion.div>
 
-        {/* Floating stat cards */}
+        {/* Hero floating card */}
         <motion.div
-          initial={{ opacity: 0, x: 40 }}
+          initial={{ opacity: 0, x: 60 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.9, duration: 0.7 }}
-          style={{ position: "absolute", right: 40, bottom: 120, background: "rgba(255,255,255,0.08)", backdropFilter: "blur(16px)", border: "1px solid rgba(201,169,110,0.25)", borderRadius: 12, padding: "20px 28px", zIndex: 10 }}>
-          <div style={{ fontSize: 32, fontWeight: 700, color: "#c9a96e" }}>4 200+</div>
-          <div style={{ fontSize: 13, color: "rgba(255,255,255,0.6)", letterSpacing: "0.06em" }}>Voyages réalisés</div>
+          transition={{ delay: 1, duration: 0.8 }}
+          style={{
+            position: "absolute", right: 80, bottom: 100, zIndex: 10,
+            background: "rgba(255,255,255,0.08)", backdropFilter: "blur(20px)",
+            border: "1px solid rgba(201,169,110,0.3)", borderRadius: 16,
+            padding: "24px 28px", minWidth: 220,
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
+            <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#4CAF50" }} />
+            <span style={{ fontSize: 11, color: "rgba(255,255,255,0.6)", fontFamily: "system-ui", letterSpacing: "0.08em" }}>CONCIERGE EN LIGNE</span>
+          </div>
+          <div style={{ fontSize: 28, fontWeight: 300, color: C.accent }}>1 200+</div>
+          <div style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", fontFamily: "system-ui", marginTop: 4 }}>voyageurs accompagnés</div>
+          <div style={{ marginTop: 20, display: "flex", gap: 4 }}>
+            {[1,2,3,4,5].map(i => <Star key={i} size={12} fill={C.accent} color={C.accent} />)}
+            <span style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", fontFamily: "system-ui", marginLeft: 6 }}>4.97/5</span>
+          </div>
         </motion.div>
 
+        {/* Scroll indicator */}
         <motion.div
-          initial={{ opacity: 0, x: -40 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 1.1, duration: 0.7 }}
-          style={{ position: "absolute", left: 40, bottom: 120, background: "rgba(255,255,255,0.08)", backdropFilter: "blur(16px)", border: "1px solid rgba(201,169,110,0.25)", borderRadius: 12, padding: "20px 28px", zIndex: 10 }}>
-          <div style={{ fontSize: 32, fontWeight: 700, color: "#c9a96e" }}>98%</div>
-          <div style={{ fontSize: 13, color: "rgba(255,255,255,0.6)", letterSpacing: "0.06em" }}>Clients satisfaits</div>
+          animate={{ y: [0, 8, 0] }}
+          transition={{ repeat: Infinity, duration: 2 }}
+          style={{ position: "absolute", bottom: 40, left: "50%", transform: "translateX(-50%)", zIndex: 10, display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}
+        >
+          <span style={{ fontSize: 10, color: "rgba(255,255,255,0.35)", fontFamily: "system-ui", letterSpacing: "0.12em" }}>SCROLL</span>
+          <ChevronDown size={16} color="rgba(255,255,255,0.35)" />
         </motion.div>
       </section>
 
-      {/* STATS BAR */}
-      <section style={{ padding: "48px 32px", background: "rgba(201,169,110,0.06)", borderTop: "1px solid rgba(201,169,110,0.12)", borderBottom: "1px solid rgba(201,169,110,0.12)" }}>
-        <div style={{ maxWidth: 1100, margin: "0 auto", display: "flex", flexWrap: "wrap", gap: 32, justifyContent: "center" }}>
-          {STATS.map((s, i) => (
-            <Reveal key={i} delay={i * 0.1}>
-              <div style={{ textAlign: "center", minWidth: 140 }}>
-                <div style={{ fontSize: 36, fontWeight: 700, color: "#c9a96e", letterSpacing: "-0.02em" }}>{s.val}</div>
-                <div style={{ fontSize: 13, color: "rgba(255,255,255,0.55)", letterSpacing: "0.06em", marginTop: 4 }}>{s.label}</div>
+      {/* STATS BAND */}
+      <section style={{ background: C.marine, padding: "56px 40px" }}>
+        <div style={{ maxWidth: 1100, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 32 }}>
+          {STATS.map((stat, i) => (
+            <RevealSection key={i} delay={i * 0.12}>
+              <div style={{ textAlign: "center" }}>
+                <div style={{ fontSize: "clamp(32px, 4vw, 52px)", fontWeight: 300, color: C.accent, letterSpacing: "-0.02em" }}>
+                  {stat.val}
+                </div>
+                <div style={{ fontSize: 12, color: "rgba(255,255,255,0.45)", fontFamily: "system-ui", marginTop: 8, letterSpacing: "0.06em", textTransform: "uppercase" }}>
+                  {stat.label}
+                </div>
               </div>
-            </Reveal>
+            </RevealSection>
           ))}
         </div>
       </section>
 
-      {/* DESTINATIONS */}
-      <section id="destinations" style={{ padding: "100px 32px" }}>
-        <div style={{ maxWidth: 1280, margin: "0 auto" }}>
-          <Reveal>
-            <div style={{ textAlign: "center", marginBottom: 64 }}>
-              <Badge style={{ background: "rgba(201,169,110,0.12)", color: "#c9a96e", border: "1px solid rgba(201,169,110,0.3)", fontSize: 11, letterSpacing: "0.12em", marginBottom: 16 }}>DESTINATIONS PHARES</Badge>
-              <h2 style={{ fontSize: "clamp(32px, 4vw, 52px)", fontWeight: 300, letterSpacing: "-0.02em", marginBottom: 16 }}>
-                Les routes <em style={{ color: "#c9a96e", fontStyle: "italic" }}>les plus belles</em> du monde
+      {/* DESTINATIONS GRID */}
+      <section id="destinations" style={{ padding: "140px 40px", background: C.bg }}>
+        <div style={{ maxWidth: 1320, margin: "0 auto" }}>
+          <RevealSection>
+            <div style={{ marginBottom: 80 }}>
+              <div style={{ display: "inline-flex", alignItems: "center", gap: 8, marginBottom: 20 }}>
+                <div style={{ width: 24, height: 1, background: C.accent }} />
+                <span style={{ fontSize: 11, color: C.accent, fontFamily: "system-ui", letterSpacing: "0.14em", fontWeight: 600 }}>NOS DESTINATIONS</span>
+              </div>
+              <h2 style={{ fontSize: "clamp(36px, 5vw, 72px)", fontWeight: 300, letterSpacing: "-0.02em", color: C.marine, lineHeight: 1.05, maxWidth: 620 }}>
+                Chaque destination,<br /><em style={{ color: C.accent, fontStyle: "italic" }}>une révélation.</em>
               </h2>
-              <p style={{ fontSize: 16, color: "rgba(255,255,255,0.55)", maxWidth: 520, margin: "0 auto" }}>Chaque destination soigneusement choisie pour son caractère unique et ses expériences incomparables.</p>
             </div>
-          </Reveal>
+          </RevealSection>
 
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))", gap: 24 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 24, marginBottom: 80 }}>
             {DESTINATIONS.map((dest, i) => (
-              <Reveal key={i} delay={i * 0.08}>
+              <RevealSection key={i} delay={i * 0.08}>
                 <motion.div
-                  whileHover={{ scale: 1.02, y: -4 }}
-                  style={{ position: "relative", borderRadius: 12, overflow: "hidden", cursor: "pointer", aspectRatio: "4/3" }}
-                  onClick={() => setActiveDestination(i)}>
-                  <Image src={`https://images.unsplash.com/${dest.img}?w=600&q=80`} alt={dest.name} fill style={{ objectFit: "cover", transition: "transform 0.6s ease" }} />
-                  <div style={{ position: "absolute", inset: 0, background: "linear-gradient(0deg, rgba(6,9,26,0.9) 0%, transparent 50%)" }} />
-                  <div style={{ position: "absolute", top: 16, left: 16 }}>
-                    <Badge style={{ background: "rgba(201,169,110,0.2)", color: "#c9a96e", border: "1px solid rgba(201,169,110,0.4)", fontSize: 11, backdropFilter: "blur(8px)" }}>
-                      <MapPin size={10} style={{ marginRight: 4 }} />{dest.tag}
-                    </Badge>
+                  whileHover={{ y: -8 }}
+                  transition={{ duration: 0.3 }}
+                  style={{
+                    borderRadius: 16, overflow: "hidden", background: C.white,
+                    boxShadow: "0 4px 24px rgba(10,37,64,0.06)",
+                    border: `1px solid ${C.borderLight}`,
+                    cursor: "pointer",
+                  }}
+                  onMouseEnter={() => setActiveDestination(i)}
+                >
+                  <div style={{ position: "relative", aspectRatio: "4/3", overflow: "hidden" }}>
+                    <motion.div
+                      whileHover={{ scale: 1.08 }}
+                      transition={{ duration: 0.6 }}
+                      style={{ width: "100%", height: "100%" }}
+                    >
+                      <div
+                        style={{
+                          width: "100%", height: "100%",
+                          backgroundImage: `url(https://images.unsplash.com/${dest.img}?w=600&q=85)`,
+                          backgroundSize: "cover", backgroundPosition: "center",
+                        }}
+                      />
+                    </motion.div>
+                    <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(10,37,64,0.7) 0%, transparent 60%)" }} />
+                    <div style={{ position: "absolute", top: 16, left: 16 }}>
+                      <span style={{ background: "rgba(201,169,110,0.9)", color: C.marine, fontSize: 10, fontFamily: "system-ui", fontWeight: 700, letterSpacing: "0.1em", padding: "4px 10px", borderRadius: 20 }}>
+                        {dest.tag}
+                      </span>
+                    </div>
+                    <div style={{ position: "absolute", bottom: 16, left: 16, right: 16 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
+                        <MapPin size={12} color={C.accent} />
+                        <span style={{ fontSize: 11, color: "rgba(255,255,255,0.7)", fontFamily: "system-ui" }}>{dest.region}</span>
+                      </div>
+                      <h3 style={{ fontSize: 22, fontWeight: 400, color: C.white, letterSpacing: "0.01em" }}>{dest.name}</h3>
+                    </div>
                   </div>
-                  <div style={{ position: "absolute", bottom: 20, left: 20, right: 20 }}>
-                    <h3 style={{ fontSize: 22, fontWeight: 600, marginBottom: 8, letterSpacing: "-0.01em" }}>{dest.name}</h3>
+                  <div style={{ padding: "22px 24px" }}>
+                    <p style={{ fontSize: 14, color: C.textMuted, fontFamily: "system-ui", lineHeight: 1.7, marginBottom: 20 }}>{dest.desc}</p>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                      <span style={{ fontSize: 13, color: "rgba(255,255,255,0.6)" }}><Clock size={12} style={{ display: "inline", marginRight: 4 }} />{dest.duration}</span>
-                      <span style={{ fontSize: 16, fontWeight: 700, color: "#c9a96e" }}>À partir de {dest.price}</span>
+                      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                        <Clock size={13} color={C.textMuted} />
+                        <span style={{ fontSize: 13, color: C.textMuted, fontFamily: "system-ui" }}>{dest.duration}</span>
+                      </div>
+                      <div style={{ textAlign: "right" }}>
+                        <div style={{ fontSize: 13, fontWeight: 600, color: C.accent, fontFamily: "system-ui" }}>{dest.price}</div>
+                      </div>
                     </div>
                   </div>
                 </motion.div>
-              </Reveal>
+              </RevealSection>
+            ))}
+          </div>
+
+          <RevealSection>
+            <div style={{ textAlign: "center" }}>
+              <motion.button
+                whileHover={{ scale: 1.03, boxShadow: `0 8px 32px rgba(10,37,64,0.12)` }}
+                whileTap={{ scale: 0.97 }}
+                style={{ padding: "16px 44px", background: "transparent", color: C.marine, border: `1px solid ${C.marine}`, borderRadius: 3, fontSize: 12, fontFamily: "system-ui", fontWeight: 600, letterSpacing: "0.12em", cursor: "pointer" }}
+              >
+                VOIR LES 87 DESTINATIONS
+              </motion.button>
+            </div>
+          </RevealSection>
+        </div>
+      </section>
+
+      {/* CARTE MONDE — SIGNATURE ELEMENT */}
+      <section style={{ padding: "120px 40px", background: C.sandDark }}>
+        <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+          <RevealSection>
+            <div style={{ textAlign: "center", marginBottom: 64 }}>
+              <div style={{ display: "inline-flex", alignItems: "center", gap: 8, marginBottom: 20 }}>
+                <div style={{ width: 24, height: 1, background: C.accent }} />
+                <span style={{ fontSize: 11, color: C.accent, fontFamily: "system-ui", letterSpacing: "0.14em", fontWeight: 600 }}>CARTE DES DESTINATIONS</span>
+                <div style={{ width: 24, height: 1, background: C.accent }} />
+              </div>
+              <h2 style={{ fontSize: "clamp(28px, 4vw, 52px)", fontWeight: 300, color: C.marine, marginBottom: 16 }}>
+                Votre monde,<br /><em style={{ color: C.accent, fontStyle: "italic" }}>cartographié</em>
+              </h2>
+              <p style={{ fontSize: 15, color: C.textMuted, fontFamily: "system-ui", maxWidth: 480, margin: "0 auto", lineHeight: 1.7 }}>
+                Survolez la carte pour explorer nos destinations signature. 87 expériences uniques sur 6 continents.
+              </p>
+            </div>
+          </RevealSection>
+
+          <WorldMapSignature />
+        </div>
+      </section>
+
+      {/* SERVICES */}
+      <section id="services" style={{ padding: "140px 40px", background: C.bg }}>
+        <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 80, alignItems: "center" }}>
+            <RevealSection direction="left">
+              <div>
+                <div style={{ display: "inline-flex", alignItems: "center", gap: 8, marginBottom: 24 }}>
+                  <div style={{ width: 24, height: 1, background: C.accent }} />
+                  <span style={{ fontSize: 11, color: C.accent, fontFamily: "system-ui", letterSpacing: "0.14em", fontWeight: 600 }}>NOS SERVICES</span>
+                </div>
+                <h2 style={{ fontSize: "clamp(32px, 4vw, 56px)", fontWeight: 300, letterSpacing: "-0.02em", color: C.marine, lineHeight: 1.1, marginBottom: 24 }}>
+                  Le privilège d'un<br /><em style={{ color: C.accent, fontStyle: "italic" }}>service sans égal</em>
+                </h2>
+                <p style={{ fontSize: 16, color: C.textMuted, fontFamily: "system-ui", lineHeight: 1.8, marginBottom: 36 }}>
+                  De la conception de votre itinéraire à votre retour à la maison, chaque détail est orchestré avec une précision absolue.
+                </p>
+                <motion.button
+                  whileHover={{ scale: 1.03, boxShadow: `0 8px 24px rgba(201,169,110,0.3)` }}
+                  whileTap={{ scale: 0.97 }}
+                  style={{ padding: "15px 36px", background: C.accent, color: C.marine, border: "none", borderRadius: 3, fontSize: 12, fontFamily: "system-ui", fontWeight: 700, letterSpacing: "0.1em", cursor: "pointer", display: "flex", alignItems: "center", gap: 8 }}
+                >
+                  CONSULTATION GRATUITE <ArrowRight size={14} />
+                </motion.button>
+              </div>
+            </RevealSection>
+
+            <RevealSection direction="right">
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+                {SERVICES_DETAIL.map((service, i) => (
+                  <motion.div
+                    key={i}
+                    whileHover={{ y: -4, boxShadow: "0 12px 40px rgba(10,37,64,0.1)" }}
+                    style={{
+                      background: C.white, borderRadius: 12, padding: "24px 20px",
+                      border: `1px solid ${C.borderLight}`,
+                      cursor: "pointer",
+                    }}
+                  >
+                    <div style={{ width: 44, height: 44, borderRadius: 10, background: C.accentLight, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 16 }}>
+                      <service.icon size={20} color={C.accent} />
+                    </div>
+                    <h3 style={{ fontSize: 16, fontWeight: 500, color: C.marine, marginBottom: 8, lineHeight: 1.3 }}>{service.title}</h3>
+                    <p style={{ fontSize: 13, color: C.textMuted, fontFamily: "system-ui", lineHeight: 1.65 }}>{service.desc}</p>
+                  </motion.div>
+                ))}
+              </div>
+            </RevealSection>
+          </div>
+        </div>
+      </section>
+
+      {/* PROCESSUS */}
+      <section id="processus" style={{ padding: "140px 40px", background: C.marine }}>
+        <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+          <RevealSection>
+            <div style={{ textAlign: "center", marginBottom: 96 }}>
+              <div style={{ display: "inline-flex", alignItems: "center", gap: 8, marginBottom: 24 }}>
+                <div style={{ width: 24, height: 1, background: "rgba(201,169,110,0.5)" }} />
+                <span style={{ fontSize: 11, color: C.accent, fontFamily: "system-ui", letterSpacing: "0.14em", fontWeight: 600 }}>COMMENT ÇA MARCHE</span>
+                <div style={{ width: 24, height: 1, background: "rgba(201,169,110,0.5)" }} />
+              </div>
+              <h2 style={{ fontSize: "clamp(32px, 4.5vw, 60px)", fontWeight: 300, color: C.white, letterSpacing: "-0.02em" }}>
+                De l'idée au<br /><em style={{ color: C.accent, fontStyle: "italic" }}>voyage inoubliable</em>
+              </h2>
+            </div>
+          </RevealSection>
+
+          <div style={{ position: "relative" }}>
+            {/* Connecting line */}
+            <div style={{ position: "absolute", top: 32, left: "calc(12.5% + 16px)", right: "calc(12.5% + 16px)", height: 1, background: `linear-gradient(90deg, ${C.accent} 0%, rgba(201,169,110,0.2) 100%)`, display: "none" }} />
+
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 32 }}>
+              {PROCESS_STEPS.map((step, i) => (
+                <RevealSection key={i} delay={i * 0.12}>
+                  <div style={{ textAlign: "center" }}>
+                    <div style={{ width: 64, height: 64, borderRadius: "50%", border: `1px solid rgba(201,169,110,0.4)`, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 28px", position: "relative" }}>
+                      <span style={{ fontSize: 13, color: C.accent, fontFamily: "system-ui", fontWeight: 600, letterSpacing: "0.06em" }}>{step.num}</span>
+                    </div>
+                    <h3 style={{ fontSize: 20, fontWeight: 400, color: C.white, marginBottom: 16, lineHeight: 1.3 }}>{step.title}</h3>
+                    <p style={{ fontSize: 13, color: "rgba(255,255,255,0.45)", fontFamily: "system-ui", lineHeight: 1.75 }}>{step.desc}</p>
+                  </div>
+                </RevealSection>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* TESTIMONIALS */}
+      <section id="avis" style={{ padding: "140px 40px", background: C.bg }}>
+        <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+          <RevealSection>
+            <div style={{ marginBottom: 72 }}>
+              <div style={{ display: "inline-flex", alignItems: "center", gap: 8, marginBottom: 20 }}>
+                <div style={{ width: 24, height: 1, background: C.accent }} />
+                <span style={{ fontSize: 11, color: C.accent, fontFamily: "system-ui", letterSpacing: "0.14em", fontWeight: 600 }}>AVIS VOYAGEURS</span>
+              </div>
+              <h2 style={{ fontSize: "clamp(32px, 4.5vw, 60px)", fontWeight: 300, color: C.marine, letterSpacing: "-0.02em", maxWidth: 540 }}>
+                Ils ont voyagé avec<br /><em style={{ color: C.accent, fontStyle: "italic" }}>Évasion Dorée</em>
+              </h2>
+            </div>
+          </RevealSection>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 24 }}>
+            {TESTIMONIALS.slice(0, 6).map((t, i) => (
+              <RevealSection key={i} delay={i * 0.08}>
+                <motion.div
+                  whileHover={{ y: -6, boxShadow: "0 20px 60px rgba(10,37,64,0.1)" }}
+                  style={{
+                    background: C.white, borderRadius: 16, padding: "32px 28px",
+                    border: `1px solid ${C.borderLight}`, cursor: "pointer",
+                    height: "100%",
+                  }}
+                >
+                  <div style={{ display: "flex", gap: 2, marginBottom: 20 }}>
+                    {Array.from({ length: t.rating }).map((_, j) => (
+                      <Star key={j} size={13} fill={C.accent} color={C.accent} />
+                    ))}
+                  </div>
+                  <p style={{ fontSize: 15, color: C.text, lineHeight: 1.8, marginBottom: 28, fontStyle: "italic" }}>
+                    &ldquo;{t.text}&rdquo;
+                  </p>
+                  <div style={{ borderTop: `1px solid ${C.borderLight}`, paddingTop: 20, display: "flex", alignItems: "center", gap: 14 }}>
+                    <div style={{ width: 44, height: 44, borderRadius: "50%", background: C.accentLight, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                      <span style={{ fontSize: 13, fontWeight: 600, color: C.accent, fontFamily: "system-ui" }}>{t.avatar}</span>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: 14, fontWeight: 500, color: C.marine }}>{t.name}</div>
+                      <div style={{ fontSize: 12, color: C.textMuted, fontFamily: "system-ui" }}>{t.trip}</div>
+                    </div>
+                  </div>
+                </motion.div>
+              </RevealSection>
             ))}
           </div>
         </div>
       </section>
 
-      {/* FEATURES TABS */}
-      <section id="services" style={{ padding: "100px 32px", background: "rgba(255,255,255,0.02)" }}>
+      {/* PACKAGES / TARIFS */}
+      <section id="tarifs" style={{ padding: "140px 40px", background: C.sandDark }}>
         <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-          <Reveal>
-            <div style={{ textAlign: "center", marginBottom: 56 }}>
-              <Badge style={{ background: "rgba(201,169,110,0.12)", color: "#c9a96e", border: "1px solid rgba(201,169,110,0.3)", fontSize: 11, letterSpacing: "0.12em", marginBottom: 16 }}>NOS SERVICES</Badge>
-              <h2 style={{ fontSize: "clamp(28px, 4vw, 48px)", fontWeight: 300, letterSpacing: "-0.02em" }}>
-                Une expertise <em style={{ color: "#c9a96e", fontStyle: "italic" }}>totale</em> à votre service
+          <RevealSection>
+            <div style={{ textAlign: "center", marginBottom: 80 }}>
+              <div style={{ display: "inline-flex", alignItems: "center", gap: 8, marginBottom: 20 }}>
+                <div style={{ width: 24, height: 1, background: C.accent }} />
+                <span style={{ fontSize: 11, color: C.accent, fontFamily: "system-ui", letterSpacing: "0.14em", fontWeight: 600 }}>NOS FORMULES</span>
+                <div style={{ width: 24, height: 1, background: C.accent }} />
+              </div>
+              <h2 style={{ fontSize: "clamp(32px, 4.5vw, 60px)", fontWeight: 300, color: C.marine, letterSpacing: "-0.02em", marginBottom: 20 }}>
+                Choisissez votre<br /><em style={{ color: C.accent, fontStyle: "italic" }}>niveau d'excellence</em>
               </h2>
+              <p style={{ fontSize: 15, color: C.textMuted, fontFamily: "system-ui", maxWidth: 440, margin: "0 auto", lineHeight: 1.7 }}>
+                Trois formules pour répondre à chaque aspiration. Chacune entièrement personnalisable selon votre voyage.
+              </p>
             </div>
-          </Reveal>
-
-          <Tabs defaultValue="destinations" style={{ width: "100%" }}>
-            <TabsList style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(201,169,110,0.15)", marginBottom: 40, display: "flex", flexWrap: "wrap", height: "auto", gap: 4, padding: 4 }}>
-              <TabsTrigger value="destinations" style={{ flex: 1, color: "rgba(255,255,255,0.6)", fontSize: 13, letterSpacing: "0.06em" }}>Destinations Signature</TabsTrigger>
-              <TabsTrigger value="concierge" style={{ flex: 1, color: "rgba(255,255,255,0.6)", fontSize: 13, letterSpacing: "0.06em" }}>Conciergerie</TabsTrigger>
-              <TabsTrigger value="experiences" style={{ flex: 1, color: "rgba(255,255,255,0.6)", fontSize: 13, letterSpacing: "0.06em" }}>Expériences Privées</TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="destinations">
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 40, alignItems: "center" }}>
-                <div>
-                  <div style={{ width: 48, height: 48, borderRadius: 12, background: "rgba(201,169,110,0.12)", border: "1px solid rgba(201,169,110,0.25)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 24 }}>
-                    <Globe size={22} color="#c9a96e" />
-                  </div>
-                  <h3 style={{ fontSize: 28, fontWeight: 400, marginBottom: 16 }}>87 pays, des milliers d'expériences</h3>
-                  <p style={{ fontSize: 15, color: "rgba(255,255,255,0.6)", lineHeight: 1.8, marginBottom: 24 }}>Nous sélectionnons chaque destination selon des critères stricts d'exclusivité, d'authenticité et de qualité d'hébergement.</p>
-                  <ul style={{ listStyle: "none", padding: 0, display: "flex", flexDirection: "column", gap: 12 }}>
-                    {["Accès à des lodges et villas non répertoriés", "Partenariats avec 340+ établissements 5 étoiles", "Destinations hors des sentiers battus exclusives", "Certifications éco-responsabilité vérifiées"].map(f => (
-                      <li key={f} style={{ display: "flex", alignItems: "flex-start", gap: 12, fontSize: 14, color: "rgba(255,255,255,0.7)" }}>
-                        <Check size={16} color="#c9a96e" style={{ marginTop: 2, flexShrink: 0 }} />{f}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                <div style={{ position: "relative", aspectRatio: "4/3", borderRadius: 12, overflow: "hidden" }}>
-                  <Image src="https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=600&q=80" alt="Destinations" fill style={{ objectFit: "cover" }} />
-                </div>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="concierge">
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 40, alignItems: "center" }}>
-                <div style={{ position: "relative", aspectRatio: "4/3", borderRadius: 12, overflow: "hidden" }}>
-                  <Image src="https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=600&q=80" alt="Conciergerie" fill style={{ objectFit: "cover" }} />
-                </div>
-                <div>
-                  <div style={{ width: 48, height: 48, borderRadius: 12, background: "rgba(201,169,110,0.12)", border: "1px solid rgba(201,169,110,0.25)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 24 }}>
-                    <Phone size={22} color="#c9a96e" />
-                  </div>
-                  <h3 style={{ fontSize: 28, fontWeight: 400, marginBottom: 16 }}>Un conseiller dédié, disponible 24/7</h3>
-                  <p style={{ fontSize: 15, color: "rgba(255,255,255,0.6)", lineHeight: 1.8, marginBottom: 24 }}>Votre conseiller personnel prend en charge chaque détail de votre voyage, avant, pendant et après.</p>
-                  <ul style={{ listStyle: "none", padding: 0, display: "flex", flexDirection: "column", gap: 12 }}>
-                    {["Assistance téléphonique en 3 langues 24h/24", "Gestion des imprévus et modifications en temps réel", "Réservations restaurants étoilés sur demande", "Coordination jets privés, yachts et transfers VIP"].map(f => (
-                      <li key={f} style={{ display: "flex", alignItems: "flex-start", gap: 12, fontSize: 14, color: "rgba(255,255,255,0.7)" }}>
-                        <Check size={16} color="#c9a96e" style={{ marginTop: 2, flexShrink: 0 }} />{f}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="experiences">
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 40, alignItems: "center" }}>
-                <div>
-                  <div style={{ width: 48, height: 48, borderRadius: 12, background: "rgba(201,169,110,0.12)", border: "1px solid rgba(201,169,110,0.25)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 24 }}>
-                    <Star size={22} color="#c9a96e" />
-                  </div>
-                  <h3 style={{ fontSize: 28, fontWeight: 400, marginBottom: 16 }}>Des expériences inaccessibles au grand public</h3>
-                  <p style={{ fontSize: 15, color: "rgba(255,255,255,0.6)", lineHeight: 1.8, marginBottom: 24 }}>Dîner privé sur le Machu Picchu, plongée nocturne en Corse avec un biologiste marin, safari à pied dans le Serengeti...</p>
-                  <ul style={{ listStyle: "none", padding: 0, display: "flex", flexDirection: "column", gap: 12 }}>
-                    {["Accès privatif à des sites fermés au public", "Rencontres avec experts, artisans et scientifiques locaux", "Expériences gastronomiques avec chefs étoilés", "Activités aventure supervisées par des pros certifiés"].map(f => (
-                      <li key={f} style={{ display: "flex", alignItems: "flex-start", gap: 12, fontSize: 14, color: "rgba(255,255,255,0.7)" }}>
-                        <Check size={16} color="#c9a96e" style={{ marginTop: 2, flexShrink: 0 }} />{f}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                <div style={{ position: "relative", aspectRatio: "4/3", borderRadius: 12, overflow: "hidden" }}>
-                  <Image src="https://images.unsplash.com/photo-1530521954074-e64f6810b32d?w=600&q=80" alt="Expériences" fill style={{ objectFit: "cover" }} />
-                </div>
-              </div>
-            </TabsContent>
-          </Tabs>
-        </div>
-      </section>
-
-      {/* TESTIMONIALS */}
-      <section id="témoignages" style={{ padding: "100px 32px" }}>
-        <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-          <Reveal>
-            <div style={{ textAlign: "center", marginBottom: 56 }}>
-              <Badge style={{ background: "rgba(201,169,110,0.12)", color: "#c9a96e", border: "1px solid rgba(201,169,110,0.3)", fontSize: 11, letterSpacing: "0.12em", marginBottom: 16 }}>TÉMOIGNAGES</Badge>
-              <h2 style={{ fontSize: "clamp(28px, 4vw, 48px)", fontWeight: 300, letterSpacing: "-0.02em" }}>Ils ont voyagé avec nous</h2>
-            </div>
-          </Reveal>
-
-          <Carousel opts={{ align: "start", loop: true }}>
-            <CarouselContent style={{ paddingLeft: 8 }}>
-              {TESTIMONIALS.map((t, i) => (
-                <CarouselItem key={i} style={{ paddingLeft: 16, flexBasis: "calc(50% - 8px)" }}>
-                  <Card style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(201,169,110,0.15)", borderRadius: 12, height: "100%" }}>
-                    <CardContent style={{ padding: 32 }}>
-                      <div style={{ display: "flex", gap: 4, marginBottom: 20 }}>
-                        {Array.from({ length: t.rating }).map((_, j) => <Star key={j} size={14} fill="#c9a96e" color="#c9a96e" />)}
-                      </div>
-                      <p style={{ fontSize: 15, color: "rgba(255,255,255,0.75)", lineHeight: 1.75, marginBottom: 24, fontStyle: "italic" }}>"{t.text}"</p>
-                      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                        <Avatar>
-                          <AvatarFallback style={{ background: "rgba(201,169,110,0.2)", color: "#c9a96e", fontSize: 13, fontWeight: 700 }}>{t.avatar}</AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <div style={{ fontSize: 14, fontWeight: 600 }}>{t.name}</div>
-                          <div style={{ fontSize: 12, color: "rgba(255,255,255,0.45)" }}>{t.role}</div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-            <CarouselPrevious style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(201,169,110,0.3)", color: "#c9a96e" }} />
-            <CarouselNext style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(201,169,110,0.3)", color: "#c9a96e" }} />
-          </Carousel>
-        </div>
-      </section>
-
-      {/* PRICING */}
-      <section style={{ padding: "100px 32px", background: "rgba(255,255,255,0.02)" }}>
-        <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-          <Reveal>
-            <div style={{ textAlign: "center", marginBottom: 64 }}>
-              <Badge style={{ background: "rgba(201,169,110,0.12)", color: "#c9a96e", border: "1px solid rgba(201,169,110,0.3)", fontSize: 11, letterSpacing: "0.12em", marginBottom: 16 }}>FORMULES</Badge>
-              <h2 style={{ fontSize: "clamp(28px, 4vw, 48px)", fontWeight: 300, letterSpacing: "-0.02em" }}>Choisissez votre niveau d'exception</h2>
-              <p style={{ fontSize: 15, color: "rgba(255,255,255,0.5)", marginTop: 12 }}>Tarifs indicatifs par personne — chaque voyage est devisé sur mesure</p>
-            </div>
-          </Reveal>
+          </RevealSection>
 
           <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 24 }}>
-            {PRICING.map((plan, i) => (
-              <Reveal key={i} delay={i * 0.12}>
+            {PACKAGES.map((pkg, i) => (
+              <RevealSection key={i} delay={i * 0.1}>
                 <motion.div
-                  whileHover={{ y: -6, boxShadow: plan.featured ? "0 20px 60px rgba(201,169,110,0.25)" : "0 12px 40px rgba(0,0,0,0.4)" }}
-                  style={{ borderRadius: 16, overflow: "hidden", border: plan.featured ? "1px solid rgba(201,169,110,0.5)" : "1px solid rgba(255,255,255,0.08)", position: "relative", cursor: "pointer" }}>
-                  {plan.featured && (
-                    <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: "linear-gradient(90deg, #c9a96e, #f0d090)" }} />
+                  whileHover={{ y: -8, boxShadow: pkg.featured ? "0 32px 80px rgba(201,169,110,0.25)" : "0 16px 48px rgba(10,37,64,0.12)" }}
+                  style={{
+                    borderRadius: 16, overflow: "hidden",
+                    background: pkg.featured ? C.marine : C.white,
+                    border: pkg.featured ? `1px solid rgba(201,169,110,0.3)` : `1px solid ${C.borderLight}`,
+                    position: "relative", cursor: "pointer",
+                  }}
+                >
+                  {pkg.featured && (
+                    <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: `linear-gradient(90deg, ${C.accent}, #D4B483)` }} />
                   )}
-                  <div style={{ padding: "36px 28px", background: plan.featured ? "rgba(201,169,110,0.06)" : "rgba(255,255,255,0.03)" }}>
-                    {plan.featured && (
-                      <div style={{ display: "inline-block", background: "rgba(201,169,110,0.15)", color: "#c9a96e", fontSize: 10, letterSpacing: "0.12em", fontWeight: 700, padding: "4px 12px", borderRadius: 20, marginBottom: 16, border: "1px solid rgba(201,169,110,0.3)" }}>RECOMMANDÉ</div>
+                  <div style={{ padding: "36px 32px" }}>
+                    {pkg.featured && (
+                      <div style={{ display: "inline-block", background: "rgba(201,169,110,0.15)", color: C.accent, fontSize: 10, fontFamily: "system-ui", fontWeight: 700, letterSpacing: "0.12em", padding: "4px 12px", borderRadius: 20, marginBottom: 16 }}>
+                        LE PLUS CHOISI
+                      </div>
                     )}
-                    <h3 style={{ fontSize: 22, fontWeight: 600, marginBottom: 8 }}>{plan.name}</h3>
-                    <div style={{ fontSize: 42, fontWeight: 700, color: "#c9a96e", letterSpacing: "-0.02em", marginBottom: 4 }}>{plan.price} €</div>
-                    <div style={{ fontSize: 13, color: "rgba(255,255,255,0.4)", marginBottom: 32 }}>{plan.period}</div>
-                    <ul style={{ listStyle: "none", padding: 0, display: "flex", flexDirection: "column", gap: 12, marginBottom: 32 }}>
-                      {plan.features.map(f => (
-                        <li key={f} style={{ display: "flex", alignItems: "flex-start", gap: 10, fontSize: 13, color: "rgba(255,255,255,0.7)" }}>
-                          <Check size={14} color="#c9a96e" style={{ marginTop: 2, flexShrink: 0 }} />{f}
+                    <h3 style={{ fontSize: 28, fontWeight: 300, color: pkg.featured ? C.white : C.marine, marginBottom: 6 }}>{pkg.name}</h3>
+                    <p style={{ fontSize: 13, color: pkg.featured ? "rgba(255,255,255,0.45)" : C.textMuted, fontFamily: "system-ui", marginBottom: 28 }}>{pkg.subtitle}</p>
+                    <div style={{ marginBottom: 32 }}>
+                      <div style={{ fontSize: "clamp(18px, 2.5vw, 22px)", fontWeight: 300, color: pkg.featured ? C.accent : C.marine }}>{pkg.price}</div>
+                      <div style={{ fontSize: 12, color: pkg.featured ? "rgba(255,255,255,0.35)" : C.textMuted, fontFamily: "system-ui", marginTop: 4 }}>{pkg.perPerson}</div>
+                    </div>
+                    <ul style={{ listStyle: "none", padding: 0, marginBottom: 32, display: "flex", flexDirection: "column", gap: 12 }}>
+                      {pkg.features.map((feature, j) => (
+                        <li key={j} style={{ display: "flex", alignItems: "flex-start", gap: 10, fontSize: 13, color: pkg.featured ? "rgba(255,255,255,0.7)" : C.textMuted, fontFamily: "system-ui", lineHeight: 1.5 }}>
+                          <Check size={14} color={C.accent} style={{ marginTop: 1, flexShrink: 0 }} />
+                          {feature}
                         </li>
                       ))}
                     </ul>
                     <motion.button
                       whileHover={{ scale: 1.03 }}
                       whileTap={{ scale: 0.97 }}
-                      style={{ width: "100%", padding: "14px", background: plan.featured ? "linear-gradient(135deg, #c9a96e, #f0d090)" : "rgba(255,255,255,0.08)", color: plan.featured ? "#06091a" : "white", border: plan.featured ? "none" : "1px solid rgba(255,255,255,0.2)", borderRadius: 8, fontSize: 13, fontWeight: 700, letterSpacing: "0.06em", cursor: "pointer" }}>
-                      DEMANDER UN DEVIS
+                      style={{
+                        width: "100%", padding: "14px",
+                        background: pkg.featured ? C.accent : "transparent",
+                        color: pkg.featured ? C.marine : C.accent,
+                        border: pkg.featured ? "none" : `1px solid ${C.accent}`,
+                        borderRadius: 3, fontSize: 12, fontFamily: "system-ui", fontWeight: 700,
+                        letterSpacing: "0.1em", cursor: "pointer",
+                      }}
+                    >
+                      {pkg.cta}
                     </motion.button>
                   </div>
                 </motion.div>
-              </Reveal>
+              </RevealSection>
             ))}
           </div>
         </div>
       </section>
 
       {/* FAQ */}
-      <section id="contact" style={{ padding: "100px 32px" }}>
-        <div style={{ maxWidth: 800, margin: "0 auto" }}>
-          <Reveal>
-            <div style={{ textAlign: "center", marginBottom: 56 }}>
-              <Badge style={{ background: "rgba(201,169,110,0.12)", color: "#c9a96e", border: "1px solid rgba(201,169,110,0.3)", fontSize: 11, letterSpacing: "0.12em", marginBottom: 16 }}>FAQ</Badge>
-              <h2 style={{ fontSize: "clamp(28px, 4vw, 48px)", fontWeight: 300, letterSpacing: "-0.02em" }}>Questions fréquentes</h2>
+      <section style={{ padding: "120px 40px", background: C.bg }}>
+        <div style={{ maxWidth: 820, margin: "0 auto" }}>
+          <RevealSection>
+            <div style={{ textAlign: "center", marginBottom: 64 }}>
+              <div style={{ display: "inline-flex", alignItems: "center", gap: 8, marginBottom: 20 }}>
+                <div style={{ width: 24, height: 1, background: C.accent }} />
+                <span style={{ fontSize: 11, color: C.accent, fontFamily: "system-ui", letterSpacing: "0.14em", fontWeight: 600 }}>QUESTIONS FRÉQUENTES</span>
+                <div style={{ width: 24, height: 1, background: C.accent }} />
+              </div>
+              <h2 style={{ fontSize: "clamp(28px, 4vw, 48px)", fontWeight: 300, color: C.marine, letterSpacing: "-0.02em" }}>
+                Tout ce que vous<br /><em style={{ color: C.accent, fontStyle: "italic" }}>souhaitez savoir</em>
+              </h2>
             </div>
-          </Reveal>
+          </RevealSection>
 
-          <Accordion type="single" collapsible style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          <Accordion type="single" collapsible style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             {FAQS.map((faq, i) => (
-              <AccordionItem key={i} value={`q${i}`} style={{ border: "1px solid rgba(201,169,110,0.15)", borderRadius: 10, overflow: "hidden", background: "rgba(255,255,255,0.02)" }}>
-                <AccordionTrigger style={{ padding: "20px 24px", fontSize: 15, fontWeight: 500, color: "white", textAlign: "left" }}>{faq.q}</AccordionTrigger>
-                <AccordionContent style={{ padding: "0 24px 20px", fontSize: 14, color: "rgba(255,255,255,0.6)", lineHeight: 1.8 }}>{faq.a}</AccordionContent>
-              </AccordionItem>
+              <RevealSection key={i} delay={i * 0.06}>
+                <AccordionItem
+                  value={`faq-${i}`}
+                  style={{ border: `1px solid ${C.borderLight}`, borderRadius: 12, overflow: "hidden", background: C.white }}
+                >
+                  <AccordionTrigger
+                    style={{ padding: "22px 28px", fontSize: 16, fontWeight: 400, color: C.marine, textAlign: "left", fontFamily: "'Cormorant Garamond', Georgia, serif" }}
+                  >
+                    {faq.q}
+                  </AccordionTrigger>
+                  <AccordionContent
+                    style={{ padding: "0 28px 22px", fontSize: 14, color: C.textMuted, fontFamily: "system-ui", lineHeight: 1.8 }}
+                  >
+                    {faq.a}
+                  </AccordionContent>
+                </AccordionItem>
+              </RevealSection>
             ))}
           </Accordion>
         </div>
       </section>
 
-      {/* CTA BANNER */}
-      <section style={{ padding: "80px 32px", background: "linear-gradient(135deg, rgba(201,169,110,0.12) 0%, rgba(240,208,144,0.06) 100%)", borderTop: "1px solid rgba(201,169,110,0.2)", borderBottom: "1px solid rgba(201,169,110,0.2)" }}>
-        <div style={{ maxWidth: 720, margin: "0 auto", textAlign: "center" }}>
-          <Reveal>
-            <Compass size={40} color="#c9a96e" style={{ marginBottom: 24 }} />
-            <h2 style={{ fontSize: "clamp(28px, 4vw, 52px)", fontWeight: 300, letterSpacing: "-0.02em", marginBottom: 20 }}>
-              Votre prochain voyage<br /><em style={{ color: "#c9a96e", fontStyle: "italic" }}>de légende</em> commence ici
+      {/* CTA SECTION */}
+      <section style={{ padding: "140px 40px", background: C.marine, position: "relative", overflow: "hidden" }}>
+        {/* Background decoration */}
+        <div style={{ position: "absolute", top: "-20%", right: "-10%", width: 600, height: 600, borderRadius: "50%", background: "rgba(201,169,110,0.05)", pointerEvents: "none" }} />
+        <div style={{ position: "absolute", bottom: "-30%", left: "-5%", width: 400, height: 400, borderRadius: "50%", background: "rgba(201,169,110,0.03)", pointerEvents: "none" }} />
+
+        <div style={{ maxWidth: 800, margin: "0 auto", textAlign: "center", position: "relative", zIndex: 1 }}>
+          <RevealSection>
+            <div style={{ marginBottom: 24 }}>
+              <Compass size={48} color={C.accent} />
+            </div>
+            <h2 style={{ fontSize: "clamp(36px, 5.5vw, 72px)", fontWeight: 300, color: C.white, letterSpacing: "-0.02em", lineHeight: 1.05, marginBottom: 24 }}>
+              Votre prochaine<br /><em style={{ color: C.accent, fontStyle: "italic" }}>grande évasion</em><br />commence ici.
             </h2>
-            <p style={{ fontSize: 16, color: "rgba(255,255,255,0.6)", lineHeight: 1.7, marginBottom: 40, maxWidth: 480, margin: "0 auto 40px" }}>
-              Entretien gratuit avec un conseiller expert. Itinéraire préliminaire offert sous 72h.
+            <p style={{ fontSize: 16, color: "rgba(255,255,255,0.5)", fontFamily: "system-ui", lineHeight: 1.8, marginBottom: 48, maxWidth: 500, margin: "0 auto 48px" }}>
+              Consultation gratuite de 30 minutes. Un conseiller dédié. Votre itinéraire personnalisé sous 72h.
             </p>
             <div style={{ display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap" }}>
               <motion.button
-                whileHover={{ scale: 1.04, boxShadow: "0 8px 40px rgba(201,169,110,0.35)" }}
+                whileHover={{ scale: 1.04, boxShadow: "0 12px 40px rgba(201,169,110,0.4)" }}
                 whileTap={{ scale: 0.97 }}
-                style={{ padding: "18px 40px", background: "linear-gradient(135deg, #c9a96e, #f0d090)", color: "#06091a", border: "none", borderRadius: 4, fontSize: 14, fontWeight: 700, letterSpacing: "0.08em", cursor: "pointer" }}>
-                PRENDRE RENDEZ-VOUS
+                style={{ padding: "18px 44px", background: C.accent, color: C.marine, border: "none", borderRadius: 3, fontSize: 13, fontFamily: "system-ui", fontWeight: 700, letterSpacing: "0.1em", cursor: "pointer" }}
+              >
+                CONSULTATION GRATUITE
               </motion.button>
               <motion.button
-                whileHover={{ scale: 1.04 }}
-                style={{ padding: "18px 40px", background: "transparent", color: "#c9a96e", border: "1px solid rgba(201,169,110,0.4)", borderRadius: 4, fontSize: 14, letterSpacing: "0.08em", cursor: "pointer" }}>
-                +33 1 47 23 58 90
+                whileHover={{ scale: 1.03, borderColor: "rgba(255,255,255,0.6)" }}
+                style={{ padding: "18px 44px", background: "transparent", color: C.white, border: "1px solid rgba(255,255,255,0.25)", borderRadius: 3, fontSize: 13, fontFamily: "system-ui", cursor: "pointer", display: "flex", alignItems: "center", gap: 8 }}
+              >
+                <Phone size={14} /> NOUS APPELER
               </motion.button>
             </div>
-          </Reveal>
+          </RevealSection>
         </div>
       </section>
 
       {/* FOOTER */}
-      <footer style={{ padding: "64px 32px 40px", background: "#030510" }}>
-        <div style={{ maxWidth: 1280, margin: "0 auto" }}>
-          <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr", gap: 48, marginBottom: 48 }}>
+      <footer style={{ background: "#050F1A", padding: "72px 40px 40px" }}>
+        <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr", gap: 48, marginBottom: 64 }}>
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20 }}>
-                <div style={{ width: 32, height: 32, borderRadius: "50%", background: "linear-gradient(135deg, #c9a96e, #f0d090)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <Compass size={16} color="#06091a" />
-                </div>
-                <span style={{ fontSize: 17, fontWeight: 700, color: "#c9a96e", letterSpacing: "0.08em" }}>ÉVASION DORÉE</span>
+                <Compass size={20} color={C.accent} />
+                <span style={{ fontSize: 20, fontWeight: 400, color: C.white, letterSpacing: "0.08em" }}>Évasion Dorée</span>
               </div>
-              <p style={{ fontSize: 14, color: "rgba(255,255,255,0.45)", lineHeight: 1.8, maxWidth: 280, marginBottom: 24 }}>Agence de voyages de luxe fondée en 2012. Membre AFTM & Virtuoso. Certifiée ISO 9001.</p>
+              <p style={{ fontSize: 13, color: "rgba(255,255,255,0.3)", fontFamily: "system-ui", lineHeight: 1.8, maxWidth: 280, marginBottom: 24 }}>
+                Agence de voyages de luxe sur mesure depuis 2006. Paris · Genève · Monaco. IATA 88-2-0456.
+              </p>
               <div style={{ display: "flex", gap: 12 }}>
-                {[Camera, MessageSquare, Link2, Users2].map((Icon, i) => (
-                  <motion.button key={i} whileHover={{ scale: 1.15, color: "#c9a96e" }} style={{ width: 36, height: 36, borderRadius: "50%", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "rgba(255,255,255,0.5)" }}>
-                    <Icon size={15} />
-                  </motion.button>
+                {[Camera, MessageSquare, Users2].map((Icon, i) => (
+                  <motion.div
+                    key={i}
+                    whileHover={{ scale: 1.1, backgroundColor: "rgba(201,169,110,0.2)" }}
+                    style={{ width: 36, height: 36, borderRadius: 8, background: "rgba(255,255,255,0.05)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}
+                  >
+                    <Icon size={16} color="rgba(255,255,255,0.4)" />
+                  </motion.div>
                 ))}
               </div>
             </div>
 
             {[
-              { title: "Destinations", links: ["Maldives", "Japon", "Afrique", "Amériques", "Europe", "Antarctique"] },
-              { title: "Services", links: ["Voyages sur mesure", "Conciergerie", "MICE & Incentives", "Lune de miel", "Jets privés"] },
-              { title: "Agence", links: ["À propos", "Notre équipe", "Partenaires", "Mentions légales", "Contact"] },
+              { title: "Destinations", links: ["Maldives", "Japon", "Kenya", "Patagonie", "Grèce", "Rajasthan"] },
+              { title: "Services", links: ["Voyages sur mesure", "Classe affaires", "Conciergerie 24h", "Voyages famille", "Lune de miel"] },
+              { title: "Contact", links: ["Consultation gratuite", "+33 1 42 68 90 00", "paris@evasion-doree.fr", "Mentions légales", "CGV"] },
             ].map(col => (
               <div key={col.title}>
-                <h4 style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.12em", color: "#c9a96e", marginBottom: 20 }}>{col.title.toUpperCase()}</h4>
-                <ul style={{ listStyle: "none", padding: 0, display: "flex", flexDirection: "column", gap: 10 }}>
-                  {col.links.map(l => (
-                    <li key={l}><a href="#" style={{ fontSize: 13, color: "rgba(255,255,255,0.45)", textDecoration: "none", transition: "color 0.2s", cursor: "pointer" }}
-                      onMouseEnter={e => (e.currentTarget.style.color = "#c9a96e")}
-                      onMouseLeave={e => (e.currentTarget.style.color = "rgba(255,255,255,0.45)")}>{l}</a></li>
+                <h4 style={{ fontSize: 11, fontWeight: 600, color: C.accent, letterSpacing: "0.12em", marginBottom: 20, fontFamily: "system-ui" }}>
+                  {col.title.toUpperCase()}
+                </h4>
+                <ul style={{ listStyle: "none", padding: 0, display: "flex", flexDirection: "column", gap: 12 }}>
+                  {col.links.map(link => (
+                    <li key={link}>
+                      <a
+                        href="#"
+                        style={{ fontSize: 13, color: "rgba(255,255,255,0.3)", textDecoration: "none", fontFamily: "system-ui", transition: "color 0.2s" }}
+                        onMouseEnter={e => (e.currentTarget.style.color = "rgba(255,255,255,0.7)")}
+                        onMouseLeave={e => (e.currentTarget.style.color = "rgba(255,255,255,0.3)")}
+                      >
+                        {link}
+                      </a>
+                    </li>
                   ))}
                 </ul>
               </div>
             ))}
           </div>
 
-          <Separator style={{ background: "rgba(201,169,110,0.12)", marginBottom: 32 }} />
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16 }}>
-            <p style={{ fontSize: 12, color: "rgba(255,255,255,0.3)" }}>© 2024 Évasion Dorée — Tous droits réservés</p>
-            <div style={{ display: "flex", gap: 24 }}>
-              {["Confidentialité", "CGV", "Cookies"].map(l => (
-                <a key={l} href="#" style={{ fontSize: 12, color: "rgba(255,255,255,0.3)", textDecoration: "none" }}>{l}</a>
-              ))}
+          <div style={{ borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: 32, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16 }}>
+            <span style={{ fontSize: 12, color: "rgba(255,255,255,0.2)", fontFamily: "system-ui" }}>© 2024 Évasion Dorée — Tous droits réservés</span>
+            <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
+              {[1,2,3,4,5].map(i => <Star key={i} size={11} fill={C.accent} color={C.accent} />)}
+              <span style={{ fontSize: 12, color: "rgba(255,255,255,0.3)", fontFamily: "system-ui", marginLeft: 8 }}>4.97/5 — 1 200+ voyageurs</span>
             </div>
           </div>
         </div>
       </footer>
     </div>
-  )
+  );
 }

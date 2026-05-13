@@ -1,750 +1,1155 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import {
   motion,
-  AnimatePresence,
   useScroll,
   useTransform,
   useInView,
+  AnimatePresence,
+  useMotionValue,
+  useSpring,
 } from "framer-motion";
-import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, ArrowLeft, Globe, Mail, ArrowUpRight, Compass, Maximize2, Play, Pause, Camera, Award, Star, ChevronDown, ChevronRight, Minimize2, MapPin, X } from "lucide-react";
+import {
+  ArrowRight,
+  ArrowUpRight,
+  Check,
+  ChevronDown,
+  Award,
+  Star,
+  Mail,
+  Phone,
+  MapPin,
+  Clock,
+  MessageSquare,
+  Link2,
+  Camera,
+  Users2,
+  Layers,
+  Pen,
+  Zap,
+  Globe,
+  Target,
+  TrendingUp,
+  Eye,
+  Palette,
+} from "lucide-react";
 
-import "../premium.css";
+const C = {
+  bg: "#0a0f0a",
+  bgAlt: "#0d130d",
+  bgCard: "#111711",
+  bgPanel: "#0f140f",
+  text: "#f0f4f0",
+  textMuted: "#8a9e8a",
+  textDim: "#4a5e4a",
+  emerald: "#014421",
+  emeraldMid: "#025e30",
+  emeraldBright: "#03a355",
+  emeraldGlow: "#05c96a",
+  emeraldLight: "#e8f5ee",
+  white: "#ffffff",
+  border: "#1a2a1a",
+  borderLight: "#2a3e2a",
+  gold: "#b8994a",
+};
 
-/* ==========================================================================
-   DATA STRUCTURES
-   ========================================================================== */
-
-const SLIDES = [
+const PROJECTS = [
   {
     id: "01",
-    title: "The Emerald Coast",
-    subtitle: "Coastal Conservation",
-    location: "Sardinia, Italy",
+    title: "Folio Maison",
+    category: "Brand Identity",
     year: "2025",
-    desc: "A sprawling photographic essay documenting the fragile intersection of luxury tourism and marine conservation. By utilizing underwater medium format systems, the project captures the unseen biomes fighting for survival just meters beneath the yachts. The juxtaposition of human excess and natural vulnerability forms the core narrative tension.",
-    metrics: {
-      depth: "45m",
-      duration: "12 Weeks",
-      species: "142 Catalogued",
-      equipment: "Phase One XF IQ4",
-    },
-    image:
-      "https://images.unsplash.com/photo-1544551763-46a013bb70d5?q=80&w=1600&auto=format&fit=crop",
-    accent: "#059669", // emerald-600
+    tags: ["Logotype", "Visual Identity", "Motion"],
+    desc: "Rebranding complet d'une maison d'édition genevoise fondée en 1932. Nouveau système typographique, palette chromatique et guidelines motion pour le digital.",
+    result: "+340% engagement brand",
+    image: "https://images.unsplash.com/photo-1611532736597-de2d4265fba3?q=80&w=1200&auto=format&fit=crop",
+    color: C.emeraldBright,
   },
   {
     id: "02",
-    title: "Silent Giants",
-    subtitle: "Old Growth Forests",
-    location: "Vancouver Island, Canada",
-    year: "2024",
-    desc: "An immersive study into the last remaining old-growth cedar forests of the Pacific Northwest. The scale of these ancient organisms forces a recalibration of human perspective, highlighting our fleeting existence within deep time. Mist and low light create an ethereal atmosphere where scale becomes ambiguous.",
-    metrics: {
-      age: "800+ Years",
-      altitude: "1,200m",
-      scale: "Macro/Micro",
-      equipment: "Hasselblad H6D-100c",
-    },
-    image:
-      "https://images.unsplash.com/photo-1448375240586-882707db888b?q=80&w=1600&auto=format&fit=crop",
-    accent: "#047857", // emerald-700
+    title: "Altitude Collective",
+    category: "Digital Experience",
+    year: "2025",
+    tags: ["Web Design", "3D", "Interaction"],
+    desc: "Plateforme digitale pour un collectif d'artistes alpins. Navigation immersive avec rendu 3D en temps réel et système de galerie dynamique.",
+    result: "Awwwards Site of the Day",
+    image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?q=80&w=1200&auto=format&fit=crop",
+    color: C.gold,
   },
   {
     id: "03",
-    title: "Tectonic Veins",
-    subtitle: "Geological Patterns",
-    location: "Vatnajökull, Iceland",
-    year: "2023",
-    desc: "Abstract aerial topographies revealing the violent, shifting nature of glacial meltwater carving through volcanic rock. The patterns mirror biological cardiovascular systems, suggesting the earth itself operates as a living, breathing entity undergoing constant, microscopic trauma and regeneration.",
-    metrics: {
-      altitude: "15,000ft",
-      temp: "-12°C",
-      medium: "Aerial Infra",
-      equipment: "DJI Inspire 3 w/ X9",
-    },
-    image:
-      "https://images.unsplash.com/photo-1476610182048-b716b8518aae?q=80&w=1600&auto=format&fit=crop",
-    accent: "#0f766e", // teal-700
+    title: "Helix Pharma",
+    category: "Brand System",
+    year: "2024",
+    tags: ["Corporate ID", "Packaging", "Guidelines"],
+    desc: "Identité institutionnelle pour une biotech lausannoise cotée en bourse. Du logo au rapport annuel, un système visuel cohérent et évolutif.",
+    result: "Brand Value +2.4M CHF",
+    image: "https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?q=80&w=1200&auto=format&fit=crop",
+    color: C.emeraldBright,
   },
   {
     id: "04",
-    title: "Nocturnal Monsoon",
-    subtitle: "Urban Ecosystems",
-    location: "Kyoto, Japan",
+    title: "Quartier Libre",
+    category: "Campaign",
     year: "2024",
-    desc: "Documenting the transformation of a hyper-structured urban environment during extreme weather events. The monsoon strips away the neon artificiality, returning the ancient capital to its elemental state of water and stone. Shadows deepen, reflections multiply, and the grid dissolves into chaos.",
-    metrics: {
-      rainfall: "300mm/h",
-      hours: "Midnight-4am",
-      format: "B&W 35mm",
-      equipment: "Leica M11 Monochrom",
-    },
-    image:
-      "https://images.unsplash.com/photo-1493780474015-ba834fd0ce2f?q=80&w=1600&auto=format&fit=crop",
-    accent: "#115e59", // teal-800
-  },
-];
-
-const EXHIBITIONS = [
-  {
-    year: "2026",
-    title: "Biomes in Flux",
-    venue: "Tate Modern",
-    location: "London",
-    desc: "A retrospective spanning a decade of environmental documentation.",
+    tags: ["Art Direction", "Print", "OOH"],
+    desc: "Campagne 360° pour le lancement d'un nouveau quartier résidentiel premium à Carouge. Direction artistique et production pour presse, affichage et digital.",
+    result: "94% des unités vendues",
+    image: "https://images.unsplash.com/photo-1486325212027-8081e485255e?q=80&w=1200&auto=format&fit=crop",
+    color: C.gold,
   },
   {
-    year: "2025",
-    title: "The Emerald Coast",
-    venue: "Pace Gallery",
-    location: "New York",
-    desc: "Solo exhibition featuring large-scale underwater prints.",
-  },
-  {
+    id: "05",
+    title: "Novae Cosmetics",
+    category: "Packaging Design",
     year: "2024",
-    title: "Anthropocene",
-    venue: "Venice Biennale",
-    location: "Venice",
-    desc: "Group exhibition representing the intersection of art and climate science.",
+    tags: ["Packaging", "Luxury", "Retail"],
+    desc: "Collection packaging premium pour une marque de cosmétiques suisse axée sur la durabilité. Matériaux recyclés, impression végétale, unboxing experience.",
+    result: "Red Dot Award 2024",
+    image: "https://images.unsplash.com/photo-1596462502278-27bfdc403348?q=80&w=1200&auto=format&fit=crop",
+    color: C.emeraldBright,
   },
   {
+    id: "06",
+    title: "Swiss Rail Heritage",
+    category: "Exhibition Design",
     year: "2023",
-    title: "Silent Giants",
-    venue: "National Gallery",
-    location: "Ottawa",
-    desc: "Immersive installation utilizing soundscapes recorded in old-growth forests.",
-  },
-  {
-    year: "2022",
-    title: "Tectonic Veins",
-    venue: "Reykjavik Art Museum",
-    location: "Reykjavik",
-    desc: "Aerial photography series contrasting fire and ice.",
+    tags: ["Spatial Design", "Type", "Archive"],
+    desc: "Scénographie de l'exposition centenaire des CFF au Musée National. Typographie murale monumentale et système de navigation spatiale immersif.",
+    result: "220,000 visiteurs",
+    image: "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?q=80&w=1200&auto=format&fit=crop",
+    color: C.gold,
   },
 ];
 
-const PRESS = [
+const SERVICES = [
   {
-    quote:
-      "Hayes' work doesn't just document nature; it forces us into a profound, often uncomfortable confrontation with scale and time.",
-    publication: "The New York Times",
-    reviewer: "Alice G.",
+    icon: <Palette size={22} />,
+    title: "Brand Identity",
+    desc: "Logotype, système typographique, palette chromatique, guidelines complets. Une identité qui dure des décennies.",
+    price: "Dès CHF 8'500",
+    deliverables: ["Logotype + déclinaisons", "Charte graphique", "Brand book PDF", "Fichiers sources"],
   },
   {
-    quote:
-      "The defining environmental photographer of this decade. The Emerald Coast series is a masterclass in tension.",
-    publication: "National Geographic",
-    reviewer: "Thomas R.",
+    icon: <Globe size={22} />,
+    title: "Digital Experience",
+    desc: "Conception UX/UI pour sites web, applications et plateformes digitales. Du wireframe au pixel parfait.",
+    price: "Dès CHF 12'000",
+    deliverables: ["Audit UX existant", "Wireframes annotés", "UI Design Figma", "Prototype interactif"],
   },
   {
-    quote:
-      "Breathtaking technical mastery paired with an uncompromising ecological conscience.",
-    publication: "Aperture Magazine",
-    reviewer: "Sarah L.",
+    icon: <Layers size={22} />,
+    title: "Art Direction",
+    desc: "Direction créative de campagnes, shootings, publications. Vision cohérente sur tous les supports.",
+    price: "Dès CHF 4'500",
+    deliverables: ["Moodboard créatif", "Direction shooting", "Supervision production", "Livrables calibrés"],
+  },
+  {
+    icon: <Pen size={22} />,
+    title: "Packaging Design",
+    desc: "Conception packaging produit — du dessin technique aux fichiers d'impression. Matériaux durables en priorité.",
+    price: "Dès CHF 5'500",
+    deliverables: ["Étude matériaux", "Design 3D mockup", "Fichiers print-ready", "Suivi imprimeur"],
+  },
+  {
+    icon: <Target size={22} />,
+    title: "Strategic Branding",
+    desc: "Audit de marque, positionnement, naming, storytelling. Avant de dessiner, on pense.",
+    price: "Dès CHF 3'200",
+    deliverables: ["Audit concurrentiel", "Ateliers positionnement", "Plateforme de marque", "Document stratégique"],
+  },
+  {
+    icon: <Zap size={22} />,
+    title: "Motion & Animation",
+    desc: "Animation de logo, motion graphics, vidéos de marque. La marque en mouvement.",
+    price: "Dès CHF 2'800",
+    deliverables: ["Logo animé", "Transitions brand", "Social formats", "Export multi-formats"],
+  },
+];
+
+const PROCESS = [
+  {
+    num: "01",
+    title: "Brief & Découverte",
+    desc: "Immersion dans votre univers. Atelier de deux heures, audit complet, définition des objectifs mesurables.",
+    duration: "1 semaine",
+  },
+  {
+    num: "02",
+    title: "Exploration Créative",
+    desc: "Trois directions distinctes présentées. Chaque piste est argumentée, documentée, comparée.",
+    duration: "2 semaines",
+  },
+  {
+    num: "03",
+    title: "Développement",
+    desc: "La direction validée est poussée dans ses moindres détails. Applications réelles, tests contextuels.",
+    duration: "3 semaines",
+  },
+  {
+    num: "04",
+    title: "Production & Livraison",
+    desc: "Fichiers sources organisés, brand book complet, formation équipe interne, suivi post-lancement.",
+    duration: "1 semaine",
+  },
+];
+
+const STATS = [
+  { value: 180, suffix: "+", label: "Projets livrés" },
+  { value: 12, suffix: " ans", label: "D'expérience" },
+  { value: 94, suffix: "%", label: "Clients fidèles" },
+  { value: 3, suffix: " awards", label: "Red Dot, ADC, Awwwards" },
+];
+
+const TESTIMONIALS = [
+  {
+    name: "Mathieu Rosset",
+    role: "CEO, Folio Maison",
+    city: "Genève",
+    avatar: "MR",
+    rating: 5,
+    text: "Verso a transformé notre marque centenaire en identité contemporaine sans trahir notre héritage. Un travail d'orfèvre, une écoute exceptionnelle.",
+  },
+  {
+    name: "Sara Lüdi",
+    role: "Directrice Marketing, Helix Pharma",
+    city: "Lausanne",
+    avatar: "SL",
+    rating: 5,
+    text: "Le brief était complexe — concilier rigueur scientifique et accessibilité grand public. Ils ont livré exactement ça, et au-delà.",
+  },
+  {
+    name: "David Chable",
+    role: "Fondateur, Quartier Libre",
+    city: "Carouge",
+    avatar: "DC",
+    rating: 5,
+    text: "94% de vente en pré-lancement. Je ne peux pas tout attribuer à Verso, mais la direction artistique y est clairement pour beaucoup.",
+  },
+  {
+    name: "Nora Wyss",
+    role: "Creative Lead, Swiss Rail Heritage",
+    city: "Zurich",
+    avatar: "NW",
+    rating: 5,
+    text: "Concevoir une expo pour 200K visiteurs avec un budget muséal serré — ils ont relevé le défi avec une élégance remarquable.",
+  },
+];
+
+const TEAM = [
+  {
+    name: "Lucas Berger",
+    role: "Creative Director & Fondateur",
+    bio: "15 ans de direction artistique entre Paris, Berlin et Genève. Ex-Pentagram, ex-BBDO.",
+    initials: "LB",
+  },
+  {
+    name: "Amélie Favre",
+    role: "Senior Brand Designer",
+    bio: "Spécialiste identités visuelles systémiques. ECAL Lausanne, stage Wolff Olins Londres.",
+    initials: "AF",
+  },
+  {
+    name: "Rafael Montes",
+    role: "Digital Experience Lead",
+    bio: "UX/UI et développement front. Believer de l'interaction meaningful et de l'accessibilité.",
+    initials: "RM",
+  },
+  {
+    name: "Chloé Müller",
+    role: "Motion & Packaging Designer",
+    bio: "ZHDK Zurich. Passeport entre le statique et le mouvement. Red Dot Award 2024.",
+    initials: "CM",
   },
 ];
 
 const FAQS = [
   {
-    question: "Are fine art prints available for purchase?",
-    answer:
-      "Yes, limited edition prints are available for all projects. Editions are strictly limited to 10 per image, printed on museum-grade Hahnemühle baryta paper, signed and numbered. Contact the studio for the current catalog and pricing.",
+    q: "Travaillez-vous uniquement avec des entreprises suisses ?",
+    a: "Non — notre portfolio s'étend à la France, l'Allemagne et le Royaume-Uni. Nous travaillons à distance avec une aisance totale. Les ateliers de brief peuvent se tenir en présentiel à Genève ou via Zoom.",
   },
   {
-    question: "Do you accept commercial commissions?",
-    answer:
-      "I accept a very limited number of commercial commissions per year, strictly aligning with brands and organizations that demonstrate a verifiable commitment to environmental sustainability and ethical practices.",
+    q: "Quelle est votre disponibilité actuelle ?",
+    a: "Nous acceptons 3 à 4 projets majeurs par trimestre pour garantir l'attention que chacun mérite. Prenez contact tôt — les délais sont souvent de 6 à 8 semaines.",
   },
   {
-    question: "What is your typical post-production workflow?",
-    answer:
-      "The ethos of the studio relies on capturing the image as perfectly as possible in-camera. Post-production is limited to basic tonal adjustments, dodging, and burning. We do not composite elements or alter the fundamental reality of the captured scene.",
+    q: "Proposez-vous des forfaits pour startups ?",
+    a: "Oui. Notre pack 'Early Stage' inclut logotype, one-pager et kit réseaux sociaux à partir de CHF 3'800. Idéal pour les levées de fonds en phase d'amorçage.",
   },
   {
-    question: "Do you offer workshops or portfolio reviews?",
-    answer:
-      "Currently, I lead one masterclass per year in conjunction with the Leica Akademie. Portfolio reviews are occasionally available for emerging photographers focused on conservation. Subscribe to the newsletter for announcements.",
+    q: "Livrez-vous les fichiers sources ?",
+    a: "Systématiquement. AI, EPS, SVG pour les logos. Figma partagé pour les UI. Tous les assets organisés par dossiers avec nomenclature documentée.",
+  },
+  {
+    q: "Combien de cycles de révision sont inclus ?",
+    a: "Deux cycles complets par phase. Nous constatons que des briefs solides en amont réduisent drastiquement le besoin de révisions — c'est pourquoi nous investissons dans la phase découverte.",
   },
 ];
 
-/* ==========================================================================
-   UTILITY COMPONENTS
-   ========================================================================== */
-
-function Reveal({
-  children,
-  className = "",
-  delay = 0,
-  y = 30,
-}: {
-  children: React.ReactNode;
-  className?: string;
-  delay?: number;
-  y?: number;
-}) {
+// Counter animé
+function Counter({ target, suffix = "" }: { target: number; suffix?: string }) {
+  const [count, setCount] = useState(0);
   const ref = useRef(null);
-  const inView = useInView(ref, { once: true, margin: "-50px" });
-  return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, y }}
-      animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.8, delay, ease: [0.25, 0.1, 0.25, 1] }}
-      className={className}
-    >
-      {children}
-    </motion.div>
-  );
-}
-
-function Accordion({ items }: { items: typeof FAQS }) {
-  const [openIndex, setOpenIndex] = useState<number | null>(0);
-
-  return (
-    <div className="w-full border-t border-white/10">
-      {items.map((item, i) => (
-        <div key={i} className="border-b border-white/10">
-          <button
-            onClick={() => setOpenIndex(openIndex === i ? null : i)}
-            className="w-full py-6 md:py-8 flex items-center justify-between text-left group"
-          >
-            <span
-              className={`text-lg md:text-xl font-medium transition-colors ${openIndex === i ? "text-emerald-400" : "text-white/60 group-hover:text-white"}`}
-            >
-              {item.question}
-            </span>
-            <div className="relative w-6 h-6 flex items-center justify-center shrink-0">
-              <motion.div
-                animate={{ rotate: openIndex === i ? 180 : 0 }}
-                className="absolute w-full h-[1.5px] bg-white transition-colors"
-              />
-              <motion.div
-                animate={{ rotate: openIndex === i ? 180 : 90 }}
-                className="absolute w-full h-[1.5px] bg-white transition-colors"
-              />
-            </div>
-          </button>
-          <AnimatePresence>
-            {openIndex === i && (
-              <motion.div
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: "auto", opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                transition={{ duration: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
-                className="overflow-hidden"
-              >
-                <p className="pb-8 text-white/50 text-base leading-relaxed max-w-3xl">
-                  {item.answer}
-                </p>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-/* ==========================================================================
-   MAIN PAGE COMPONENT
-   ========================================================================== */
-
-export default function SplitRevealPage() {
-  const [currentIdx, setCurrentIdx] = useState(0);
-  const [direction, setDirection] = useState(1);
-  const [isAnimating, setIsAnimating] = useState(false);
-  const [aboutOpen, setAboutOpen] = useState(false);
-  const [isFullscreen, setIsFullscreen] = useState(false);
-  const [autoplay, setAutoplay] = useState(true);
-
-  const currentSlide = SLIDES[currentIdx];
-
-  // Autoplay Logic
+  const isInView = useInView(ref, { once: true });
   useEffect(() => {
-    if (!autoplay || aboutOpen || isFullscreen) return;
+    if (!isInView) return;
+    const duration = 1800;
+    const steps = 60;
+    const step = target / steps;
+    let current = 0;
+    const t = setInterval(() => {
+      current += step;
+      if (current >= target) { setCount(target); clearInterval(t); return; }
+      setCount(Math.floor(current));
+    }, duration / steps);
+    return () => clearInterval(t);
+  }, [isInView, target]);
+  return <span ref={ref}>{count}{suffix}</span>;
+}
 
-    const timer = setInterval(() => {
-      paginate(1);
-    }, 6000);
+// Split screen signature element
+function SplitRevealHero() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({ target: containerRef, offset: ["start start", "end start"] });
+  const leftX = useTransform(scrollYProgress, [0, 0.6], ["0%", "-8%"]);
+  const rightX = useTransform(scrollYProgress, [0, 0.6], ["0%", "8%"]);
+  const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
+  const [activeSlide, setActiveSlide] = useState(0);
+  const slides = [
+    { label: "Brand Identity", image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?q=80&w=1400&auto=format&fit=crop" },
+    { label: "Digital Experience", image: "https://images.unsplash.com/photo-1611532736597-de2d4265fba3?q=80&w=1400&auto=format&fit=crop" },
+    { label: "Art Direction", image: "https://images.unsplash.com/photo-1614624532983-4ce03382d63d?q=80&w=1400&auto=format&fit=crop" },
+  ];
 
-    return () => clearInterval(timer);
-  }, [currentIdx, autoplay, aboutOpen, isFullscreen]);
-
-  const paginate = (newDirection: number) => {
-    if (isAnimating) return;
-    setIsAnimating(true);
-    setDirection(newDirection);
-
-    setTimeout(() => {
-      let newIdx = currentIdx + newDirection;
-      if (newIdx < 0) newIdx = SLIDES.length - 1;
-      if (newIdx >= SLIDES.length) newIdx = 0;
-      setCurrentIdx(newIdx);
-
-      setTimeout(() => setIsAnimating(false), 1000);
-    }, 50);
-  };
-
-  // Variants for Image Split
-  const imageVariants = {
-    enter: (direction: number) => ({
-      y: direction > 0 ? "100%" : "-100%",
-      scale: 1.1,
-      opacity: 0.5,
-    }),
-    center: {
-      y: 0,
-      scale: 1,
-      opacity: 1,
-      transition: { duration: 1, ease: [0.76, 0, 0.24, 1] },
-    },
-    exit: (direction: number) => ({
-      y: direction > 0 ? "-100%" : "100%",
-      scale: 0.9,
-      opacity: 0.5,
-      transition: { duration: 1, ease: [0.76, 0, 0.24, 1] },
-    }),
-  };
-
-  // Variants for Content Split
-  const contentVariants = {
-    enter: (direction: number) => ({
-      y: direction > 0 ? "-20%" : "20%",
-      opacity: 0,
-    }),
-    center: {
-      y: 0,
-      opacity: 1,
-      transition: { duration: 0.8, delay: 0.2, ease: [0.25, 1, 0.5, 1] },
-    },
-    exit: (direction: number) => ({
-      y: direction > 0 ? "20%" : "-20%",
-      opacity: 0,
-      transition: { duration: 0.6, ease: [0.76, 0, 0.24, 1] },
-    }),
-  };
+  useEffect(() => {
+    const t = setInterval(() => setActiveSlide(i => (i + 1) % slides.length), 4000);
+    return () => clearInterval(t);
+  }, []);
 
   return (
-    <div className="premium-theme min-h-screen bg-[#050505] text-[#f4f4f5] font-sans overflow-hidden selection:bg-emerald-500/30">
-      {/* ==========================================
-          HEADER (Global)
-          ========================================== */}
-      <header className="fixed top-0 left-0 w-full z-40 px-6 md:px-12 py-8 flex justify-between items-center pointer-events-none mix-blend-difference text-white">
-        <Link
-          href="/"
-          className="pointer-events-auto text-xl tracking-[0.3em] uppercase font-medium"
-        >
-          Split<span className="opacity-50 font-light">Rev</span>
-        </Link>
-
-        <div className="pointer-events-auto flex gap-8 text-[10px] uppercase tracking-widest font-bold">
-          <button
-            onClick={() => setAboutOpen(true)}
-            className="hover:text-emerald-400 transition-colors"
+    <section
+      ref={containerRef}
+      style={{
+        position: "relative",
+        height: "100vh",
+        display: "flex",
+        overflow: "hidden",
+        background: C.bg,
+      }}
+    >
+      {/* LEFT — IMAGE */}
+      <motion.div
+        style={{
+          x: leftX,
+          width: "50%",
+          position: "relative",
+          overflow: "hidden",
+        }}
+      >
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeSlide}
+            initial={{ clipPath: "inset(0 100% 0 0)" }}
+            animate={{ clipPath: "inset(0 0% 0 0)" }}
+            exit={{ clipPath: "inset(0 0 0 100%)" }}
+            transition={{ duration: 1.2, ease: [0.76, 0, 0.24, 1] }}
+            style={{ position: "absolute", inset: 0 }}
           >
-            Information
-          </button>
-          <button
-            onClick={() => setAboutOpen(true)}
-            className="hover:text-emerald-400 transition-colors hidden md:block"
-          >
-            Exhibitions
-          </button>
-        </div>
-      </header>
+            <div
+              style={{
+                position: "absolute",
+                inset: 0,
+                backgroundImage: `url(${slides[activeSlide].image})`,
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                filter: "brightness(0.7)",
+              }}
+            />
+            <div
+              style={{
+                position: "absolute",
+                inset: 0,
+                background: `linear-gradient(135deg, ${C.emerald}80 0%, transparent 60%)`,
+              }}
+            />
+          </motion.div>
+        </AnimatePresence>
 
-      {/* ==========================================
-          MAIN SPLIT VIEW
-          ========================================== */}
-      <main className="w-full h-[100svh] flex flex-col lg:flex-row relative">
-        {/* LEFT: IMAGE SLIDER */}
-        <div
-          className={`relative w-full h-1/2 lg:h-full transition-all duration-700 ease-[0.76,0,0.24,1] ${isFullscreen ? "lg:w-[100%]" : "lg:w-[55%]"}`}
-        >
-          <AnimatePresence initial={false} custom={direction}>
-            <motion.div
-              key={currentIdx}
-              custom={direction}
-              variants={imageVariants}
-              initial="enter"
-              animate="center"
-              exit="exit"
-              className="absolute inset-0"
-            >
-              <Image
-                src={currentSlide.image}
-                alt={currentSlide.title}
-                fill
-                className="object-cover"
-                priority
-              />
-              <div className="absolute inset-0 bg-black/20" />
-
-              {/* Image Number Overlay */}
-              <div className="absolute bottom-6 md:bottom-12 left-6 md:left-12 text-white/50 text-[8rem] md:text-[15rem] lg:text-[20rem] font-medium leading-none tracking-tighter mix-blend-overlay pointer-events-none select-none">
-                {currentSlide.id}
-              </div>
-            </motion.div>
-          </AnimatePresence>
-
-          {/* Fullscreen Toggle */}
-          <button
-            onClick={() => setIsFullscreen(!isFullscreen)}
-            className="absolute top-6 md:top-8 right-6 md:right-8 w-12 h-12 rounded-full bg-black/20 backdrop-blur-md border border-white/10 flex items-center justify-center text-white hover:bg-black/40 transition-colors z-20 hidden lg:flex"
-          >
-            {isFullscreen ? (
-              <Minimize2 className="w-5 h-5" />
-            ) : (
-              <Maximize2 className="w-5 h-5" />
-            )}
-          </button>
+        {/* Slide indicators */}
+        <div style={{ position: "absolute", bottom: 40, left: 40, display: "flex", gap: 8, zIndex: 10 }}>
+          {slides.map((s, i) => (
+            <button
+              key={i}
+              onClick={() => setActiveSlide(i)}
+              style={{
+                width: i === activeSlide ? 32 : 8,
+                height: 3,
+                background: i === activeSlide ? C.emeraldGlow : `${C.white}40`,
+                border: "none",
+                cursor: "pointer",
+                transition: "all 0.4s ease",
+                borderRadius: 2,
+                padding: 0,
+              }}
+            />
+          ))}
         </div>
 
-        {/* RIGHT: CONTENT SLIDER */}
-        <div
-          className={`relative w-full h-1/2 lg:h-full bg-[#0a0a0a] border-t lg:border-t-0 lg:border-l border-white/5 flex flex-col transition-all duration-700 ease-[0.76,0,0.24,1] ${isFullscreen ? "lg:w-[0%] overflow-hidden" : "lg:w-[45%]"}`}
+        {/* Slide label */}
+        <motion.div
+          style={{
+            position: "absolute",
+            bottom: 32,
+            left: 40,
+            paddingTop: 24,
+          }}
         >
           <AnimatePresence mode="wait">
-            {!isFullscreen && (
-              <motion.div
-                initial={{ opacity: 0, x: 50 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 50 }}
-                transition={{ duration: 0.5 }}
-                className="flex-1 flex flex-col justify-center p-8 md:p-16 lg:p-20 overflow-y-auto"
+            <motion.p
+              key={activeSlide}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -12 }}
+              transition={{ duration: 0.4 }}
+              style={{
+                color: `${C.white}90`,
+                fontSize: 13,
+                letterSpacing: "0.15em",
+                textTransform: "uppercase",
+                fontFamily: "'DM Sans', system-ui, sans-serif",
+                fontWeight: 500,
+              }}
+            >
+              {slides[activeSlide].label}
+            </motion.p>
+          </AnimatePresence>
+        </motion.div>
+      </motion.div>
+
+      {/* DIVIDER */}
+      <div style={{ position: "absolute", left: "50%", top: 0, bottom: 0, width: 1, background: C.emeraldBright, zIndex: 20, opacity: 0.4 }} />
+      <div style={{ position: "absolute", left: "calc(50% - 6px)", top: "50%", transform: "translateY(-50%)", width: 12, height: 12, background: C.emeraldGlow, borderRadius: "50%", zIndex: 21 }} />
+
+      {/* RIGHT — CONTENT */}
+      <motion.div
+        style={{
+          x: rightX,
+          width: "50%",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          padding: "0 80px 0 72px",
+          position: "relative",
+          zIndex: 10,
+        }}
+      >
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+        >
+          <p style={{ color: C.emeraldGlow, fontSize: 13, letterSpacing: "0.2em", textTransform: "uppercase", fontFamily: "'DM Sans', system-ui, sans-serif", fontWeight: 600, marginBottom: 24 }}>
+            Studio de design — Genève
+          </p>
+          <h1 style={{ fontSize: "clamp(48px, 5.5vw, 88px)", fontWeight: 700, lineHeight: 1.0, color: C.text, fontFamily: "'DM Sans', system-ui, sans-serif", marginBottom: 28, letterSpacing: "-0.03em" }}>
+            Identités
+            <br />
+            <span style={{ color: C.emeraldGlow }}>qui durent.</span>
+          </h1>
+          <p style={{ color: C.textMuted, fontSize: 18, lineHeight: 1.6, maxWidth: 440, marginBottom: 48, fontFamily: "'DM Sans', system-ui, sans-serif" }}>
+            Verso est un studio de branding genevois. Nous créons des identités visuelles, des expériences digitales et des systèmes de communication pour des marques exigeantes.
+          </p>
+
+          <div style={{ display: "flex", gap: 16 }}>
+            <motion.a
+              href="#contact"
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 10,
+                background: C.emeraldGlow,
+                color: C.bg,
+                padding: "15px 28px",
+                borderRadius: 4,
+                fontFamily: "'DM Sans', system-ui, sans-serif",
+                fontWeight: 600,
+                fontSize: 15,
+                textDecoration: "none",
+                letterSpacing: "0.02em",
+              }}
+            >
+              Démarrer un projet <ArrowRight size={16} />
+            </motion.a>
+            <motion.a
+              href="#projets"
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 10,
+                background: "transparent",
+                color: C.text,
+                padding: "15px 28px",
+                borderRadius: 4,
+                fontFamily: "'DM Sans', system-ui, sans-serif",
+                fontWeight: 500,
+                fontSize: 15,
+                textDecoration: "none",
+                border: `1px solid ${C.border}`,
+              }}
+            >
+              Voir nos projets
+            </motion.a>
+          </div>
+
+          {/* Mini stats */}
+          <div style={{ display: "flex", gap: 40, marginTop: 60, paddingTop: 40, borderTop: `1px solid ${C.border}` }}>
+            {[{ v: "180+", l: "Projets" }, { v: "12 ans", l: "D'expérience" }, { v: "3 Awards", l: "Internationaux" }].map((s, i) => (
+              <div key={i}>
+                <div style={{ fontSize: 24, fontWeight: 700, color: C.text, fontFamily: "'DM Sans', system-ui, sans-serif", letterSpacing: "-0.02em" }}>{s.v}</div>
+                <div style={{ fontSize: 13, color: C.textMuted, fontFamily: "'DM Sans', system-ui, sans-serif", marginTop: 2 }}>{s.l}</div>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+      </motion.div>
+
+      {/* Scroll indicator */}
+      <motion.div style={{ opacity }} style={{ position: "absolute", bottom: 32, right: 40, display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
+        <span style={{ fontSize: 11, letterSpacing: "0.2em", color: C.textMuted, textTransform: "uppercase", fontFamily: "'DM Sans', system-ui, sans-serif", writingMode: "vertical-rl" }}>Scroll</span>
+        <motion.div
+          animate={{ y: [0, 8, 0] }}
+          transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
+          style={{ width: 1, height: 40, background: C.emeraldGlow, opacity: 0.5 }}
+        />
+      </motion.div>
+    </section>
+  );
+}
+
+export default function Impact130Page() {
+  const [activeFilter, setActiveFilter] = useState("Tous");
+  const [activeProject, setActiveProject] = useState<number | null>(null);
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const filters = ["Tous", "Brand Identity", "Digital Experience", "Art Direction", "Packaging Design", "Campaign"];
+  const filteredProjects = activeFilter === "Tous" ? PROJECTS : PROJECTS.filter(p => p.category === activeFilter);
+
+  const statsRef = useRef(null);
+  const processRef = useRef(null);
+  const servicesRef = useRef(null);
+  const testimonialsRef = useRef(null);
+
+  const { scrollYProgress: mainProgress } = useScroll();
+  const progressBar = useTransform(mainProgress, [0, 1], ["0%", "100%"]);
+
+  return (
+    <div style={{ background: C.bg, color: C.text, minHeight: "100vh", fontFamily: "'DM Sans', system-ui, sans-serif" }}>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,300;1,9..40,400&display=swap');
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: ${C.bg}; }
+        ::-webkit-scrollbar-thumb { background: ${C.emeraldMid}; border-radius: 2px; }
+      `}</style>
+
+      {/* Progress bar */}
+      <motion.div style={{ position: "fixed", top: 0, left: 0, height: 2, background: C.emeraldGlow, width: progressBar, zIndex: 100 }} />
+
+      {/* NAV */}
+      <motion.nav
+        initial={{ y: -80, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          zIndex: 90,
+          padding: "0 48px",
+          height: 72,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          background: `${C.bg}ee`,
+          backdropFilter: "blur(20px)",
+          borderBottom: `1px solid ${C.border}`,
+        }}
+      >
+        <a href="#" style={{ textDecoration: "none" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <div style={{ width: 28, height: 28, background: C.emeraldGlow, borderRadius: 4, display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <div style={{ width: 12, height: 12, background: C.bg, borderRadius: 1 }} />
+            </div>
+            <span style={{ fontSize: 18, fontWeight: 700, color: C.text, letterSpacing: "-0.02em" }}>Verso</span>
+          </div>
+        </a>
+
+        <div style={{ display: "flex", alignItems: "center", gap: 40 }}>
+          {["Projets", "Services", "Studio", "Process", "Contact"].map(item => (
+            <a
+              key={item}
+              href={`#${item.toLowerCase()}`}
+              style={{ color: C.textMuted, fontSize: 14, textDecoration: "none", fontWeight: 500, transition: "color 0.2s", letterSpacing: "0.01em" }}
+              onMouseEnter={e => (e.currentTarget.style.color = C.text)}
+              onMouseLeave={e => (e.currentTarget.style.color = C.textMuted)}
+            >
+              {item}
+            </a>
+          ))}
+          <motion.a
+            href="#contact"
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
+            style={{
+              background: C.emeraldGlow,
+              color: C.bg,
+              padding: "9px 20px",
+              borderRadius: 4,
+              fontSize: 13,
+              fontWeight: 600,
+              textDecoration: "none",
+              letterSpacing: "0.03em",
+            }}
+          >
+            Nouveau projet
+          </motion.a>
+        </div>
+      </motion.nav>
+
+      {/* HERO — SPLIT REVEAL SIGNATURE ELEMENT */}
+      <SplitRevealHero />
+
+      {/* STATS */}
+      <section ref={statsRef} id="stats" style={{ padding: "100px 80px", background: C.bgAlt, borderTop: `1px solid ${C.border}` }}>
+        <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 48 }}>
+            {STATS.map((stat, i) => {
+              const ref = useRef(null);
+              const inView = useInView(ref, { once: true });
+              return (
+                <motion.div
+                  key={i}
+                  ref={ref}
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={inView ? { opacity: 1, y: 0 } : {}}
+                  transition={{ duration: 0.6, delay: i * 0.12 }}
+                  style={{ textAlign: "center" }}
+                >
+                  <div style={{ fontSize: "clamp(48px, 4vw, 72px)", fontWeight: 700, color: C.emeraldGlow, letterSpacing: "-0.03em", lineHeight: 1 }}>
+                    <Counter target={stat.value} suffix={stat.suffix} />
+                  </div>
+                  <div style={{ fontSize: 14, color: C.textMuted, marginTop: 12, letterSpacing: "0.03em" }}>{stat.label}</div>
+                </motion.div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* PROJETS */}
+      <section id="projets" style={{ padding: "120px 80px", background: C.bg }}>
+        <div style={{ maxWidth: 1300, margin: "0 auto" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 64 }}>
+            <div>
+              <motion.p
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                viewport={{ once: true }}
+                style={{ color: C.emeraldGlow, fontSize: 13, letterSpacing: "0.2em", textTransform: "uppercase", fontWeight: 600, marginBottom: 16 }}
               >
-                <AnimatePresence mode="wait">
+                Portfolio sélectionné
+              </motion.p>
+              <motion.h2
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6 }}
+                style={{ fontSize: "clamp(36px, 4vw, 56px)", fontWeight: 700, color: C.text, letterSpacing: "-0.03em", lineHeight: 1.1 }}
+              >
+                Projets récents
+              </motion.h2>
+            </div>
+            <a href="#contact" style={{ color: C.textMuted, fontSize: 14, textDecoration: "none", display: "flex", alignItems: "center", gap: 6 }}>
+              Voir tout <ArrowUpRight size={14} />
+            </a>
+          </div>
+
+          {/* Filtres */}
+          <div style={{ display: "flex", gap: 8, marginBottom: 48, flexWrap: "wrap" }}>
+            {filters.map(f => (
+              <button
+                key={f}
+                onClick={() => setActiveFilter(f)}
+                style={{
+                  padding: "8px 18px",
+                  borderRadius: 100,
+                  border: `1px solid ${f === activeFilter ? C.emeraldGlow : C.border}`,
+                  background: f === activeFilter ? `${C.emeraldGlow}15` : "transparent",
+                  color: f === activeFilter ? C.emeraldGlow : C.textMuted,
+                  fontSize: 13,
+                  cursor: "pointer",
+                  transition: "all 0.25s",
+                  fontFamily: "'DM Sans', system-ui, sans-serif",
+                  fontWeight: f === activeFilter ? 600 : 400,
+                }}
+              >
+                {f}
+              </button>
+            ))}
+          </div>
+
+          {/* Grille projets */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 24 }}>
+            <AnimatePresence mode="wait">
+              {filteredProjects.map((project, i) => (
+                <motion.div
+                  key={project.id}
+                  layout
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={{ duration: 0.4, delay: i * 0.06 }}
+                  style={{ position: "relative", overflow: "hidden", borderRadius: 8, cursor: "pointer", aspectRatio: "4/3" }}
+                  onMouseEnter={() => setActiveProject(i)}
+                  onMouseLeave={() => setActiveProject(null)}
+                  onClick={() => setActiveProject(i)}
+                >
+                  <div
+                    style={{
+                      position: "absolute",
+                      inset: 0,
+                      backgroundImage: `url(${project.image})`,
+                      backgroundSize: "cover",
+                      backgroundPosition: "center",
+                      transition: "transform 0.6s cubic-bezier(0.22, 1, 0.36, 1)",
+                      transform: activeProject === i ? "scale(1.05)" : "scale(1)",
+                    }}
+                  />
+                  <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, #0a0f0aee 0%, transparent 50%)" }} />
+
+                  {/* Hover overlay */}
                   <motion.div
-                    key={currentIdx}
-                    custom={direction}
-                    variants={contentVariants}
-                    initial="enter"
-                    animate="center"
-                    exit="exit"
-                    className="max-w-xl"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: activeProject === i ? 1 : 0 }}
+                    transition={{ duration: 0.3 }}
+                    style={{
+                      position: "absolute",
+                      inset: 0,
+                      background: `${C.emerald}e0`,
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      padding: 32,
+                      textAlign: "center",
+                    }}
                   >
-                    <div className="flex items-center gap-4 mb-8">
-                      <span className="px-3 py-1 rounded-full border border-emerald-900/50 bg-emerald-900/20 text-emerald-400 text-[10px] uppercase tracking-widest font-bold">
-                        {currentSlide.location}
-                      </span>
-                      <span className="text-white/40 text-sm">
-                        {currentSlide.year}
-                      </span>
-                    </div>
-
-                    <h1 className="text-4xl md:text-5xl lg:text-6xl font-light tracking-tight mb-4">
-                      {currentSlide.title}
-                    </h1>
-                    <h2 className="text-xl text-white/50 font-light italic mb-8">
-                      {currentSlide.subtitle}
-                    </h2>
-
-                    <p className="text-white/70 text-lg leading-relaxed mb-12">
-                      {currentSlide.desc}
-                    </p>
-
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-6 pt-8 border-t border-white/10">
-                      {Object.entries(currentSlide.metrics).map(
-                        ([key, value], i) => (
-                          <div key={i}>
-                            <span className="block text-[10px] uppercase tracking-widest text-white/40 mb-2">
-                              {key}
-                            </span>
-                            <span className="block text-sm font-medium text-white/80">
-                              {value}
-                            </span>
-                          </div>
-                        ),
-                      )}
-                    </div>
-
-                    <div className="mt-16">
-                      <button
-                        onClick={() => setAboutOpen(true)}
-                        className="flex items-center gap-3 text-xs uppercase tracking-widest font-bold hover:text-emerald-400 transition-colors group"
-                      >
-                        <div className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center group-hover:border-emerald-400 group-hover:bg-emerald-400/10 transition-all">
-                          <ArrowRight className="w-4 h-4" />
-                        </div>
-                        Read Full Story
-                      </button>
+                    <p style={{ color: C.emeraldGlow, fontSize: 12, letterSpacing: "0.2em", textTransform: "uppercase", fontWeight: 600, marginBottom: 12 }}>{project.category}</p>
+                    <p style={{ color: C.text, fontSize: 15, lineHeight: 1.5, marginBottom: 16 }}>{project.desc}</p>
+                    <div style={{ display: "flex", alignItems: "center", gap: 6, color: C.emeraldGlow, fontSize: 13, fontWeight: 600 }}>
+                      <TrendingUp size={14} /> {project.result}
                     </div>
                   </motion.div>
+
+                  {/* Info basse */}
+                  <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: 24 }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
+                      <div>
+                        <p style={{ color: `${C.white}70`, fontSize: 11, letterSpacing: "0.15em", textTransform: "uppercase", marginBottom: 4 }}>{project.category}</p>
+                        <h3 style={{ color: C.white, fontSize: 20, fontWeight: 700, letterSpacing: "-0.02em" }}>{project.title}</h3>
+                      </div>
+                      <span style={{ color: C.textDim, fontSize: 13 }}>{project.year}</span>
+                    </div>
+                    <div style={{ display: "flex", gap: 6, marginTop: 10 }}>
+                      {project.tags.map(t => (
+                        <span key={t} style={{ background: `${C.white}15`, color: `${C.white}80`, padding: "3px 10px", borderRadius: 100, fontSize: 11 }}>{t}</span>
+                      ))}
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </div>
+        </div>
+      </section>
+
+      {/* SERVICES */}
+      <section ref={servicesRef} id="services" style={{ padding: "120px 80px", background: C.bgAlt, borderTop: `1px solid ${C.border}` }}>
+        <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+          <motion.p
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            style={{ color: C.emeraldGlow, fontSize: 13, letterSpacing: "0.2em", textTransform: "uppercase", fontWeight: 600, marginBottom: 16 }}
+          >
+            Nos expertises
+          </motion.p>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 72 }}>
+            <motion.h2
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+              style={{ fontSize: "clamp(36px, 4vw, 56px)", fontWeight: 700, color: C.text, letterSpacing: "-0.03em", lineHeight: 1.1, maxWidth: 480 }}
+            >
+              Ce que nous créons pour vous
+            </motion.h2>
+            <p style={{ color: C.textMuted, maxWidth: 320, fontSize: 16, lineHeight: 1.6 }}>
+              Chaque service est un continuum — pas une prestation isolée. Nous pensons en systèmes.
+            </p>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 2 }}>
+            {SERVICES.map((service, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: i * 0.08 }}
+                whileHover={{ background: C.bgCard }}
+                style={{
+                  padding: "40px 36px",
+                  border: `1px solid ${C.border}`,
+                  background: C.bg,
+                  cursor: "default",
+                  transition: "background 0.3s",
+                }}
+              >
+                <div style={{ color: C.emeraldGlow, marginBottom: 20 }}>{service.icon}</div>
+                <h3 style={{ fontSize: 20, fontWeight: 700, color: C.text, marginBottom: 12, letterSpacing: "-0.02em" }}>{service.title}</h3>
+                <p style={{ color: C.textMuted, fontSize: 14, lineHeight: 1.6, marginBottom: 24 }}>{service.desc}</p>
+                <div style={{ marginBottom: 24 }}>
+                  {service.deliverables.map((d, di) => (
+                    <div key={di} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+                      <Check size={13} color={C.emeraldGlow} />
+                      <span style={{ color: C.textMuted, fontSize: 13 }}>{d}</span>
+                    </div>
+                  ))}
+                </div>
+                <div style={{ color: C.emeraldGlow, fontSize: 14, fontWeight: 600 }}>{service.price}</div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* PROCESS */}
+      <section ref={processRef} id="process" style={{ padding: "120px 80px", background: C.bg }}>
+        <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+          <motion.p
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            style={{ color: C.emeraldGlow, fontSize: 13, letterSpacing: "0.2em", textTransform: "uppercase", fontWeight: 600, marginBottom: 16 }}
+          >
+            Notre méthode
+          </motion.p>
+          <motion.h2
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            style={{ fontSize: "clamp(36px, 4vw, 56px)", fontWeight: 700, color: C.text, letterSpacing: "-0.03em", lineHeight: 1.1, marginBottom: 80 }}
+          >
+            4 phases, zéro surprise
+          </motion.h2>
+
+          <div style={{ position: "relative" }}>
+            {/* Timeline line */}
+            <div style={{ position: "absolute", left: 24, top: 40, bottom: 40, width: 1, background: C.border }} />
+
+            {PROCESS.map((step, i) => {
+              const ref = useRef(null);
+              const inView = useInView(ref, { once: true, margin: "-80px" });
+              return (
+                <motion.div
+                  key={i}
+                  ref={ref}
+                  initial={{ opacity: 0, x: -30 }}
+                  animate={inView ? { opacity: 1, x: 0 } : {}}
+                  transition={{ duration: 0.6, delay: 0.1 }}
+                  style={{ display: "flex", gap: 48, marginBottom: i < PROCESS.length - 1 ? 64 : 0, position: "relative", paddingLeft: 0 }}
+                >
+                  {/* Node */}
+                  <div style={{ flexShrink: 0, width: 48, height: 48, border: `1px solid ${C.emeraldGlow}`, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", background: C.bg, zIndex: 2 }}>
+                    <span style={{ color: C.emeraldGlow, fontSize: 13, fontWeight: 700 }}>{step.num}</span>
+                  </div>
+
+                  <div style={{ paddingTop: 8, flex: 1 }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
+                      <h3 style={{ fontSize: 24, fontWeight: 700, color: C.text, letterSpacing: "-0.02em" }}>{step.title}</h3>
+                      <span style={{ color: C.textDim, fontSize: 13, background: C.bgCard, padding: "4px 12px", borderRadius: 100, border: `1px solid ${C.border}` }}>{step.duration}</span>
+                    </div>
+                    <p style={{ color: C.textMuted, fontSize: 16, lineHeight: 1.6, maxWidth: 600 }}>{step.desc}</p>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* TESTIMONIALS */}
+      <section ref={testimonialsRef} style={{ padding: "120px 80px", background: C.bgAlt, borderTop: `1px solid ${C.border}` }}>
+        <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+          <motion.p
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            style={{ color: C.emeraldGlow, fontSize: 13, letterSpacing: "0.2em", textTransform: "uppercase", fontWeight: 600, marginBottom: 16 }}
+          >
+            Ils nous font confiance
+          </motion.p>
+          <motion.h2
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            style={{ fontSize: "clamp(36px, 4vw, 56px)", fontWeight: 700, color: C.text, letterSpacing: "-0.03em", lineHeight: 1.1, marginBottom: 72 }}
+          >
+            Ce que disent nos clients
+          </motion.h2>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 24 }}>
+            {TESTIMONIALS.map((t, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: i * 0.1 }}
+                style={{ background: C.bgCard, border: `1px solid ${C.border}`, borderRadius: 8, padding: 40 }}
+              >
+                <div style={{ display: "flex", gap: 4, marginBottom: 20 }}>
+                  {Array.from({ length: t.rating }).map((_, si) => (
+                    <Star key={si} size={14} color={C.gold} fill={C.gold} />
+                  ))}
+                </div>
+                <p style={{ color: C.text, fontSize: 16, lineHeight: 1.7, marginBottom: 28, fontStyle: "italic" }}>"{t.text}"</p>
+                <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+                  <div style={{ width: 44, height: 44, background: `${C.emeraldGlow}20`, border: `1px solid ${C.emeraldGlow}40`, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <span style={{ color: C.emeraldGlow, fontSize: 13, fontWeight: 700 }}>{t.avatar}</span>
+                  </div>
+                  <div>
+                    <div style={{ color: C.text, fontWeight: 600, fontSize: 15 }}>{t.name}</div>
+                    <div style={{ color: C.textMuted, fontSize: 13 }}>{t.role} — {t.city}</div>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* TEAM */}
+      <section id="studio" style={{ padding: "120px 80px", background: C.bg }}>
+        <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+          <motion.p
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            style={{ color: C.emeraldGlow, fontSize: 13, letterSpacing: "0.2em", textTransform: "uppercase", fontWeight: 600, marginBottom: 16 }}
+          >
+            L'équipe
+          </motion.p>
+          <motion.h2
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            style={{ fontSize: "clamp(36px, 4vw, 56px)", fontWeight: 700, color: C.text, letterSpacing: "-0.03em", lineHeight: 1.1, marginBottom: 72 }}
+          >
+            Qui sommes-nous
+          </motion.h2>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 24 }}>
+            {TEAM.map((member, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: i * 0.1 }}
+                style={{ background: C.bgCard, border: `1px solid ${C.border}`, borderRadius: 8, padding: 32, textAlign: "center" }}
+              >
+                <div style={{ width: 72, height: 72, background: `${C.emeraldGlow}15`, border: `1px solid ${C.emeraldGlow}30`, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px" }}>
+                  <span style={{ color: C.emeraldGlow, fontSize: 20, fontWeight: 700 }}>{member.initials}</span>
+                </div>
+                <h3 style={{ fontSize: 17, fontWeight: 700, color: C.text, marginBottom: 4, letterSpacing: "-0.01em" }}>{member.name}</h3>
+                <p style={{ color: C.emeraldGlow, fontSize: 12, letterSpacing: "0.05em", marginBottom: 14, fontWeight: 500 }}>{member.role}</p>
+                <p style={{ color: C.textMuted, fontSize: 13, lineHeight: 1.6 }}>{member.bio}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section style={{ padding: "120px 80px", background: C.bgAlt, borderTop: `1px solid ${C.border}` }}>
+        <div style={{ maxWidth: 800, margin: "0 auto" }}>
+          <motion.p
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            style={{ color: C.emeraldGlow, fontSize: 13, letterSpacing: "0.2em", textTransform: "uppercase", fontWeight: 600, marginBottom: 16 }}
+          >
+            Questions fréquentes
+          </motion.p>
+          <motion.h2
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            style={{ fontSize: "clamp(32px, 3.5vw, 48px)", fontWeight: 700, color: C.text, letterSpacing: "-0.03em", lineHeight: 1.1, marginBottom: 56 }}
+          >
+            Vos questions, nos réponses
+          </motion.h2>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+            {FAQS.map((faq, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: i * 0.07 }}
+                style={{ border: `1px solid ${openFaq === i ? C.emeraldGlow : C.border}`, borderRadius: 6, overflow: "hidden", transition: "border-color 0.3s" }}
+              >
+                <button
+                  onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                  style={{ width: "100%", padding: "24px 28px", display: "flex", justifyContent: "space-between", alignItems: "center", background: openFaq === i ? `${C.emeraldGlow}08` : C.bgCard, border: "none", cursor: "pointer", textAlign: "left" }}
+                >
+                  <span style={{ color: C.text, fontSize: 16, fontWeight: 600, fontFamily: "'DM Sans', system-ui, sans-serif" }}>{faq.q}</span>
+                  <motion.div animate={{ rotate: openFaq === i ? 180 : 0 }} transition={{ duration: 0.3 }}>
+                    <ChevronDown size={18} color={C.textMuted} />
+                  </motion.div>
+                </button>
+                <AnimatePresence>
+                  {openFaq === i && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.3 }}
+                      style={{ overflow: "hidden" }}
+                    >
+                      <p style={{ padding: "0 28px 24px", color: C.textMuted, fontSize: 15, lineHeight: 1.7, fontFamily: "'DM Sans', system-ui, sans-serif" }}>{faq.a}</p>
+                    </motion.div>
+                  )}
                 </AnimatePresence>
               </motion.div>
-            )}
-          </AnimatePresence>
+            ))}
+          </div>
+        </div>
+      </section>
 
-          {/* Controls (Bottom Right) */}
-          <div className="absolute bottom-0 left-0 w-full p-6 md:p-8 flex justify-between items-center border-t border-white/5 bg-[#0a0a0a] z-20">
-            <div className="flex gap-4">
-              <button
-                onClick={() => setAutoplay(!autoplay)}
-                className="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center text-white/50 hover:text-white hover:border-white/30 transition-colors"
+      {/* CTA CONTACT */}
+      <section id="contact" style={{ padding: "160px 80px", background: C.emerald, position: "relative", overflow: "hidden" }}>
+        <div style={{ position: "absolute", inset: 0, backgroundImage: "radial-gradient(ellipse at 20% 50%, rgba(5, 201, 106, 0.12) 0%, transparent 60%), radial-gradient(ellipse at 80% 20%, rgba(5, 201, 106, 0.08) 0%, transparent 50%)" }} />
+        <div style={{ maxWidth: 800, margin: "0 auto", textAlign: "center", position: "relative", zIndex: 2 }}>
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7 }}
+          >
+            <p style={{ color: C.emeraldGlow, fontSize: 13, letterSpacing: "0.2em", textTransform: "uppercase", fontWeight: 600, marginBottom: 24 }}>Nouveau projet</p>
+            <h2 style={{ fontSize: "clamp(40px, 5vw, 72px)", fontWeight: 700, color: C.text, letterSpacing: "-0.03em", lineHeight: 1.0, marginBottom: 24 }}>
+              Prêt à bâtir
+              <br />
+              votre identité ?
+            </h2>
+            <p style={{ color: C.textMuted, fontSize: 18, lineHeight: 1.6, marginBottom: 48, maxWidth: 480, margin: "0 auto 48px" }}>
+              Parlez-nous de votre projet. Nous répondons sous 24h avec une première analyse gratuite.
+            </p>
+            <div style={{ display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap" }}>
+              <motion.a
+                href="mailto:hello@verso-studio.ch"
+                whileHover={{ scale: 1.04 }}
+                whileTap={{ scale: 0.96 }}
+                style={{ display: "inline-flex", alignItems: "center", gap: 10, background: C.emeraldGlow, color: C.bg, padding: "16px 32px", borderRadius: 4, fontFamily: "'DM Sans', system-ui, sans-serif", fontWeight: 700, fontSize: 16, textDecoration: "none" }}
               >
-                {autoplay ? (
-                  <Pause className="w-4 h-4" />
-                ) : (
-                  <Play className="w-4 h-4 ml-0.5" />
-                )}
-              </button>
+                <Mail size={18} /> hello@verso-studio.ch
+              </motion.a>
+              <motion.a
+                href="tel:+41225000000"
+                whileHover={{ scale: 1.04 }}
+                whileTap={{ scale: 0.96 }}
+                style={{ display: "inline-flex", alignItems: "center", gap: 10, background: "transparent", color: C.text, padding: "16px 32px", borderRadius: 4, fontFamily: "'DM Sans', system-ui, sans-serif", fontWeight: 600, fontSize: 16, textDecoration: "none", border: `1px solid ${C.borderLight}` }}
+              >
+                <Phone size={18} /> +41 22 500 00 00
+              </motion.a>
             </div>
+            <div style={{ display: "flex", justifyContent: "center", gap: 32, marginTop: 48, paddingTop: 40, borderTop: `1px solid ${C.borderLight}` }}>
+              {[{ icon: <MapPin size={15} />, text: "Rue du Rhône 24, 1204 Genève" }, { icon: <Clock size={15} />, text: "Lun–Ven 9h–18h" }].map((item, i) => (
+                <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, color: C.textMuted, fontSize: 14 }}>
+                  <span style={{ color: C.emeraldGlow }}>{item.icon}</span>
+                  {item.text}
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        </div>
+      </section>
 
-            <div className="flex items-center gap-4">
-              <span className="text-xs font-mono text-white/40 hidden md:block mr-4">
-                0{currentIdx + 1} / 0{SLIDES.length}
-              </span>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => paginate(-1)}
-                  className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center hover:bg-white hover:text-black transition-colors"
-                >
-                  <ArrowLeft className="w-5 h-5" />
-                </button>
-                <button
-                  onClick={() => paginate(1)}
-                  className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center hover:bg-white hover:text-black transition-colors"
-                >
-                  <ArrowRight className="w-5 h-5" />
-                </button>
+      {/* FOOTER */}
+      <footer style={{ background: C.bg, borderTop: `1px solid ${C.border}`, padding: "56px 80px 40px" }}>
+        <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 48, marginBottom: 56 }}>
+            <div>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20 }}>
+                <div style={{ width: 24, height: 24, background: C.emeraldGlow, borderRadius: 3, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <div style={{ width: 10, height: 10, background: C.bg, borderRadius: 1 }} />
+                </div>
+                <span style={{ fontSize: 16, fontWeight: 700, color: C.text }}>Verso</span>
               </div>
+              <p style={{ color: C.textMuted, fontSize: 14, lineHeight: 1.6, maxWidth: 220 }}>Studio de design basé à Genève. Identités visuelles, digital, direction artistique.</p>
+            </div>
+            {[
+              { title: "Studio", links: ["À propos", "L'équipe", "Méthode", "Clients"] },
+              { title: "Services", links: ["Brand Identity", "Digital Experience", "Art Direction", "Packaging"] },
+              { title: "Contact", links: ["hello@verso-studio.ch", "+41 22 500 00 00", "Geneva, Suisse", "Disponibilités"] },
+            ].map((col, i) => (
+              <div key={i}>
+                <h4 style={{ color: C.textMuted, fontSize: 11, letterSpacing: "0.15em", textTransform: "uppercase", fontWeight: 600, marginBottom: 20 }}>{col.title}</h4>
+                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                  {col.links.map((link, li) => (
+                    <a key={li} href="#" style={{ color: C.textMuted, fontSize: 14, textDecoration: "none", transition: "color 0.2s" }}
+                      onMouseEnter={e => (e.currentTarget.style.color = C.text)}
+                      onMouseLeave={e => (e.currentTarget.style.color = C.textMuted)}
+                    >
+                      {link}
+                    </a>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: `1px solid ${C.border}`, paddingTop: 32 }}>
+            <p style={{ color: C.textDim, fontSize: 13 }}>© 2025 Verso Studio SA, Genève. Tous droits réservés.</p>
+            <div style={{ display: "flex", gap: 20 }}>
+              {[{ icon: <MessageSquare size={16} />, label: "Twitter" }, { icon: <Camera size={16} />, label: "Instagram" }, { icon: <Link2 size={16} />, label: "LinkedIn" }].map((s, i) => (
+                <a key={i} href="#" style={{ color: C.textDim, transition: "color 0.2s" }}
+                  onMouseEnter={e => (e.currentTarget.style.color = C.emeraldGlow)}
+                  onMouseLeave={e => (e.currentTarget.style.color = C.textDim)}
+                >
+                  {s.icon}
+                </a>
+              ))}
             </div>
           </div>
         </div>
-      </main>
-
-      {/* ==========================================
-          ABOUT / INFO OVERLAY (FULL PAGE SCROLL)
-          ========================================== */}
-      <AnimatePresence>
-        {aboutOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: "100%" }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: "100%" }}
-            transition={{ type: "spring", damping: 30, stiffness: 200 }}
-            className="fixed inset-0 z-[100] bg-[#050505] overflow-y-auto"
-          >
-            {/* Header */}
-            <div className="sticky top-0 left-0 w-full z-50 px-6 md:px-12 py-8 flex justify-between items-center bg-[#050505]/80 backdrop-blur-xl border-b border-white/5">
-              <span className="text-xs uppercase tracking-widest font-bold text-emerald-400">
-                Julian Hayes Studio
-              </span>
-              <button
-                onClick={() => setAboutOpen(false)}
-                className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center hover:bg-white hover:text-black transition-all bg-black/50"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <div className="max-w-[1400px] mx-auto">
-              {/* Intro Hero */}
-              <section className="px-6 md:px-12 py-24 md:py-48 grid grid-cols-1 lg:grid-cols-2 gap-16 md:gap-32">
-                <div>
-                  <Reveal>
-                    <h2 className="text-5xl md:text-7xl font-light mb-12 leading-tight">
-                      Documenting the <br />
-                      <span className="italic text-emerald-400">
-                        shifting paradigms
-                      </span>
-                      <br />
-                      of natural spaces.
-                    </h2>
-                  </Reveal>
-                </div>
-                <div>
-                  <Reveal delay={0.2}>
-                    <p className="text-xl md:text-2xl text-white/60 font-light leading-relaxed mb-8">
-                      SplitRev is the creative practice of environmental
-                      photographer and director Julian Hayes. Operating at the
-                      boundary between fine art and photojournalism, the studio
-                      focuses on long-form documentary projects that explore
-                      humanity's relationship with extreme environments.
-                    </p>
-                    <p className="text-xl md:text-2xl text-white/60 font-light leading-relaxed">
-                      By utilizing large-format analog film and cutting-edge
-                      digital cinema systems, the resulting body of work demands
-                      to be viewed at scale—forcing the viewer to confront the
-                      sublime and terrifying beauty of a planet in flux.
-                    </p>
-                  </Reveal>
-                </div>
-              </section>
-
-              {/* Press / Marquee */}
-              <section className="py-24 border-y border-white/5 bg-[#0a0a0a] overflow-hidden">
-                <div className="mb-16 text-center px-6">
-                  <span className="text-[10px] uppercase tracking-widest font-bold text-emerald-400 block mb-4">
-                    Critical Acclaim
-                  </span>
-                  <h3 className="text-3xl font-medium">Selected Press</h3>
-                </div>
-
-                <div className="relative flex whitespace-nowrap">
-                  <div className="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-[#0a0a0a] to-transparent z-10" />
-                  <div className="absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-[#0a0a0a] to-transparent z-10" />
-
-                  <motion.div
-                    animate={{ x: ["0%", "-50%"] }}
-                    transition={{
-                      duration: 40,
-                      repeat: Infinity,
-                      ease: "linear",
-                    }}
-                    className="flex gap-8 px-4"
-                  >
-                    {[...PRESS, ...PRESS].map((p, i) => (
-                      <div
-                        key={i}
-                        className="w-[400px] md:w-[500px] border border-white/10 p-10 bg-[#050505] whitespace-normal shrink-0"
-                      >
-                        <Star className="w-6 h-6 text-emerald-400 mb-8" />
-                        <p className="text-xl italic text-white/80 leading-relaxed mb-8">
-                          "{p.quote}"
-                        </p>
-                        <div>
-                          <div className="font-bold text-sm">
-                            {p.publication}
-                          </div>
-                          <div className="text-xs text-white/40">
-                            {p.reviewer}
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </motion.div>
-                </div>
-              </section>
-
-              {/* Exhibitions */}
-              <section className="py-24 md:py-48 px-6 md:px-12 grid grid-cols-1 lg:grid-cols-12 gap-16">
-                <div className="lg:col-span-4">
-                  <Reveal>
-                    <h3 className="text-4xl font-medium mb-6">Exhibitions</h3>
-                    <p className="text-white/50">
-                      A comprehensive list of solo and group exhibitions
-                      spanning the last decade.
-                    </p>
-                  </Reveal>
-                </div>
-
-                <div className="lg:col-span-8">
-                  <div className="border-t border-white/10">
-                    {EXHIBITIONS.map((ex, i) => (
-                      <Reveal key={i} delay={i * 0.1}>
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between py-8 border-b border-white/5 group hover:bg-white/[0.02] transition-colors -mx-6 px-6 sm:-mx-8 sm:px-8">
-                          <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-16 mb-4 sm:mb-0">
-                            <span className="font-mono text-white/40 text-sm">
-                              {ex.year}
-                            </span>
-                            <div>
-                              <span className="text-2xl font-light block mb-2">
-                                {ex.title}
-                              </span>
-                              <span className="text-sm text-white/50">
-                                {ex.desc}
-                              </span>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-8 w-full sm:w-auto justify-between sm:justify-end shrink-0">
-                            <span className="text-sm text-white/60">
-                              {ex.venue}
-                            </span>
-                            <span className="text-xs uppercase tracking-widest bg-emerald-900/30 text-emerald-400 border border-emerald-900/50 px-3 py-1 rounded-full">
-                              {ex.location}
-                            </span>
-                          </div>
-                        </div>
-                      </Reveal>
-                    ))}
-                  </div>
-                </div>
-              </section>
-
-              {/* FAQ */}
-              <section className="py-24 md:py-32 px-6 md:px-12 bg-[#0a0a0a] border-y border-white/5">
-                <div className="max-w-[1000px] mx-auto">
-                  <Reveal className="text-center mb-16">
-                    <h3 className="text-4xl font-medium mb-4">
-                      Inquiries & Policy
-                    </h3>
-                    <p className="text-white/50">
-                      Details regarding prints, commissions, and methodology.
-                    </p>
-                  </Reveal>
-                  <Reveal delay={0.2}>
-                    <Accordion items={FAQS} />
-                  </Reveal>
-                </div>
-              </section>
-
-              {/* Contact Footer */}
-              <section className="py-32 px-6 md:px-12 text-center">
-                <Reveal>
-                  <Compass className="w-16 h-16 text-emerald-400 mx-auto mb-10" />
-                  <h2 className="text-4xl md:text-6xl font-light mb-8">
-                    Commission a Project
-                  </h2>
-                  <p className="text-xl text-white/50 max-w-lg mx-auto mb-12">
-                    Available for editorial assignments, commercial campaigns,
-                    and fine art commissions globally.
-                  </p>
-
-                  <a
-                    href="mailto:studio@splitrev.com"
-                    className="inline-flex items-center gap-3 px-10 py-5 bg-white text-black text-xs uppercase tracking-widest font-bold rounded-full hover:bg-emerald-400 transition-colors group"
-                  >
-                    <Mail className="w-5 h-5" /> studio@splitrev.com
-                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                  </a>
-
-                  <div className="flex justify-center gap-8 mt-24">
-                    <a
-                      href="#"
-                      className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center hover:bg-emerald-400 hover:text-black hover:border-emerald-400 transition-colors"
-                    >
-                      <Globe className="w-5 h-5" />
-                    </a>
-                    <a
-                      href="#"
-                      className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center hover:bg-emerald-400 hover:text-black hover:border-emerald-400 transition-colors"
-                    >
-                      <Globe className="w-5 h-5" />
-                    </a>
-                    <a
-                      href="#"
-                      className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center hover:bg-emerald-400 hover:text-black hover:border-emerald-400 transition-colors"
-                    >
-                      <Globe className="w-5 h-5" />
-                    </a>
-                  </div>
-                </Reveal>
-              </section>
-
-              {/* Copyright Bar */}
-              <div className="py-8 px-6 md:px-12 border-t border-white/10 flex flex-col sm:flex-row justify-between items-center gap-4 text-[10px] uppercase tracking-widest text-white/40">
-                <span>
-                  &copy; {new Date().getFullYear()} Julian Hayes Studio. All
-                  rights reserved.
-                </span>
-                <div className="flex gap-6">
-                  <a href="#" className="hover:text-white transition-colors">
-                    Privacy
-                  </a>
-                  <a href="#" className="hover:text-white transition-colors">
-                    Terms
-                  </a>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      </footer>
     </div>
   );
 }
