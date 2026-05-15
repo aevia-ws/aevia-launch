@@ -596,6 +596,7 @@ export default function WineryTemplate() {
   const heroRef = useRef<HTMLDivElement>(null);
   const winesRef = useRef<HTMLDivElement>(null);
   const terroirRef = useRef<HTMLDivElement>(null);
+  const visitesRef = useRef<HTMLDivElement>(null);
   const contactRef = useRef<HTMLDivElement>(null);
 
   const activeTerroir = TERROIR_TABS.find((t) => t.id === terroirTab) ?? TERROIR_TABS[0];
@@ -652,6 +653,7 @@ export default function WineryTemplate() {
                 const map: Record<string, React.RefObject<HTMLDivElement | null>> = {
                   Vins: winesRef,
                   Terroir: terroirRef,
+                  Visites: visitesRef,
                   Contact: contactRef,
                 };
                 map[item]?.current?.scrollIntoView({ behavior: "smooth" });
@@ -706,6 +708,11 @@ export default function WineryTemplate() {
           background: C.bg,
         }}
       >
+        {/* Layered gradient background */}
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, #f2ebe0 0%, #f8f4ee 50%, #ede5d6 100%)", pointerEvents: "none" }} />
+        <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse 80% 60% at 50% 20%, rgba(139,30,60,0.06) 0%, transparent 70%)", pointerEvents: "none" }} />
+        <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse 50% 40% at 20% 80%, rgba(193,163,100,0.09) 0%, transparent 60%)", pointerEvents: "none" }} />
+
         {/* Vine watermark background */}
         <div
           style={{
@@ -714,7 +721,7 @@ export default function WineryTemplate() {
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            opacity: 0.04,
+            opacity: 0.12,
             pointerEvents: "none",
           }}
         >
@@ -1453,6 +1460,7 @@ export default function WineryTemplate() {
           9. WINE TOURISM / VISITES
           ==================================================================== */}
       <section
+        ref={visitesRef}
         style={{
           background: C.bgCard,
           padding: "120px 48px",
