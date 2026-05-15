@@ -344,6 +344,33 @@ function StackedCards({ films }: { films: typeof FILMS }) {
   );
 }
 
+// ── ServiceCard (extracted to follow hooks rules) ─────────────────────────────
+function ServiceCard({ svc, index }: { svc: typeof SERVICES[0]; index: number }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true });
+  return (
+    <SpotlightCard spotColor="rgba(202,138,4,0.07)" style={{ background: C.bg, border: "none" }}>
+      <motion.div
+        ref={ref}
+        initial={{ opacity: 0, y: 20 }}
+        animate={inView ? { opacity: 1, y: 0 } : {}}
+        transition={{ duration: 0.6, delay: index * 0.1 }}
+        style={{ padding: "2.5rem 2rem" }}
+      >
+        <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: "0.55rem", letterSpacing: "0.25em", color: C.amber, marginBottom: "1.5rem" }}>
+          {svc.code}
+        </div>
+        <h3 style={{ fontFamily: "'Archivo', sans-serif", fontSize: "1.2rem", fontWeight: 700, color: C.text, marginBottom: "0.75rem" }}>
+          {svc.title}
+        </h3>
+        <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: "0.82rem", color: C.textMuted, lineHeight: 1.75 }}>
+          {svc.desc}
+        </p>
+      </motion.div>
+    </SpotlightCard>
+  );
+}
+
 // ── Page ─────────────────────────────────────────────────────────────────────
 export default function StackUnit() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -389,15 +416,20 @@ export default function StackUnit() {
           </span>
         </div>
         <div style={{ display: "flex", gap: "3rem" }}>
-          {["Films", "Services", "Studio", "Contact"].map((item) => (
-            <motion.a
-              key={item}
-              href="#"
-              style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: "0.78rem", color: C.textMuted, textDecoration: "none", cursor: "pointer" }}
+          {[
+            { label: "Films", id: "films" },
+            { label: "Services", id: "services" },
+            { label: "Studio", id: "studio" },
+            { label: "Contact", id: "contact" },
+          ].map(({ label, id }) => (
+            <motion.button
+              key={label}
+              onClick={() => document.getElementById(id)?.scrollIntoView({ behavior: "smooth" })}
+              style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: "0.78rem", color: C.textMuted, background: "none", border: "none", cursor: "pointer" }}
               whileHover={{ color: C.amberLight }}
             >
-              {item}
-            </motion.a>
+              {label}
+            </motion.button>
           ))}
         </div>
         <MagneticButton
@@ -533,7 +565,7 @@ export default function StackUnit() {
       </div>
 
       {/* ── Films Stacked Cards ──────────────────────────────────────── */}
-      <section style={{ padding: "7rem 3rem", background: C.bgCard, borderBottom: `1px solid ${C.border}` }}>
+      <section id="films" style={{ padding: "7rem 3rem", background: C.bgCard, borderBottom: `1px solid ${C.border}` }}>
         <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1.2fr", gap: "6rem", alignItems: "start" }}>
             <div>
@@ -589,7 +621,7 @@ export default function StackUnit() {
       </section>
 
       {/* ── Services ────────────────────────────────────────────────── */}
-      <section style={{ padding: "7rem 3rem" }}>
+      <section id="services" style={{ padding: "7rem 3rem" }}>
         <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
           <div style={{ marginBottom: "4rem" }}>
             <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: "0.65rem", letterSpacing: "0.3em", color: C.amber, marginBottom: "1rem" }}>
@@ -600,41 +632,15 @@ export default function StackUnit() {
             </TextReveal>
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "1px", background: C.border }}>
-            {SERVICES.map((svc, i) => {
-              const ref = useRef<HTMLDivElement>(null);
-              const inView = useInView(ref, { once: true });
-              return (
-                <SpotlightCard
-                  key={svc.code}
-                  spotColor="rgba(202,138,4,0.07)"
-                  style={{ background: C.bg, border: "none" }}
-                >
-                  <motion.div
-                    ref={ref}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={inView ? { opacity: 1, y: 0 } : {}}
-                    transition={{ duration: 0.6, delay: i * 0.1 }}
-                    style={{ padding: "2.5rem 2rem" }}
-                  >
-                    <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: "0.55rem", letterSpacing: "0.25em", color: C.amber, marginBottom: "1.5rem" }}>
-                      {svc.code}
-                    </div>
-                    <h3 style={{ fontFamily: "'Archivo', sans-serif", fontSize: "1.2rem", fontWeight: 700, color: C.text, marginBottom: "0.75rem" }}>
-                      {svc.title}
-                    </h3>
-                    <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: "0.82rem", color: C.textMuted, lineHeight: 1.75 }}>
-                      {svc.desc}
-                    </p>
-                  </motion.div>
-                </SpotlightCard>
-              );
-            })}
+            {SERVICES.map((svc, i) => (
+              <ServiceCard key={svc.code} svc={svc} index={i} />
+            ))}
           </div>
         </div>
       </section>
 
       {/* ── Press ───────────────────────────────────────────────────── */}
-      <section style={{ padding: "6rem 3rem", background: C.bgCard, borderTop: `1px solid ${C.border}`, borderBottom: `1px solid ${C.border}` }}>
+      <section id="studio" style={{ padding: "6rem 3rem", background: C.bgCard, borderTop: `1px solid ${C.border}`, borderBottom: `1px solid ${C.border}` }}>
         <div style={{ maxWidth: "1000px", margin: "0 auto" }}>
           <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: "0.65rem", letterSpacing: "0.3em", color: C.amber, marginBottom: "3rem" }}>
             LA PRESSE PARLE DE NOUS
@@ -664,7 +670,7 @@ export default function StackUnit() {
       </section>
 
       {/* ── CTA ─────────────────────────────────────────────────────── */}
-      <section style={{ padding: "8rem 3rem", background: C.indigo, textAlign: "center", position: "relative", overflow: "hidden" }}>
+      <section id="contact" style={{ padding: "8rem 3rem", background: C.indigo, textAlign: "center", position: "relative", overflow: "hidden" }}>
         <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", width: "600px", height: "600px", background: "radial-gradient(circle, rgba(202,138,4,0.12) 0%, transparent 70%)", pointerEvents: "none" }} />
         <div style={{ position: "relative", zIndex: 1, maxWidth: "700px", margin: "0 auto" }}>
           <TextReveal style={{ fontFamily: "'Archivo', sans-serif", fontSize: "clamp(2.5rem, 6vw, 5rem)", fontWeight: 900, color: C.text, letterSpacing: "-0.03em", lineHeight: 0.93, marginBottom: "2rem" }}>
