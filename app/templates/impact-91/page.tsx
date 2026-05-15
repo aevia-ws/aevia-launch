@@ -418,11 +418,18 @@ export default function Page() {
           <span style={{ fontFamily: "'Cormorant', serif", fontSize: 16, fontWeight: 600, color: C.cream, letterSpacing: "0.08em" }}>Aurelia Jewels</span>
         </div>
         <div style={{ display: "flex", gap: 28, alignItems: "center" }}>
-          {["Collections", "Bespoke", "Atelier", "About"].map(item => (
-            <button key={item} style={{ fontFamily: "'Montserrat', sans-serif", fontSize: 12, color: C.muted, background: "none", border: "none", cursor: "pointer", letterSpacing: "0.06em", transition: "color 0.2s" }}
+          {[
+            { label: "Collections", id: "collections" },
+            { label: "Bespoke", id: "bespoke" },
+            { label: "Atelier", id: "atelier" },
+            { label: "About", id: "about" },
+          ].map(({ label, id }) => (
+            <button key={label}
+              style={{ fontFamily: "'Montserrat', sans-serif", fontSize: 12, color: C.muted, background: "none", border: "none", cursor: "pointer", letterSpacing: "0.06em", transition: "color 0.2s" }}
               onMouseEnter={e => (e.currentTarget.style.color = C.cream)}
-              onMouseLeave={e => (e.currentTarget.style.color = C.muted)}>
-              {item}
+              onMouseLeave={e => (e.currentTarget.style.color = C.muted)}
+              onClick={() => document.getElementById(id)?.scrollIntoView({ behavior: "smooth" })}>
+              {label}
             </button>
           ))}
           <MagneticButton style={{ fontFamily: "'Montserrat', sans-serif", fontSize: 11, color: C.bg, background: C.gold, padding: "9px 22px", borderRadius: 2, letterSpacing: "0.1em", textTransform: "uppercase", fontWeight: 600 }}>
@@ -512,7 +519,7 @@ export default function Page() {
       </section>
 
       {/* ── Collections ── */}
-      <section style={{ padding: "80px 0", background: C.bgCard, borderTop: `1px solid ${C.border}`, borderBottom: `1px solid ${C.border}` }}>
+      <section id="collections" style={{ padding: "80px 0", background: C.bgCard, borderTop: `1px solid ${C.border}`, borderBottom: `1px solid ${C.border}` }}>
         <div style={{ maxWidth: 1100, margin: "0 auto", paddingInline: 40 }}>
           <div style={{ marginBottom: 56 }}>
             <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: 10, letterSpacing: "0.4em", color: C.gold, textTransform: "uppercase", marginBottom: 20 }}>Collections</p>
@@ -532,7 +539,7 @@ export default function Page() {
       </section>
 
       {/* ── Flagship Pieces ── */}
-      <section style={{ padding: "80px 0", maxWidth: 1100, margin: "0 auto", paddingInline: 40 }}>
+      <section id="atelier" style={{ padding: "80px 0", maxWidth: 1100, margin: "0 auto", paddingInline: 40 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 56 }}>
           <div>
             <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: 10, letterSpacing: "0.4em", color: C.gold, textTransform: "uppercase", marginBottom: 20 }}>Flagship Pieces</p>
@@ -581,7 +588,7 @@ export default function Page() {
       </section>
 
       {/* ── Bespoke Process ── */}
-      <section style={{ padding: "80px 0", background: C.bgCard, borderTop: `1px solid ${C.border}` }}>
+      <section id="bespoke" style={{ padding: "80px 0", background: C.bgCard, borderTop: `1px solid ${C.border}` }}>
         <div style={{ maxWidth: 1100, margin: "0 auto", paddingInline: 40 }}>
           <div style={{ textAlign: "center", marginBottom: 64 }}>
             <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: 10, letterSpacing: "0.4em", color: C.gold, textTransform: "uppercase", marginBottom: 20 }}>Bespoke</p>
@@ -619,7 +626,7 @@ export default function Page() {
       </section>
 
       {/* ── Press ── */}
-      <section style={{ padding: "80px 0", maxWidth: 800, margin: "0 auto", paddingInline: 40, textAlign: "center" }}>
+      <section id="about" style={{ padding: "80px 0", maxWidth: 800, margin: "0 auto", paddingInline: 40, textAlign: "center" }}>
         <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: 10, letterSpacing: "0.4em", color: C.gold, textTransform: "uppercase", marginBottom: 48 }}>As Seen In</p>
         <div style={{ position: "relative", minHeight: 160 }}>
           <AnimatePresence mode="wait">
