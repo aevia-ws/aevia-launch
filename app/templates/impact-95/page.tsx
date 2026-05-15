@@ -363,11 +363,18 @@ export default function Page() {
           </div>
         </div>
         <div style={{ display: "flex", gap: 28, alignItems: "center" }}>
-          {["Treatments", "Medical Team", "Technology", "About"].map(item => (
-            <button key={item} style={{ fontFamily: "'Inter', sans-serif", fontSize: 13, color: C.muted, background: "none", border: "none", cursor: "pointer", letterSpacing: "0.02em", transition: "color 0.2s" }}
+          {[
+            { label: "Treatments", id: "treatments" },
+            { label: "Medical Team", id: "team" },
+            { label: "Technology", id: "technology" },
+            { label: "About", id: "about" },
+          ].map(({ label, id }) => (
+            <button key={label}
+              style={{ fontFamily: "'Inter', sans-serif", fontSize: 13, color: C.muted, background: "none", border: "none", cursor: "pointer", letterSpacing: "0.02em", transition: "color 0.2s" }}
               onMouseEnter={e => (e.currentTarget.style.color = C.dark)}
-              onMouseLeave={e => (e.currentTarget.style.color = C.muted)}>
-              {item}
+              onMouseLeave={e => (e.currentTarget.style.color = C.muted)}
+              onClick={() => document.getElementById(id)?.scrollIntoView({ behavior: "smooth" })}>
+              {label}
             </button>
           ))}
           <MagneticButton style={{ fontFamily: "'Inter', sans-serif", fontSize: 12, color: C.bg, background: C.dark, padding: "9px 22px", borderRadius: 2, letterSpacing: "0.06em", textTransform: "uppercase", fontWeight: 500 }}>
@@ -379,7 +386,9 @@ export default function Page() {
       {/* ── Hero ── */}
       <section ref={heroRef} style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", position: "relative", paddingTop: 64, overflow: "hidden" }}>
         <motion.div style={{ y: heroY, position: "absolute", inset: 0 }}>
-          <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse 70% 55% at 50% 30%, rgba(201,168,108,0.07) 0%, transparent 65%)" }} />
+          <div style={{ position: "absolute", inset: 0, background: "linear-gradient(160deg, #f7f2ec 0%, #faf8f4 40%, #f0ebe3 100%)" }} />
+          <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse 70% 55% at 50% 30%, rgba(201,168,108,0.12) 0%, transparent 65%)" }} />
+          <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse 40% 40% at 80% 70%, rgba(180,160,130,0.08) 0%, transparent 60%)" }} />
           {/* Subtle ring watermark */}
           <motion.div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)" }}
             animate={{ rotate: 360 }} transition={{ duration: 120, repeat: Infinity, ease: "linear" }}>
@@ -427,10 +436,14 @@ export default function Page() {
             transition={{ duration: 0.6, delay: 1.3 }}
             style={{ display: "flex", gap: 16, justifyContent: "center" }}
           >
-            <MagneticButton style={{ fontFamily: "'Inter', sans-serif", fontSize: 13, color: C.bg, background: C.dark, padding: "16px 40px", borderRadius: 2, letterSpacing: "0.08em", textTransform: "uppercase", fontWeight: 500 }}>
+            <MagneticButton
+              onClick={() => document.getElementById("about")?.scrollIntoView({ behavior: "smooth" })}
+              style={{ fontFamily: "'Inter', sans-serif", fontSize: 13, color: C.bg, background: C.dark, padding: "16px 40px", borderRadius: 2, letterSpacing: "0.08em", textTransform: "uppercase", fontWeight: 500 }}>
               Book Free Consultation
             </MagneticButton>
-            <MagneticButton style={{ fontFamily: "'Inter', sans-serif", fontSize: 13, color: C.dark, background: "transparent", padding: "16px 40px", borderRadius: 2, letterSpacing: "0.08em", textTransform: "uppercase", border: `1px solid ${C.border}` }}>
+            <MagneticButton
+              onClick={() => document.getElementById("treatments")?.scrollIntoView({ behavior: "smooth" })}
+              style={{ fontFamily: "'Inter', sans-serif", fontSize: 13, color: C.dark, background: "transparent", padding: "16px 40px", borderRadius: 2, letterSpacing: "0.08em", textTransform: "uppercase", border: `1px solid ${C.border}` }}>
               View Treatments
             </MagneticButton>
           </motion.div>
@@ -456,12 +469,12 @@ export default function Page() {
       <MarqueeStrip />
 
       {/* ── Light Ring — Signature Element ── */}
-      <section style={{ padding: "80px 0", maxWidth: 1100, margin: "0 auto", paddingInline: 40 }}>
+      <section id="technology" style={{ padding: "80px 0", maxWidth: 1100, margin: "0 auto", paddingInline: 40 }}>
         <LightRing />
       </section>
 
       {/* ── Treatments ── */}
-      <section style={{ padding: "80px 0", background: C.bgCard, borderTop: `1px solid ${C.border}`, borderBottom: `1px solid ${C.border}` }}>
+      <section id="treatments" style={{ padding: "80px 0", background: C.bgCard, borderTop: `1px solid ${C.border}`, borderBottom: `1px solid ${C.border}` }}>
         <div style={{ maxWidth: 1100, margin: "0 auto", paddingInline: 40 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 56 }}>
             <div>
@@ -493,7 +506,7 @@ export default function Page() {
       </section>
 
       {/* ── Medical Team ── */}
-      <section style={{ padding: "80px 0", maxWidth: 1100, margin: "0 auto", paddingInline: 40 }}>
+      <section id="team" style={{ padding: "80px 0", maxWidth: 1100, margin: "0 auto", paddingInline: 40 }}>
         <p style={{ fontFamily: "'Inter', sans-serif", fontSize: 10, letterSpacing: "0.4em", color: C.gold, textTransform: "uppercase", marginBottom: 20 }}>Medical Team</p>
         <h2 style={{ fontSize: "clamp(28px, 4vw, 48px)", fontWeight: 400, lineHeight: 1.1, letterSpacing: "-0.02em", color: C.dark, fontFamily: "'Playfair Display', serif", marginBottom: 56 }}>
           <TextReveal text="Your safety," />
@@ -547,7 +560,7 @@ export default function Page() {
       </section>
 
       {/* ── Book CTA ── */}
-      <section style={{ padding: "80px 0", maxWidth: 1100, margin: "0 auto", paddingInline: 40 }}>
+      <section id="about" style={{ padding: "80px 0", maxWidth: 1100, margin: "0 auto", paddingInline: 40 }}>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 80, alignItems: "center" }}>
           <div>
             <p style={{ fontFamily: "'Inter', sans-serif", fontSize: 10, letterSpacing: "0.4em", color: C.gold, textTransform: "uppercase", marginBottom: 20 }}>Your Consultation</p>
