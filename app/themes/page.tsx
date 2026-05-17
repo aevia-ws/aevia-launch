@@ -7,37 +7,19 @@ import { ArrowRight, Sparkles, Search, Star } from "lucide-react";
 import { TEMPLATES_REGISTRY } from "@/lib/templates/registry";
 
 // ─── Quality filter ───────────────────────────────────────────────────────────
-// Only templates genuinely at "$10k level" (650+ lines, loading correctly) are shown.
-// Hidden templates are elevated in batches and re-enabled when ready.
+// Only truly missing page.tsx files are hidden — everything else is shown for audit.
 const HIDDEN_IMPACT = new Set([
-  // ── Stubs / never built (< 400 lines) ──────────────────────────────────────
-  "impact-06","impact-07","impact-08","impact-09",
-  "impact-50","impact-51","impact-52","impact-53","impact-54",
-  "impact-55","impact-60","impact-67","impact-70","impact-71","impact-73","impact-74","impact-75",
-  "impact-76","impact-77","impact-78","impact-79","impact-80",
-  "impact-87","impact-92","impact-93",
-  "impact-97","impact-98","impact-99",
-  "impact-100","impact-101","impact-102","impact-103","impact-104","impact-105","impact-106","impact-107","impact-108","impact-109","impact-110","impact-111",
-  "impact-116","impact-117","impact-118","impact-119","impact-120","impact-121","impact-122","impact-123","impact-124","impact-125",
-  "impact-127","impact-128","impact-129",
-  "impact-136","impact-137","impact-138","impact-139",
-  "impact-140","impact-141","impact-142","impact-143","impact-144","impact-145","impact-146",
-  "impact-147","impact-148","impact-149","impact-150","impact-151",
-  "impact-152","impact-153","impact-154","impact-155","impact-156",
-  "impact-177","impact-178","impact-179","impact-180","impact-181","impact-182",
-  "impact-183","impact-184","impact-185","impact-186","impact-187","impact-188","impact-189",
-  "impact-190","impact-191","impact-192","impact-193","impact-194","impact-195",
-  // ── Don't load / broken (confirmed via audit) ───────────────────────────────
-  "impact-56","impact-59","impact-62","impact-65","impact-66","impact-113",
-  // ── Duplicate / identical design ────────────────────────────────────────────
-  "impact-159","impact-160",
+  "impact-202","impact-203","impact-204","impact-205","impact-206",
 ]);
 
 // ─── Featured (hand-picked best) ─────────────────────────────────────────────
 const FEATURED = new Set([
-  "impact-57","impact-58","impact-61","impact-63","impact-64","impact-72",
-  "impact-81","impact-82","impact-85","impact-86","impact-88","impact-91",
-  "impact-112","impact-115","impact-126","impact-131","impact-135",
+  // Gold Tailwind rewrites (impact-22–29)
+  "impact-22","impact-23","impact-24","impact-25","impact-26","impact-27","impact-28","impact-29",
+  // Classic gold (impact-01–21)
+  "impact-01","impact-03","impact-05","impact-10","impact-13","impact-15","impact-17","impact-19","impact-20","impact-21",
+  // Solid mid-range
+  "impact-57","impact-63","impact-72","impact-81","impact-82","impact-85","impact-86","impact-91",
 ]);
 
 
@@ -333,7 +315,7 @@ function ThemesContent() {
             </span>
           </h1>
           <p className="text-zinc-400 text-sm sm:text-base max-w-sm mx-auto leading-relaxed">
-            {allThemes.length} premium themes — handpicked, quality-audited, ready to ship.
+            {allThemes.length}+ themes — every style, every industry, hover to preview live.
           </p>
         </motion.div>
 
