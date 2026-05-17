@@ -5,6 +5,23 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "dummy", {
   apiVersion: "2026-04-22.dahlia",
 });
 
+// Simple in-memory rate limiter: max 10 checkout requests per IP per hour
+const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
+
+function isRateLimited(ip: string): boolean {
+  const now = Date.now();
+  const window = 60 * 60 * 1000; // 1 hour
+  const maxRequests = 10;
+  const entry = rateLimitMap.get(ip);
+  if (!entry || now > entry.resetAt) {
+    rateLimitMap.set(ip, { count: 1, resetAt: now + window });
+    return false;
+  }
+  if (entry.count >= maxRequests) return true;
+  entry.count += 1;
+  return false;
+}
+
 const SITE_PRICES: Record<string, { label: string; price: number }> = {
   landing:       { label: "Landing Page",          price: 599  },
   saas:          { label: "SaaS Product",           price: 899  },
@@ -34,6 +51,18 @@ const MAINTENANCE_LABEL = "Maintenance mensuelle";
 
 export async function POST(req: NextRequest) {
   try {
+    // Rate limiting — protect Stripe from checkout spam
+    const ip =
+      req.headers.get("x-forwarded-for")?.split(",")[0].trim() ??
+      req.headers.get("x-real-ip") ??
+      "unknown";
+    if (isRateLimited(ip)) {
+      return NextResponse.json(
+        { error: "Too many checkout requests. Please try again in an hour." },
+        { status: 429 }
+      );
+    }
+
     const body = await req.json();
     const { type, name, theme, maintenance } = body as {
       type?: string;
