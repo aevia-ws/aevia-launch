@@ -372,7 +372,7 @@ export default function SwiftMovePage() {
             </a>
             <button onClick={() => document.getElementById("quote")?.scrollIntoView({behavior:"smooth"})} style={{ background: C.orange, color: C.white, padding: "10px 22px", borderRadius: 8, fontWeight: 800, fontSize: 14, textDecoration: "none" }}>
               Free Quote
-            </a>
+            </button>
           </div>
         </div>
       </nav>
@@ -428,7 +428,7 @@ export default function SwiftMovePage() {
                 style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
                 <button onClick={() => document.getElementById("quote")?.scrollIntoView({behavior:"smooth"})} style={{ display: "inline-flex", alignItems: "center", gap: 8, background: C.orange, color: C.white, padding: "16px 32px", borderRadius: 10, fontWeight: 800, fontSize: 16, textDecoration: "none" }}>
                   Get Free Quote <ArrowRight size={18} />
-                </a>
+                </button>
                 <a href="tel:+18885550100" style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "transparent", color: C.white, padding: "16px 32px", borderRadius: 10, fontWeight: 700, fontSize: 16, textDecoration: "none", border: "1.5px solid rgba(255,255,255,0.25)" }}>
                   <Phone size={16} /> Call Now
                 </a>
@@ -693,7 +693,7 @@ export default function SwiftMovePage() {
                   </div>
                   <button onClick={() => document.getElementById("quote")?.scrollIntoView({behavior:"smooth"})} style={{ display: "block", textAlign: "center", background: plan.highlight ? C.orange : C.orangeLight, color: plan.highlight ? C.white : C.orange, padding: "14px 24px", borderRadius: 10, fontWeight: 800, fontSize: 15, textDecoration: "none" }}>
                     Get Quote
-                  </a>
+                  </button>
                 </div>
               </SectionReveal>
             ))}

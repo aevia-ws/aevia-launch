@@ -12,6 +12,7 @@ import {
 import Image from "next/image"
 import Link from "next/link"
 import {
+
   Gem,
   Star,
   Award,
@@ -24,7 +25,6 @@ import {
   Phone,
   Mail,
   MapPin,
-  Instagram,
   Heart,
   Clock,
   Package,
@@ -1472,7 +1472,7 @@ function Footer() {
               Maison de haute joaillerie française. Orfèvrerie artisanale depuis 1977. Chaque pièce, une histoire. Chaque pierre, une âme.
             </p>
             <div className="flex gap-4">
-              {[Instagram, Phone, Mail].map((Icon, i) => (
+              {[Phone, Mail].map((Icon, i) => (
                 <a
                   key={i}
                   href="#"

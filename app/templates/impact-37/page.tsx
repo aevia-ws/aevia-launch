@@ -541,7 +541,7 @@ export default function ClosDuSoirPage() {
             }}
           >
             Reserve
-          </a>
+          </button>
         </div>
       </nav>
 
@@ -690,7 +690,7 @@ export default function ClosDuSoirPage() {
                   }}
                 >
                   Explore the Wine List
-                </a>
+                </button>
                 <button onClick={() => document.getElementById("membership")?.scrollIntoView({behavior:"smooth"})}
                   style={{
                     display: "inline-flex",
@@ -709,7 +709,7 @@ export default function ClosDuSoirPage() {
                   }}
                 >
                   Membership
-                </a>
+                </button>
               </motion.div>
             </motion.div>
 
@@ -1278,7 +1278,7 @@ export default function ClosDuSoirPage() {
                           }}
                         >
                           Reserve
-                        </a>
+                        </button>
                       )}
                     </div>
                   </div>
@@ -1589,7 +1589,7 @@ export default function ClosDuSoirPage() {
                     }}
                   >
                     Join {tier.name}
-                  </a>
+                  </button>
                 </div>
               </SectionReveal>
             ))}

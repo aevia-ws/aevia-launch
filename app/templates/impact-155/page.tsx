@@ -70,6 +70,15 @@ const LOG_ENTRIES = [
    TECHNICAL HUD COMPONENTS
    ========================================================================== */
 
+function SectionTitle({ subtitle, title, alignment = "left" }: { subtitle: string; title: string; alignment?: string }) {
+  return (
+    <div style={{ textAlign: alignment as "left" | "center" | "right" }} className="mb-10">
+      <span className="text-[10px] font-bold uppercase tracking-[0.5em] text-purple-500 block mb-4">{subtitle}</span>
+      <h2 className="text-4xl md:text-6xl font-black uppercase tracking-tighter italic leading-tight">{title}</h2>
+    </div>
+  )
+}
+
 function Reveal({ children, delay = 0, y = 40, x = 0 }: { children: React.ReactNode, delay?: number, y?: number, x?: number }) {
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true, margin: "-100px" })

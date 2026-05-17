@@ -286,7 +286,7 @@ function Navbar() {
             style={{ background: C.accent, color: C.white, padding: "10px 24px", fontSize: 12, letterSpacing: "0.12em", textTransform: "uppercase" as const, textDecoration: "none", fontFamily: "'Barlow', system-ui", fontWeight: 600 }}
             onMouseEnter={e => (e.currentTarget.style.background = C.accentHover)}
             onMouseLeave={e => (e.currentTarget.style.background = C.accent)}
-          >Book Now</Link>
+          >Book Now</button>
         </div>
       </div>
 
@@ -357,12 +357,12 @@ function HeroSection() {
               style={{ background: C.accent, color: C.white, padding: "16px 36px", fontSize: 13, letterSpacing: "0.12em", textTransform: "uppercase" as const, textDecoration: "none", fontFamily: "'Barlow', system-ui", fontWeight: 700, display: "flex", alignItems: "center", gap: 8 }}
               onMouseEnter={e => (e.currentTarget.style.background = C.accentHover)}
               onMouseLeave={e => (e.currentTarget.style.background = C.accent)}
-            >Book Consultation <ArrowRight size={16} /></Link>
+            >Book Consultation <ArrowRight size={16} /></button>
             <button onClick={() => document.getElementById("portfolio")?.scrollIntoView({behavior:"smooth"})}
               style={{ border: `1px solid ${C.border}`, color: C.textMuted, padding: "16px 36px", fontSize: 13, letterSpacing: "0.12em", textTransform: "uppercase" as const, textDecoration: "none", fontFamily: "'Barlow', system-ui", fontWeight: 600 }}
               onMouseEnter={e => { e.currentTarget.style.borderColor = C.accent; e.currentTarget.style.color = C.white; }}
               onMouseLeave={e => { e.currentTarget.style.borderColor = C.border; e.currentTarget.style.color = C.textMuted; }}
-            >View Portfolio</Link>
+            >View Portfolio</button>
           </motion.div>
 
           <motion.div
@@ -674,7 +674,7 @@ function BookingSection() {
               </ul>
               <button onClick={() => document.getElementById("contact")?.scrollIntoView({behavior:"smooth"})}
                 style={{ display: "block", textAlign: "center" as const, background: tier.featured ? C.white : "transparent", color: tier.featured ? C.accent : C.white, border: tier.featured ? "none" : `1px solid ${C.border}`, padding: "14px 24px", fontSize: 12, letterSpacing: "0.1em", textTransform: "uppercase" as const, textDecoration: "none", fontFamily: "'Barlow', system-ui", fontWeight: 700 }}
-              >{tier.cta}</Link>
+              >{tier.cta}</button>
             </motion.div>
           ))}
         </div>

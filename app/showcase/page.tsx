@@ -1,327 +1,338 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
-import { motion } from "framer-motion";
-import { ArrowRight, ExternalLink, Monitor, ShoppingBag, Globe, Sparkles, Lock } from "lucide-react";
+import { motion, useInView } from "framer-motion";
+import { ArrowRight, Sparkles } from "lucide-react";
+import { TEMPLATES_REGISTRY } from "@/lib/templates/registry";
+import { useLang } from "@/lib/LangContext";
 import { AeviaHeader } from "@/components/AeviaHeader";
 
-// ── Themes preview data ────────────────────────────────────────────────────────
-const PREVIEW_THEMES = [
-  { id: "landing",    label: "Landing Page",       category: "Marketing", icon: "🚀", premium: false },
-  { id: "saas",       label: "SaaS Product",        category: "Tech",      icon: "⚡", premium: false },
-  { id: "agency",     label: "Creative Agency",     category: "Agency",    icon: "🎨", premium: false },
-  { id: "ecommerce",  label: "E-commerce Store",    category: "Commerce",  icon: "🛍️", premium: false },
-  { id: "restaurant", label: "Restaurant & Food",   category: "Hospitality",icon: "🍽️", premium: false },
-  { id: "portfolio",  label: "Portfolio",            category: "Personal",  icon: "💼", premium: false },
-  { id: "luxury",     label: "Luxury & Couture",    category: "Premium",   icon: "💎", premium: true },
-  { id: "brutalist",  label: "Brutalist Editorial", category: "Premium",   icon: "◼", premium: true },
-  { id: "aurora",     label: "Aurora & Wellness",   category: "Premium",   icon: "✦", premium: true },
-  { id: "3d-tech",    label: "3D Tech & Web3",      category: "Premium",   icon: "⬡", premium: true },
-  { id: "magazine",   label: "Magazine & Editorial",category: "Premium",   icon: "📰", premium: true },
-  { id: "minimal-pro",label: "Minimal Pro",         category: "Premium",   icon: "—", premium: true },
-];
-
-const CATEGORY_ACCENT: Record<string, string> = {
-  Marketing: "#7c3aed", Tech: "#2563eb", Agency: "#d97706", Commerce: "#dc2626",
-  Hospitality: "#d97706", Personal: "#0891b2", Premium: "#c9a96e",
+// ── Translations ───────────────────────────────────────────────────────────────
+const T = {
+  fr: {
+    badge: "200+ templates",
+    title: "Quel type de site ?",
+    sub: "Choisissez votre catégorie — on a le thème parfait pour vous.",
+    seeAll: "Voir tous les thèmes",
+    spotlight: "Coup de projecteur",
+    spotlightSub: "Nos meilleurs templates du moment.",
+    cta: "Créer mon site",
+  },
+  en: {
+    badge: "200+ templates",
+    title: "What type of site?",
+    sub: "Choose your category — we have the perfect theme for you.",
+    seeAll: "Browse all themes",
+    spotlight: "Spotlight",
+    spotlightSub: "Our best templates right now.",
+    cta: "Build my site",
+  },
+  es: {
+    badge: "200+ plantillas",
+    title: "¿Qué tipo de sitio?",
+    sub: "Elige tu categoría — tenemos el tema perfecto para ti.",
+    seeAll: "Ver todos los temas",
+    spotlight: "Destacados",
+    spotlightSub: "Nuestras mejores plantillas ahora mismo.",
+    cta: "Crear mi sitio",
+  },
+  de: {
+    badge: "200+ Templates",
+    title: "Welche Art von Website?",
+    sub: "Wähle deine Kategorie — wir haben das perfekte Theme für dich.",
+    seeAll: "Alle Themes ansehen",
+    spotlight: "Spotlight",
+    spotlightSub: "Unsere besten Templates gerade jetzt.",
+    cta: "Meine Website erstellen",
+  },
+  pt: {
+    badge: "200+ templates",
+    title: "Que tipo de site?",
+    sub: "Escolha a sua categoria — temos o tema perfeito para você.",
+    seeAll: "Ver todos os temas",
+    spotlight: "Destaques",
+    spotlightSub: "Nossos melhores templates agora.",
+    cta: "Criar meu site",
+  },
 };
 
-const templates = [
+// ── Type categories ────────────────────────────────────────────────────────────
+const TYPE_CATS = [
   {
-    id: "landing",
-    name: "Landing Page",
-    tagline: "Convertir des visiteurs en clients",
-    description: "Hero animé, section features, témoignages, pricing et formulaire de contact. Optimisée conversion et SEO.",
-    url: "/demo/landing",
-    accentFrom: "from-violet-500",
-    accentTo: "to-fuchsia-500",
-    icon: <Sparkles className="w-5 h-5" />,
-    dot: "bg-violet-400",
-    features: ["Hero section animé", "Features & bénéfices", "Témoignages", "Tableau de prix", "Formulaire contact"],
-    useCases: ["SaaS", "Agence", "Startup", "App"],
+    label: { fr: "Luxe & Premium", en: "Luxury & Premium", es: "Lujo & Premium", de: "Luxus & Premium", pt: "Luxo & Premium" },
+    cat: "Luxury",
+    color: "#C9A86C",
+    bg: "from-[#C9A86C]/15 to-[#C9A86C]/5",
+    border: "border-[#C9A86C]/25",
+    hoverBorder: "hover:border-[#C9A86C]/60",
+    desc: { fr: "Bijouterie, hôtellerie, mode, gastronomie", en: "Jewellery, hotels, fashion, fine dining", es: "Joyería, hoteles, moda, gastronomía", de: "Schmuck, Hotels, Mode, Gastronomie", pt: "Joalheria, hotéis, moda, gastronomia" },
+    thumbId: "impact-03",
+    count: 24,
   },
   {
-    id: "ecommerce",
-    name: "E-Commerce",
-    tagline: "Vendre des produits en ligne",
-    description: "Boutique complète avec catalogue produits, panier, checkout et confirmation de commande. Prêt pour Stripe.",
-    url: "/demo/ecommerce",
-    accentFrom: "from-amber-500",
-    accentTo: "to-orange-500",
-    icon: <ShoppingBag className="w-5 h-5" />,
-    dot: "bg-amber-400",
-    features: ["Catalogue & filtres", "Panier & checkout", "Confirmation commande", "Page produit détaillée", "Stripe-ready"],
-    useCases: ["Boutique", "Mode", "Produits physiques", "Digital"],
+    label: { fr: "Tech & SaaS", en: "Tech & SaaS", es: "Tech & SaaS", de: "Tech & SaaS", pt: "Tech & SaaS" },
+    cat: "Tech",
+    color: "#3B82F6",
+    bg: "from-[#3B82F6]/15 to-[#3B82F6]/5",
+    border: "border-[#3B82F6]/25",
+    hoverBorder: "hover:border-[#3B82F6]/60",
+    desc: { fr: "SaaS, apps, startups, outils pro", en: "SaaS, apps, startups, dev tools", es: "SaaS, apps, startups, herramientas", de: "SaaS, Apps, Startups, Dev-Tools", pt: "SaaS, apps, startups, ferramentas" },
+    thumbId: "impact-05",
+    count: 18,
   },
   {
-    id: "website",
-    name: "Site Vitrine",
-    tagline: "Une présence pro sans friction",
-    description: "Site corporate clean pour les entreprises de service. Accueil, à propos, services, blog et contact.",
-    url: "/demo/vitrine",
-    accentFrom: "from-emerald-500",
-    accentTo: "to-teal-500",
-    icon: <Globe className="w-5 h-5" />,
-    dot: "bg-emerald-400",
-    features: ["Accueil + À propos", "Page services", "Blog / Actualités", "Contact & réservation", "Multi-langue"],
-    useCases: ["Consultant", "Agence", "Restaurant", "Commerce local"],
+    label: { fr: "Créatif & Agence", en: "Creative & Agency", es: "Creativo & Agencia", de: "Kreativ & Agentur", pt: "Criativo & Agência" },
+    cat: "Creative",
+    color: "#A855F7",
+    bg: "from-[#A855F7]/15 to-[#A855F7]/5",
+    border: "border-[#A855F7]/25",
+    hoverBorder: "hover:border-[#A855F7]/60",
+    desc: { fr: "Portfolios, studios, agences créatives", en: "Portfolios, studios, creative agencies", es: "Portfolios, estudios, agencias", de: "Portfolios, Studios, Kreativagenturen", pt: "Portfólios, estúdios, agências" },
+    thumbId: "impact-02",
+    count: 22,
+  },
+  {
+    label: { fr: "Food & Restaurant", en: "Food & Restaurant", es: "Comida & Restaurante", de: "Food & Restaurant", pt: "Food & Restaurante" },
+    cat: "Food & Drink",
+    color: "#FB923C",
+    bg: "from-[#FB923C]/15 to-[#FB923C]/5",
+    border: "border-[#FB923C]/25",
+    hoverBorder: "hover:border-[#FB923C]/60",
+    desc: { fr: "Restaurants, cafés, boulangeries, vins", en: "Restaurants, cafés, bakeries, wine bars", es: "Restaurantes, cafés, panaderías, vinos", de: "Restaurants, Cafés, Bäckereien, Weine", pt: "Restaurantes, cafés, padarias, vinhos" },
+    thumbId: "impact-04",
+    count: 12,
+  },
+  {
+    label: { fr: "Santé & Bien-être", en: "Health & Wellness", es: "Salud & Bienestar", de: "Gesundheit & Wellness", pt: "Saúde & Bem-estar" },
+    cat: "Health",
+    color: "#14B8A6",
+    bg: "from-[#14B8A6]/15 to-[#14B8A6]/5",
+    border: "border-[#14B8A6]/25",
+    hoverBorder: "hover:border-[#14B8A6]/60",
+    desc: { fr: "Cliniques, spas, yoga, fitness", en: "Clinics, spas, yoga, fitness", es: "Clínicas, spas, yoga, fitness", de: "Kliniken, Spas, Yoga, Fitness", pt: "Clínicas, spas, yoga, fitness" },
+    thumbId: "impact-10",
+    count: 10,
+  },
+  {
+    label: { fr: "Corporate & Services", en: "Corporate & Services", es: "Corporativo & Servicios", de: "Corporate & Services", pt: "Corporativo & Serviços" },
+    cat: "Corporate",
+    color: "#0EA5E9",
+    bg: "from-[#0EA5E9]/15 to-[#0EA5E9]/5",
+    border: "border-[#0EA5E9]/25",
+    hoverBorder: "hover:border-[#0EA5E9]/60",
+    desc: { fr: "Entreprises, cabinets, B2B, finance", en: "Companies, agencies, B2B, finance", es: "Empresas, despachos, B2B, finanzas", de: "Unternehmen, Kanzleien, B2B, Finanzen", pt: "Empresas, escritórios, B2B, finanças" },
+    thumbId: "impact-01",
+    count: 16,
+  },
+  {
+    label: { fr: "E-Commerce", en: "E-Commerce", es: "E-Commerce", de: "E-Commerce", pt: "E-Commerce" },
+    cat: "E-Commerce",
+    color: "#EC4899",
+    bg: "from-[#EC4899]/15 to-[#EC4899]/5",
+    border: "border-[#EC4899]/25",
+    hoverBorder: "hover:border-[#EC4899]/60",
+    desc: { fr: "Boutiques, mode, bijoux, beauté", en: "Stores, fashion, jewellery, beauty", es: "Tiendas, moda, joyería, belleza", de: "Shops, Mode, Schmuck, Beauty", pt: "Lojas, moda, joalheria, beleza" },
+    thumbId: "impact-20",
+    count: 8,
+  },
+  {
+    label: { fr: "Minimal & Éditorial", en: "Minimal & Editorial", es: "Minimal & Editorial", de: "Minimal & Editorial", pt: "Minimal & Editorial" },
+    cat: "Minimal",
+    color: "#71717A",
+    bg: "from-white/8 to-white/3",
+    border: "border-white/12",
+    hoverBorder: "hover:border-white/30",
+    desc: { fr: "Portfolios épurés, blogs, presse", en: "Clean portfolios, blogs, press", es: "Portfolios limpios, blogs, prensa", de: "Minimalistische Portfolios, Blogs, Presse", pt: "Portfólios limpos, blogs, imprensa" },
+    thumbId: "impact-12",
+    count: 14,
   },
 ];
 
-function TemplatePanel({ template, isActive }: { template: typeof templates[number]; isActive: boolean }) {
-  const [iframeLoaded, setIframeLoaded] = useState(false);
+const SPOTLIGHT_IDS = ["impact-01", "impact-03", "impact-05", "impact-13", "impact-15", "impact-20"];
+
+// ── TypeCard ───────────────────────────────────────────────────────────────────
+function TypeCard({ cat, index }: { cat: typeof TYPE_CATS[0]; index: number }) {
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, margin: "-40px" });
+  const [thumbOk, setThumbOk] = useState(true);
+  const [hovered, setHovered] = useState(false);
+  const { locale } = useLang();
+  const lk = (locale as keyof typeof cat.label) in cat.label ? (locale as keyof typeof cat.label) : "en";
 
   return (
-    <div className={`transition-all duration-500 ${isActive ? "opacity-100" : "opacity-0 pointer-events-none absolute inset-0"}`}>
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-start">
-        {/* Info — 2/5 */}
-        <div className="lg:col-span-2 flex flex-col">
-          <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r ${template.accentFrom}/10 ${template.accentTo}/10 ring-1 ring-white/10 mb-5 w-fit`}>
-            <span className={`text-transparent bg-clip-text bg-gradient-to-r ${template.accentFrom} ${template.accentTo}`}>{template.icon}</span>
-            <span className={`text-xs font-semibold text-transparent bg-clip-text bg-gradient-to-r ${template.accentFrom} ${template.accentTo}`}>{template.name}</span>
-          </div>
-
-          <h2 className="text-2xl font-bold text-white mb-2 tracking-tight">{template.tagline}</h2>
-          <p className="text-zinc-400 text-sm leading-relaxed mb-5">{template.description}</p>
-
-          <div className="mb-5">
-            <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-3">Inclus</p>
-            <div className="space-y-2">
-              {template.features.map((f) => (
-                <div key={f} className="flex items-center gap-2 text-sm text-zinc-300">
-                  <span className={`w-1.5 h-1.5 rounded-full bg-gradient-to-r ${template.accentFrom} ${template.accentTo} shrink-0`} />
-                  {f}
-                </div>
-              ))}
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 24 }}
+      animate={inView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.5, delay: index * 0.06, ease: [0.22, 1, 0.36, 1] }}
+    >
+      <Link
+        href={`/themes?cat=${cat.cat}`}
+        className={`group flex flex-col rounded-2xl border bg-gradient-to-br ${cat.bg} ${cat.border} ${cat.hoverBorder} overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl cursor-pointer`}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+      >
+        <div className="relative aspect-video overflow-hidden border-b border-white/5 bg-zinc-900/50">
+          {thumbOk ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={`/thumbnails/${cat.thumbId}.webp`}
+              alt={cat.label[lk]}
+              className={`w-full h-full object-cover object-top transition-transform duration-700 ${hovered ? "scale-105" : "scale-100"}`}
+              onError={() => setThumbOk(false)}
+            />
+          ) : (
+            <div className="absolute inset-0 flex items-center justify-center"
+              style={{ background: `linear-gradient(135deg, ${cat.color}20, transparent)` }}>
+              <span className="text-4xl opacity-30">✦</span>
             </div>
-          </div>
-
-          <div className="flex flex-wrap gap-2 mb-7">
-            {template.useCases.map((u) => (
-              <span key={u} className="text-xs px-2.5 py-1 rounded-full bg-zinc-800 text-zinc-400 border border-zinc-700/50">{u}</span>
-            ))}
-          </div>
-
-          <div className="flex flex-col sm:flex-row gap-3 mt-auto">
-            <a
-              href="https://aevia.vercel.app/contact"
-              className={`inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r ${template.accentFrom} ${template.accentTo} text-white text-sm font-semibold hover:opacity-90 transition-opacity`}
-            >
-              Je veux ce site
-              <ArrowRight className="w-4 h-4" />
-            </a>
-            <a
-              href={template.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full border border-zinc-700 text-zinc-300 text-sm font-semibold hover:border-zinc-500 hover:text-white transition-colors"
-            >
-              <ExternalLink className="w-4 h-4" />
-              Plein écran
-            </a>
+          )}
+          <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+            style={{ background: `linear-gradient(to top, ${cat.color}40, transparent 60%)` }} />
+          <div className="absolute top-2 right-2 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-widest"
+            style={{ background: `${cat.color}25`, color: cat.color, border: `1px solid ${cat.color}40` }}>
+            {cat.count}
           </div>
         </div>
-
-        {/* Preview — 3/5 */}
-        <div className="lg:col-span-3">
-          <div className="rounded-2xl border border-zinc-800 overflow-hidden bg-zinc-950" style={{ aspectRatio: "16/10" }}>
-            {/* Browser bar */}
-            <div className="flex items-center gap-1.5 px-3 h-8 bg-zinc-900 border-b border-zinc-800 shrink-0">
-              <div className="w-2.5 h-2.5 rounded-full bg-zinc-700" />
-              <div className="w-2.5 h-2.5 rounded-full bg-zinc-700" />
-              <div className="w-2.5 h-2.5 rounded-full bg-zinc-700" />
-              <div className="flex-1 mx-3 h-5 bg-zinc-800 rounded-full flex items-center justify-center">
-                <span className="text-[10px] text-zinc-500 font-mono truncate px-2">{template.url}</span>
-              </div>
-              <Monitor className="w-3.5 h-3.5 text-zinc-600" />
-            </div>
-            <div className="relative" style={{ height: "calc(100% - 32px)" }}>
-              {!iframeLoaded && (
-                <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-zinc-950 z-10">
-                  <div className={`p-3 rounded-xl bg-gradient-to-br ${template.accentFrom}/20 ${template.accentTo}/10 border border-white/5 text-white`}>
-                    {template.icon}
-                  </div>
-                  <div className="text-center">
-                    <p className="text-white text-sm font-semibold">Chargement de la démo...</p>
-                    <p className="text-zinc-500 text-xs mt-1">{template.url}</p>
-                  </div>
-                </div>
-              )}
-              <iframe
-                src={template.url}
-                className="w-full h-full border-0"
-                title={`${template.name} preview`}
-                onLoad={() => setIframeLoaded(true)}
-              />
-            </div>
+        <div className="p-4 flex items-start justify-between gap-3">
+          <div>
+            <div className="font-bold text-white text-sm mb-0.5">{cat.label[lk]}</div>
+            <div className="text-xs text-zinc-500 leading-relaxed">{cat.desc[lk]}</div>
+          </div>
+          <div className="w-7 h-7 rounded-full flex items-center justify-center shrink-0 mt-0.5 opacity-0 group-hover:opacity-100 transition-all duration-300 -translate-x-2 group-hover:translate-x-0"
+            style={{ background: `${cat.color}20`, border: `1px solid ${cat.color}40` }}>
+            <ArrowRight className="w-3 h-3" style={{ color: cat.color }} />
           </div>
         </div>
-      </div>
-    </div>
+      </Link>
+    </motion.div>
   );
 }
 
+// ── SpotlightCard ──────────────────────────────────────────────────────────────
+function SpotlightCard({ template, index }: { template: typeof TEMPLATES_REGISTRY[0]; index: number }) {
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, margin: "-60px" });
+  const [thumbOk, setThumbOk] = useState(true);
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 20 }}
+      animate={inView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.45, delay: index * 0.07 }}
+    >
+      <Link href={`/templates/${template.id}`} className="group block">
+        <div className="relative rounded-xl border border-white/6 bg-zinc-900/50 overflow-hidden hover:-translate-y-1 hover:border-white/15 transition-all duration-300">
+          <div className="relative aspect-video overflow-hidden bg-zinc-900">
+            {thumbOk ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={`/thumbnails/${template.id}.webp`}
+                alt={template.name}
+                className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-700"
+                onError={() => setThumbOk(false)}
+              />
+            ) : (
+              <div className="w-full h-full bg-gradient-to-br from-violet-900/30 to-zinc-900" />
+            )}
+          </div>
+          <div className="p-4">
+            <div className="text-xs text-zinc-500 uppercase tracking-widest mb-1">{template.category}</div>
+            <div className="text-sm font-bold text-white">{template.name}</div>
+          </div>
+        </div>
+      </Link>
+    </motion.div>
+  );
+}
+
+// ── Page ───────────────────────────────────────────────────────────────────────
 export default function ShowcasePage() {
-  const [active, setActive] = useState(0);
+  const { locale } = useLang();
+  const t = T[locale as keyof typeof T] ?? T.fr;
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, margin: "-80px" });
+
+  const spotlightTemplates = SPOTLIGHT_IDS
+    .map(id => TEMPLATES_REGISTRY.find(t => t.id === id))
+    .filter(Boolean) as typeof TEMPLATES_REGISTRY;
 
   return (
     <div className="min-h-screen bg-[#09090b]">
       <AeviaHeader />
 
-      {/* Hero */}
-      <section className="relative pt-28 pb-10 px-6 overflow-hidden">
-        <div className="absolute inset-0 -z-10">
-          <div className="absolute -top-40 -right-40 w-[600px] h-[600px] rounded-full bg-violet-600/8 blur-[120px]" />
-          <div className="absolute top-40 -left-40 w-[400px] h-[400px] rounded-full bg-fuchsia-600/6 blur-[100px]" />
-        </div>
-        <div className="mx-auto max-w-6xl text-center">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-violet-500/10 ring-1 ring-violet-500/20 text-violet-300 text-xs font-medium mb-6">
-              <Sparkles className="w-3 h-3" />
-              Sites web sur mesure — livraison 7 jours
-            </div>
-            <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-white leading-tight mb-5">
-              Choisissez votre type de site
-            </h1>
-            <p className="text-zinc-400 text-lg max-w-xl mx-auto">
-              Naviguez entre les 3 templates, explorez la démo live, puis démarrez votre projet.
-            </p>
-          </motion.div>
-        </div>
-      </section>
+      <div className="mx-auto max-w-6xl px-6 pt-28 pb-28">
 
-      {/* Tab switcher */}
-      <section className="px-6 pb-4">
-        <div className="mx-auto max-w-6xl">
-          <div className="flex gap-2 p-1.5 bg-zinc-900 rounded-2xl border border-zinc-800 w-fit mx-auto">
-            {templates.map((t, i) => (
-              <button
-                key={t.id}
-                onClick={() => setActive(i)}
-                className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 cursor-pointer ${
-                  active === i
-                    ? "bg-zinc-800 text-white shadow-lg"
-                    : "text-zinc-500 hover:text-zinc-300"
-                }`}
-              >
-                <span className={`w-2 h-2 rounded-full ${t.dot} ${active === i ? "opacity-100" : "opacity-40"}`} />
-                {t.name}
-              </button>
+        {/* ── Header ── */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.55 }}
+          className="mb-14"
+        >
+          <div className="flex items-center gap-2 mb-4">
+            <Sparkles className="w-4 h-4 text-violet-400" />
+            <span className="text-xs font-bold text-violet-400 uppercase tracking-widest">{t.badge}</span>
+          </div>
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+            <div>
+              <h1 className="text-3xl sm:text-5xl font-black text-white mb-3" style={{ letterSpacing: "-0.02em" }}>
+                {t.title}
+              </h1>
+              <p className="text-zinc-400 text-lg max-w-xl">{t.sub}</p>
+            </div>
+            <Link
+              href="/themes"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-zinc-700 hover:border-violet-500/60 text-zinc-300 hover:text-white text-sm font-semibold transition-all shrink-0"
+            >
+              {t.seeAll} <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+        </motion.div>
+
+        {/* ── 8 TypeCards ── */}
+        <div ref={ref} className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 mb-20">
+          {TYPE_CATS.map((cat, i) => (
+            <TypeCard key={cat.cat} cat={cat} index={i} />
+          ))}
+        </div>
+
+        {/* ── Spotlight ── */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-xl font-bold text-white">{t.spotlight}</h2>
+              <p className="text-zinc-500 text-sm mt-1">{t.spotlightSub}</p>
+            </div>
+            <Link href="/themes" className="text-sm text-violet-400 hover:text-violet-300 transition-colors font-medium">
+              {t.seeAll} →
+            </Link>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+            {spotlightTemplates.map((tpl, i) => (
+              <SpotlightCard key={tpl.id} template={tpl} index={i} />
             ))}
           </div>
         </div>
-      </section>
 
-      {/* Template panels */}
-      <section className="px-6 py-8 pb-20">
-        <div className="mx-auto max-w-6xl relative">
-          {templates.map((t, i) => (
-            <TemplatePanel key={t.id} template={t} isActive={active === i} />
-          ))}
-        </div>
-      </section>
-
-      {/* Themes section */}
-      <section className="px-6 pb-10">
-        <div className="mx-auto max-w-6xl">
-          {/* Header */}
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
-            <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-500/10 ring-1 ring-amber-500/20 text-amber-300 text-xs font-medium mb-4">
-                <Sparkles className="w-3 h-3" />
-                21 thèmes disponibles — gratuits &amp; premium
-              </div>
-              <h2 className="text-3xl font-bold text-white tracking-tight">Choisissez votre thème</h2>
-              <p className="text-zinc-400 text-sm mt-1">Chaque thème est un design system complet. Gratuit ou premium, livré en 7 jours.</p>
-            </div>
-            <Link href="/themes" className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-zinc-700 text-zinc-300 hover:text-white hover:border-zinc-500 text-sm font-medium transition-colors whitespace-nowrap shrink-0">
-              Voir tous les thèmes
-              <ArrowRight className="w-4 h-4" />
-            </Link>
-          </div>
-
-          {/* Free themes */}
-          <div className="mb-3">
-            <div className="flex items-center gap-2 mb-4">
-              <span className="text-xs font-bold uppercase tracking-widest text-emerald-400">Gratuit</span>
-              <div className="h-px flex-1 bg-zinc-800" />
-            </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-              {PREVIEW_THEMES.filter(t => !t.premium).map((theme) => {
-                const accent = CATEGORY_ACCENT[theme.category] ?? "#7c3aed";
-                return (
-                  <Link key={theme.id} href={`/themes/${theme.id}`}
-                    className="group relative rounded-xl border border-zinc-800 hover:border-zinc-600 transition-all duration-200 hover:-translate-y-0.5 overflow-hidden cursor-pointer"
-                    style={{ background: "linear-gradient(135deg,#0f0f11,#13131a)" }}
-                  >
-                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
-                      style={{ background: `radial-gradient(ellipse at 50% 0%, ${accent}20 0%, transparent 70%)` }} />
-                    <div className="p-4 flex flex-col gap-2 relative">
-                      <span className="text-2xl">{theme.icon}</span>
-                      <div>
-                        <p className="text-white text-xs font-semibold leading-tight">{theme.label}</p>
-                        <p className="text-zinc-600 text-[10px] mt-0.5" style={{ color: accent }}>{theme.category}</p>
-                      </div>
-                    </div>
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Premium themes */}
-          <div className="mt-6">
-            <div className="flex items-center gap-2 mb-4">
-              <span className="text-xs font-bold uppercase tracking-widest" style={{ color: "#c9a96e" }}>Premium</span>
-              <div className="h-px flex-1 bg-zinc-800" />
-            </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-              {PREVIEW_THEMES.filter(t => t.premium).map((theme) => (
-                <Link key={theme.id} href={`/themes/${theme.id}`}
-                  className="group relative rounded-xl border border-zinc-800 hover:border-amber-500/30 transition-all duration-200 hover:-translate-y-0.5 overflow-hidden cursor-pointer"
-                  style={{ background: "linear-gradient(135deg,#0f0f0f,#1a1208)" }}
-                >
-                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
-                    style={{ background: "radial-gradient(ellipse at 50% 0%, #c9a96e18 0%, transparent 70%)" }} />
-                  <div className="absolute top-2 right-2">
-                    <Lock className="w-3 h-3" style={{ color: "#c9a96e" }} />
-                  </div>
-                  <div className="p-4 flex flex-col gap-2 relative">
-                    <span className="text-2xl">{theme.icon}</span>
-                    <div>
-                      <p className="text-white text-xs font-semibold leading-tight">{theme.label}</p>
-                      <p className="text-[10px] mt-0.5 font-medium" style={{ color: "#c9a96e" }}>Premium</p>
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Builder IA CTA */}
-      <section className="px-6 pb-24 pt-8">
-        <div className="mx-auto max-w-6xl">
-          <div className="rounded-2xl border border-zinc-800 bg-gradient-to-br from-violet-900/20 to-fuchsia-900/10 p-8 flex flex-col sm:flex-row items-center justify-between gap-6">
-            <div>
-              <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-violet-300 bg-violet-500/10 ring-1 ring-violet-500/20 px-2.5 py-1 rounded-full mb-3">
-                <Sparkles className="w-3 h-3" />
-                AeviaLaunch Builder IA
-              </div>
-              <h3 className="text-white font-bold text-xl mb-1">Vous avez une idée spécifique ?</h3>
-              <p className="text-zinc-400 text-sm">Décrivez votre activité, choisissez parmi 21 thèmes IA et générez votre contenu en 60 secondes.</p>
-            </div>
-            <div className="flex flex-col sm:flex-row gap-3 shrink-0">
-              <Link href="/themes" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-violet-600 hover:bg-violet-500 text-white text-sm font-semibold transition-colors whitespace-nowrap">
-                Explorer tous les thèmes
-                <ArrowRight className="w-4 h-4" />
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
+        {/* ── CTA ── */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+          className="mt-16 text-center"
+        >
+          <Link
+            href="/configure"
+            className="inline-flex items-center gap-2 px-8 py-4 rounded-full bg-violet-600 hover:bg-violet-500 text-white font-bold text-base transition-all duration-200 hover:scale-[1.03] shadow-lg shadow-violet-600/30"
+          >
+            {t.cta} <ArrowRight className="w-5 h-5" />
+          </Link>
+        </motion.div>
+      </div>
     </div>
   );
 }

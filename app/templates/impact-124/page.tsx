@@ -13,7 +13,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel"
 import { Progress } from "@/components/ui/progress"
 import { Separator } from "@/components/ui/separator"
-import { Menu, X, ArrowRight, Play, Box, Layers, Cpu, Zap, Maximize, Activity, Code, Orbit, Disc3, Sparkles } from "lucide-react"
+import { Menu, X, ArrowRight, ArrowUpRight, Play, Box, Layers, Cpu, Zap, Maximize, Activity, Code, Orbit, Disc3, Sparkles } from "lucide-react"
 
 // ─── UTILS & ANIMATION COMPONENTS ─────────────────────────────────────────────
 

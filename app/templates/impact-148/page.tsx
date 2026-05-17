@@ -3,7 +3,7 @@ import { motion, useScroll, useTransform, useInView } from "framer-motion"
 import { useRef, useState, useEffect } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { Zap, ArrowRight, Menu, Star, Activity, Cpu, Globe, Share2, ChevronRight, Layout, Box, Sparkles, Wallet } from "lucide-react"
+import { Zap, ArrowRight, Menu, Star, Activity, Cpu, Globe, Share2, Shield, ChevronRight, Layout, Box, Sparkles, Wallet } from "lucide-react"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 
 function Reveal({ children, delay = 0, y = 30 }: { children: React.ReactNode; delay?: number; y?: number }) {

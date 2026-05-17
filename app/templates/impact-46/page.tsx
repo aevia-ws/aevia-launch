@@ -246,7 +246,7 @@ function Navbar() {
             style={{ background: C.accent, color: C.white, padding: "10px 26px", fontSize: 12, letterSpacing: "0.1em", textTransform: "uppercase" as const, textDecoration: "none", fontFamily: "'Source Sans Pro', system-ui", fontWeight: 700 }}
             onMouseEnter={e => (e.currentTarget.style.background = C.accentHover)}
             onMouseLeave={e => (e.currentTarget.style.background = C.accent)}
-          >Free Consultation</Link>
+          >Free Consultation</button>
         </div>
       </div>
     </nav>
@@ -310,12 +310,12 @@ function HeroSection() {
               style={{ background: C.accent, color: C.white, padding: "16px 36px", fontSize: 13, letterSpacing: "0.1em", textTransform: "uppercase" as const, textDecoration: "none", fontFamily: "'Source Sans Pro', system-ui", fontWeight: 700, display: "flex", alignItems: "center", gap: 8 }}
               onMouseEnter={e => (e.currentTarget.style.background = C.accentHover)}
               onMouseLeave={e => (e.currentTarget.style.background = C.accent)}
-            >Free Consultation <ArrowRight size={15} /></Link>
+            >Free Consultation <ArrowRight size={15} /></button>
             <button onClick={() => document.getElementById("practice")?.scrollIntoView({behavior:"smooth"})}
               style={{ border: `1px solid rgba(255,255,255,0.2)`, color: "rgba(255,255,255,0.7)", padding: "16px 36px", fontSize: 13, letterSpacing: "0.1em", textTransform: "uppercase" as const, textDecoration: "none", fontFamily: "'Source Sans Pro', system-ui", fontWeight: 600 }}
               onMouseEnter={e => { e.currentTarget.style.borderColor = C.accent; e.currentTarget.style.color = C.white; }}
               onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.2)"; e.currentTarget.style.color = "rgba(255,255,255,0.7)"; }}
-            >Practice Areas</Link>
+            >Practice Areas</button>
           </motion.div>
 
           <motion.div
@@ -595,7 +595,7 @@ function ConsultationSection() {
               </ul>
               <button onClick={() => document.getElementById("contact")?.scrollIntoView({behavior:"smooth"})}
                 style={{ display: "block", textAlign: "center" as const, background: tier.featured ? C.white : "transparent", color: tier.featured ? C.accent : C.white, border: tier.featured ? "none" : `1px solid rgba(255,255,255,0.2)`, padding: "14px 24px", fontSize: 12, letterSpacing: "0.1em", textTransform: "uppercase" as const, textDecoration: "none", fontFamily: "'Source Sans Pro', system-ui", fontWeight: 700 }}
-              >{tier.cta}</Link>
+              >{tier.cta}</button>
             </motion.div>
           ))}
         </div>

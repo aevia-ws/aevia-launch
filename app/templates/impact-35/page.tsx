@@ -470,7 +470,7 @@ export default function NexusHubPage() {
             }}
           >
             Book a Tour
-          </a>
+          </button>
         </div>
       </nav>
 
@@ -613,7 +613,7 @@ export default function NexusHubPage() {
                   }}
                 >
                   Day Pass — 29 EUR <ArrowRight size={18} />
-                </a>
+                </button>
                 <button onClick={() => document.getElementById("spaces")?.scrollIntoView({behavior:"smooth"})}
                   style={{
                     display: "inline-flex",
@@ -630,7 +630,7 @@ export default function NexusHubPage() {
                   }}
                 >
                   Explore Spaces
-                </a>
+                </button>
               </motion.div>
 
               <motion.div
@@ -890,7 +890,7 @@ export default function NexusHubPage() {
                       }}
                     >
                       View Plans <ArrowRight size={14} />
-                    </a>
+                    </button>
                   </div>
                 </div>
               </SectionReveal>
@@ -1332,7 +1332,7 @@ export default function NexusHubPage() {
                     }}
                   >
                     {plan.cta}
-                  </a>
+                  </button>
                 </div>
               </SectionReveal>
             ))}

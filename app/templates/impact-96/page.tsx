@@ -653,7 +653,7 @@ export default function UrbanPulsePage() {
                 onMouseLeave={(e) => (e.currentTarget.style.color = C.muted)}
               >
                 {l}
-              </button>
+              </motion.a>
             ))}
           </motion.div>
         )}
@@ -2204,8 +2204,8 @@ export default function UrbanPulsePage() {
               >
                 <Mail size={15} />
                 Écrire à l'équipe
-              </button>
-              <button onClick={() => document.getElementById("productions")?.scrollIntoView({behavior:"smooth"})}
+              </motion.a>
+              <motion.button onClick={() => document.getElementById("productions")?.scrollIntoView({behavior:"smooth"})}
                 whileHover={{ scale: 1.02 }}
                 style={{
                   display: "inline-flex",
@@ -2224,7 +2224,7 @@ export default function UrbanPulsePage() {
                 }}
               >
                 Voir les productions
-              </button>
+              </motion.button>
             </div>
 
             <div

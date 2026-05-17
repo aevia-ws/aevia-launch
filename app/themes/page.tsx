@@ -64,31 +64,40 @@ interface ThemeItem {
 // Generate screenshots with: npm run screenshots
 function ThumbCard({ item, index }: { item: ThemeItem; index: number }) {
   const ref = useRef<HTMLDivElement>(null);
+  const previewRef = useRef<HTMLDivElement>(null);
   const accent = CAT_COLOR[item.category] ?? "#7c3aed";
 
   // Static thumbnail state
   const [thumbFailed, setThumbFailed] = useState(false);
   const [thumbLoaded, setThumbLoaded] = useState(false);
 
-  // Iframe fallback (IntersectionObserver — loads when in viewport)
-  const [entered, setEntered] = useState(false);
-  const [iframeLoaded, setIframeLoaded] = useState(false);
+  // Iframe on hover only
   const [hovered, setHovered] = useState(false);
   const [showIframe, setShowIframe] = useState(false);
 
-  // Remove IntersectionObserver that automatically loaded iframes for failed thumbnails
-  // We only load iframe on hover to prevent crashing the browser/server with 200 iframes.
+  // Track preview area width for correct iframe scale
+  const [previewWidth, setPreviewWidth] = useState(0);
+
+  useEffect(() => {
+    if (!previewRef.current) return;
+    const ro = new ResizeObserver(entries => {
+      setPreviewWidth(entries[0].contentRect.width);
+    });
+    ro.observe(previewRef.current);
+    return () => ro.disconnect();
+  }, []);
+
   useEffect(() => {
     let t: NodeJS.Timeout;
-    if (hovered) {
-      setEntered(true);
-      t = setTimeout(() => setShowIframe(true), 300); // Slight delay before loading iframe
+    if (hovered && previewWidth > 0) {
+      t = setTimeout(() => setShowIframe(true), 400);
     } else {
       setShowIframe(false);
     }
     return () => clearTimeout(t);
-  }, [hovered]);
+  }, [hovered, previewWidth]);
 
+  const iframeScale = previewWidth > 0 ? previewWidth / 1440 : 0;
   const thumbSrc = `/thumbnails/${item.id}.webp`;
 
   return (
@@ -96,7 +105,7 @@ function ThumbCard({ item, index }: { item: ThemeItem; index: number }) {
       ref={ref}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, delay: Math.min((index % 8) * 0.04, 0.24) }}
+      transition={{ duration: 0.4, delay: index < 25 ? Math.min((index % 8) * 0.04, 0.24) : 0 }}
       className="group relative"
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
@@ -113,10 +122,10 @@ function ThumbCard({ item, index }: { item: ThemeItem; index: number }) {
           />
 
           {/* ── Preview area ── */}
-          <div className="w-full aspect-video relative overflow-hidden bg-[#050506] border-b border-white/5 shrink-0">
-            
-            {/* Beautiful Placeholder (Always present as background) */}
-            <div 
+          <div ref={previewRef} className="w-full aspect-video relative overflow-hidden bg-[#050506] border-b border-white/5 shrink-0">
+
+            {/* Placeholder (always behind) */}
+            <div
               className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center"
               style={{ background: `linear-gradient(135deg, ${accent}11 0%, #050506 100%)` }}
             >
@@ -127,48 +136,46 @@ function ThumbCard({ item, index }: { item: ThemeItem; index: number }) {
                <h3 className="text-xl font-bold text-white/40 group-hover:text-white transition-colors duration-700 tracking-tighter uppercase">{item.label}</h3>
             </div>
 
-            {/* Static WebP thumbnail */}
+            {/* Static WebP thumbnail — first 25 eager, rest lazy */}
             {!thumbFailed && (
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={thumbSrc}
                 alt={item.label}
-                loading={index < 8 ? "eager" : "lazy"}
-                decoding="async"
-                fetchPriority={index < 4 ? "high" : "low"}
+                loading={index < 25 ? "eager" : "lazy"}
+                decoding={index < 25 ? "sync" : "async"}
+                fetchPriority={index < 8 ? "high" : "low"}
                 className={`absolute inset-0 w-full h-full object-cover object-top transition-opacity duration-700 z-20 ${thumbLoaded ? "opacity-100" : "opacity-0"}`}
                 onLoad={() => setThumbLoaded(true)}
                 onError={() => setThumbFailed(true)}
               />
             )}
 
-            {/* Live Iframe (on hover) */}
+            {/* Live Iframe on hover — correct scale via ResizeObserver */}
             <AnimatePresence>
-              {showIframe && (
+              {showIframe && iframeScale > 0 && (
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  className="absolute inset-0 z-30 pointer-events-none"
+                  transition={{ duration: 0.3 }}
+                  className="absolute inset-0 z-30 pointer-events-none overflow-hidden"
                 >
                   <iframe
                     src={item.href}
-                    className="w-[1280px] h-[720px] origin-top-left scale-[calc(100/1280*1.5)] pointer-events-none"
-                    style={{ 
-                       transform: `scale(${1 / (1280 / ref.current?.offsetWidth!)})`,
-                       width: '1280px',
-                       height: '720px'
+                    style={{
+                      width: '1440px',
+                      height: '900px',
+                      transformOrigin: 'top left',
+                      transform: `scale(${iframeScale})`,
+                      pointerEvents: 'none',
+                      border: 'none',
                     }}
                   />
-                  <div className="absolute inset-0 bg-transparent" />
                 </motion.div>
               )}
             </AnimatePresence>
           </div>
-
-            {/* Live Iframe (on hover) logic moved to AnimatePresence above */}
-
-            
 
             {showIframe && (
               <div className="absolute top-3 right-3 z-40 px-2 py-1 rounded-full text-[8px] font-black uppercase tracking-widest bg-white text-black shadow-xl animate-pulse">

@@ -13,6 +13,7 @@ import {
   useMotionValue,
 } from "framer-motion"
 import {
+
   Sparkles,
   Star,
   Clock,
@@ -20,7 +21,6 @@ import {
   Phone,
   Mail,
   MapPin,
-  Instagram,
   Heart,
   ArrowRight,
   ChevronRight,
@@ -30,6 +30,14 @@ import {
   Users,
   Check,
 } from "lucide-react"
+
+const Instagram = ({ className = "w-4 h-4" }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
+    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+    <circle cx="12" cy="12" r="5"/>
+    <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/>
+  </svg>
+);
 
 /* ==========================================================================
    FONTS

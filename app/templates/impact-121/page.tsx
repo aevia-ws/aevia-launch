@@ -13,7 +13,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel"
 import { Progress } from "@/components/ui/progress"
 import { Separator } from "@/components/ui/separator"
-import { ArrowUpRight, Menu, X, Play, ArrowRight, Circle, Square, Triangle, Hexagon, Star, Award, Trophy, Medal } from "lucide-react"
+import { ArrowUpRight, CheckCircle2, Menu, X, Play, ArrowRight, Circle, Square, Triangle, Hexagon, Star, Award, Trophy, Medal } from "lucide-react"
 
 // ─── UTILS & ANIMATION COMPONENTS ─────────────────────────────────────────────
 

@@ -555,9 +555,9 @@ export default function Impact83Page() {
               }}
             >
               {item}
-            </button>
+            </motion.a>
           ))}
-          <button onClick={() => document.getElementById("contact")?.scrollIntoView({behavior:"smooth"})}
+          <motion.button onClick={() => document.getElementById("contact")?.scrollIntoView({behavior:"smooth"})}
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
             style={{
@@ -572,7 +572,7 @@ export default function Impact83Page() {
             }}
           >
             Rendez-vous privé
-          </button>
+          </motion.button>
         </div>
       </motion.nav>
 
@@ -1582,7 +1582,7 @@ export default function Impact83Page() {
               }}
             >
               <Phone size={14} /> +33 1 42 88 18 87
-            </button>
+            </motion.a>
           </motion.div>
         </div>
       </section>
@@ -1676,7 +1676,7 @@ export default function Impact83Page() {
                     }}
                   >
                     {link}
-                  </button>
+                  </motion.a>
                 ))}
               </div>
             ))}
@@ -1712,7 +1712,7 @@ export default function Impact83Page() {
                   }}
                 >
                   {link}
-                </button>
+                </motion.a>
               ))}
             </div>
           </div>

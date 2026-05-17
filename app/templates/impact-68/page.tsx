@@ -728,7 +728,7 @@ export default function Impact68Page() {
             }}
           >
             Start a Project
-          </a>
+          </button>
         </div>
 
         {/* Mobile hamburger */}
@@ -900,7 +900,7 @@ export default function Impact68Page() {
                 >
                   View Our Work
                   <ArrowRight size={16} />
-                </a>
+                </button>
                 <button onClick={() => document.getElementById("contact")?.scrollIntoView({behavior:"smooth"})}
                   style={{
                     fontFamily: "'Space Grotesk', sans-serif",
@@ -919,7 +919,7 @@ export default function Impact68Page() {
                 >
                   Get in touch
                   <ArrowRight size={14} />
-                </a>
+                </button>
               </motion.div>
 
               <motion.div

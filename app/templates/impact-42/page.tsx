@@ -440,7 +440,7 @@ export default function EchoChamberPage() {
             }}
           >
             Réserver
-          </a>
+          </button>
         </div>
 
         <button onClick={() => setMenuOpen(!menuOpen)} style={{ background: "none", border: "none", cursor: "pointer", padding: 4, display: "none" }} aria-label="Menu">
@@ -611,7 +611,7 @@ export default function EchoChamberPage() {
               }}
             >
               Réserver une session <ArrowRight size={16} />
-            </a>
+            </button>
             <button onClick={() => document.getElementById("studios")?.scrollIntoView({behavior:"smooth"})}
               style={{
                 border: `1px solid ${C.border}`,
@@ -625,7 +625,7 @@ export default function EchoChamberPage() {
               }}
             >
               Visiter les studios
-            </a>
+            </button>
           </motion.div>
 
           {/* Stats */}
@@ -749,7 +749,7 @@ export default function EchoChamberPage() {
                   }}
                 >
                   <Calendar size={15} /> Réserver {studios[activeStudio].name}
-                </a>
+                </button>
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
                 {studios[activeStudio].features.map((feat) => (
@@ -1005,7 +1005,7 @@ export default function EchoChamberPage() {
                     }}
                   >
                     Réserver cette session
-                  </a>
+                  </button>
                 </div>
               </SectionReveal>
             ))}

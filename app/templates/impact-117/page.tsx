@@ -1,6 +1,7 @@
 "use client"
 import { motion, useScroll, useTransform, useInView } from "framer-motion"
 import { useRef, useState, useEffect } from "react"
+import Image from "next/image"
 import Link from "next/link"
 import { Truck, ArrowRight, Menu, Zap, Globe, Shield, BarChart3, Clock, Package, MapPin, Gauge, MoveRight } from "lucide-react"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"

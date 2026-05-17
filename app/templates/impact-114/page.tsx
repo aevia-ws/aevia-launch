@@ -12,6 +12,7 @@ import {
 import Image from "next/image"
 import Link from "next/link"
 import {
+
   Camera,
   Mountain,
   Leaf,
@@ -25,10 +26,17 @@ import {
   X,
   Download,
   Mail,
-  Instagram,
   Globe,
   Star,
 } from "lucide-react"
+
+const Instagram = ({ className = "w-4 h-4" }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
+    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+    <circle cx="12" cy="12" r="5"/>
+    <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/>
+  </svg>
+);
 
 /* ==========================================================================
    FONTS — Playfair Display + Source Serif 4
@@ -1445,7 +1453,7 @@ export default function Impact114Page() {
           </div>
 
           <div className="flex items-center gap-5">
-            {[Instagram, Globe, Mail].map((Icon, i) => (
+            {[Globe, Mail].map((Icon, i) => (
               <a
                 key={i}
                 href="#"

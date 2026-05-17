@@ -677,7 +677,7 @@ export default function Impact130Page() {
             </div>
             <button onClick={() => document.getElementById("contact")?.scrollIntoView({behavior:"smooth"})} style={{ color: C.textMuted, fontSize: 14, textDecoration: "none", display: "flex", alignItems: "center", gap: 6 }}>
               Voir tout <ArrowUpRight size={14} />
-            </a>
+            </button>
           </div>
 
           {/* Filtres */}
@@ -1077,7 +1077,7 @@ export default function Impact130Page() {
                 style={{ display: "inline-flex", alignItems: "center", gap: 10, background: C.emeraldGlow, color: C.bg, padding: "16px 32px", borderRadius: 4, fontFamily: "'DM Sans', system-ui, sans-serif", fontWeight: 700, fontSize: 16, textDecoration: "none" }}
               >
                 <Mail size={18} /> hello@verso-studio.ch
-              </button>
+              </motion.a>
               <motion.a
                 href="tel:+41225000000"
                 whileHover={{ scale: 1.04 }}
@@ -1085,7 +1085,7 @@ export default function Impact130Page() {
                 style={{ display: "inline-flex", alignItems: "center", gap: 10, background: "transparent", color: C.text, padding: "16px 32px", borderRadius: 4, fontFamily: "'DM Sans', system-ui, sans-serif", fontWeight: 600, fontSize: 16, textDecoration: "none", border: `1px solid ${C.borderLight}` }}
               >
                 <Phone size={18} /> +41 22 500 00 00
-              </button>
+              </motion.a>
             </div>
             <div style={{ display: "flex", justifyContent: "center", gap: 32, marginTop: 48, paddingTop: 40, borderTop: `1px solid ${C.borderLight}` }}>
               {[{ icon: <MapPin size={15} />, text: "Rue du Rhône 24, 1204 Genève" }, { icon: <Clock size={15} />, text: "Lun–Ven 9h–18h" }].map((item, i) => (

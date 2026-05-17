@@ -3,12 +3,21 @@
  * Generate WebP thumbnail screenshots for all visible templates.
  *
  * Usage:
- *   1. npm install puppeteer --save-dev
- *   2. Start the dev server: npm run dev  (or set BASE_URL to production URL)
- *   3. node scripts/screenshot-templates.js
+ *   npm install puppeteer --save-dev          (one-time)
+ *   brew install webp                         (one-time, for cwebp)
  *
- * Outputs: public/thumbnails/[id].webp  (640×400, WebP quality 75)
- * Screenshots at 1280×800 then downsampled — cwebp must be installed (brew install webp).
+ *   # Against local dev server (fastest iteration):
+ *   npm run dev &
+ *   node scripts/screenshot-templates.js
+ *
+ *   # Against production:
+ *   BASE_URL=https://aevia-launch.vercel.app node scripts/screenshot-templates.js --force
+ *
+ *   # Re-generate specific templates only:
+ *   ONLY=impact-01,impact-22 node scripts/screenshot-templates.js --force
+ *
+ * Outputs: public/thumbnails/[id].webp  (640×400, WebP quality 80)
+ * Screenshots at 1440×900 viewport — downsampled with cwebp.
  */
 
 const puppeteer = require("puppeteer");
@@ -16,57 +25,37 @@ const { execSync } = require("child_process");
 const path = require("path");
 const fs = require("fs");
 
-const BASE_URL = process.env.BASE_URL || "http://localhost:3000";
-const OUT_DIR = path.join(__dirname, "..", "public", "thumbnails");
-const CONCURRENCY = 2; // parallel tabs (keep low for remote URLs)
-const VIEWPORT = { width: 1280, height: 800 };
-const QUALITY = 80;
-const TIMEOUT = 30_000;
+// ── Config ─────────────────────────────────────────────────────────────────────
+const BASE_URL   = process.env.BASE_URL || "http://localhost:3000";
+const OUT_DIR    = path.join(__dirname, "..", "public", "thumbnails");
+const TEMPLATES_DIR = path.join(__dirname, "..", "app", "templates");
+const CONCURRENCY = parseInt(process.env.CONCURRENCY || "3", 10);
+const VIEWPORT   = { width: 1440, height: 900 };
+const TIMEOUT    = 45_000;
+const FORCE      = process.argv.includes("--force");
+const ONLY       = process.env.ONLY ? process.env.ONLY.split(",").map(s => s.trim()) : null;
 
-// ── All visible templates (site builder + quality impact) ─────────────────────
-const SITE_BUILDER = [
-  "landing", "saas", "agency", "vitrine", "consultant", "portfolio",
-  "ecommerce", "restaurant", "hotel", "healthcare", "realestate",
-  "fitness", "event", "nonprofit", "startup",
-  "luxury", "brutalist", "magazine", "aurora", "3d-tech", "minimal-pro",
-  "marketplace", "livestream",
-];
+// Templates that have no page.tsx yet (skip silently)
+const SKIP = new Set(["impact-202", "impact-203", "impact-204", "impact-205", "impact-206"]);
 
-// Impact templates currently visible after quality audit (650+ lines, all loading)
-const IMPACT_VISIBLE = [
-  // Originals / early elevated
-  "impact-01", "impact-02", "impact-03", "impact-04", "impact-05",
-  // Round 1 rewrites (716-1952 lines, all premium)
-  "impact-10", "impact-11", "impact-12", "impact-13", "impact-14", "impact-15",
-  "impact-16", "impact-17", "impact-18", "impact-19", "impact-20", "impact-21",
-  "impact-22", "impact-23", "impact-24", "impact-25", "impact-26", "impact-27",
-  "impact-28", "impact-29",
-  // Round 2 rewrites (800-1808 lines, all premium)
-  "impact-30", "impact-31", "impact-32", "impact-33", "impact-34", "impact-35",
-  "impact-36", "impact-37", "impact-38", "impact-39", "impact-40", "impact-41",
-  "impact-42", "impact-43", "impact-44", "impact-45", "impact-46", "impact-47",
-  "impact-48", "impact-49",
-  // Elevated batch (700-1100 lines)
-  "impact-57", "impact-58", "impact-61", "impact-63", "impact-64",
-  "impact-68", "impact-69", "impact-72",
-  "impact-81", "impact-82", "impact-83", "impact-84", "impact-85", "impact-86",
-  "impact-88", "impact-89", "impact-90", "impact-91",
-  "impact-94", "impact-95", "impact-96",
-  "impact-112", "impact-114", "impact-115",
-  // Antigravity batch
-  "impact-126", "impact-130", "impact-131", "impact-132", "impact-133", "impact-134", "impact-135",
-  // Recent rewrite batch (visible minus duplicates)
-  "impact-157", "impact-158",
-  "impact-161", "impact-162", "impact-163", "impact-164", "impact-165", "impact-166",
-  "impact-167", "impact-168", "impact-169", "impact-170", "impact-171",
-  "impact-172", "impact-173", "impact-174", "impact-175", "impact-176",
-  // Latest batch
-  "impact-196", "impact-197", "impact-198", "impact-199", "impact-200", "impact-201",
-];
+// ── Auto-discover all templates ────────────────────────────────────────────────
+function discoverTemplates() {
+  if (!fs.existsSync(TEMPLATES_DIR)) return [];
 
-const ALL_TEMPLATES = [
-  ...IMPACT_VISIBLE.map((id) => ({ id, href: `/templates/${id}` })),
-];
+  return fs.readdirSync(TEMPLATES_DIR)
+    .filter((name) => {
+      if (SKIP.has(name)) return false;
+      if (ONLY && !ONLY.includes(name)) return false;
+      const pagePath = path.join(TEMPLATES_DIR, name, "page.tsx");
+      return fs.existsSync(pagePath);
+    })
+    .sort((a, b) => {
+      // Natural sort: impact-2 before impact-10
+      const num = (s) => parseInt(s.replace(/\D+/g, ""), 10) || 0;
+      return num(a) - num(b);
+    })
+    .map((id) => ({ id, href: `/templates/${id}` }));
+}
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -74,40 +63,62 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 async function screenshotTemplate(browser, template, attempt = 1) {
   const outPath = path.join(OUT_DIR, `${template.id}.webp`);
 
-  // Skip if already exists (re-run is additive; use --force to regenerate all)
-  if (!process.argv.includes("--force") && fs.existsSync(outPath)) {
-    console.log(`  skip  ${template.id} (exists)`);
+  if (!FORCE && fs.existsSync(outPath)) {
+    console.log(`  skip  ${template.id} (exists — use --force to regenerate)`);
     return;
   }
 
   const page = await browser.newPage();
   await page.setViewport(VIEWPORT);
 
+  // Simulate a real browser environment so animations run
+  await page.setExtraHTTPHeaders({ "Accept-Language": "fr-FR,fr;q=0.9" });
+
+  // Disable prefers-reduced-motion so Framer Motion animations actually run
+  await page.emulateMediaFeatures([
+    { name: "prefers-reduced-motion", value: "no-preference" },
+  ]);
+
   try {
     await page.goto(`${BASE_URL}${template.href}`, {
-      waitUntil: "domcontentloaded",
+      waitUntil: "networkidle2",
       timeout: TIMEOUT,
     });
 
-    // Wait for images + animations to settle
-    await sleep(2000);
+    // Give React/Next.js a moment to hydrate
+    await sleep(500);
 
-    // Hide scrollbar + fixed elements that bleed (chat widgets etc.)
-    await page.evaluate(() => {
-      document.documentElement.style.overflow = "hidden";
-      document.querySelectorAll("[data-radix-portal], [data-floating-ui-portal]")
-        .forEach((el) => el.remove());
+    // ── Trigger scroll-based animations (Framer Motion useInView / IntersectionObserver)
+    // Scroll down to activate observers near the hero, then return to top
+    await page.evaluate(async () => {
+      window.scrollTo({ top: 300, behavior: "instant" });
+      await new Promise(r => setTimeout(r, 100));
+      window.scrollTo({ top: 0, behavior: "instant" });
     });
 
+    // Wait for entrance animations to complete (most Framer Motion transitions are 0.4–0.8s)
+    await sleep(2500);
+
+    // ── Clean up UI chrome that shouldn't appear in thumbnails
+    await page.evaluate(() => {
+      // Remove scrollbar
+      document.documentElement.style.overflow = "hidden";
+      // Remove chat widgets, floating portals
+      document.querySelectorAll(
+        "[data-radix-portal], [data-floating-ui-portal], iframe[title*='chat'], #intercom-container"
+      ).forEach((el) => el.remove());
+    });
+
+    // ── Screenshot at full viewport size, then downsample to 640×400
     const tmpPath = outPath.replace(".webp", "_tmp.webp");
     await page.screenshot({
       path: tmpPath,
       type: "webp",
-      quality: QUALITY,
+      quality: 90,
       clip: { x: 0, y: 0, width: VIEWPORT.width, height: VIEWPORT.height },
     });
-    // Downsample to 640×400 for fast gallery loading (~69% size reduction)
-    execSync(`cwebp -q 75 -resize 640 400 "${tmpPath}" -o "${outPath}" -quiet`);
+
+    execSync(`cwebp -q 80 -resize 640 400 "${tmpPath}" -o "${outPath}" -quiet`);
     fs.unlinkSync(tmpPath);
 
     console.log(`  ✅  ${template.id}`);
@@ -115,7 +126,7 @@ async function screenshotTemplate(browser, template, attempt = 1) {
     console.error(`  ❌  ${template.id} (attempt ${attempt}): ${err.message}`);
     if (attempt < 3) {
       await page.close().catch(() => {});
-      await sleep(3000);
+      await sleep(4000);
       return screenshotTemplate(browser, template, attempt + 1);
     }
   } finally {
@@ -127,27 +138,44 @@ async function screenshotTemplate(browser, template, attempt = 1) {
 async function main() {
   fs.mkdirSync(OUT_DIR, { recursive: true });
 
-  console.log(`\n🚀 Screenshotting ${ALL_TEMPLATES.length} templates → ${OUT_DIR}\n`);
-  console.log(`   Base URL : ${BASE_URL}`);
-  console.log(`   Concurrency : ${CONCURRENCY}`);
-  console.log(`   Use --force to regenerate existing thumbnails\n`);
+  const templates = discoverTemplates();
+
+  if (templates.length === 0) {
+    console.error("No templates found. Make sure you're running from the skylaunch root.");
+    process.exit(1);
+  }
+
+  console.log(`\n🚀  ${templates.length} templates → ${OUT_DIR}`);
+  console.log(`    Base URL    : ${BASE_URL}`);
+  console.log(`    Concurrency : ${CONCURRENCY}`);
+  console.log(`    Force regen : ${FORCE}`);
+  if (ONLY) console.log(`    Filter      : ${ONLY.join(", ")}`);
+  console.log();
 
   const browser = await puppeteer.launch({
     headless: "new",
-    args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-gpu"],
+    args: [
+      "--no-sandbox",
+      "--disable-setuid-sandbox",
+      "--disable-gpu",
+      "--disable-web-security", // needed for some font/image cross-origin
+      "--font-render-hinting=none",
+    ],
   });
 
-  // Process in parallel batches
-  for (let i = 0; i < ALL_TEMPLATES.length; i += CONCURRENCY) {
-    const batch = ALL_TEMPLATES.slice(i, i + CONCURRENCY);
+  let done = 0;
+  for (let i = 0; i < templates.length; i += CONCURRENCY) {
+    const batch = templates.slice(i, i + CONCURRENCY);
     await Promise.all(batch.map((t) => screenshotTemplate(browser, t)));
-    process.stdout.write(`  [${Math.min(i + CONCURRENCY, ALL_TEMPLATES.length)}/${ALL_TEMPLATES.length}]\n`);
-    await sleep(1000); // brief pause between batches to avoid rate limiting
+    done = Math.min(i + CONCURRENCY, templates.length);
+    process.stdout.write(`  [${done}/${templates.length}]\n`);
+    await sleep(500); // brief pause between batches
   }
 
   await browser.close();
-  console.log("\n✅ Done! Thumbnails saved to public/thumbnails/");
-  console.log("   Next: git add public/thumbnails && git commit -m 'feat: add template thumbnails'\n");
+  console.log("\n✅  Done! Thumbnails saved to public/thumbnails/");
+  console.log("    Next: git add public/thumbnails && git commit -m 'feat: regenerate template thumbnails'");
+  console.log("          vercel --prod --yes\n");
 }
 
 main().catch((err) => {

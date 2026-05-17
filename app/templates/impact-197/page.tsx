@@ -3,7 +3,7 @@
 import React, { useRef, useState, useEffect } from "react";
 import { motion, useScroll, useTransform, useInView, AnimatePresence, useMotionValue, useSpring } from "framer-motion";
 import Link from "next/link";
-import { Globe, Compass, Star, MapPin, Phone, Mail, MessageSquare, Users2, Menu, X, ChevronRight, Shield, Clock, Award, Users, Plane, Anchor, Mountain, Heart, Check, ArrowRight, ChevronDown, Calendar, Headphones, Gem, Leaf } from "lucide-react";
+import { Globe, Compass, Star, MapPin, Phone, Mail, Camera, MessageSquare, Users2, Menu, X, ChevronRight, Shield, Clock, Award, Users, Plane, Anchor, Mountain, Heart, Check, ArrowRight, ChevronDown, Calendar, Headphones, Gem, Leaf } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";

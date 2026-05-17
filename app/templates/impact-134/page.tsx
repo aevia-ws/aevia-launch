@@ -11,6 +11,7 @@ import {
 import Image from "next/image"
 import Link from "next/link"
 import {
+
   Sparkles,
   Droplets,
   Leaf,
@@ -24,7 +25,6 @@ import {
   X,
   Phone,
   Mail,
-  Instagram,
   Award,
   Clock,
   Sun,
@@ -1744,7 +1744,7 @@ function Footer() {
               Soins premium formulés en France. Vegan, cruelty-free, efficaces. La beauté authentique de la nature.
             </p>
             <div className="flex gap-4">
-              {[Instagram, Mail, Phone].map((Icon, i) => (
+              {[Mail, Phone].map((Icon, i) => (
                 <a
                   key={i}
                   href="#"

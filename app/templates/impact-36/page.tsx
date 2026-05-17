@@ -488,7 +488,7 @@ export default function ApexTalentPage() {
               }}
             >
               I'm a Candidate
-            </a>
+            </button>
             <button onClick={() => document.getElementById("contact")?.scrollIntoView({behavior:"smooth"})}
               style={{
                 background: C.accent,
@@ -501,7 +501,7 @@ export default function ApexTalentPage() {
               }}
             >
               Hire Talent
-            </a>
+            </button>
           </div>
         </div>
       </nav>
@@ -651,7 +651,7 @@ export default function ApexTalentPage() {
                   }}
                 >
                   Hire Executive Talent <ArrowRight size={18} />
-                </a>
+                </button>
                 <button onClick={() => document.getElementById("contact")?.scrollIntoView({behavior:"smooth"})}
                   style={{
                     display: "inline-flex",
@@ -668,7 +668,7 @@ export default function ApexTalentPage() {
                   }}
                 >
                   I'm a Candidate
-                </a>
+                </button>
               </motion.div>
             </div>
 
@@ -969,7 +969,7 @@ export default function ApexTalentPage() {
                     }}
                   >
                     Learn more <ArrowRight size={14} />
-                  </a>
+                  </button>
                 </div>
               </SectionReveal>
             ))}

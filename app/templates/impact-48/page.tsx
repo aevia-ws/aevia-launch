@@ -310,7 +310,7 @@ function Navbar() {
             style={{ border: `1px solid ${C.accent}`, color: C.accent, padding: "10px 26px", fontSize: 12, letterSpacing: "0.1em", textTransform: "uppercase" as const, textDecoration: "none", fontFamily: "'Inter', system-ui", fontWeight: 600 }}
             onMouseEnter={e => { e.currentTarget.style.background = C.accent; e.currentTarget.style.color = C.bgDark; }}
             onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = C.accent; }}
-          >Get Started</Link>
+          >Get Started</button>
         </div>
       </div>
     </nav>
@@ -370,12 +370,12 @@ function HeroSection() {
               style={{ background: C.accent, color: C.bgDark, padding: "16px 36px", fontSize: 13, letterSpacing: "0.1em", textTransform: "uppercase" as const, textDecoration: "none", fontFamily: "'Inter', system-ui", fontWeight: 700, display: "flex", alignItems: "center", gap: 8 }}
               onMouseEnter={e => (e.currentTarget.style.background = C.accentHover)}
               onMouseLeave={e => (e.currentTarget.style.background = C.accent)}
-            >Start a Conversation <ArrowRight size={15} /></Link>
+            >Start a Conversation <ArrowRight size={15} /></button>
             <button onClick={() => document.getElementById("services")?.scrollIntoView({behavior:"smooth"})}
               style={{ border: `1px solid rgba(255,255,255,0.15)`, color: "rgba(255,255,255,0.6)", padding: "16px 36px", fontSize: 13, letterSpacing: "0.1em", textTransform: "uppercase" as const, textDecoration: "none", fontFamily: "'Inter', system-ui" }}
               onMouseEnter={e => { e.currentTarget.style.borderColor = C.accent; e.currentTarget.style.color = C.white; }}
               onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.15)"; e.currentTarget.style.color = "rgba(255,255,255,0.6)"; }}
-            >Our Services</Link>
+            >Our Services</button>
           </motion.div>
 
           <motion.div
@@ -687,7 +687,7 @@ function PackagesSection() {
               </ul>
               <button onClick={() => document.getElementById("contact")?.scrollIntoView({behavior:"smooth"})}
                 style={{ display: "block", textAlign: "center" as const, background: pkg.featured ? C.accent : "transparent", color: pkg.featured ? C.bgDark : C.accent, border: pkg.featured ? "none" : `1px solid ${C.accentBorder}`, padding: "14px 24px", fontSize: 12, letterSpacing: "0.1em", textTransform: "uppercase" as const, textDecoration: "none", fontFamily: "'Inter', system-ui", fontWeight: 700 }}
-              >{pkg.cta}</Link>
+              >{pkg.cta}</button>
             </motion.div>
           ))}
         </div>

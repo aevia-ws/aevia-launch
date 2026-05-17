@@ -412,7 +412,7 @@ export default function TerreVivantePage() {
             }}
           >
             S'abonner
-          </a>
+          </button>
         </div>
 
         {/* Mobile burger */}
@@ -468,7 +468,7 @@ export default function TerreVivantePage() {
               }}
             >
               S'abonner
-            </a>
+            </button>
           </motion.div>
         )}
       </AnimatePresence>
@@ -596,7 +596,7 @@ export default function TerreVivantePage() {
               }}
             >
               Choisir mon panier <ArrowRight size={16} />
-            </a>
+            </button>
             <button onClick={() => document.getElementById("histoire")?.scrollIntoView({behavior:"smooth"})}
               style={{
                 border: `2px solid rgba(253,249,238,0.28)`,
@@ -610,7 +610,7 @@ export default function TerreVivantePage() {
               }}
             >
               Notre histoire
-            </a>
+            </button>
           </motion.div>
 
           {/* Hero stats */}
@@ -1029,7 +1029,7 @@ export default function TerreVivantePage() {
                     }}
                   >
                     Commencer l'abonnement
-                  </a>
+                  </button>
                 </div>
               </SectionReveal>
             ))}

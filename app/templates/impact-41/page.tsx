@@ -378,7 +378,7 @@ export default function LumiereEspoirPage() {
             }}
           >
             Faire un don
-          </a>
+          </button>
         </div>
 
         <button onClick={() => setMenuOpen(!menuOpen)} style={{ background: "none", border: "none", cursor: "pointer", padding: 4, display: "none" }} aria-label="Menu">
@@ -530,7 +530,7 @@ export default function LumiereEspoirPage() {
               }}
             >
               <Heart size={18} fill={C.bgDeep} /> Faire un don maintenant
-            </a>
+            </button>
             <button onClick={() => document.getElementById("programmes")?.scrollIntoView({behavior:"smooth"})}
               style={{
                 border: `2px solid rgba(255,255,255,0.28)`,
@@ -544,7 +544,7 @@ export default function LumiereEspoirPage() {
               }}
             >
               Nos programmes
-            </a>
+            </button>
           </motion.div>
 
           {/* Hero stats */}

@@ -2041,8 +2041,8 @@ export default function ArtisanMinimalPage() {
               >
                 <Mail size={15} />
                 Écrire à Julie
-              </button>
-              <button onClick={() => document.getElementById("boutique")?.scrollIntoView({behavior:"smooth"})}
+              </motion.a>
+              <motion.button onClick={() => document.getElementById("boutique")?.scrollIntoView({behavior:"smooth"})}
                 whileHover={{ scale: 1.02 }}
                 style={{
                   display: "inline-flex",
@@ -2060,7 +2060,7 @@ export default function ArtisanMinimalPage() {
                 }}
               >
                 Voir la boutique
-              </button>
+              </motion.button>
             </div>
 
             <div
