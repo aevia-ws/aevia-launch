@@ -26,7 +26,10 @@ const HERO_T = {
     ready: "Prêt à vous lancer ?",
     readySub: "Des centaines d'entreprises ont leur site en 2 heures.",
     startFree: "Commencer gratuitement",
-    explore: "Explorer les thèmes",
+    explore: "Voir tous les thèmes",
+    spotlight: "Coup de projecteur",
+    seeAll: "Voir tous →",
+    templatesBadge: "200+ templates",
   },
   en: {
     badge: "Websites delivered in 2 hours",
@@ -44,7 +47,10 @@ const HERO_T = {
     ready: "Ready to go live?",
     readySub: "Join hundreds of businesses who got their website in 2 hours.",
     startFree: "Start for free",
-    explore: "Explore themes",
+    explore: "Browse all themes",
+    spotlight: "Spotlight",
+    seeAll: "See all →",
+    templatesBadge: "200+ templates",
   },
   es: {
     badge: "Sitios web entregados en 2 horas",
@@ -62,7 +68,10 @@ const HERO_T = {
     ready: "¿Listo para lanzar?",
     readySub: "Cientos de empresas tienen su sitio en 2 horas.",
     startFree: "Empezar gratis",
-    explore: "Explorar temas",
+    explore: "Ver todos los temas",
+    spotlight: "Destacados",
+    seeAll: "Ver todos →",
+    templatesBadge: "200+ plantillas",
   },
   de: {
     badge: "Websites in 2 Stunden geliefert",
@@ -80,7 +89,10 @@ const HERO_T = {
     ready: "Bereit zum Launch?",
     readySub: "Hunderte Unternehmen haben ihre Website in 2 Stunden.",
     startFree: "Kostenlos starten",
-    explore: "Themes erkunden",
+    explore: "Alle Themes ansehen",
+    spotlight: "Highlights",
+    seeAll: "Alle ansehen →",
+    templatesBadge: "200+ Themes",
   },
   pt: {
     badge: "Sites entregues em 2 horas",
@@ -98,7 +110,10 @@ const HERO_T = {
     ready: "Pronto para lançar?",
     readySub: "Centenas de empresas têm o seu site em 2 horas.",
     startFree: "Começar grátis",
-    explore: "Explorar temas",
+    explore: "Ver todos os temas",
+    spotlight: "Destaques",
+    seeAll: "Ver todos →",
+    templatesBadge: "200+ templates",
   },
 } as const;
 
@@ -141,90 +156,90 @@ const TRUST_T = {
 /* ─── Type categories ────────────────────────────────────────── */
 const TYPE_CATS = [
   {
-    label: "Luxury & Premium",
+    label: { fr: "Luxe & Premium", en: "Luxury & Premium", es: "Lujo & Premium", de: "Luxus & Premium", pt: "Luxo & Premium" },
     cat: "Luxury",
     color: "#C9A86C",
     bg: "from-[#C9A86C]/15 to-[#C9A86C]/5",
     border: "border-[#C9A86C]/25",
     hoverBorder: "hover:border-[#C9A86C]/60",
-    desc: "Bijouterie, hôtellerie, mode, gastronomie",
+    desc: { fr: "Bijouterie, hôtellerie, mode, gastronomie", en: "Jewellery, hotels, fashion, fine dining", es: "Joyería, hoteles, moda, gastronomía", de: "Schmuck, Hotels, Mode, Gastronomie", pt: "Joalheria, hotéis, moda, gastronomia" },
     thumbId: "impact-03",
     count: 24,
   },
   {
-    label: "Tech & SaaS",
+    label: { fr: "Tech & SaaS", en: "Tech & SaaS", es: "Tech & SaaS", de: "Tech & SaaS", pt: "Tech & SaaS" },
     cat: "Tech",
     color: "#3B82F6",
     bg: "from-[#3B82F6]/15 to-[#3B82F6]/5",
     border: "border-[#3B82F6]/25",
     hoverBorder: "hover:border-[#3B82F6]/60",
-    desc: "SaaS, apps, startups, outils pro",
+    desc: { fr: "SaaS, apps, startups, outils pro", en: "SaaS, apps, startups, dev tools", es: "SaaS, apps, startups, herramientas", de: "SaaS, Apps, Startups, Dev-Tools", pt: "SaaS, apps, startups, ferramentas" },
     thumbId: "impact-05",
     count: 18,
   },
   {
-    label: "Créatif & Agence",
+    label: { fr: "Créatif & Agence", en: "Creative & Agency", es: "Creativo & Agencia", de: "Kreativ & Agentur", pt: "Criativo & Agência" },
     cat: "Creative",
     color: "#A855F7",
     bg: "from-[#A855F7]/15 to-[#A855F7]/5",
     border: "border-[#A855F7]/25",
     hoverBorder: "hover:border-[#A855F7]/60",
-    desc: "Portfolios, studios, agences créatives",
+    desc: { fr: "Portfolios, studios, agences créatives", en: "Portfolios, studios, creative agencies", es: "Portfolios, estudios, agencias", de: "Portfolios, Studios, Kreativagenturen", pt: "Portfólios, estúdios, agências" },
     thumbId: "impact-02",
     count: 22,
   },
   {
-    label: "Food & Restaurant",
+    label: { fr: "Food & Restaurant", en: "Food & Restaurant", es: "Comida & Restaurante", de: "Food & Restaurant", pt: "Food & Restaurante" },
     cat: "Food & Drink",
     color: "#FB923C",
     bg: "from-[#FB923C]/15 to-[#FB923C]/5",
     border: "border-[#FB923C]/25",
     hoverBorder: "hover:border-[#FB923C]/60",
-    desc: "Restaurants, cafés, boulangeries, vins",
+    desc: { fr: "Restaurants, cafés, boulangeries, vins", en: "Restaurants, cafés, bakeries, wine bars", es: "Restaurantes, cafés, panaderías, vinos", de: "Restaurants, Cafés, Bäckereien, Weine", pt: "Restaurantes, cafés, padarias, vinhos" },
     thumbId: "impact-04",
     count: 12,
   },
   {
-    label: "Santé & Bien-être",
+    label: { fr: "Santé & Bien-être", en: "Health & Wellness", es: "Salud & Bienestar", de: "Gesundheit & Wellness", pt: "Saúde & Bem-estar" },
     cat: "Health",
     color: "#14B8A6",
     bg: "from-[#14B8A6]/15 to-[#14B8A6]/5",
     border: "border-[#14B8A6]/25",
     hoverBorder: "hover:border-[#14B8A6]/60",
-    desc: "Cliniques, spas, yoga, fitness",
+    desc: { fr: "Cliniques, spas, yoga, fitness", en: "Clinics, spas, yoga, fitness", es: "Clínicas, spas, yoga, fitness", de: "Kliniken, Spas, Yoga, Fitness", pt: "Clínicas, spas, yoga, fitness" },
     thumbId: "impact-10",
     count: 10,
   },
   {
-    label: "Corporate & Services",
+    label: { fr: "Corporate & Services", en: "Corporate & Services", es: "Corporativo & Servicios", de: "Corporate & Services", pt: "Corporativo & Serviços" },
     cat: "Corporate",
     color: "#0EA5E9",
     bg: "from-[#0EA5E9]/15 to-[#0EA5E9]/5",
     border: "border-[#0EA5E9]/25",
     hoverBorder: "hover:border-[#0EA5E9]/60",
-    desc: "Entreprises, cabinets, B2B, finance",
+    desc: { fr: "Entreprises, cabinets, B2B, finance", en: "Companies, agencies, B2B, finance", es: "Empresas, despachos, B2B, finanzas", de: "Unternehmen, Kanzleien, B2B, Finanzen", pt: "Empresas, escritórios, B2B, finanças" },
     thumbId: "impact-01",
     count: 16,
   },
   {
-    label: "E-Commerce",
+    label: { fr: "E-Commerce", en: "E-Commerce", es: "E-Commerce", de: "E-Commerce", pt: "E-Commerce" },
     cat: "E-Commerce",
     color: "#EC4899",
     bg: "from-[#EC4899]/15 to-[#EC4899]/5",
     border: "border-[#EC4899]/25",
     hoverBorder: "hover:border-[#EC4899]/60",
-    desc: "Boutiques, mode, bijoux, beauté",
+    desc: { fr: "Boutiques, mode, bijoux, beauté", en: "Stores, fashion, jewellery, beauty", es: "Tiendas, moda, joyería, belleza", de: "Shops, Mode, Schmuck, Beauty", pt: "Lojas, moda, joalheria, beleza" },
     thumbId: "impact-20",
     count: 8,
   },
   {
-    label: "Minimal & Éditorial",
+    label: { fr: "Minimal & Éditorial", en: "Minimal & Editorial", es: "Minimal & Editorial", de: "Minimal & Editorial", pt: "Minimal & Editorial" },
     cat: "Minimal",
     color: "#71717A",
     bg: "from-white/8 to-white/3",
     border: "border-white/12",
     hoverBorder: "hover:border-white/30",
-    desc: "Portfolios épurés, blogs, presse",
+    desc: { fr: "Portfolios épurés, blogs, presse", en: "Clean portfolios, blogs, press", es: "Portfolios limpios, blogs, prensa", de: "Minimalistische Portfolios, Blogs, Presse", pt: "Portfólios limpos, blogs, imprensa" },
     thumbId: "impact-12",
     count: 14,
   },
@@ -236,6 +251,10 @@ function TypeCard({ cat, index }: { cat: typeof TYPE_CATS[0]; index: number }) {
   const inView = useInView(ref, { once: true, margin: "-40px" });
   const [thumbOk, setThumbOk] = useState(true);
   const [hovered, setHovered] = useState(false);
+  const { locale } = useLang();
+  const lk = (locale as keyof typeof cat.label) in cat.label ? (locale as keyof typeof cat.label) : "en";
+  const label = cat.label[lk];
+  const desc = cat.desc[lk];
 
   return (
     <motion.div
@@ -256,7 +275,7 @@ function TypeCard({ cat, index }: { cat: typeof TYPE_CATS[0]; index: number }) {
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={`/thumbnails/${cat.thumbId}.webp`}
-              alt={cat.label}
+              alt={label}
               className={`w-full h-full object-cover object-top transition-transform duration-700 ${hovered ? "scale-105" : "scale-100"}`}
               onError={() => setThumbOk(false)}
             />
@@ -278,15 +297,15 @@ function TypeCard({ cat, index }: { cat: typeof TYPE_CATS[0]; index: number }) {
             className="absolute top-2 right-2 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-widest"
             style={{ background: `${cat.color}25`, color: cat.color, border: `1px solid ${cat.color}40` }}
           >
-            {cat.count} thèmes
+            {cat.count}
           </div>
         </div>
 
         {/* Info */}
         <div className="p-4 flex items-start justify-between gap-3">
           <div>
-            <div className="font-bold text-white text-sm mb-0.5 group-hover:text-white transition-colors">{cat.label}</div>
-            <div className="text-xs text-zinc-500 leading-relaxed">{cat.desc}</div>
+            <div className="font-bold text-white text-sm mb-0.5 group-hover:text-white transition-colors">{label}</div>
+            <div className="text-xs text-zinc-500 leading-relaxed">{desc}</div>
           </div>
           <div
             className="w-7 h-7 rounded-full flex items-center justify-center shrink-0 mt-0.5 opacity-0 group-hover:opacity-100 transition-all duration-300 -translate-x-2 group-hover:translate-x-0"
@@ -530,7 +549,7 @@ function ChooseTypeSection() {
         >
           <div className="flex items-center gap-2 mb-4">
             <Sparkles className="w-4 h-4 text-violet-400" />
-            <span className="text-xs font-bold text-violet-400 uppercase tracking-widest">150+ templates</span>
+            <span className="text-xs font-bold text-violet-400 uppercase tracking-widest">{t.templatesBadge}</span>
           </div>
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
             <div>
@@ -543,7 +562,7 @@ function ChooseTypeSection() {
               href="/themes"
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-zinc-700 hover:border-violet-500 text-zinc-300 hover:text-white text-sm font-semibold transition-all shrink-0"
             >
-              Tous les thèmes <ArrowRight className="w-4 h-4" />
+              {t.explore} <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
         </motion.div>
@@ -562,9 +581,9 @@ function ChooseTypeSection() {
           transition={{ duration: 0.5, delay: 0.3 }}
         >
           <div className="flex items-center justify-between mb-6">
-            <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Coup de projecteur</p>
+            <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest">{t.spotlight}</p>
             <Link href="/themes" className="text-xs text-violet-400 hover:text-violet-300 transition-colors">
-              Voir tous →
+              {t.seeAll}
             </Link>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-4">
