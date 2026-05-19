@@ -1,190 +1,1126 @@
 "use client"
-import { motion, useScroll, useTransform, useInView } from "framer-motion"
+import { motion, useInView } from "framer-motion"
 import { useRef, useState, useEffect } from "react"
-import Image from "next/image"
 import Link from "next/link"
-import { Leaf, ArrowRight, Menu, Star, Sparkles, Microscope, Droplets, Wind, Sun, ChevronRight, Flower2, Heart } from "lucide-react"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { Atom, Cpu, Binary, Globe, ArrowRight, ExternalLink, Download, Menu, X } from "lucide-react"
 
-function Reveal({ children, delay = 0, y = 40 }: { children: React.ReactNode; delay?: number; y?: number }) {
+// ─── Reveal helper ────────────────────────────────────────────────────────────
+function Reveal({
+  children,
+  delay = 0,
+  y = 20,
+}: {
+  children: React.ReactNode
+  delay?: number
+  y?: number
+}) {
   const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, margin: "-80px" })
+  const isInView = useInView(ref, { once: true, margin: "-60px" })
   return (
-    <motion.div ref={ref} initial={{ opacity: 0, y }} animate={isInView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 1.5, delay, ease: [0.16, 1, 0.3, 1] }}>
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y }}
+      animate={isInView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.55, delay, ease: [0.25, 0.46, 0.45, 0.94] }}
+    >
       {children}
     </motion.div>
   )
 }
 
-function ParallaxImg({ src, alt }: { src: string; alt: string }) {
-  const ref = useRef(null)
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] })
-  const y = useTransform(scrollYProgress, [0, 1], ["-15%", "15%"])
+// ─── Data ──────────────────────────────────────────────────────────────────────
+const RESEARCH_AREAS = [
+  {
+    icon: Atom,
+    title: "Quantum Error Correction",
+    desc: "Developing fault-tolerant qubit architectures that maintain coherence across extended computation windows using topological protection methods.",
+  },
+  {
+    icon: Cpu,
+    title: "Quantum Processor Design",
+    desc: "Engineering superconducting transmon and fluxonium processors with sub-microsecond gate times and 99.9%+ two-qubit fidelity targets.",
+  },
+  {
+    icon: Binary,
+    title: "Quantum Algorithms",
+    desc: "Advancing variational quantum eigensolvers, quantum chemistry simulation, and combinatorial optimization for near-term hardware.",
+  },
+  {
+    icon: Globe,
+    title: "Quantum Networking",
+    desc: "Prototype quantum repeater architectures and entanglement distribution protocols for intercontinental quantum communication links.",
+  },
+]
+
+const PUBLICATIONS = [
+  {
+    date: "2026-04",
+    title: "Coherence-Preserving Dynamical Decoupling in 127-Qubit Systems",
+    authors: "Chen, R. · Park, S. · Williams, A.",
+    status: "Published",
+    statusColor: "#24a148",
+  },
+  {
+    date: "2026-02",
+    title: "Topological Qubit Arrays via Majorana Zero Modes: Experimental Evidence",
+    authors: "Nkosi, T. · Larsson, E. · Chen, R.",
+    status: "Published",
+    statusColor: "#24a148",
+  },
+  {
+    date: "2026-01",
+    title: "Variational Quantum Eigensolver Performance on Protein Folding Benchmarks",
+    authors: "Williams, A. · Yamamoto, K. · Osei, F.",
+    status: "Published",
+    statusColor: "#24a148",
+  },
+  {
+    date: "2025-11",
+    title: "Cross-Resonance Gate Calibration at 10mK: A Practical Framework",
+    authors: "Park, S. · Brennan, M. · Nkosi, T.",
+    status: "Preprint",
+    statusColor: "#f1620a",
+  },
+  {
+    date: "2025-09",
+    title: "Entanglement Distribution Over 500km Fiber via Quantum Repeaters",
+    authors: "Larsson, E. · Chen, R. · Yamamoto, K.",
+    status: "Published",
+    statusColor: "#24a148",
+  },
+]
+
+const STATS = [
+  { value: "47", label: "Published Papers" },
+  { value: "$2.1B", label: "Research Funding" },
+  { value: "312", label: "Scientists" },
+  { value: "6", label: "Global Labs" },
+]
+
+const TEAM = [
+  {
+    name: "Dr. Rachel Chen",
+    title: "Director of Quantum Hardware",
+    affiliation: "MIT · Stanford Quantum Lab",
+    paper: "Coherence-Preserving Dynamical Decoupling in 127-Qubit Systems",
+    bg: "linear-gradient(135deg, #dde1ff 0%, #c4ceff 100%)",
+  },
+  {
+    name: "Dr. Tobias Nkosi",
+    title: "Lead, Error Correction",
+    affiliation: "University of Waterloo · Perimeter Institute",
+    paper: "Topological Qubit Arrays via Majorana Zero Modes",
+    bg: "linear-gradient(135deg, #defbe6 0%, #a7f0ba 100%)",
+  },
+  {
+    name: "Dr. Erik Larsson",
+    title: "Quantum Networking Division",
+    affiliation: "KTH Royal Institute · NIST",
+    paper: "Entanglement Distribution Over 500km Fiber",
+    bg: "linear-gradient(135deg, #fff0d6 0%, #ffd37c 100%)",
+  },
+]
+
+const NAV_LINKS = ["Research", "Publications", "Team", "Infrastructure", "Careers"]
+
+// ─── Metric row component ─────────────────────────────────────────────────────
+function MetricRow({ label, value }: { label: string; value: string }) {
   return (
-    <div ref={ref} className="relative w-full h-full overflow-hidden rounded-2xl border border-[#d4af37]/20">
-      <motion.div style={{ y }} className="absolute inset-[-20%] w-[140%] h-[140%]">
-        <Image src={src} alt={alt} fill className="object-cover" />
-      </motion.div>
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        padding: "10px 0",
+        borderBottom: "1px solid #e0e0e0",
+      }}
+    >
+      <span
+        style={{
+          fontSize: "10px",
+          fontFamily: "'IBM Plex Mono', 'Courier New', monospace",
+          color: "#8d8d8d",
+          letterSpacing: "0.08em",
+          textTransform: "uppercase",
+        }}
+      >
+        {label}
+      </span>
+      <span
+        style={{
+          fontSize: "14px",
+          fontFamily: "'IBM Plex Mono', 'Courier New', monospace",
+          color: "#161616",
+          fontWeight: 600,
+        }}
+      >
+        {value}
+      </span>
     </div>
   )
 }
 
-const SPECIMENS = [
-  { name: "Emerald Monstera", genus: "Monstera Deliciosa", rarity: "Ultra-Rare", img: "https://images.unsplash.com/photo-1614594975525-e45190c55d0b?auto=format&fit=crop&q=80&w=1200", desc: "A singular mutation featuring deep emerald variegation and crystalline leaf structure." },
-  { name: "Golden Fern", genus: "Asplenium Aureum", rarity: "Limited", img: "https://images.unsplash.com/photo-1446071103084-c257b5f70672?auto=format&fit=crop&q=80&w=1200", desc: "Ancient lineage revived through specialized nutrient mapping and mineral infusions." },
-  { name: "Velvet Alocasia", genus: "Alocasia Reginae", rarity: "Bespoke", img: "https://images.unsplash.com/photo-1592150621344-82839b6fc236?auto=format&fit=crop&q=80&w=1200", desc: "Dark-matter foliage with light-absorbing properties and silver-veined architecture." },
-]
-
-const PILLARS = [
-  { icon: Microscope, title: "Genetic Tracing", desc: "Every specimen comes with a blockchain-verified genealogy and genetic map." },
-  { icon: Droplets, title: "Mineral Infusion", desc: "Customized irrigation protocols using trace minerals for enhanced pigmentation." },
-  { icon: Sun, title: "Luminance Control", desc: "Cultivated under full-spectrum solar simulation to ensure structural integrity." },
-]
-
-export default function VeridianBotanicalPage() {
+// ─── Page ──────────────────────────────────────────────────────────────────────
+export default function QBitLabsPage() {
+  const [menuOpen, setMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
 
   useEffect(() => {
-    const h = () => setScrolled(window.scrollY > 60)
-    window.addEventListener("scroll", h)
-    return () => window.removeEventListener("scroll", h)
+    const handler = () => setScrolled(window.scrollY > 48)
+    window.addEventListener("scroll", handler)
+    return () => window.removeEventListener("scroll", handler)
   }, [])
 
   return (
-    <div className="bg-[#051c14] text-[#d4af37] font-sans min-h-screen selection:bg-[#d4af37] selection:text-[#051c14] overflow-x-hidden">
-      
-      {/* ── NAVBAR ────────────────── */}
-      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-1000 ${scrolled ? "bg-[#051c14]/90 backdrop-blur-xl border-b border-[#d4af37]/10 py-4" : "bg-transparent py-8"}`}>
-        <div className="max-w-[1600px] mx-auto px-6 md:px-12 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-3 group">
-            <div className="w-10 h-10 rounded-full border border-[#d4af37]/30 flex items-center justify-center group-hover:scale-110 transition-transform duration-700">
-              <Leaf className="w-5 h-5 text-[#d4af37]" />
+    <div
+      style={{
+        background: "#f4f4f4",
+        color: "#161616",
+        fontFamily: "'IBM Plex Sans', system-ui, -apple-system, sans-serif",
+        minHeight: "100vh",
+        overflowX: "hidden",
+      }}
+    >
+      {/* ── NAVBAR ──────────────────────────────────────────────────────────── */}
+      <nav
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          zIndex: 100,
+          background: "#ffffff",
+          borderBottom: scrolled ? "1px solid #e0e0e0" : "1px solid #e0e0e0",
+          boxShadow: scrolled ? "0 1px 3px rgba(0,0,0,0.08)" : "none",
+          transition: "box-shadow 0.2s ease",
+        }}
+      >
+        <div
+          style={{
+            maxWidth: 1280,
+            margin: "0 auto",
+            padding: "0 24px",
+            height: 56,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
+          {/* Logo */}
+          <Link
+            href="/"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 10,
+              textDecoration: "none",
+            }}
+          >
+            <div
+              style={{
+                width: 28,
+                height: 28,
+                background: "#0f62fe",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <Atom style={{ width: 16, height: 16, color: "#ffffff" }} />
             </div>
-            <span className="text-xl font-light tracking-[0.2em] uppercase text-white">Veridian <span className="font-bold text-[#d4af37]">Atelier</span></span>
+            <span
+              style={{
+                fontSize: 15,
+                fontWeight: 600,
+                color: "#161616",
+                letterSpacing: "-0.01em",
+              }}
+            >
+              QBit <span style={{ color: "#0f62fe" }}>Labs</span>
+            </span>
           </Link>
-          <div className="hidden lg:flex gap-12 text-[10px] font-bold uppercase tracking-[0.4em] text-[#d4af37]/40">
-            {["The Conservatory", "Genealogy", "Services", "Archive"].map(l => (
-              <Link key={l} href="#" className="hover:text-white transition-colors">{l}</Link>
+
+          {/* Desktop nav */}
+          <div
+            style={{
+              display: "flex",
+              gap: 32,
+              alignItems: "center",
+            }}
+            className="hidden-mobile"
+          >
+            {NAV_LINKS.map((l) => (
+              <Link
+                key={l}
+                href="#"
+                style={{
+                  fontSize: 11,
+                  fontWeight: 500,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.1em",
+                  color: "#525252",
+                  textDecoration: "none",
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.color = "#0f62fe")}
+                onMouseLeave={(e) => (e.currentTarget.style.color = "#525252")}
+              >
+                {l}
+              </Link>
             ))}
           </div>
-          <div className="flex items-center gap-8">
-            <button className="hidden md:block text-[10px] font-bold uppercase tracking-widest text-[#d4af37]/60 hover:text-white transition-colors">Collector Portal</button>
-            <button className="px-8 py-3 bg-[#d4af37] text-[#051c14] text-[10px] font-bold uppercase tracking-[0.2em] rounded-full hover:bg-white transition-all duration-700">Inquire</button>
-            <Sheet>
-              <SheetTrigger asChild><button className="lg:hidden"><Menu className="w-6 h-6 text-[#d4af37]" /></button></SheetTrigger>
-              <SheetContent side="right" className="bg-[#051c14] border-[#d4af37]/10 p-12">
-                <div className="flex flex-col gap-10 mt-16 text-left text-white">
-                  {["Conservatory", "Genealogy", "Atelier", "Contact"].map(l => (
-                    <Link key={l} href="#" className="text-2xl font-light uppercase tracking-[0.3em] hover:text-[#d4af37] transition-colors">{l}</Link>
-                  ))}
-                </div>
-              </SheetContent>
-            </Sheet>
+
+          {/* CTA + hamburger */}
+          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+            <button
+              style={{
+                padding: "8px 20px",
+                background: "#0f62fe",
+                color: "#ffffff",
+                border: "none",
+                fontSize: 12,
+                fontWeight: 500,
+                cursor: "pointer",
+                letterSpacing: "0.02em",
+                fontFamily: "inherit",
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.background = "#0353e9")}
+              onMouseLeave={(e) => (e.currentTarget.style.background = "#0f62fe")}
+            >
+              Request Access
+            </button>
+            <button
+              onClick={() => setMenuOpen(!menuOpen)}
+              style={{
+                display: "none",
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                padding: 4,
+              }}
+              className="show-mobile"
+            >
+              {menuOpen ? (
+                <X style={{ width: 20, height: 20, color: "#161616" }} />
+              ) : (
+                <Menu style={{ width: 20, height: 20, color: "#161616" }} />
+              )}
+            </button>
           </div>
         </div>
+
+        {/* Mobile menu */}
+        {menuOpen && (
+          <div
+            style={{
+              background: "#ffffff",
+              borderTop: "1px solid #e0e0e0",
+              padding: "16px 24px 24px",
+              display: "flex",
+              flexDirection: "column",
+              gap: 16,
+            }}
+          >
+            {NAV_LINKS.map((l) => (
+              <Link
+                key={l}
+                href="#"
+                style={{
+                  fontSize: 13,
+                  fontWeight: 500,
+                  color: "#525252",
+                  textDecoration: "none",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.08em",
+                }}
+              >
+                {l}
+              </Link>
+            ))}
+          </div>
+        )}
       </nav>
 
-      <main>
-        {/* ── HERO ──────────────────── */}
-        <section className="relative h-screen flex items-center justify-center overflow-hidden">
-          <div className="absolute inset-0">
-            <Image src="https://images.unsplash.com/photo-1614594975525-e45190c55d0b?auto=format&fit=crop&q=80&w=2400" alt="Botanical Background" fill className="object-cover opacity-30 scale-105" priority />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#051c14] via-transparent to-transparent" />
-            <div className="absolute inset-0 bg-black/40" />
-          </div>
+      <main style={{ paddingTop: 56 }}>
+        {/* ── HERO ──────────────────────────────────────────────────────────── */}
+        <section
+          style={{
+            background: "#ffffff",
+            borderBottom: "1px solid #e0e0e0",
+            padding: "80px 24px 72px",
+          }}
+        >
+          <div
+            style={{
+              maxWidth: 1280,
+              margin: "0 auto",
+              display: "grid",
+              gridTemplateColumns: "1fr 360px",
+              gap: 64,
+              alignItems: "start",
+            }}
+          >
+            {/* Left: copy */}
+            <div>
+              <Reveal>
+                <div
+                  style={{
+                    display: "inline-block",
+                    fontSize: 11,
+                    fontFamily: "'IBM Plex Mono', 'Courier New', monospace",
+                    color: "#0f62fe",
+                    letterSpacing: "0.12em",
+                    marginBottom: 24,
+                    background: "#edf5ff",
+                    padding: "4px 10px",
+                  }}
+                >
+                  // QUANTUM COMPUTING RESEARCH
+                </div>
+              </Reveal>
 
-          <div className="relative z-10 max-w-[1200px] mx-auto px-6 text-center">
-            <Reveal>
-              <div className="flex items-center justify-center gap-6 mb-12">
-                 <div className="w-12 h-[1px] bg-[#d4af37]/30" />
-                 <span className="text-[10px] font-bold uppercase tracking-[0.6em] text-[#d4af37]/60">Bespoke Botanical Curation</span>
-                 <div className="w-12 h-[1px] bg-[#d4af37]/30" />
-              </div>
-            </Reveal>
-            <Reveal delay={0.2} y={70}>
-              <h1 className="text-7xl md:text-[9rem] font-light tracking-tighter leading-[0.85] text-white mb-12 uppercase" style={{ fontFamily: "serif" }}>
-                Rare <br/> <span className="text-[#d4af37] italic">Elegance.</span>
-              </h1>
-            </Reveal>
-            <Reveal delay={0.4}>
-              <div className="flex flex-col items-center justify-center gap-12">
-                <p className="text-xl text-[#d4af37]/40 font-light max-w-xl leading-relaxed italic">
-                  Cultivating the impossible. Veridian Atelier designs living masterpieces through advanced genetic tracing and artisan botanical craft.
+              <Reveal delay={0.05}>
+                <h1
+                  style={{
+                    fontSize: "clamp(36px, 5vw, 60px)",
+                    fontWeight: 300,
+                    lineHeight: 1.1,
+                    color: "#161616",
+                    margin: "0 0 24px",
+                    letterSpacing: "-0.02em",
+                    maxWidth: 640,
+                  }}
+                >
+                  The future of computation{" "}
+                  <span style={{ fontWeight: 700 }}>is quantum.</span>
+                </h1>
+              </Reveal>
+
+              <Reveal delay={0.1}>
+                <p
+                  style={{
+                    fontSize: 16,
+                    color: "#525252",
+                    lineHeight: 1.65,
+                    maxWidth: 520,
+                    margin: "0 0 40px",
+                  }}
+                >
+                  QBit Labs is an independent quantum computing research institute
+                  advancing fault-tolerant processors, quantum algorithms, and the
+                  foundational science of the post-classical era.
                 </p>
-                <div className="flex flex-wrap justify-center gap-8">
-                  <button className="px-12 py-5 bg-[#d4af37] text-[#051c14] font-bold uppercase tracking-widest text-[10px] hover:bg-white transition-all duration-700">
-                    Explore Specimens
+              </Reveal>
+
+              <Reveal delay={0.15}>
+                <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+                  <button
+                    style={{
+                      padding: "12px 28px",
+                      background: "#0f62fe",
+                      color: "#ffffff",
+                      border: "none",
+                      fontSize: 13,
+                      fontWeight: 500,
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 8,
+                      fontFamily: "inherit",
+                    }}
+                    onMouseEnter={(e) => (e.currentTarget.style.background = "#0353e9")}
+                    onMouseLeave={(e) => (e.currentTarget.style.background = "#0f62fe")}
+                  >
+                    Explore Research <ArrowRight style={{ width: 14, height: 14 }} />
                   </button>
-                  <button className="px-12 py-5 border border-[#d4af37]/20 text-white font-bold uppercase tracking-widest text-[10px] hover:bg-[#d4af37]/10 transition-all flex items-center gap-3">
-                    <Microscope className="w-3 h-3" /> View Genealogies
+                  <button
+                    style={{
+                      padding: "12px 28px",
+                      background: "transparent",
+                      color: "#0f62fe",
+                      border: "1px solid #0f62fe",
+                      fontSize: 13,
+                      fontWeight: 500,
+                      cursor: "pointer",
+                      fontFamily: "inherit",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = "#edf5ff"
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = "transparent"
+                    }}
+                  >
+                    View Publications
                   </button>
+                </div>
+              </Reveal>
+            </div>
+
+            {/* Right: live metrics panel */}
+            <Reveal delay={0.2} y={16}>
+              <div
+                style={{
+                  background: "#ffffff",
+                  border: "1px solid #e0e0e0",
+                  boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+                  padding: 24,
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    marginBottom: 20,
+                  }}
+                >
+                  <span
+                    style={{
+                      fontSize: 10,
+                      fontFamily: "'IBM Plex Mono', 'Courier New', monospace",
+                      color: "#8d8d8d",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.1em",
+                    }}
+                  >
+                    System Status
+                  </span>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                    <span
+                      style={{
+                        width: 7,
+                        height: 7,
+                        borderRadius: "50%",
+                        background: "#24a148",
+                        display: "inline-block",
+                      }}
+                    />
+                    <span
+                      style={{
+                        fontSize: 10,
+                        fontFamily: "'IBM Plex Mono', 'Courier New', monospace",
+                        color: "#24a148",
+                        letterSpacing: "0.06em",
+                      }}
+                    >
+                      LIVE
+                    </span>
+                  </div>
+                </div>
+
+                <MetricRow label="QUBITS ACTIVE" value="127" />
+                <MetricRow label="COHERENCE TIME" value="99μs" />
+                <MetricRow label="GATE FIDELITY" value="99.9%" />
+                <MetricRow label="QUEUE DEPTH" value="4,821" />
+                <MetricRow label="T1 TIME" value="312μs" />
+                <MetricRow label="READOUT ERR." value="0.8%" />
+
+                <div style={{ marginTop: 20 }}>
+                  <div
+                    style={{
+                      fontSize: 10,
+                      fontFamily: "'IBM Plex Mono', 'Courier New', monospace",
+                      color: "#8d8d8d",
+                      letterSpacing: "0.08em",
+                      textTransform: "uppercase",
+                      marginBottom: 8,
+                    }}
+                  >
+                    System load
+                  </div>
+                  <div
+                    style={{
+                      height: 4,
+                      background: "#e0e0e0",
+                      position: "relative",
+                      overflow: "hidden",
+                    }}
+                  >
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: "73%" }}
+                      transition={{ duration: 1.2, delay: 0.4, ease: "easeOut" }}
+                      style={{ height: "100%", background: "#0f62fe" }}
+                    />
+                  </div>
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      marginTop: 4,
+                      fontSize: 9,
+                      fontFamily: "'IBM Plex Mono', 'Courier New', monospace",
+                      color: "#8d8d8d",
+                    }}
+                  >
+                    <span>0%</span>
+                    <span style={{ color: "#0f62fe" }}>73% — HIGH</span>
+                    <span>100%</span>
+                  </div>
                 </div>
               </div>
             </Reveal>
           </div>
-          
-          <motion.div animate={{ y: [0, 10, 0] }} transition={{ duration: 3, repeat: Infinity }} className="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4">
-             <div className="text-[8px] font-bold uppercase tracking-[0.4em] text-[#d4af37]/30">The Growth Cycle</div>
-             <div className="w-[1px] h-12 bg-gradient-to-b from-[#d4af37]/40 to-transparent" />
-          </motion.div>
         </section>
 
-        {/* ── PILLARS ───────────────── */}
-        <section className="py-40 bg-[#041610] border-y border-[#d4af37]/10">
-          <div className="max-w-[1400px] mx-auto px-6 md:px-12">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-24">
-              {PILLARS.map((p, i) => (
-                <Reveal key={i} delay={i * 0.1}>
-                  <div className="text-center group">
-                    <div className="w-20 h-20 mx-auto rounded-full border border-[#d4af37]/10 flex items-center justify-center mb-8 group-hover:bg-[#d4af37] transition-all duration-700">
-                      <p.icon className="w-6 h-6 text-[#d4af37] group-hover:text-[#051c14] transition-colors" />
-                    </div>
-                    <h3 className="text-2xl font-bold mb-4 uppercase tracking-tighter" style={{ fontFamily: "serif" }}>{p.title}</h3>
-                    <p className="text-[#d4af37]/40 leading-relaxed font-light text-sm italic">{p.desc}</p>
+        {/* ── STATS BAR ─────────────────────────────────────────────────────── */}
+        <section
+          style={{
+            background: "#f4f4f4",
+            borderBottom: "1px solid #e0e0e0",
+          }}
+        >
+          <div
+            style={{
+              maxWidth: 1280,
+              margin: "0 auto",
+              display: "grid",
+              gridTemplateColumns: "repeat(4, 1fr)",
+            }}
+          >
+            {STATS.map((s, i) => (
+              <Reveal key={i} delay={i * 0.05}>
+                <div
+                  style={{
+                    padding: "32px 24px",
+                    borderRight: i < STATS.length - 1 ? "1px solid #e0e0e0" : "none",
+                    textAlign: "center",
+                  }}
+                >
+                  <div
+                    style={{
+                      fontSize: 32,
+                      fontWeight: 600,
+                      color: "#161616",
+                      letterSpacing: "-0.02em",
+                      lineHeight: 1,
+                      marginBottom: 6,
+                    }}
+                  >
+                    {s.value}
                   </div>
-                </Reveal>
-              ))}
+                  <div
+                    style={{
+                      fontSize: 11,
+                      color: "#525252",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.08em",
+                    }}
+                  >
+                    {s.label}
+                  </div>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </section>
+
+        {/* ── RESEARCH AREAS ────────────────────────────────────────────────── */}
+        <section
+          style={{
+            background: "#f4f4f4",
+            padding: "72px 24px",
+            borderBottom: "1px solid #e0e0e0",
+          }}
+        >
+          <div style={{ maxWidth: 1280, margin: "0 auto" }}>
+            <Reveal>
+              <div style={{ marginBottom: 48 }}>
+                <p
+                  style={{
+                    fontSize: 11,
+                    fontFamily: "'IBM Plex Mono', 'Courier New', monospace",
+                    color: "#0f62fe",
+                    letterSpacing: "0.1em",
+                    textTransform: "uppercase",
+                    marginBottom: 12,
+                  }}
+                >
+                  // Areas of investigation
+                </p>
+                <h2
+                  style={{
+                    fontSize: "clamp(24px, 3vw, 36px)",
+                    fontWeight: 300,
+                    color: "#161616",
+                    letterSpacing: "-0.01em",
+                    margin: 0,
+                  }}
+                >
+                  Research{" "}
+                  <span style={{ fontWeight: 700 }}>domains</span>
+                </h2>
+              </div>
+            </Reveal>
+
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+                gap: 1,
+                background: "#e0e0e0",
+              }}
+            >
+              {RESEARCH_AREAS.map((area, i) => {
+                const Icon = area.icon
+                return (
+                  <Reveal key={i} delay={i * 0.08}>
+                    <div
+                      style={{
+                        background: "#ffffff",
+                        padding: "32px 28px 28px",
+                        borderTop: "3px solid #0f62fe",
+                        height: "100%",
+                        boxSizing: "border-box",
+                        cursor: "pointer",
+                        transition: "box-shadow 0.15s ease",
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.12)"
+                        e.currentTarget.style.zIndex = "1"
+                        e.currentTarget.style.position = "relative"
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.boxShadow = "none"
+                        e.currentTarget.style.zIndex = "0"
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: 40,
+                          height: 40,
+                          background: "#edf5ff",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          marginBottom: 20,
+                        }}
+                      >
+                        <Icon style={{ width: 20, height: 20, color: "#0f62fe" }} />
+                      </div>
+                      <h3
+                        style={{
+                          fontSize: 16,
+                          fontWeight: 600,
+                          color: "#161616",
+                          margin: "0 0 12px",
+                          letterSpacing: "-0.01em",
+                        }}
+                      >
+                        {area.title}
+                      </h3>
+                      <p
+                        style={{
+                          fontSize: 13,
+                          color: "#525252",
+                          lineHeight: 1.65,
+                          margin: "0 0 20px",
+                        }}
+                      >
+                        {area.desc}
+                      </p>
+                      <Link
+                        href="#"
+                        style={{
+                          fontSize: 12,
+                          color: "#0f62fe",
+                          textDecoration: "none",
+                          fontWeight: 500,
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 4,
+                        }}
+                        onMouseEnter={(e) =>
+                          (e.currentTarget.style.textDecoration = "underline")
+                        }
+                        onMouseLeave={(e) =>
+                          (e.currentTarget.style.textDecoration = "none")
+                        }
+                      >
+                        Learn more <ArrowRight style={{ width: 12, height: 12 }} />
+                      </Link>
+                    </div>
+                  </Reveal>
+                )
+              })}
             </div>
           </div>
         </section>
 
-        {/* ── SPECIMENS ─────────────── */}
-        <section className="py-40 bg-[#051c14]">
-          <div className="max-w-[1600px] mx-auto px-6 md:px-12">
+        {/* ── PUBLICATIONS TABLE ────────────────────────────────────────────── */}
+        <section
+          style={{
+            background: "#ffffff",
+            padding: "72px 24px",
+            borderBottom: "1px solid #e0e0e0",
+          }}
+        >
+          <div style={{ maxWidth: 1280, margin: "0 auto" }}>
             <Reveal>
-              <div className="flex flex-col lg:flex-row items-end justify-between mb-32 gap-8 border-b border-[#d4af37]/10 pb-12">
-                <div className="max-w-2xl">
-                  <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-[#d4af37]/40 block mb-4">The Conservatory</span>
-                  <h2 className="text-6xl md:text-8xl font-light uppercase tracking-tighter text-white" style={{ fontFamily: "serif" }}>Botanical <span className="italic text-[#d4af37]">Sculptures.</span></h2>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "flex-end",
+                  justifyContent: "space-between",
+                  marginBottom: 32,
+                  flexWrap: "wrap",
+                  gap: 16,
+                }}
+              >
+                <div>
+                  <p
+                    style={{
+                      fontSize: 11,
+                      fontFamily: "'IBM Plex Mono', 'Courier New', monospace",
+                      color: "#0f62fe",
+                      letterSpacing: "0.1em",
+                      textTransform: "uppercase",
+                      marginBottom: 12,
+                      margin: "0 0 12px",
+                    }}
+                  >
+                    // Recent output
+                  </p>
+                  <h2
+                    style={{
+                      fontSize: "clamp(24px, 3vw, 36px)",
+                      fontWeight: 300,
+                      color: "#161616",
+                      letterSpacing: "-0.01em",
+                      margin: 0,
+                    }}
+                  >
+                    Selected{" "}
+                    <span style={{ fontWeight: 700 }}>publications</span>
+                  </h2>
                 </div>
-                <Link href="#" className="flex items-center gap-4 text-[10px] font-bold uppercase tracking-widest hover:text-white text-[#d4af37]/40 transition-colors group italic">
-                  Collector Registry <ChevronRight className="w-4 h-4 group-hover:translate-x-2 transition-transform" />
+                <Link
+                  href="#"
+                  style={{
+                    fontSize: 12,
+                    color: "#0f62fe",
+                    textDecoration: "none",
+                    fontWeight: 500,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 4,
+                  }}
+                  onMouseEnter={(e) =>
+                    (e.currentTarget.style.textDecoration = "underline")
+                  }
+                  onMouseLeave={(e) => (e.currentTarget.style.textDecoration = "none")}
+                >
+                  View all 47 papers{" "}
+                  <ExternalLink style={{ width: 12, height: 12 }} />
                 </Link>
               </div>
             </Reveal>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-16">
-              {SPECIMENS.map((s, i) => (
-                <Reveal key={i} delay={i * 0.2}>
-                  <div className="group cursor-pointer">
-                    <div className="relative aspect-[4/5] mb-10 overflow-hidden rounded-2xl">
-                      <ParallaxImg src={s.img} alt={s.name} />
-                      <div className="absolute top-8 right-8">
-                         <span className="px-4 py-1.5 bg-[#051c14]/80 backdrop-blur-md border border-[#d4af37]/30 text-[#d4af37] text-[8px] font-bold uppercase tracking-widest rounded-full">{s.rarity}</span>
+            {/* Table header */}
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "100px 1fr 200px 100px 120px",
+                gap: 0,
+                background: "#f4f4f4",
+                borderTop: "1px solid #e0e0e0",
+                borderLeft: "1px solid #e0e0e0",
+                borderRight: "1px solid #e0e0e0",
+              }}
+            >
+              {["Date", "Title", "Authors", "Status", ""].map((h, i) => (
+                <div
+                  key={i}
+                  style={{
+                    padding: "10px 16px",
+                    fontSize: 11,
+                    fontWeight: 600,
+                    color: "#525252",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.06em",
+                    borderBottom: "1px solid #e0e0e0",
+                    borderRight: i < 4 ? "1px solid #e0e0e0" : "none",
+                  }}
+                >
+                  {h}
+                </div>
+              ))}
+            </div>
+
+            {/* Table rows */}
+            {PUBLICATIONS.map((pub, i) => (
+              <Reveal key={i} delay={i * 0.06}>
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "100px 1fr 200px 100px 120px",
+                    background: i % 2 === 0 ? "#ffffff" : "#f4f4f4",
+                    borderLeft: "1px solid #e0e0e0",
+                    borderRight: "1px solid #e0e0e0",
+                    borderBottom: "1px solid #e0e0e0",
+                    cursor: "pointer",
+                    transition: "background 0.1s ease",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = "#edf5ff"
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background =
+                      i % 2 === 0 ? "#ffffff" : "#f4f4f4"
+                  }}
+                >
+                  <div
+                    style={{
+                      padding: "14px 16px",
+                      fontSize: 12,
+                      fontFamily: "'IBM Plex Mono', 'Courier New', monospace",
+                      color: "#8d8d8d",
+                      borderRight: "1px solid #e0e0e0",
+                      display: "flex",
+                      alignItems: "center",
+                    }}
+                  >
+                    {pub.date}
+                  </div>
+                  <div
+                    style={{
+                      padding: "14px 16px",
+                      fontSize: 13,
+                      color: "#161616",
+                      fontWeight: 500,
+                      borderRight: "1px solid #e0e0e0",
+                      display: "flex",
+                      alignItems: "center",
+                      lineHeight: 1.4,
+                    }}
+                  >
+                    {pub.title}
+                  </div>
+                  <div
+                    style={{
+                      padding: "14px 16px",
+                      fontSize: 12,
+                      color: "#525252",
+                      borderRight: "1px solid #e0e0e0",
+                      display: "flex",
+                      alignItems: "center",
+                    }}
+                  >
+                    {pub.authors}
+                  </div>
+                  <div
+                    style={{
+                      padding: "14px 16px",
+                      borderRight: "1px solid #e0e0e0",
+                      display: "flex",
+                      alignItems: "center",
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontSize: 11,
+                        fontWeight: 500,
+                        color: pub.statusColor,
+                        background:
+                          pub.status === "Published" ? "#defbe6" : "#fff3e0",
+                        padding: "2px 8px",
+                        letterSpacing: "0.04em",
+                      }}
+                    >
+                      {pub.status}
+                    </span>
+                  </div>
+                  <div
+                    style={{
+                      padding: "14px 16px",
+                      display: "flex",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Link
+                      href="#"
+                      style={{
+                        fontSize: 12,
+                        color: "#0f62fe",
+                        textDecoration: "none",
+                        fontWeight: 500,
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 4,
+                      }}
+                      onMouseEnter={(e) =>
+                        (e.currentTarget.style.textDecoration = "underline")
+                      }
+                      onMouseLeave={(e) =>
+                        (e.currentTarget.style.textDecoration = "none")
+                      }
+                    >
+                      <Download style={{ width: 12, height: 12 }} /> PDF
+                    </Link>
+                  </div>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </section>
+
+        {/* ── TEAM ──────────────────────────────────────────────────────────── */}
+        <section
+          style={{
+            background: "#f4f4f4",
+            padding: "72px 24px",
+            borderBottom: "1px solid #e0e0e0",
+          }}
+        >
+          <div style={{ maxWidth: 1280, margin: "0 auto" }}>
+            <Reveal>
+              <div style={{ marginBottom: 48 }}>
+                <p
+                  style={{
+                    fontSize: 11,
+                    fontFamily: "'IBM Plex Mono', 'Courier New', monospace",
+                    color: "#0f62fe",
+                    letterSpacing: "0.1em",
+                    textTransform: "uppercase",
+                    marginBottom: 12,
+                    margin: "0 0 12px",
+                  }}
+                >
+                  // Principal investigators
+                </p>
+                <h2
+                  style={{
+                    fontSize: "clamp(24px, 3vw, 36px)",
+                    fontWeight: 300,
+                    color: "#161616",
+                    letterSpacing: "-0.01em",
+                    margin: 0,
+                  }}
+                >
+                  Research{" "}
+                  <span style={{ fontWeight: 700 }}>leadership</span>
+                </h2>
+              </div>
+            </Reveal>
+
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+                gap: 24,
+              }}
+            >
+              {TEAM.map((member, i) => (
+                <Reveal key={i} delay={i * 0.1}>
+                  <div
+                    style={{
+                      background: "#ffffff",
+                      border: "1px solid #e0e0e0",
+                      boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
+                      overflow: "hidden",
+                    }}
+                  >
+                    {/* Photo placeholder */}
+                    <div
+                      style={{
+                        height: 160,
+                        background: member.bg,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: 72,
+                          height: 72,
+                          borderRadius: "50%",
+                          background: "rgba(255,255,255,0.7)",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          fontSize: 24,
+                          fontWeight: 600,
+                          color: "#161616",
+                        }}
+                      >
+                        {member.name
+                          .split(" ")
+                          .filter((_, idx) => idx > 0)
+                          .map((n) => n[0])
+                          .join("")}
                       </div>
                     </div>
-                    <div className="space-y-4">
-                       <div className="flex justify-between items-end">
-                          <div>
-                             <div className="text-[9px] font-bold uppercase tracking-[0.2em] text-[#d4af37]/40 mb-1 italic">{s.genus}</div>
-                             <h3 className="text-3xl font-light uppercase text-white tracking-widest" style={{ fontFamily: "serif" }}>{s.name}</h3>
-                          </div>
-                          <div className="w-10 h-10 rounded-full border border-[#d4af37]/20 flex items-center justify-center group-hover:bg-[#d4af37] group-hover:text-[#051c14] transition-all">
-                             <ArrowRight className="w-4 h-4" />
-                          </div>
-                       </div>
-                       <p className="text-sm text-[#d4af37]/40 leading-relaxed font-light italic">{s.desc}</p>
+
+                    <div style={{ padding: "24px" }}>
+                      <h3
+                        style={{
+                          fontSize: 16,
+                          fontWeight: 600,
+                          color: "#161616",
+                          margin: "0 0 4px",
+                          letterSpacing: "-0.01em",
+                        }}
+                      >
+                        {member.name}
+                      </h3>
+                      <p
+                        style={{
+                          fontSize: 13,
+                          color: "#0f62fe",
+                          fontWeight: 500,
+                          margin: "0 0 6px",
+                        }}
+                      >
+                        {member.title}
+                      </p>
+                      <p
+                        style={{
+                          fontSize: 11,
+                          color: "#8d8d8d",
+                          margin: "0 0 20px",
+                          letterSpacing: "0.02em",
+                        }}
+                      >
+                        {member.affiliation}
+                      </p>
+                      <div
+                        style={{
+                          borderTop: "1px solid #e0e0e0",
+                          paddingTop: 16,
+                        }}
+                      >
+                        <p
+                          style={{
+                            fontSize: 10,
+                            color: "#8d8d8d",
+                            textTransform: "uppercase",
+                            letterSpacing: "0.08em",
+                            margin: "0 0 6px",
+                          }}
+                        >
+                          Recent paper
+                        </p>
+                        <Link
+                          href="#"
+                          style={{
+                            fontSize: 12,
+                            color: "#0f62fe",
+                            textDecoration: "none",
+                            fontWeight: 400,
+                            lineHeight: 1.4,
+                            display: "block",
+                          }}
+                          onMouseEnter={(e) =>
+                            (e.currentTarget.style.textDecoration = "underline")
+                          }
+                          onMouseLeave={(e) =>
+                            (e.currentTarget.style.textDecoration = "none")
+                          }
+                        >
+                          {member.paper} →
+                        </Link>
+                      </div>
                     </div>
                   </div>
                 </Reveal>
@@ -193,62 +1129,281 @@ export default function VeridianBotanicalPage() {
           </div>
         </section>
 
-        {/* ── ATELIER DETAIL ────────── */}
-        <section className="py-40 relative overflow-hidden">
-           <div className="absolute inset-0 bg-[#d4af37]/5 -skew-y-6 translate-y-1/2" />
-           <div className="max-w-[1400px] mx-auto px-6 md:px-12 relative z-10">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-32 items-center">
-                 <Reveal>
-                    <div className="aspect-[4/5] relative">
-                       <ParallaxImg src="https://images.unsplash.com/photo-1592150621344-82839b6fc236?auto=format&fit=crop&q=80&w=1200" alt="Cultivation Lab" />
-                       <div className="absolute -bottom-10 -right-10 p-10 bg-[#051c14] border border-[#d4af37]/10 w-72 hidden md:block">
-                          <Flower2 className="w-8 h-8 mb-6 text-[#d4af37]/40" />
-                          <h4 className="text-xl font-bold text-white mb-4 italic">The Terpene Archive</h4>
-                          <p className="text-xs text-[#d4af37]/40 leading-relaxed font-light">Documenting the chemical signatures of rare flora to preserve their heritage for future generations.</p>
-                       </div>
-                    </div>
-                 </Reveal>
-                 <div className="space-y-16">
-                    <Reveal delay={0.2}>
-                       <h2 className="text-5xl md:text-7xl font-light uppercase text-white italic" style={{ fontFamily: "serif" }}>The Alchemy <br/> Of <span className="not-italic font-bold text-[#d4af37]">Flora.</span></h2>
-                       <p className="text-xl text-[#d4af37]/40 font-light leading-relaxed italic">
-                          Our atelier operates at the intersection of molecular biology and artistic curation. We don't just grow plants; we architect living legacies.
-                       </p>
-                    </Reveal>
-                    <Reveal delay={0.3}>
-                       <div className="grid grid-cols-2 gap-16 pt-12 border-t border-[#d4af37]/10">
-                          <div>
-                             <div className="text-4xl font-bold text-white mb-2 italic">140+</div>
-                             <div className="text-[9px] font-bold uppercase tracking-widest text-[#d4af37]/40">Unique Genotypes</div>
-                          </div>
-                          <div>
-                             <div className="text-4xl font-bold text-white mb-2 italic">22</div>
-                             <div className="text-[9px] font-bold uppercase tracking-widest text-[#d4af37]/40">Global Sanctuaries</div>
-                          </div>
-                       </div>
-                    </Reveal>
-                 </div>
-              </div>
-           </div>
-        </section>
+        {/* ── CONTACT / PARTNERSHIP ────────────────────────────────────────── */}
+        <section
+          style={{
+            background: "#ffffff",
+            padding: "72px 24px",
+            borderBottom: "1px solid #e0e0e0",
+          }}
+        >
+          <div
+            style={{
+              maxWidth: 1280,
+              margin: "0 auto",
+              display: "grid",
+              gridTemplateColumns: "1fr 480px",
+              gap: 80,
+              alignItems: "start",
+            }}
+          >
+            {/* Left: copy */}
+            <div>
+              <Reveal>
+                <p
+                  style={{
+                    fontSize: 11,
+                    fontFamily: "'IBM Plex Mono', 'Courier New', monospace",
+                    color: "#0f62fe",
+                    letterSpacing: "0.1em",
+                    textTransform: "uppercase",
+                    marginBottom: 12,
+                    margin: "0 0 12px",
+                  }}
+                >
+                  // Partnerships & access
+                </p>
+                <h2
+                  style={{
+                    fontSize: "clamp(24px, 3vw, 36px)",
+                    fontWeight: 300,
+                    color: "#161616",
+                    letterSpacing: "-0.01em",
+                    margin: "0 0 20px",
+                  }}
+                >
+                  Research access{" "}
+                  <span style={{ fontWeight: 700 }}>& collaboration</span>
+                </h2>
+                <p
+                  style={{
+                    fontSize: 14,
+                    color: "#525252",
+                    lineHeight: 1.65,
+                    maxWidth: 480,
+                    margin: "0 0 32px",
+                  }}
+                >
+                  QBit Labs partners with universities, national labs, and industry
+                  researchers. Cloud access to our 127-qubit system is available via
+                  our Research Gateway program.
+                </p>
+              </Reveal>
 
-        {/* ── CTA ───────────────────── */}
-        <section className="py-40 bg-[#d4af37] text-[#051c14] text-center relative overflow-hidden">
-           <div className="absolute top-0 left-0 w-full h-[1px] bg-[#051c14]/20" />
-          <div className="max-w-4xl mx-auto px-6 relative z-10">
-            <Reveal>
-              <h2 className="text-6xl md:text-[10rem] font-light uppercase tracking-tighter leading-[0.8] mb-12" style={{ fontFamily: "serif" }}>
-                Cultivate <br/> <span className="italic font-bold">Immersion.</span>
-              </h2>
-              <p className="text-xl text-[#051c14]/70 font-light mb-16 leading-relaxed italic">
-                Our advisors are available for private consultations to design your personal conservatory. Begin your botanical legacy today.
-              </p>
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-8">
-                <button className="px-16 py-6 bg-[#051c14] text-white font-bold uppercase tracking-widest text-[10px] hover:px-20 transition-all duration-700 italic">
-                   Request Curator Visit
-                </button>
-                <button className="px-16 py-6 border-2 border-[#051c14] text-[#051c14] font-bold uppercase tracking-widest text-[10px] hover:bg-[#051c14] hover:text-white transition-all duration-700 italic">
-                   Join The Inner Circle
+              <Reveal delay={0.1}>
+                <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
+                  {[
+                    ["Academic partners", "Free queue access, priority allocations"],
+                    ["Industry research", "SLA-backed compute agreements"],
+                    ["Government & defense", "Classified-environment options"],
+                  ].map(([title, desc], i) => (
+                    <div
+                      key={i}
+                      style={{
+                        display: "flex",
+                        gap: 16,
+                        padding: "16px 0",
+                        borderTop: "1px solid #e0e0e0",
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: 4,
+                          height: 4,
+                          background: "#0f62fe",
+                          marginTop: 7,
+                          flexShrink: 0,
+                        }}
+                      />
+                      <div>
+                        <div
+                          style={{ fontSize: 13, fontWeight: 600, color: "#161616" }}
+                        >
+                          {title}
+                        </div>
+                        <div style={{ fontSize: 12, color: "#525252", marginTop: 2 }}>
+                          {desc}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </Reveal>
+            </div>
+
+            {/* Right: form */}
+            <Reveal delay={0.15} y={16}>
+              <div
+                style={{
+                  background: "#f4f4f4",
+                  border: "1px solid #e0e0e0",
+                  padding: 32,
+                }}
+              >
+                <h3
+                  style={{
+                    fontSize: 16,
+                    fontWeight: 600,
+                    color: "#161616",
+                    margin: "0 0 24px",
+                  }}
+                >
+                  Request research access
+                </h3>
+
+                {[
+                  { label: "Full name", type: "text", placeholder: "Dr. Jane Smith" },
+                  {
+                    label: "Institution",
+                    type: "text",
+                    placeholder: "MIT, Stanford, etc.",
+                  },
+                  {
+                    label: "Email address",
+                    type: "email",
+                    placeholder: "jane@institute.edu",
+                  },
+                ].map((field) => (
+                  <div key={field.label} style={{ marginBottom: 20 }}>
+                    <label
+                      style={{
+                        display: "block",
+                        fontSize: 12,
+                        fontWeight: 500,
+                        color: "#525252",
+                        marginBottom: 6,
+                        letterSpacing: "0.02em",
+                      }}
+                    >
+                      {field.label}
+                    </label>
+                    <input
+                      type={field.type}
+                      placeholder={field.placeholder}
+                      style={{
+                        width: "100%",
+                        padding: "10px 0 10px 0",
+                        fontSize: 13,
+                        color: "#161616",
+                        background: "transparent",
+                        border: "none",
+                        borderBottom: "1px solid #161616",
+                        outline: "none",
+                        fontFamily: "inherit",
+                        boxSizing: "border-box",
+                      }}
+                      onFocus={(e) => {
+                        e.currentTarget.style.borderBottomColor = "#0f62fe"
+                        e.currentTarget.style.borderBottomWidth = "2px"
+                      }}
+                      onBlur={(e) => {
+                        e.currentTarget.style.borderBottomColor = "#161616"
+                        e.currentTarget.style.borderBottomWidth = "1px"
+                      }}
+                    />
+                  </div>
+                ))}
+
+                <div style={{ marginBottom: 24 }}>
+                  <label
+                    style={{
+                      display: "block",
+                      fontSize: 12,
+                      fontWeight: 500,
+                      color: "#525252",
+                      marginBottom: 6,
+                    }}
+                  >
+                    Research area
+                  </label>
+                  <select
+                    style={{
+                      width: "100%",
+                      padding: "10px 0",
+                      fontSize: 13,
+                      color: "#161616",
+                      background: "transparent",
+                      border: "none",
+                      borderBottom: "1px solid #161616",
+                      outline: "none",
+                      fontFamily: "inherit",
+                      appearance: "none",
+                      cursor: "pointer",
+                    }}
+                    onFocus={(e) => {
+                      e.currentTarget.style.borderBottomColor = "#0f62fe"
+                      e.currentTarget.style.borderBottomWidth = "2px"
+                    }}
+                    onBlur={(e) => {
+                      e.currentTarget.style.borderBottomColor = "#161616"
+                      e.currentTarget.style.borderBottomWidth = "1px"
+                    }}
+                  >
+                    <option value="">Select an area</option>
+                    <option>Quantum Error Correction</option>
+                    <option>Quantum Algorithms</option>
+                    <option>Quantum Networking</option>
+                    <option>Quantum Chemistry</option>
+                    <option>Other</option>
+                  </select>
+                </div>
+
+                <div style={{ marginBottom: 28 }}>
+                  <label
+                    style={{
+                      display: "block",
+                      fontSize: 12,
+                      fontWeight: 500,
+                      color: "#525252",
+                      marginBottom: 6,
+                    }}
+                  >
+                    Brief description of research intent
+                  </label>
+                  <textarea
+                    rows={3}
+                    placeholder="Describe your research goals and intended use of quantum compute access..."
+                    style={{
+                      width: "100%",
+                      padding: "10px 0",
+                      fontSize: 13,
+                      color: "#161616",
+                      background: "transparent",
+                      border: "none",
+                      borderBottom: "1px solid #161616",
+                      outline: "none",
+                      fontFamily: "inherit",
+                      resize: "none",
+                      boxSizing: "border-box",
+                    }}
+                    onFocus={(e) => {
+                      e.currentTarget.style.borderBottomColor = "#0f62fe"
+                      e.currentTarget.style.borderBottomWidth = "2px"
+                    }}
+                    onBlur={(e) => {
+                      e.currentTarget.style.borderBottomColor = "#161616"
+                      e.currentTarget.style.borderBottomWidth = "1px"
+                    }}
+                  />
+                </div>
+
+                <button
+                  style={{
+                    width: "100%",
+                    padding: "14px",
+                    background: "#0f62fe",
+                    color: "#ffffff",
+                    border: "none",
+                    fontSize: 13,
+                    fontWeight: 500,
+                    cursor: "pointer",
+                    fontFamily: "inherit",
+                    letterSpacing: "0.02em",
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.background = "#0353e9")}
+                  onMouseLeave={(e) => (e.currentTarget.style.background = "#0f62fe")}
+                >
+                  Submit Request
                 </button>
               </div>
             </Reveal>
@@ -256,54 +1411,184 @@ export default function VeridianBotanicalPage() {
         </section>
       </main>
 
-      {/* ── FOOTER ────────────────── */}
-      <footer className="bg-[#03110d] pt-32 pb-12 px-6 border-t border-[#d4af37]/10">
-        <div className="max-w-[1600px] mx-auto grid grid-cols-1 md:grid-cols-5 gap-16 mb-32">
-          <div className="md:col-span-2">
-            <Link href="/" className="flex items-center gap-3 mb-10">
-              <div className="w-10 h-10 rounded-full border border-[#d4af37]/30 flex items-center justify-center">
-                <Leaf className="w-5 h-5 text-[#d4af37]" />
+      {/* ── FOOTER ────────────────────────────────────────────────────────── */}
+      <footer
+        style={{
+          background: "#161616",
+          color: "#f4f4f4",
+          padding: "56px 24px 32px",
+        }}
+      >
+        <div
+          style={{
+            maxWidth: 1280,
+            margin: "0 auto",
+          }}
+        >
+          {/* Top: logo + columns */}
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1.5fr 1fr 1fr 1fr",
+              gap: 48,
+              paddingBottom: 48,
+              borderBottom: "1px solid #393939",
+              marginBottom: 32,
+            }}
+          >
+            {/* Brand */}
+            <div>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 10,
+                  marginBottom: 16,
+                }}
+              >
+                <div
+                  style={{
+                    width: 28,
+                    height: 28,
+                    background: "#0f62fe",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <Atom style={{ width: 16, height: 16, color: "#ffffff" }} />
+                </div>
+                <span
+                  style={{
+                    fontSize: 15,
+                    fontWeight: 600,
+                    color: "#f4f4f4",
+                  }}
+                >
+                  QBit <span style={{ color: "#78a9ff" }}>Labs</span>
+                </span>
               </div>
-              <span className="text-xl font-light tracking-[0.2em] uppercase text-white">Veridian <span className="font-bold text-[#d4af37]">Atelier</span></span>
-            </Link>
-            <p className="text-[#d4af37]/20 max-w-sm leading-relaxed mb-10 text-sm font-light italic" style={{ fontFamily: "serif" }}>
-              "Nature is the greatest architect. We are simply its dedicated students and curators."
-            </p>
-            <div className="flex gap-10">
-               {["Camera", "Journal", "Botanical Society", "Contact"].map(s => (
-                 <Link key={s} href="#" className="text-[10px] font-bold uppercase tracking-widest text-[#d4af37]/30 hover:text-white transition-colors">{s}</Link>
-               ))}
+              <p
+                style={{
+                  fontSize: 13,
+                  color: "#8d8d8d",
+                  lineHeight: 1.65,
+                  maxWidth: 280,
+                  margin: "0 0 20px",
+                }}
+              >
+                Advancing the science of quantum computation. Independent research,
+                open publication, and open access infrastructure.
+              </p>
+              <p
+                style={{
+                  fontSize: 11,
+                  fontFamily: "'IBM Plex Mono', 'Courier New', monospace",
+                  color: "#525252",
+                  letterSpacing: "0.06em",
+                }}
+              >
+                QUANTUM // COMPUTE
+              </p>
             </div>
+
+            {/* Link columns */}
+            {[
+              {
+                title: "Research",
+                links: [
+                  "Error Correction",
+                  "Quantum Hardware",
+                  "Algorithms",
+                  "Networking",
+                  "Publications",
+                ],
+              },
+              {
+                title: "Infrastructure",
+                links: [
+                  "Research Gateway",
+                  "Cloud Access",
+                  "Documentation",
+                  "API Reference",
+                  "System Status",
+                ],
+              },
+              {
+                title: "Company",
+                links: [
+                  "About QBit Labs",
+                  "Leadership",
+                  "Careers",
+                  "Press",
+                  "Contact",
+                ],
+              },
+            ].map((col) => (
+              <div key={col.title}>
+                <h4
+                  style={{
+                    fontSize: 11,
+                    fontWeight: 600,
+                    color: "#f4f4f4",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.1em",
+                    margin: "0 0 16px",
+                  }}
+                >
+                  {col.title}
+                </h4>
+                <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
+                  {col.links.map((link) => (
+                    <li key={link} style={{ marginBottom: 10 }}>
+                      <Link
+                        href="#"
+                        style={{
+                          fontSize: 13,
+                          color: "#8d8d8d",
+                          textDecoration: "none",
+                        }}
+                        onMouseEnter={(e) => (e.currentTarget.style.color = "#f4f4f4")}
+                        onMouseLeave={(e) => (e.currentTarget.style.color = "#8d8d8d")}
+                      >
+                        {link}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
           </div>
-          
-          {[
-            { t: "The Atelier", l: ["Conservatory", "Genealogy Lab", "Mineral Mapping", "Bespoke Curation"] },
-            { t: "Services", l: ["Interior Design", "Maintenance", "Procurement", "Global Logistics"] },
-            { t: "Company", l: ["Our Philosophy", "Locations", "Inner Circle", "Journal"] },
-          ].map((col, i) => (
-            <div key={i} className="space-y-10">
-              <h4 className="text-[10px] font-bold uppercase tracking-[0.4em] text-[#d4af37]">{col.t}</h4>
-              <ul className="space-y-6">
-                {col.l.map(link => <li key={link}><Link href="#" className="text-xs text-[#d4af37]/30 hover:text-white transition-colors">{link}</Link></li>)}
-              </ul>
+
+          {/* Bottom bar */}
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              flexWrap: "wrap",
+              gap: 12,
+            }}
+          >
+            <span style={{ fontSize: 12, color: "#525252" }}>
+              © 2026 QBit Labs. All rights reserved.
+            </span>
+            <div style={{ display: "flex", gap: 24 }}>
+              {["Privacy Policy", "Terms of Use", "Accessibility"].map((l) => (
+                <Link
+                  key={l}
+                  href="#"
+                  style={{ fontSize: 12, color: "#525252", textDecoration: "none" }}
+                  onMouseEnter={(e) => (e.currentTarget.style.color = "#f4f4f4")}
+                  onMouseLeave={(e) => (e.currentTarget.style.color = "#525252")}
+                >
+                  {l}
+                </Link>
+              ))}
             </div>
-          ))}
-        </div>
-        
-        <div className="max-w-[1600px] mx-auto pt-12 border-t border-[#d4af37]/5 flex flex-col md:row justify-between items-center gap-6 text-[10px] font-bold uppercase tracking-widest text-[#d4af37]/10">
-          <span>© 2026 VERIDIAN BOTANICAL ATELIER. LIFE IS ART.</span>
-          <div className="flex gap-12">
-             <Link href="#" className="hover:text-white transition-colors">Genealogy Verification</Link>
-             <Link href="#" className="hover:text-white transition-colors">Privacy Circle</Link>
           </div>
         </div>
       </footer>
     </div>
-  )
-}
-
-function Lock({ className }: { className?: string }) {
-  return (
-    <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
   )
 }
