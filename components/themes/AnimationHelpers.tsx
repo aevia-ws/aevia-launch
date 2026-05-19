@@ -98,13 +98,15 @@ export function MagneticButton({
   className = "",
   onClick,
   style,
+  href,
 }: {
   children: React.ReactNode;
   className?: string;
   onClick?: () => void;
   style?: React.CSSProperties;
+  href?: string;
 }) {
-  const ref = useRef<HTMLButtonElement>(null);
+  const ref = useRef<HTMLButtonElement | HTMLAnchorElement>(null);
   const x = useMotionValue(0);
   const y = useMotionValue(0);
   const springX = useSpring(x, { stiffness: 200, damping: 20 });
@@ -124,16 +126,32 @@ export function MagneticButton({
     y.set(0);
   };
 
+  const motionProps = {
+    style: { ...style, x: springX, y: springY },
+    onMouseMove: handleMouseMove,
+    onMouseLeave: handleMouseLeave,
+    className,
+    whileHover: { scale: 1.05 },
+    whileTap: { scale: 0.95 },
+  };
+
+  if (href) {
+    return (
+      <motion.a
+        ref={ref as React.Ref<HTMLAnchorElement>}
+        href={href}
+        {...motionProps}
+      >
+        {children}
+      </motion.a>
+    );
+  }
+
   return (
     <motion.button
-      ref={ref}
-      style={{ ...style, x: springX, y: springY }}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
+      ref={ref as React.Ref<HTMLButtonElement>}
       onClick={onClick}
-      className={className}
-      whileHover={{ scale: 1.05 }}
-      whileTap={{ scale: 0.95 }}
+      {...motionProps}
     >
       {children}
     </motion.button>

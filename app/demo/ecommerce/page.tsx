@@ -491,7 +491,7 @@ function CartPanel({
             <span className="text-sm text-[var(--text-muted)]">Sous-total</span>
             <span className="text-lg font-bold text-white">{subtotal}€</span>
           </div>
-          <p className="text-xs text-[var(--text-muted)]">Livraison calculée à l'étape suivante</p>
+          <p className="text-xs text-[var(--text-muted)]">Livraison calculée à l&apos;étape suivante</p>
           <button className="w-full py-3.5 rounded-full font-bold text-sm text-black transition-opacity hover:opacity-90"
             style={{ background: "var(--brand-gradient)" }}
           >

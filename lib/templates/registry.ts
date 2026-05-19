@@ -3,10 +3,10 @@ export interface TemplateMetadata {
   name: string;
   description: string;
   category: "Tech" | "Luxury" | "Editorial" | "Creative" | "Minimal" | "Free" | "Corporate" | "E-Commerce" | "Health" | "Hospitality" | "Services" | "Education" | "Finance" | "Food & Drink";
-  style: "Dark" | "Light" | "Vibrant";
+  style: "Dark" | "Light" | "Vibrant" | "Brutalist";
   tags: string[];
-  tier: "Essentiel" | "Pro" | "Premium";
-  sections: number;
+  tier?: "Essentiel" | "Pro" | "Premium";
+  sections?: number;
 }
 
 export const TEMPLATES_REGISTRY: TemplateMetadata[] = [
@@ -1969,5 +1969,55 @@ export const TEMPLATES_REGISTRY: TemplateMetadata[] = [
     tags: ["Chef", "Gastronomy", "Private"],
     tier: "Premium",
     sections: 9,
+  },
+  {
+    id: "impact-212",
+    name: "Therma Pro",
+    description: "Premium HVAC & heating company — pompes à chaleur, chaudières, climatisation, plancher chauffant. Parallax fire-bar hero, animated counters, RGE certifications, and 24/7 urgence CTA.",
+    category: "Services",
+    style: "Dark",
+    tags: ["HVAC", "Chauffage", "Climatisation", "Services", "RGE", "France"],
+    tier: "Premium",
+    sections: 12,
+  },
+  {
+    id: "impact-213",
+    name: "Bâtisseurs Durand",
+    description: "Premium masonry & construction company — maçonnerie générale, ravalement ITE, carrelage. Blueprint animated hero, animated SVG floor plan, and full BTP project portfolio.",
+    category: "Services",
+    style: "Dark",
+    tags: ["Construction", "BTP", "Maçonnerie", "Artisan", "France"],
+    tier: "Premium",
+    sections: 12,
+  },
+  {
+    id: "impact-214",
+    name: "Aqua Prestige",
+    description: "Premium plumbing & sanitary company — dépannage fuite 24/7, rénovation salle de bains, débouchage, chauffe-eau. Animated water-drop hero, emergency hotline banner, and bathroom portfolio.",
+    category: "Services",
+    style: "Dark",
+    tags: ["Plomberie", "Sanitaire", "Urgence", "Rénovation", "France"],
+    tier: "Premium",
+    sections: 12,
+  },
+  {
+    id: "impact-215",
+    name: "Flamme & Co",
+    description: "Premium heating e-commerce — poêles à bois, granulés, inserts et cheminées. Animated ember particles hero, interactive 3-step product configurator, cart drawer, and Flamme Verte certified catalog.",
+    category: "E-Commerce",
+    style: "Dark",
+    tags: ["E-Commerce", "Chauffage", "Poêle", "Configurateur", "Cart"],
+    tier: "Premium",
+    sections: 12,
+  },
+  {
+    id: "impact-216",
+    name: "Meridian Freight",
+    description: "Premium B2B logistics & freight company — transport express, messagerie, logistique e-commerce, entreposage. Animated SVG France coverage map, live shipment tracker, and 3-tier pricing.",
+    category: "Corporate",
+    style: "Dark",
+    tags: ["Logistics", "Transport", "B2B", "Fret", "France"],
+    tier: "Premium",
+    sections: 12,
   },
 ];

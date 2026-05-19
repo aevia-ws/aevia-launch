@@ -15,6 +15,7 @@ interface Particle {
   color: string;
   size: number;
   drift: number;  // vw horizontal drift
+  spin: 1 | -1;  // rotation direction
 }
 
 const COLORS = [
@@ -32,6 +33,7 @@ function buildParticles(count: number): Particle[] {
     color: COLORS[Math.floor(Math.random() * COLORS.length)],
     size: 5 + Math.random() * 7,
     drift: (Math.random() - 0.5) * 30,
+    spin: (Math.random() > 0.5 ? 1 : -1) as 1 | -1,
   }));
 }
 
@@ -52,7 +54,7 @@ function Confetti() {
             y: "110vh",
             x: `calc(${p.x}vw + ${p.drift}vw)`,
             opacity: [1, 1, 0],
-            rotate: 360 * (Math.random() > 0.5 ? 1 : -1),
+            rotate: 360 * p.spin,
           }}
           transition={{
             delay: p.delay,
@@ -163,14 +165,14 @@ function SuccessContent() {
 
   useOnce(() => setShowConfetti(true));
 
-  const stagger = {
+  const stagger: { container: import("framer-motion").Variants; item: import("framer-motion").Variants } = {
     container: {
       hidden: {},
       show: { transition: { staggerChildren: 0.12, delayChildren: 0.3 } },
     },
     item: {
       hidden: { opacity: 0, y: 20 },
-      show:   { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } },
+      show:   { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" as const } },
     },
   };
 

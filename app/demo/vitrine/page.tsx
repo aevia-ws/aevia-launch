@@ -268,7 +268,7 @@ function useCounter(target: number, duration = 1500, shouldStart = false) {
 }
 
 // ─── Stat card with animated counter ─────────────────────────────────────────
-function StatCard({ stat, index }: { stat: (typeof stats)[0]; index: number }) {
+function StatCard({ stat }: { stat: (typeof stats)[0]; index?: number }) {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, margin: "-80px" });
   const count = useCounter(stat.value, 1500, isInView);
@@ -293,10 +293,9 @@ function StatCard({ stat, index }: { stat: (typeof stats)[0]; index: number }) {
 // ─── 3D tilt service card ─────────────────────────────────────────────────────
 function ServiceCard({
   service,
-  index,
 }: {
   service: (typeof services)[0];
-  index: number;
+  index?: number;
 }) {
   const cardRef = useRef<HTMLDivElement>(null);
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
@@ -745,7 +744,7 @@ export default function VitrineDemo() {
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ duration: 0.45 }}
                   className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full ring-1 text-xs font-semibold mb-6"
-                  style={{ background: "rgba(37,99,235,0.1)", color: "#93c5fd", ringColor: "rgba(37,99,235,0.2)" }}
+                  style={{ background: "rgba(37,99,235,0.1)", color: "#93c5fd" }}
                 >
                   <Award className="w-3 h-3" />
                   Cabinet Expert-Comptable certifié OEC
@@ -857,7 +856,7 @@ export default function VitrineDemo() {
               custom={0}
               className="text-center mb-14"
             >
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full ring-1 text-xs font-semibold mb-5" style={{ background: "rgba(124,58,237,0.1)", color: "#c4b5fd", ringColor: "rgba(124,58,237,0.2)" }}>
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full ring-1 text-xs font-semibold mb-5" style={{ background: "rgba(124,58,237,0.1)", color: "#c4b5fd" }}>
                 Nos services
               </div>
               <h2 className="text-4xl font-bold tracking-tight mb-4">
@@ -894,7 +893,7 @@ export default function VitrineDemo() {
                 variants={fadeUp}
                 custom={0}
               >
-                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full ring-1 text-xs font-semibold mb-5" style={{ background: "rgba(16,185,129,0.1)", color: "#6ee7b7", ringColor: "rgba(16,185,129,0.2)" }}>
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full ring-1 text-xs font-semibold mb-5" style={{ background: "rgba(16,185,129,0.1)", color: "#6ee7b7" }}>
                   Pourquoi nous choisir
                 </div>
                 <h2 className="text-4xl font-bold tracking-tight mb-5">
@@ -976,7 +975,7 @@ export default function VitrineDemo() {
               custom={0}
               className="text-center mb-14"
             >
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full ring-1 text-xs font-semibold mb-5" style={{ background: "rgba(37,99,235,0.1)", color: "#93c5fd", ringColor: "rgba(37,99,235,0.2)" }}>
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full ring-1 text-xs font-semibold mb-5" style={{ background: "rgba(37,99,235,0.1)", color: "#93c5fd" }}>
                 Notre équipe
               </div>
               <h2 className="text-4xl font-bold tracking-tight mb-4">
@@ -1029,7 +1028,7 @@ export default function VitrineDemo() {
               custom={0}
               className="text-center mb-12"
             >
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full ring-1 text-xs font-semibold mb-5" style={{ background: "rgba(245,158,11,0.1)", color: "#fcd34d", ringColor: "rgba(245,158,11,0.2)" }}>
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full ring-1 text-xs font-semibold mb-5" style={{ background: "rgba(245,158,11,0.1)", color: "#fcd34d" }}>
                 Témoignages
               </div>
               <h2 className="text-4xl font-bold tracking-tight mb-4">
@@ -1062,7 +1061,7 @@ export default function VitrineDemo() {
               custom={0}
               className="text-center mb-12"
             >
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full ring-1 text-xs font-semibold mb-5" style={{ background: "rgba(124,58,237,0.1)", color: "#c4b5fd", ringColor: "rgba(124,58,237,0.2)" }}>
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full ring-1 text-xs font-semibold mb-5" style={{ background: "rgba(124,58,237,0.1)", color: "#c4b5fd" }}>
                 FAQ
               </div>
               <h2 className="text-4xl font-bold tracking-tight mb-4">
@@ -1104,7 +1103,7 @@ export default function VitrineDemo() {
               className="flex items-end justify-between mb-12 gap-6"
             >
               <div>
-                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full ring-1 text-xs font-semibold mb-5" style={{ background: "rgba(16,185,129,0.1)", color: "#6ee7b7", ringColor: "rgba(16,185,129,0.2)" }}>
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full ring-1 text-xs font-semibold mb-5" style={{ background: "rgba(16,185,129,0.1)", color: "#6ee7b7" }}>
                   Actualités
                 </div>
                 <h2 className="text-4xl font-bold tracking-tight mb-2">
@@ -1192,7 +1191,7 @@ export default function VitrineDemo() {
               custom={0}
               className="text-center mb-12"
             >
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full ring-1 text-xs font-semibold mb-5" style={{ background: "rgba(37,99,235,0.1)", color: "#93c5fd", ringColor: "rgba(37,99,235,0.2)" }}>
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full ring-1 text-xs font-semibold mb-5" style={{ background: "rgba(37,99,235,0.1)", color: "#93c5fd" }}>
                 Contact
               </div>
               <h2 className="text-4xl font-bold tracking-tight mb-4">

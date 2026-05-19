@@ -5,7 +5,7 @@ import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from
 import type { SessionData } from "@/lib/sessions";
 import { ThemeWrapper } from "./ThemeWrapper";
 import { Reveal, Stagger, StaggerItem } from "./AnimationHelpers";
-import { ShoppingBag, X, Plus, Minus, Star, ShieldCheck, Truck, RotateCcw, Quote, ArrowRight, Mail, MapPin, Phone, Heart, Clock, Globe, HelpCircle, Gift, Award } from "lucide-react";
+import { ShoppingBag, X, Plus, Minus, Star, ShieldCheck, Truck, RotateCcw, Quote, ArrowRight, Mail, MapPin, Phone, Heart, Clock, Globe, HelpCircle, Gift, Award, Zap } from "lucide-react";
 
 // --- Mock Data Generator ---
 const generateProducts = (businessType: string, brandColor: string) => {

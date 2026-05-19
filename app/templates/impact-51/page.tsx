@@ -20,9 +20,8 @@ import {
   ArrowRight,
   Zap,
   Mail,
-  Github,
-  Twitter,
-  Linkedin,
+  Link,
+  ExternalLink,
   ChevronRight,
   TrendingUp,
   Activity,
@@ -2452,7 +2451,7 @@ export default function NexusPremiumSaaS() {
                 The SaaS platform that grows with your team. Analytics, integrations, security — unified.
               </p>
               <div style={{ display: "flex", gap: 10 }}>
-                {[Twitter, Github, Linkedin].map((Icon, i) => (
+                {[Mail, Link, ExternalLink].map((Icon, i) => (
                   <a
                     key={i}
                     href="#"

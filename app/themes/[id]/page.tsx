@@ -10,7 +10,7 @@ import { generateMockContent } from "@/lib/mockContent";
 
 // Prevent SSR to avoid Framer Motion useScroll ref hydration error
 const GeneratedSite = dynamic(
-  () => import("@/components/GeneratedSite").then((m) => ({ default: m.GeneratedSite })),
+  () => import("@/components/GeneratedSite"),
   {
     ssr: false,
     loading: () => (

@@ -61,13 +61,6 @@ function escapeHtml(str: string): string {
     .replace(/'/g, "&#x27;");
 }
 
-function formatAmount(cents: number): string {
-  return (cents / 100).toLocaleString("fr-FR", {
-    style: "currency",
-    currency: "EUR",
-    minimumFractionDigits: 0,
-  });
-}
 
 function orderEmailHtml(params: {
   name: string;
